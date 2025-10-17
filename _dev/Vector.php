@@ -76,7 +76,7 @@ final class Vector implements ArrayAccess
 
         // Check if all elements are numbers.
         foreach ($data as $value) {
-            if (!Numbers::isNumber($value)) {
+            if (!is_number($value)) {
                 throw new InvalidArgumentException("Vector elements must be numbers (int or float).");
             }
         }
@@ -132,7 +132,7 @@ final class Vector implements ArrayAccess
             throw new InvalidArgumentException("Vector index out of bounds.");
         }
 
-        if (!Numbers::isNumber($value)) {
+        if (!is_number($value)) {
             throw new InvalidArgumentException("Vector elements must be numbers (int or float).");
         }
 
