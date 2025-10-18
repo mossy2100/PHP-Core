@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\tests;
+namespace Galaxon\Numbers\Tests;
 
 use DomainException;
 use PHPUnit\Framework\Attributes\CoversClass;

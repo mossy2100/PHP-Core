@@ -2,13 +2,14 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\Math;
+namespace Galaxon\Numbers;
 
 use DomainException;
 use OverflowException;
 use Override;
 use RangeException;
 use Stringable;
+use Galaxon\Math\{Math, Integer};
 
 /**
  * A rational number, represented as a ratio of two PHP integers, signifying the numerator and denominator.
@@ -20,7 +21,7 @@ use Stringable;
  *
  * NB: The valid range of the absolute value of a Rational is 1/PHP_INT_MAX to PHP_INT_MAX/1.
  * Therefore, neither the numerator nor the denominator can be PHP_INT_MIN.
- * The reason is because PHP_INT_MIN equals -(PHP_INT_MAX + 1), i.e. it can't be negated without overflowing.
+ * The reason is that PHP_INT_MIN equals -(PHP_INT_MAX + 1), i.e. it can't be negated without overflowing.
  * Allowing the numerator or the denominator to equal PHP_INT_MIN therefore complicates negation, reciprocal,
  * subtraction, and simplification methods.
  * So, while it's technically possible, supporting this edge case inflates the code for little gain.
@@ -57,7 +58,7 @@ final class Rational implements Stringable
     {
         // Check for zero denominator.
         if ($den === 0) {
-            throw new DomainException("Denominator cannot be zero.");
+            throw new DomainException('Denominator cannot be zero.');
         }
 
         // Simplify the fraction.
@@ -77,14 +78,14 @@ final class Rational implements Stringable
      * This finds the simplest rational that equals the provided number (or is as close as is practical).
      *
      * If an exact match is not found, the method will return the closest approximation with a denominator less than
-     * or equal to $max_den. This is likely to be a more useful result than an exception, and limits the time spent
+     * or equal to $max_den. This is likely to be a more useful result than an exception and limits the time spent
      * in the method.
      *
      * The valid range for the absolute value of a Rational is 1/PHP_INT_MAX to PHP_INT_MAX/1.
      * This method will throw an exception if the given value is outside that range.
      *
-     * If you find the method to be slow in your environment, reduce the value of $max_den, but it should be ok.
-     * In development the method runs super fast, but that was done on a high-end gaming laptop.
+     * If you find the method to be slow in your environment, reduce the value of $max_den, but it should be OK.
+     * In development the method runs superfast, but that was done on a high-end gaming laptop.
      * Tests indicate a $max_den of 200 million is sufficient for exact round-trip conversion between float and
      * Rational for e, pi, tau, and common square roots and fractions.
      *
@@ -103,23 +104,22 @@ final class Rational implements Stringable
     {
         // Check for infinite or NaN.
         if (!is_finite($value)) {
-            throw new DomainException("Cannot convert an infinity or NaN to a rational number.");
+            throw new DomainException('Cannot convert an infinity or NaN to a rational number.');
         }
 
         // Shortcut. Handle integers.
-        $i = (int)$value;
-        if ($value == $i && $i > PHP_INT_MIN) {
-            return new self($i);
+        if ((is_int($value) || $value === (float)(int)$value) && $value > PHP_INT_MIN) {
+            return new self((int)$value);
         }
 
         // Set up.
         $max_den = PHP_INT_MAX;
-        $sign = Numbers::sign($value, false);
+        $sign = Math::sign($value, false);
         $abs_value = abs($value);
 
         // Check for values outside the valid range.
         if ($abs_value < 1 / PHP_INT_MAX || $abs_value > PHP_INT_MAX) {
-            throw new RangeException("The value is outside the valid range for representation as a rational number.");
+            throw new RangeException('The value is outside the valid range for representation as a rational number.');
         }
 
         // Initialize convergents.
@@ -129,12 +129,12 @@ final class Rational implements Stringable
         $k1 = 1;
 
         // Set the initial approximation.
-        $x = $abs_value;
+        $x = (float)$abs_value;
 
         // Track the best approximation found so far.
         $h_best = $abs_value < 0.5 ? 0 : 1;
         $k_best = 1;
-        $min_err = abs($h_best - $abs_value);
+        $min_err = (float)abs($h_best - $abs_value);
 
         // Loop until done.
         while (true) {
@@ -151,8 +151,8 @@ final class Rational implements Stringable
             }
 
             // Check if we've found an exact representation.
-            $err = abs($h_new / $k_new - $abs_value);
-            if ($err == 0) {
+            $err = (float)abs($h_new / $k_new - $abs_value);
+            if ($err === 0.0) {
                 return new self($sign * $h_new, $k_new);
             }
 
@@ -173,7 +173,7 @@ final class Rational implements Stringable
             $rem = $x - $a;
 
             // If the remainder is 0, we're done.
-            if ($rem == 0) {
+            if ($rem === 0.0) {
                 return new self($sign * $h0, $k0);
             }
 
@@ -209,7 +209,7 @@ final class Rational implements Stringable
         $n = filter_var($s, FILTER_VALIDATE_INT);
         if (is_int($n)) {
             if ($n === PHP_INT_MIN) {
-                throw new RangeException("The value is outside the valid range for representation as a rational number.");
+                throw new RangeException('The value is outside the valid range for representation as a rational number.');
             }
             return new self($n);
         }
@@ -314,17 +314,17 @@ final class Rational implements Stringable
      *
      * @param int|float|self $other The value to add.
      * @return self A new rational number representing the sum.
-     * @throws OverflowException If the result would overflow an integer.
+     * @throws OverflowException If the result overflows an integer.
      */
     public function add(int|float|self $other): self
     {
         $other = self::toRational($other);
 
         // (a/b) + (c/d) = (ad + bc) / (bd)
-        $f = Numbers::intMul($this->num, $other->den);
-        $g = Numbers::intMul($this->den, $other->num);
-        $h = Numbers::intAdd($f, $g);
-        $k = Numbers::intMul($this->den, $other->den);
+        $f = Integer::mul($this->num, $other->den);
+        $g = Integer::mul($this->den, $other->num);
+        $h = Integer::add($f, $g);
+        $k = Integer::mul($this->den, $other->den);
 
         return new self($h, $k);
     }
@@ -334,7 +334,7 @@ final class Rational implements Stringable
      *
      * @param int|float|self $other The value to subtract.
      * @return self A new rational number representing the difference.
-     * @throws OverflowException If the result would overflow an integer.
+     * @throws OverflowException If the result overflows an integer.
      */
     public function sub(int|float|self $other): self
     {
@@ -365,7 +365,7 @@ final class Rational implements Stringable
      *
      * @param int|float|self $other The value to multiply by.
      * @return self A new rational number representing the product.
-     * @throws OverflowException If the result would overflow an integer.
+     * @throws OverflowException If the result overflows an integer.
      */
     public function mul(int|float|self $other): self
     {
@@ -374,8 +374,8 @@ final class Rational implements Stringable
         // Cross-cancel before multiplying: (a/b) * (c/d)
         // Cancel gcd(a,d) from a and d
         // Cancel gcd(b,c) from b and c
-        $gcd1 = Numbers::gcd($this->num, $other->den);
-        $gcd2 = Numbers::gcd($this->den, $other->num);
+        $gcd1 = Integer::gcd($this->num, $other->den);
+        $gcd2 = Integer::gcd($this->den, $other->num);
 
         $a = intdiv($this->num, $gcd1);
         $b = intdiv($this->den, $gcd2);
@@ -383,8 +383,8 @@ final class Rational implements Stringable
         $d = intdiv($other->den, $gcd1);
 
         // Now multiply the reduced terms: (a/b) * (c/d) = ac/bd
-        $h = Numbers::intMul($a, $c);
-        $k = Numbers::intMul($b, $d);
+        $h = Integer::mul($a, $c);
+        $k = Integer::mul($b, $d);
 
         return new self($h, $k);
     }
@@ -395,7 +395,7 @@ final class Rational implements Stringable
      * @param int|float|self $other The value to divide by.
      * @return self A new rational number representing the quotient.
      * @throws DomainException If dividing by zero.
-     * @throws OverflowException If the result would overflow an integer.
+     * @throws OverflowException If the result overflows an integer.
      */
     public function div(int|float|self $other): self
     {
@@ -414,7 +414,7 @@ final class Rational implements Stringable
      * @param int $exponent The integer exponent.
      * @return self A new rational number representing the result.
      * @throws DomainException If raising zero to a negative power.
-     * @throws OverflowException If the result would overflow an integer.
+     * @throws OverflowException If the result overflows an integer.
      */
     public function pow(int $exponent): self
     {
@@ -440,9 +440,9 @@ final class Rational implements Stringable
             return $this->inv()->pow(-$exponent);
         }
 
-        // Calculate new numerator and denominator with overflow checks.
-        $h = Numbers::intPow($this->num, $exponent);
-        $k = Numbers::intPow($this->den, $exponent);
+        // Calculate the new numerator and denominator with overflow checks.
+        $h = Integer::pow($this->num, $exponent);
+        $k = Integer::pow($this->den, $exponent);
 
         // Return the result.
         return new self($h, $k);
@@ -526,8 +526,8 @@ final class Rational implements Stringable
         else {
             try {
                 // Cross multiply: compare a*d with b*c for a/b vs c/d.
-                $left = Numbers::intMul($this->num, $other->den);
-                $right = Numbers::intMul($this->den, $other->num);
+                $left = Integer::mul($this->num, $other->den);
+                $right = Integer::mul($this->den, $other->num);
             } catch (OverflowException) {
                 // In case of overflow, compare equivalent floating point values.
                 // NB: This could produce a result of 0 (equal) if two rationals that are actually different convert to
@@ -540,7 +540,7 @@ final class Rational implements Stringable
 
         // The spaceship operator's contract only guarantees sign, not specific values. Normalize to -1, 0, or 1 for
         // predictable behavior used by other comparison methods.
-        return Numbers::sign($left <=> $right);
+        return Math::sign($left <=> $right);
     }
 
     /**
@@ -633,7 +633,7 @@ final class Rational implements Stringable
         }
 
         // Calculate the GCD.
-        $gcd = Numbers::gcd($num, $den);
+        $gcd = Integer::gcd($num, $den);
 
         // Reduce the fraction if necessary.
         if ($gcd > 1) {

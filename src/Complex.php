@@ -2,17 +2,15 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\Math;
+namespace Galaxon\Numbers;
 
 use ArrayAccess;
 use DomainException;
 use LogicException;
 use OutOfRangeException;
+use ValueError;
 use Override;
 use Stringable;
-use const Superclasses\Math\i;
-
-;
 
 /**
  * TODO Complete tests.
@@ -163,7 +161,7 @@ final class Complex implements Stringable, ArrayAccess
 
         // Handle pure real numbers (no imaginary unit)
         if (is_numeric($str)) {
-            return new self((float)$str, 0);
+            return new self((float)$str);
         }
 
         // Handle pure imaginary with or without coefficient: i, 3i, -2.5j, etc.
@@ -187,23 +185,17 @@ final class Complex implements Stringable, ArrayAccess
         $pattern_imag_first = "/^([+-]?)((?:$rx_num)?)[ijIJ]([+-])($rx_num)\$/";
 
         if (preg_match($pattern_real_first, $str, $matches)) {
-            $real_sign = $matches[1];
-            $real_val = $matches[2];
-            $imag_sign = $matches[3];
-            $imag_val = $matches[4];
+            [, $real_sign, $real_val, $imag_sign, $imag_val] = $matches;
         }
         elseif (preg_match($pattern_imag_first, $str, $matches)) {
-            $imag_sign = $matches[1];
-            $imag_val = $matches[2];
-            $real_sign = $matches[3];
-            $real_val = $matches[4];
+            [, $imag_sign, $imag_val, $real_sign, $real_val] = $matches;
         }
         else {
             throw new DomainException("Cannot parse '$str' as complex number.");
         }
 
-        // Get the imaginary part. Handle cases where imaginary coefficient is omitted (like +i or -i).
-        $imag = $imag_val === '' ? 1 :  (float)$imag_val;
+        // Get the imaginary part. Handle cases where the imaginary coefficient is omitted (like +i or -i).
+        $imag = $imag_val === '' ? 1 : (float)$imag_val;
 
         // Get the real part.
         $real = (float)$real_val;
@@ -344,23 +336,27 @@ final class Complex implements Stringable, ArrayAccess
     {
         // Check for ln(0), which is undefined.
         if ($this->eq(0)) {
-            throw new DomainException("The logarithm of 0 is undefined.");
+            throw new ValueError('The logarithm of 0 is undefined.');
         }
 
         // Use shortcuts where possible.
         if ($this->eq(1)) {
             return new self(0);
         }
-        elseif ($this->eq(2)) {
+
+        if ($this->eq(2)) {
             return new self(M_LN2);
         }
-        elseif ($this->eq(M_E)) {
+
+        if ($this->eq(M_E)) {
             return new self(1);
         }
-        elseif ($this->eq(M_PI)) {
+
+        if ($this->eq(M_PI)) {
             return new self(M_LNPI);
         }
-        elseif ($this->eq(10)) {
+
+        if ($this->eq(10)) {
             return new self(M_LN10);
         }
 
@@ -383,10 +379,10 @@ final class Complex implements Stringable, ArrayAccess
 
         // Check for invalid base values.
         if ($base->eq(0)) {
-            throw new DomainException("Logarithm base cannot be 0.");
+            throw new DomainException('Logarithm base cannot be 0.');
         }
         if ($base->eq(1)) {
-            throw new DomainException("Logarithm base cannot be 1.");
+            throw new DomainException('Logarithm base cannot be 1.');
         }
 
         // Check for natural logarithm.
@@ -399,7 +395,8 @@ final class Complex implements Stringable, ArrayAccess
             if ($base->eq(2)) {
                 return new self(M_LOG2E);
             }
-            elseif ($base->eq(10)) {
+
+            if ($base->eq(10)) {
                 return new self(M_LOG10E);
             }
         }
@@ -424,16 +421,20 @@ final class Complex implements Stringable, ArrayAccess
         if ($this->eq(0)) {
             return new self(1);
         }
-        elseif ($this->eq(M_LN2)) {
+
+        if ($this->eq(M_LN2)) {
             return new self(2);
         }
-        elseif ($this->eq(1)) {
+
+        if ($this->eq(1)) {
             return new self(M_E);
         }
-        elseif ($this->eq(M_LNPI)) {
+
+        if ($this->eq(M_LNPI)) {
             return new self(M_PI);
         }
-        elseif ($this->eq(M_LN10)) {
+
+        if ($this->eq(M_LN10)) {
             return new self(10);
         }
 
@@ -473,12 +474,12 @@ final class Complex implements Stringable, ArrayAccess
         if ($this->eq(0)) {
             // Check for complex exponent.
             if (!$other->isReal()) {
-                throw new DomainException("Cannot raise 0 to a complex number.");
+                throw new DomainException('Cannot raise 0 to a complex number.');
             }
 
             // Check for negative real exponent.
             if ($other->real < 0) {
-                throw new DomainException("Cannot raise 0 to a negative real number.");
+                throw new DomainException('Cannot raise 0 to a negative real number.');
             }
 
             // Check for 0 exponent.
@@ -695,7 +696,7 @@ final class Complex implements Stringable, ArrayAccess
      */
     public function isReal(): bool
     {
-        return $this->imag == 0;
+        return $this->imag === 0.0;
     }
 
     /**
@@ -733,22 +734,20 @@ final class Complex implements Stringable, ArrayAccess
         }
 
         // Handle case for 0 real part and non-zero imaginary part.
-        if ($this->real == 0) {
-            if ($this->imag == 1) {
+        if ($this->real === 0.0) {
+            if ($this->imag === 1.0) {
                 return 'i';
             }
-            elseif ($this->imag == -1) {
+            if ($this->imag === -1.0) {
                 return '-i';
             }
-            else {
-                return $this->imag . 'i';
-            }
+            return $this->imag . 'i';
         }
 
         // Construct the string for the a + bi or a - bi form.
         $op = $this->imag > 0 ? ' + ' : ' - ';
         $abs = abs($this->imag);
-        $imag = $abs == 1 ? '' : $abs;
+        $imag = $abs === 1.0 ? '' : $abs;
         return $this->real . $op . $imag . 'i';
     }
 

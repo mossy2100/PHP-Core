@@ -404,7 +404,7 @@ final class Matrix
                 $result = $result->mul($base);
             }
             $base = $base->mul($base);
-            $power = intval($power / 2);
+            $power = (int)($power / 2);
         }
 
         return $result;

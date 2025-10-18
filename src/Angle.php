@@ -2,12 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\Math;
+namespace Galaxon\Numbers;
 
 use DomainException;
 use Override;
 use Stringable;
 use Throwable;
+use Galaxon\Math\{Double, Math};
 
 class Angle implements Stringable
 {
@@ -103,7 +104,7 @@ class Angle implements Stringable
      * @param float $seconds The arcseconds part.
      * @return self A new angle with a magnitude equal to the provided angle.
      */
-    public static function fromDMS(float $degrees, float $minutes = 0, float $seconds = 0): self
+    public static function fromDMS(float $degrees, float $minutes = 0.0, float $seconds = 0.0): self
     {
         // Compute the total degrees.
         $total_deg = $degrees + $minutes / self::ARCMINUTES_PER_DEGREE + $seconds / self::ARCSECONDS_PER_DEGREE;
@@ -179,7 +180,7 @@ class Angle implements Stringable
         }
 
         $f_deg = $this->toDegrees();
-        $sign = Numbers::sign($f_deg, false);
+        $sign = Math::sign($f_deg, false);
         $f_deg = abs($f_deg);
 
         switch ($smallest_unit) {
@@ -191,13 +192,8 @@ class Angle implements Stringable
                     $d = round($d, $decimals);
                 }
 
-                // Apply sign.
-                $d *= $sign;
-
-                // Canonicalize -0.0 to 0.0 to avoid surprising string output.
-                if ($d == 0.0) {
-                    $d = 0.0;
-                }
+                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                $d = Double::normalizeZero($d * $sign);
 
                 return [$d];
 
@@ -217,17 +213,9 @@ class Angle implements Stringable
                     $d += 1.0;
                 }
 
-                // Apply sign.
-                $d *= $sign;
-                $m *= $sign;
-
-                // Canonicalize -0.0 to 0.0 to avoid surprising string output.
-                if ($d == 0.0) {
-                    $d = 0.0;
-                }
-                if ($m == 0.0) {
-                    $m = 0.0;
-                }
+                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                $d = Double::normalizeZero($d * $sign);
+                $m = Double::normalizeZero($m * $sign);
 
                 return [$d, $m];
 
@@ -253,21 +241,10 @@ class Angle implements Stringable
                     $d += 1.0;
                 }
 
-                // Apply sign.
-                $d *= $sign;
-                $m *= $sign;
-                $s *= $sign;
-
-                // Canonicalize -0.0 to 0.0 to avoid surprising string output.
-                if ($d == 0.0) {
-                    $d = 0.0;
-                }
-                if ($m == 0.0) {
-                    $m = 0.0;
-                }
-                if ($s == 0.0) {
-                    $s = 0.0;
-                }
+                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                $d = Double::normalizeZero($d * $sign);
+                $m = Double::normalizeZero($m * $sign);
+                $s = Double::normalizeZero($s * $sign);
 
                 return [$d, $m, $s];
 
@@ -338,13 +315,13 @@ class Angle implements Stringable
      *
      * @param float $k The scale factor.
      * @return self The scaled angle.
-     * @throws DomainException If the divisor is 0, NaN, or ±∞.
+     * @throws DomainException If the divisor is 0 or a non-finite number.
      */
     public function div(float $k): self
     {
         // Guards.
-        if (!is_finite($k) || $k == 0) {
-            throw new DomainException("Divisor cannot be 0, NaN, or ±∞.");
+        if ($k === 0.0 || !is_finite($k)) {
+            throw new DomainException("Divisor cannot be ±0, ±∞, or NaN.");
         }
 
         return new self(fdiv($this->_radians, $k));
@@ -445,7 +422,7 @@ class Angle implements Stringable
         // If cos is effectively zero, return ±INF (sign chosen by the side, i.e., sign of sine).
         // The built-in tan() function normally doesn't ever return ±INF.
         if (abs($c) < self::TRIG_EPSILON) {
-            return Numbers::copySign(INF, $s);
+            return Math::copySign(INF, $s);
         }
 
         // Otherwise do IEEE‑754 division (no warnings/exceptions).
@@ -501,43 +478,6 @@ class Angle implements Stringable
     }
 
     /**
-     * Normalize a scalar angle value into a specified half-open interval.
-     *
-     * If $signed is false (default), the range is [0, $units_per_turn).
-     * If $signed is true, the range is [-$units_per_turn/2, $units_per_turn/2).
-     *
-     * @param float $value The value to wrap.
-     * @param float $units_per_turn Units per full turn (e.g., TAU for radians, 360 for degrees, 400 for gradians).
-     * @param bool $signed Whether to return a signed range instead of the default positive range.
-     * @return float The wrapped value.
-     */
-    private static function _wrapScalar(float $value, float $units_per_turn, bool $signed = false): float
-    {
-        // Reduce using fmod to avoid large magnitudes.
-        $r = fmod($value, $units_per_turn);
-
-        // Get the range bounds.
-        $half = $units_per_turn / 2.0;
-        $min = $signed ? -$half : 0.0;
-        $max = $signed ? $half : $units_per_turn;
-
-        // Adjust into the half-open interval [min, max).
-        if ($r < $min) {
-            $r += $units_per_turn;
-        }
-        elseif ($r >= $max) {
-            $r -= $units_per_turn;
-        }
-
-        // Canonicalize -0.0 to 0.0.
-        if ($r == 0.0) {
-            $r = 0.0;
-        }
-
-        return $r;
-    }
-
-    /**
      * Normalize radians into [0, τ) or [-π, π).
      *
      * @param float $radians The angle in radians.
@@ -546,7 +486,7 @@ class Angle implements Stringable
      */
     public static function wrapRadians(float $radians, bool $signed = false): float
     {
-        return self::_wrapScalar($radians, self::TAU, $signed);
+        return Double::wrap($radians, self::TAU, $signed);
     }
 
     /**
@@ -558,7 +498,7 @@ class Angle implements Stringable
      */
     public static function wrapDegrees(float $degrees, bool $signed = false): float
     {
-        return self::_wrapScalar($degrees, self::DEGREES_PER_TURN, $signed);
+        return Double::wrap($degrees, self::DEGREES_PER_TURN, $signed);
     }
 
     /**
@@ -570,7 +510,7 @@ class Angle implements Stringable
      */
     public static function wrapGradians(float $gradians, bool $signed = false): float
     {
-        return self::_wrapScalar($gradians, self::GRADIANS_PER_TURN, $signed);
+        return Double::wrap($gradians, self::GRADIANS_PER_TURN, $signed);
     }
 
     // endregion
@@ -595,9 +535,7 @@ class Angle implements Stringable
         // @codeCoverageIgnoreEnd
 
         // Canonicalize -0.0 to 0.0 to avoid surprising string output.
-        if ($value == 0.0) {
-            $value = 0.0;
-        }
+        $value = Double::normalizeZero($value);
 
         // If the number of decimal places is specified, format with that many decimal places.
         // If the number of decimal places isn't specified, use the max float precision, then trim off any extra 0's or
@@ -628,6 +566,7 @@ class Angle implements Stringable
         $sign = $this->_radians < 0 ? '-' : '';
 
         // Convert to degrees, minutes, and seconds.
+        // TODO move decimals out of toDMS() and do the rounding here.
         $parts = $this->abs()->toDMS($smallest_unit, $decimals);
 
         switch ($smallest_unit) {
@@ -724,9 +663,9 @@ class Angle implements Stringable
         // That means optional minus, then optional degrees, minutes, seconds.
         $num = '(?:\d+(?:\.\d+)?|\.\d+)';
         $pattern = "/^(?:(?P<sign>[-+]?)\s*)?"
-                   . "(?:(?P<deg>{$num})°\s*)?"
-                   . "(?:(?P<min>{$num})[′']\s*)?"
-                   . "(?:(?P<sec>{$num})[″\"])?$/u";
+                   . "(?:(?P<deg>$num)°\s*)?"
+                   . "(?:(?P<min>$num)[′']\s*)?"
+                   . "(?:(?P<sec>$num)[″\"])?$/u";
         if (preg_match($pattern, $value, $matches)) {
             // Require at least one component (deg/min/sec).
             if (empty($matches['deg']) && empty($matches['min']) && empty($matches['sec'])) {
