@@ -2,14 +2,14 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\Math;
+namespace Galaxon\Core;
 
 use ValueError;
 
 /**
- * Container for general math utility methods.
+ * Container for general number-related utility methods.
  */
-final class Math
+final class Number
 {
     /**
      * Private constructor to prevent instantiation.

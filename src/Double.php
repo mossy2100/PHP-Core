@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Galaxon\Math;
+namespace Galaxon\Core;
 
 /**
  * Container for useful float-related methods.

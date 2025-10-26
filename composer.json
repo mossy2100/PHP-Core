@@ -1,6 +1,6 @@
 {
-    "name": "galaxon/math",
-    "description": "Additional PHP functions for mathematics.",
+    "name": "galaxon/core",
+    "description": "Base package containing utility classes and methods for use in other packages.",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -13,12 +13,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Galaxon\\Math\\": "src/"
+            "Galaxon\\Core\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Galaxon\\Math\\Tests\\": "tests/"
+            "Galaxon\\Core\\Tests\\": "tests/"
         }
     },
     "scripts": {
