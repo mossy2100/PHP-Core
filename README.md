@@ -1,10 +1,6 @@
-# PHP-Numbers
+# PHP-Core
 
-This package contains several useful classes for working with different types of numbers: Angle, Complex, and Rational.
-
-Includes tests.
-
-More comprehensive documentation to come.
+This package contains several useful utility classes and methods for use by other more domain-specific packages.  
 
 Shaun
  
