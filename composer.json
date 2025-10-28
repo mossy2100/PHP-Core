@@ -1,6 +1,6 @@
 {
     "name": "galaxon/core",
-    "description": "Base package containing utility classes and methods for use in other packages.",
+    "description": "Base package containing utility classes and methods for use by other packages.",
     "type": "library",
     "license": "MIT",
     "require": {

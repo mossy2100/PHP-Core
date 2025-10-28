@@ -6,19 +6,19 @@ namespace Galaxon\Core;
 
 use ValueError;
 use JsonException;
-use Stringable;
 use TypeError;
 
 /**
- * This class provides a conversion of PHP values to strings with a few differences from the default options:
+ * This class provides a method of formatting any PHP value as a string, with a few differences from the default
+ * options of var_dump(), var_export(), print_r(), json_encode(), and serialize().
+ *
  * 1. Floats never look like integers.
  * 2. Arrays that are lists will not show keys (like JSON arrays).
- * 3. Objects will be converted using their __toString() method if implemented, otherwise as an HTML tag, with bonus
- *    UML-style visibility modifiers.
- * 4. Resources are encoded like HTML tags.
+ * 3. Objects will be rendered in a style similar to an HTML tag, with UML-style visibility modifiers.
+ * 4. Resources are also encoded in a style similar to HTML tags.
  *
- * The purpose of the class is to offer a somewhat more readable alternative to var_dump(), var_export(), print_r(),
- * json_encode(), or serialize(). Useful for error and log messages.
+ * The purpose of the class is to offer a somewhat more concise, readable, and informative alternative to the usual
+ * options. It can be useful for exception, log, and debug messages.
  */
 class Stringify
 {
@@ -33,43 +33,15 @@ class Stringify
      */
     public static function stringify(mixed $value, bool $pretty_print = false, int $indent_level = 0): string
     {
-        // Check for object.
-        if (is_object($value)) {
-            return self::stringifyObject($value, $pretty_print, $indent_level);
-        }
-
-        // Get the type.
-        $type = get_debug_type($value);
-
-        // Call the relevant encode method.
-        switch ($type) {
-            case 'null':
-            case 'bool':
-            case 'int':
-            case 'string':
-                // Use a try-catch here to silence the IDE, but none of these types will throw.
-                try {
-                    $json = json_encode($value, JSON_THROW_ON_ERROR);
-                } catch (JsonException $e) {
-                    throw new ValueError("Value cannot be encoded as JSON: " . $e->getMessage());
-                }
-                return $json;
-
-            case 'float':
-                return self::stringifyFloat($value);
-
-            case 'array':
-                return self::stringifyArray($value, $pretty_print, $indent_level);
-        }
-
-        // Check for resource.
-        if (str_starts_with($type, 'resource')) {
-            return self::stringifyResource($value);
-        }
-
-        // Not sure if this can ever actually happen. gettype() can return 'unknown type' but
-        // get_debug_type() has no equivalent.
-        throw new TypeError("Key has unknown type.");
+        // Call the relevant method.
+        return match (Type::getBasicType($value)) {
+            'null', 'bool', 'int', 'string' => json_encode($value),
+            'float' => self::stringifyFloat($value),
+            'array' => self::stringifyArray($value, $pretty_print, $indent_level),
+            'resource' => self::stringifyResource($value),
+            'object' => self::stringifyObject($value, $pretty_print, $indent_level),
+            default => throw new TypeError("Unknown type.")
+        };
     }
 
     /**
@@ -102,10 +74,15 @@ class Stringify
     }
 
     /**
-     * Encode a PHP array as sequence enclosed by square brackets.
+     * Stringify a PHP array in a style similar to JSON arrays and objects.
      *
-     * A list (i.e. an array with sequential integer keys starting at 0) will show values only, and an associative
-     * array will show key-value pairs.
+     * We're not simply using json_encode() here because values might not be stringified in the desired way, especially
+     * objects.
+     *
+     * A list (i.e. an array with sequential integer keys starting at 0) will use square brackets and show values only.
+     * An associative array will use curly brackets and show keys and values. String keys will be quoted.
+     *
+     * If pretty printing is enabled, the result will be formatted with new lines and indentation.
      *
      * @param array $ary The array to encode.
      * @param bool $pretty_print Whether to use pretty printing (default false).
@@ -116,10 +93,7 @@ class Stringify
     public static function stringifyArray(array $ary, bool $pretty_print = false, int $indent_level = 0): string
     {
         // Detect circular references.
-        try {
-            json_encode($ary, JSON_THROW_ON_ERROR);
-        }
-        catch (JsonException) {
+        if (Arrays::containsRecursion($ary)) {
             throw new ValueError("Cannot stringify arrays containing circular references.");
         }
 
@@ -127,30 +101,38 @@ class Stringify
         $indent = $pretty_print ? str_repeat(' ', 4 * ($indent_level + 1)) : '';
         $is_list = array_is_list($ary);
 
+        // Generate the pairs.
         foreach ($ary as $key => $value) {
             $value_str = self::stringify($value, $pretty_print, $indent_level + 1);
             // Encode a list without no keys.
             if ($is_list) {
-                $pairs[] = $indent . $value_str;
+                $pairs[] = "$indent$value_str";
             }
             else {
                 // Encode an associative array with keys.
                 $key_str = self::stringify($key, $pretty_print, $indent_level + 1);
-                $pairs[] = $indent . $key_str . ' => ' . $value_str;
+                $pairs[] = "$indent$key_str: $value_str";
             }
         }
 
+        // Determine the opening and closing brackets.
+        $open_bracket = $is_list ? '[' : '{';
+        $close_bracket = $is_list ? ']' : '}';
+
         // If pretty print, return string formatted with new lines and indentation.
         if ($pretty_print) {
-            $brace_indent = str_repeat(' ', 4 * $indent_level);
-            return "[\n" . implode(",\n", $pairs) . "\n$brace_indent]";
+            $bracket_indent = str_repeat(' ', 4 * $indent_level);
+            return $open_bracket . "\n" . implode(",\n", $pairs) . "\n$bracket_indent" . $close_bracket;
         }
 
-        return '[' . implode(', ', $pairs) . ']';
+        // Otherwise, return the string in a single line.
+        return $open_bracket . implode(', ', $pairs) . $close_bracket;
     }
 
     /**
-     * Stringify a resource. It looks a bit like an HTML tag.
+     * Stringify a resource.
+     *
+     * @see stringifyObject()
      *
      * @param mixed $value The resource to stringify.
      * @return string The string representation of the resource.
@@ -162,16 +144,20 @@ class Stringify
             throw new TypeError("Value is not a resource.");
         }
 
-        return '<resource type = "' . get_resource_type($value) . '", id = ' . get_resource_id($value) . '>';
+        return '(resource type: "' . get_resource_type($value) . '", id: ' . get_resource_id($value) . ')';
     }
 
     /**
-     * Convert an object to a string.
+     * Stringify an object.
      *
-     * The result looks similar to an HTML tag, except that:
-     * - the fully qualified class name is used (with the namespace)
-     * - key-value pairs are comma-separated
-     * - the visibility of each property is shown using UML notation
+     * The resulting string borrows syntax from both JSON objects and HTML tags.
+     * - enclosed in angle brackets like an HTML or XML tag
+     * - the fully qualified class name is used (i.e. with the namespace) as the tag name
+     * - property names are not quoted
+     * - key-value pairs use colons and are comma-separated (like JSON objects)
+     * - the visibility of each property is shown using UML notation (+ for public, # for protected, - for private)
+     *
+     * If pretty printing is enabled, the result will be formatted with new lines and indentation.
      *
      * @param object $obj The object to encode.
      * @param bool $pretty_print Whether to use pretty printing (default false).
@@ -184,14 +170,13 @@ class Stringify
         // Get the tag name.
         $class = get_class($obj);
 
-        // Check for anonymous classes.
+        // Check for anonymous classes. We don't want null bytes in the result.
         if (str_contains($class, '@anonymous')) {
-            throw new TypeError("Cannot stringify anonymous classes.");
+            $class = '@anonymous';
         }
 
         // Convert the object to an array to get its properties.
-        // This works better than reflection, as new properties can be created when converting the object to an array
-        // (example: DateTime).
+        // This works better than reflection, as new properties can be created when converting the object to an array.
         $a = (array)$obj;
 
         // Early return if no properties.
@@ -199,31 +184,26 @@ class Stringify
             return "<$class>";
         }
 
-        // Generate the strings for key-value pairs. Each will be on its own line.
+        // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
         $pairs = [];
         $indent = $pretty_print ? str_repeat(' ', 4 * ($indent_level + 1)) : '';
 
         foreach ($a as $key => $value) {
             // Split on null bytes to determine the property name and visibility.
             $name_parts = explode("\0", $key);
-            switch (count($name_parts)) {
-                case 1:
-                    $vis_symbol = '+';
-                    break;
-
-                case 3:
-                    $vis_symbol = $name_parts[1] === '*' ? '#' : '-';
-                    $key = $name_parts[2];
-                    break;
-
-                default:
-                    // If there are 4 parts, the object is an anonymous class with a property
-                    // indicating where the class is defined. We don't care about that, so ignore it.
-                    // We already blocked anonymous classes above, so this should never happen.
-                    continue 2;
+            if (count($name_parts) === 1) {
+                // Property is public.
+                $vis_symbol = '+';
+            }
+            else {
+                // Property must be protected or private. If the second item in the $name_parts array is '*', the
+                // property is protected; otherwise, it's private.
+                $vis_symbol = $name_parts[1] === '*' ? '#' : '-';
+                $key = $name_parts[array_key_last($name_parts)];
             }
 
-            $pairs[] = $indent . $vis_symbol . $key . ' = ' . self::stringify($value, $pretty_print, $indent_level + 1);
+            $value_str = self::stringify($value, $pretty_print, $indent_level + 1);
+            $pairs[] = "$indent$vis_symbol$key: $value_str";
         }
 
         // If pretty print, return string formatted with new lines and indentation.
@@ -241,7 +221,7 @@ class Stringify
      * @param int $max_len The maximum length of the result.
      * @return string The short string representation.
      */
-    public static function abbrev(mixed $value, int $max_len = 20): string {
+    public static function abbrev(mixed $value, int $max_len = 30): string {
         // Get the value as a string without newlines or indentation.
         $result = self::stringify($value);
 

@@ -19,34 +19,15 @@ final class Number
     }
 
     /**
-     * Check if a value is a number, i.e. an integer or a float.
-     * This varies from is_numeric(), which also returns true for numeric strings.
-     *
-     * @param mixed $value The value to check.
-     * @return bool True if the value is a number, false otherwise.
-     */
-    public static function isNumber(mixed $value): bool
-    {
-        return is_int($value) || is_float($value);
-    }
-
-    /**
-     * Check if a value is an unsigned integer.
-     *
-     * @param mixed $value The value to check.
-     * @return bool True if the value is an unsigned integer, false otherwise.
-     */
-    public static function isUint(mixed $value): bool
-    {
-        return is_int($value) && $value >= 0;
-    }
-
-    /**
      * Get the sign of a number.
      *
+     * This method has two main forms of operation, both of which are reasonably common.
+     * 1. The default behaviour is to return 1 for positive numbers, -1 for negative numbers, and 0 for zero.
+     * 2. The second form, where $zeroForZero is set to false, will only return -1 or 1. If the primary argument is
+     *    zero, it will return -1 for the special float value -0.0, or 1 for int 0 or float 0.0.
+     *
      * @param int|float $value The number whose sign to check.
-     * @param bool $zeroForZero If true (default), returns 0 for zero; otherwise, return the sign of the zero.
-     * This will be -1 for float -0.0, or 1 for int 0 or float 0.0.
+     * @param bool $zeroForZero If true (default), returns 0 if value is zero; otherwise, return the sign of the zero.
      * @return int 1 if the number is positive, -1 if negative, and 0, 1, or -1 if 0, depending on the second argument.
      */
     public static function sign(int|float $value, bool $zeroForZero = true): int
@@ -61,8 +42,13 @@ final class Number
             return -1;
         }
 
-        // Return result for 0.
-        return $zeroForZero ? 0 : (Double::isNegativeZero($value) ? -1 : 1);
+        // Value is 0. Return the default result if requested.
+        if ($zeroForZero) {
+            return 0;
+        }
+
+        // Return the sign of the zero.
+        return is_float($value) && Double::isNegativeZero($value) ? -1 : 1;
     }
 
     /**
