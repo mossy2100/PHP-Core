@@ -7,7 +7,7 @@ namespace Galaxon\Core;
 /**
  * Container for useful float-related methods.
  */
-final class Double
+final class Floats
 {
     /**
      * Private constructor to prevent instantiation.

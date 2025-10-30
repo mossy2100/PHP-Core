@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Galaxon\Core\Tests;
 
@@ -200,11 +200,9 @@ final class StringifyTest extends TestCase
         // Create a resource (file handle).
         $resource = fopen('php://memory', 'r');
 
-        // Test that resource is stringified in tag-like format.
+        // Test that resource is stringified as expected.
         $result = Stringify::stringify($resource);
-        $this->assertStringStartsWith('<resource type: "stream"', $result);
-        $this->assertStringContainsString('id:', $result);
-        $this->assertStringEndsWith('>', $result);
+        $this->assertMatchesRegularExpression('/\(resource type: "stream", id: \d+\)/', $result);
 
         // Clean up.
         fclose($resource);
@@ -232,7 +230,7 @@ final class StringifyTest extends TestCase
             public int $age = 30;
         };
 
-        // Test that object is stringified in tag-like format.
+        // Test that object is stringified as expected.
         $result = Stringify::stringify($obj);
         $this->assertStringStartsWith('<', $result);
         $this->assertStringEndsWith('>', $result);
@@ -281,6 +279,7 @@ final class StringifyTest extends TestCase
         $this->assertStringNotContainsString('+', $result);
         $this->assertStringNotContainsString('#', $result);
         $this->assertStringNotContainsString('-', $result);
+        $this->assertStringNotContainsString(' ', $result);
     }
 
     /**
@@ -296,10 +295,14 @@ final class StringifyTest extends TestCase
 
         $result = Stringify::stringify($obj, true);
 
-        // Test that pretty print adds newlines.
-        $this->assertStringContainsString("\n", $result);
-        $this->assertStringStartsWith('<', $result);
-        $this->assertStringEndsWith('>', $result);
+        // Test that pretty print options adds newlines as expected.
+        $str = <<<STR
+        <@anonymous
+            +name: "John",
+            +age: 30
+        >
+        STR;
+        $this->assertSame($str, $result);
     }
 
     /**
@@ -320,22 +323,9 @@ final class StringifyTest extends TestCase
     {
         // Test that long strings are truncated with ellipsis.
         $longString = 'this is a very long string that should be truncated';
-        $result = Stringify::abbrev($longString);
+        $result = Stringify::abbrev($longString, 20);
 
         $this->assertLessThanOrEqual(20, strlen($result));
-        $this->assertStringEndsWith('...', $result);
-    }
-
-    /**
-     * Test abbrev method with custom max length.
-     */
-    public function testAbbrevCustomLength(): void
-    {
-        // Test with custom max length.
-        $string = 'hello world';
-        $result = Stringify::abbrev($string, 10);
-
-        $this->assertLessThanOrEqual(10, strlen($result));
         $this->assertStringEndsWith('...', $result);
     }
 
@@ -346,7 +336,7 @@ final class StringifyTest extends TestCase
     {
         // Test that arrays are abbreviated.
         $array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        $result = Stringify::abbrev($array);
+        $result = Stringify::abbrev($array, 20);
 
         $this->assertLessThanOrEqual(20, strlen($result));
         $this->assertStringEndsWith('...', $result);
@@ -378,11 +368,9 @@ final class StringifyTest extends TestCase
         $array = ['object' => $obj, 'numbers' => [4, 5, 6]];
 
         $result = Stringify::stringify($array);
+        $expected = '{"object": <@anonymous +items: [1, 2, 3], +name: "test">, "numbers": [4, 5, 6]}';
 
-        // Test that result contains expected elements.
-        $this->assertStringContainsString('"object"', $result);
-        $this->assertStringContainsString('"numbers"', $result);
-        $this->assertStringContainsString('+items:', $result);
-        $this->assertStringContainsString('+name: "test"', $result);
+        // Test result matches expected.
+        $this->assertSame($expected, $result);
     }
 }

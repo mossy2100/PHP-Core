@@ -11,7 +11,7 @@ use ArgumentCountError;
 /**
  * Container for useful integer-related methods.
  */
-final class Integer
+final class Integers
 {
     /**
      * Private constructor to prevent instantiation.

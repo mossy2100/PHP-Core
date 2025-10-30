@@ -9,7 +9,7 @@ use ValueError;
 /**
  * Container for general number-related utility methods.
  */
-final class Number
+final class Numbers
 {
     /**
      * Private constructor to prevent instantiation.
@@ -48,7 +48,7 @@ final class Number
         }
 
         // Return the sign of the zero.
-        return is_float($value) && Double::isNegativeZero($value) ? -1 : 1;
+        return is_float($value) && Floats::isNegativeZero($value) ? -1 : 1;
     }
 
     /**

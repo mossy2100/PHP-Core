@@ -34,7 +34,7 @@ class Stringify
     public static function stringify(mixed $value, bool $pretty_print = false, int $indent_level = 0): string
     {
         // Call the relevant method.
-        return match (Type::getBasicType($value)) {
+        return match (Types::getBasicType($value)) {
             'null', 'bool', 'int', 'string' => json_encode($value),
             'float' => self::stringifyFloat($value),
             'array' => self::stringifyArray($value, $pretty_print, $indent_level),
@@ -208,7 +208,7 @@ class Stringify
 
         // If pretty print, return string formatted with new lines and indentation.
         if ($pretty_print) {
-            return "<$class\n" . implode(",\n", $pairs) . '>';
+            return "<$class\n" . implode(",\n", $pairs) . "\n>";
         }
 
         return "<$class " . implode(', ', $pairs) . '>';
@@ -222,11 +222,16 @@ class Stringify
      * @return string The short string representation.
      */
     public static function abbrev(mixed $value, int $max_len = 30): string {
+        // Check the max length is reasonable.
+        if ($max_len < 10) {
+            throw new ValueError("Max length must be at least 10.");
+        }
+
         // Get the value as a string without newlines or indentation.
         $result = self::stringify($value);
 
         // Trim if necessary.
-        if ($max_len > 4 && strlen($result) > $max_len) {
+        if (strlen($result) > $max_len) {
             $result = substr($result, 0, $max_len - 3) . '...';
         }
 

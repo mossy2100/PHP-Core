@@ -5,14 +5,13 @@ declare(strict_types = 1);
 namespace Galaxon\Core;
 
 // Throwables
-use Stringable;
 use TypeError;
 
 /**
  * Some convenience methods for working with types.
  * May move to Core later.
  */
-class Type
+final class Types
 {
     // region Type inspection
 
@@ -75,60 +74,36 @@ class Type
     }
 
     /**
-     * Convert any PHP value into a unique string, for use as a key in a collection like Set or Dictionary.
+     * Convert any PHP value into a unique string.
+     *
+     * The intended use case is a key in a collection like Set or Dictionary.
      *
      * @param mixed $value The value to convert.
      * @return string The unique string key.
      */
     public static function getStringKey(mixed $value): string
     {
-        $type = self::getBasicType($value);
-
-        // Core types.
-        switch ($type) {
-            case 'null':
-                $result = 'n';
-                break;
-
-            case 'bool':
-                $result = 'b:' . ($value ? 'T' : 'F');
-                break;
-
-            case 'int':
-                $result = 'i:' . $value;
-                break;
-
-            case 'float':
-                // Use toHex() because it will be unique for every possible float value, including special values.
-                // The same cannot be said for a cast to string, or sprintf().
-                $result = 'f:' . Double::toHex($value);
-                break;
-
-            case 'string':
-                $result = 's:' . strlen($value) . ":$value";
-                break;
-
-            case 'array':
-                $result = 'a:' . count($value) . ':' . Stringify::stringifyArray($value);
-                break;
-
-            case 'object':
-                $result = 'o:' . spl_object_id($value);
-                break;
-
-            case 'resource':
-                $result = 'r:' . get_resource_id($value);
-                break;
-
-            default:
-                // Unknown.
-                // Not sure if this can ever actually happen. gettype() can return 'unknown type' but
-                // get_debug_type() has no equivalent. Defensive programming.
-                throw new TypeError("Value has unknown type.");
-        }
-
-        return $result;
+        return match (self::getBasicType($value)) {
+            'null'     => 'n',
+            'bool'     => 'b:' . ($value ? 'T' : 'F'),
+            'int'      => 'i:' . $value,
+            // For floats, use toHex(), because this will be unique for every possible float value, including special
+            // values. The same can't be said for a cast to string, or sprintf().
+            'float'    => 'f:' . Floats::toHex($value),
+            'string'   => 's:' . strlen($value) . ":$value",
+            'array'    => 'a:' . count($value) . ':' . Stringify::stringifyArray($value),
+            'object'   => 'o:' . spl_object_id($value),
+            'resource' => 'r:' . get_resource_id($value),
+            // Unknown.
+            // Not sure if this can ever actually happen. gettype() can return 'unknown type' but
+            // get_debug_type() has no equivalent. Defensive programming.
+            default    => throw new TypeError("Value has unknown type."),
+        };
     }
+
+    // endregion
+
+    // region Errors
 
     /**
      * Create a new TypeError using information about the parameter and expected type.
