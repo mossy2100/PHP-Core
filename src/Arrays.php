@@ -26,11 +26,11 @@ final class Arrays
      * @param array $arr The array to check.
      * @return bool True if the array contains recursion, false otherwise.
      */
-    public static function containsRecursion(array $arr): bool {
+    public static function containsRecursion(array $arr): bool
+    {
         try {
             json_encode($arr, JSON_THROW_ON_ERROR);
-        }
-        catch (JsonException $e) {
+        } catch (JsonException $e) {
             if ($e->getCode() === JSON_ERROR_RECURSION) {
                 return true;
             }

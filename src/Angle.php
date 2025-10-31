@@ -554,12 +554,13 @@ class Angle implements Stringable
      * If $signed is false (default), the range is [0, τ).
      * If $signed is true, the range is [-π, π).
      *
+     * @param bool $signed Whether to use a signed range, or the default positive range.
+     * @return $this The current angle instance.
+     *
      * @example
      * $alpha = new Angle(M_PI)->mul(5);
      * $alpha->wrap();
      *
-     * @param bool $signed Whether to use a signed range, or the default positive range.
-     * @return $this The current angle instance.
      */
     public function wrap(bool $signed = false): self
     {

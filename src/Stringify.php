@@ -4,9 +4,8 @@ declare(strict_types = 1);
 
 namespace Galaxon\Core;
 
-use ValueError;
-use JsonException;
 use TypeError;
+use ValueError;
 
 /**
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
@@ -45,11 +44,11 @@ final class Stringify
         // Call the relevant method.
         return match (Types::getBasicType($value)) {
             'null', 'bool', 'int', 'string' => json_encode($value),
-            'float' => self::stringifyFloat($value),
-            'array' => self::stringifyArray($value, $pretty_print, $indent_level),
-            'resource' => self::stringifyResource($value),
-            'object' => self::stringifyObject($value, $pretty_print, $indent_level),
-            default => throw new TypeError("Unknown type.")
+            'float'                         => self::stringifyFloat($value),
+            'array'                         => self::stringifyArray($value, $pretty_print, $indent_level),
+            'resource'                      => self::stringifyResource($value),
+            'object'                        => self::stringifyObject($value, $pretty_print, $indent_level),
+            default                         => throw new TypeError("Unknown type.")
         };
     }
 
@@ -141,13 +140,14 @@ final class Stringify
     /**
      * Stringify a resource.
      *
-     * @see stringifyObject()
-     *
      * @param mixed $value The resource to stringify.
      * @return string The string representation of the resource.
      * @throws TypeError If the value is not a resource.
+     * @see stringifyObject()
+     *
      */
-    public static function stringifyResource(mixed $value): string {
+    public static function stringifyResource(mixed $value): string
+    {
         // Can't type hint for resource, so check manually.
         if (!is_resource($value)) {
             throw new TypeError("Value is not a resource.");
@@ -230,7 +230,8 @@ final class Stringify
      * @param int $max_len The maximum length of the result.
      * @return string The short string representation.
      */
-    public static function abbrev(mixed $value, int $max_len = 30): string {
+    public static function abbrev(mixed $value, int $max_len = 30): string
+    {
         // Check the max length is reasonable.
         if ($max_len < 10) {
             throw new ValueError("The maximum string length must be at least 10.");

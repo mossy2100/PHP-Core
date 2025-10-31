@@ -125,7 +125,8 @@ final class Types
      * @param string $expected_type The expected type (e.g., 'int', 'string', 'callable').
      * @param mixed $value The actual value that was provided (optional).
      */
-    public static function createError(string $var_name, string $expected_type, mixed $value = null): TypeError {
+    public static function createError(string $var_name, string $expected_type, mixed $value = null): TypeError
+    {
         $message = "Variable '$var_name' must be of type $expected_type";
 
         if (func_num_args() > 2) {

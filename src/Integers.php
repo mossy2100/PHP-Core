@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Galaxon\Core;
 
+use ArgumentCountError;
 use OverflowException;
 use ValueError;
-use ArgumentCountError;
 
 /**
  * Container for useful integer-related methods.

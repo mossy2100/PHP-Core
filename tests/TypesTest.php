@@ -322,7 +322,7 @@ final class TypesTest extends TestCase
         ];
 
         // Verify all keys are unique.
-        $this->assertSame(count($keys), count(array_unique($keys)));
+        $this->assertCount(count($keys), array_unique($keys));
     }
 
     /**
