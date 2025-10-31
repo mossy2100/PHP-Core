@@ -11,6 +11,8 @@ final class Floats
 {
     /**
      * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {
@@ -116,45 +118,5 @@ final class Floats
     public static function toHex(float $value): string
     {
         return bin2hex(pack('d', $value));
-    }
-
-    /**
-     * Normalize a scalar angle value into a specified half-open interval.
-     *
-     * If $signed is false (default), the range is [0, $units_per_turn).
-     * If $signed is true, the range is [-$units_per_turn/2, $units_per_turn/2).
-     *
-     * @param float $value The value to wrap.
-     * @param float $units_per_turn Units per full turn (e.g., TAU for radians, 360 for degrees, 400 for gradians).
-     * @param bool $signed Whether to return a signed range instead of the default positive range.
-     * @return float The wrapped value.
-     */
-    public static function wrap(float $value, float $units_per_turn, bool $signed = false): float
-    {
-        // Reduce using fmod to avoid large magnitudes.
-        $r = fmod($value, $units_per_turn);
-
-        // Get the range bounds.
-        if ($signed) {
-            $half = $units_per_turn / 2.0;
-            $min = -$half;
-            $max = $half;
-        }
-        else {
-            $min = 0.0;
-            $max = $units_per_turn;
-        }
-
-        // The value may be outside the range due to the sign of $value or the value of $signed.
-        // Adjust accordingly.
-        if ($r < $min) {
-            $r += $units_per_turn;
-        }
-        elseif ($r >= $max) {
-            $r -= $units_per_turn;
-        }
-
-        // Canonicalize -0.0 to 0.0.
-        return self::normalizeZero($r);
     }
 }

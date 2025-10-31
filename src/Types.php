@@ -13,6 +13,19 @@ use TypeError;
  */
 final class Types
 {
+    // region Constructor
+
+    /**
+     * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
+     */
+    private function __construct()
+    {
+    }
+
+    // endregion
+
     // region Type inspection
 
     /**

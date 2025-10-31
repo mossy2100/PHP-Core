@@ -198,7 +198,7 @@ final class StringifyTest extends TestCase
     public function testStringifyResource(): void
     {
         // Create a resource (file handle).
-        $resource = fopen('php://memory', 'r');
+        $resource = fopen('php://memory', 'rb');
 
         // Test that resource is stringified as expected.
         $result = Stringify::stringify($resource);
@@ -340,6 +340,16 @@ final class StringifyTest extends TestCase
 
         $this->assertLessThanOrEqual(20, strlen($result));
         $this->assertStringEndsWith('...', $result);
+    }
+
+    /**
+     * Test abbrev method with maximum length too small.
+     */
+    public function testAbbrevMaxLenTooSmall(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage("The maximum string length must be at least 10.");
+        Stringify::abbrev(123, 9);
     }
 
     /**

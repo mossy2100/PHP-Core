@@ -12,6 +12,15 @@ use JsonException;
 final class Arrays
 {
     /**
+     * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
+     */
+    private function __construct()
+    {
+    }
+
+    /**
      * Checks if an array contains recursion.
      *
      * @param array $arr The array to check.

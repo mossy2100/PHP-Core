@@ -20,8 +20,17 @@ use TypeError;
  * The purpose of the class is to offer a somewhat more concise, readable, and informative alternative to the usual
  * options. It can be useful for exception, log, and debug messages.
  */
-class Stringify
+final class Stringify
 {
+    /**
+     * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
+     */
+    private function __construct()
+    {
+    }
+
     /**
      * Convert a value to a readable string representation.
      *
@@ -224,7 +233,7 @@ class Stringify
     public static function abbrev(mixed $value, int $max_len = 30): string {
         // Check the max length is reasonable.
         if ($max_len < 10) {
-            throw new ValueError("Max length must be at least 10.");
+            throw new ValueError("The maximum string length must be at least 10.");
         }
 
         // Get the value as a string without newlines or indentation.

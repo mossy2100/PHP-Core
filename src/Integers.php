@@ -15,6 +15,8 @@ final class Integers
 {
     /**
      * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {

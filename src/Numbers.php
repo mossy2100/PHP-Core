@@ -13,6 +13,8 @@ final class Numbers
 {
     /**
      * Private constructor to prevent instantiation.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {
