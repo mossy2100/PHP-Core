@@ -51,13 +51,13 @@ public static function fromTurns(float $turns): self
 
 Create angle from full rotations.
 
-### fromString()
+### parse()
 
 ```php
-public static function fromString(string $value): self
+public static function parse(string $value): self
 ```
 
-Parse angle from string (supports CSS-style units and DMS format). Throws `DomainException` if invalid.
+Parse angle from string (supports CSS-style units and DMS format). Throws `ValueError` if invalid.
 
 ### tryParse()
 
@@ -141,7 +141,7 @@ Multiply angle by a scalar.
 public function div(float $k): self
 ```
 
-Divide angle by a scalar. Throws `DomainException` if divisor is zero or non-finite.
+Divide angle by a scalar. Throws `DivisionByZeroError` if divisor is zero.
 
 ### abs()
 

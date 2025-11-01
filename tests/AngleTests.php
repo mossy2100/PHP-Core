@@ -4,28 +4,66 @@ declare(strict_types = 1);
 
 namespace Galaxon\Core\Tests;
 
-use DomainException;
+// Throwables
+use ValueError;
+use DivisionByZeroError;
+
+// PHPUnit
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+
+// Galaxon
 use Galaxon\Core\Angle;
 
 #[CoversClass(Angle::class)]
 final class AngleTests extends TestCase
 {
+    /**
+     * Assert that two float values are equal within a delta tolerance.
+     *
+     * @param float $expected The expected value.
+     * @param float $actual The actual value.
+     * @param float $delta The maximum difference allowed (default: RAD_EPSILON).
+     */
     private function assertFloatEquals(float $expected, float $actual, float $delta = Angle::RAD_EPSILON): void
     {
         $this->assertEqualsWithDelta($expected, $actual, $delta);
     }
 
+    /**
+     * Assert that two Angle instances are equal.
+     *
+     * @param Angle $a The first angle.
+     * @param Angle $b The second angle.
+     */
     private function assertAngleEquals(Angle $a, Angle $b): void
     {
         $this->assertTrue($a->eq($b), "Angles differ: {$a} vs {$b}");
     }
 
     /**
-     * Test factoriesAndGettersRoundtrip scenario.
+     * Test that creating an angle with infinity throws ValueError.
+     */
+    public function testFactoryWithInfinity(): void
+    {
+        $this->expectException(ValueError::class);
+        Angle::fromRadians(INF);
+    }
+
+    /**
+     * Test that creating an angle with NaN throws ValueError.
+     */
+    public function testFactoryWithNaN(): void
+    {
+        $this->expectException(ValueError::class);
+        Angle::fromDegrees(NAN);
+    }
+
+    /**
+     * Test that all factory methods and getters work correctly together.
      *
-     * @return void
+     * Creates an angle using one factory method and verifies it can be converted
+     * to all other units with correct values.
      */
     public function testFactoriesAndGettersRoundtrip(): void
     {
@@ -37,85 +75,74 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test dmsRoundtripAndCarry scenario.
+     * Test conversion to and from degrees, arcminutes, and arcseconds (DMS).
      *
-     * @return void
+     * Verifies that DMS values round-trip correctly and that floating-point
+     * precision near boundaries produces expected results.
      */
     public function testDmsRoundtripAndCarry(): void
     {
         $a = Angle::fromDMS(12, 34, 56);
-        [$d, $m, $s] = $a->toDMS(2, 6);
+        [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(12.0, $d);
         $this->assertFloatEquals(34.0, $m);
         $this->assertFloatEquals(56.0, $s);
 
-        // Force carry at seconds -> minutes and minutes -> degrees.
+        // Verify floating-point precision at seconds and minutes boundaries.
         $b = Angle::fromDegrees(29.999999999);
-        [$d2, $m2, $s2] = $b->toDMS(2, 3);
-        $this->assertFloatEquals(30.0, $d2);
-        $this->assertFloatEquals(0.0, $m2);
-        $this->assertFloatEquals(0.0, $s2);
+        [$d2, $m2, $s2] = $b->toDMS(Angle::UNIT_ARCSECOND);
+        $this->assertFloatEquals(29, $d2);
+        $this->assertFloatEquals(59, $m2);
+        $this->assertFloatEquals(59.9999964, $s2);
 
-        // Force carry at minutes -> degrees.
+        // Verify floating-point precision at minutes boundary.
         $b = Angle::fromDegrees(29.999999999);
-        [$d3, $m3] = $b->toDMS(1, 3);
-        $this->assertFloatEquals(30.0, $d3);
-        $this->assertFloatEquals(0.0, $m3);
+        [$d3, $m3] = $b->toDMS(Angle::UNIT_ARCMINUTE);
+        $this->assertFloatEquals(29, $d3);
+        $this->assertFloatEquals(59.99999994, $m3);
 
-        // Test invalid smallest unit index.
-        $this->expectException(DomainException::class);
-        $x = $b->toDMS(3, 3);
+        // Test that invalid smallest unit index throws ValueError.
+        $this->expectException(ValueError::class);
+        $x = $b->toDMS(3);
     }
 
     /**
-     * Test toDMS with invalid values for decimals parameter.
+     * Test parsing of angle strings in CSS units and DMS format.
      *
-     * @return void
-     */
-    public function testDmsInvalidDecimals(): void
-    {
-        $a = Angle::fromDMS(12, 34, 56);
-        $this->expectException(DomainException::class);
-        [$d, $m, $s] = $a->toDMS(2, -1);
-    }
-
-    /**
-     * Test parsingCssUnitsAndDms scenario.
-     *
-     * @return void
+     * Verifies that the parse() method correctly handles rad, deg, grad, turn units
+     * and DMS notation with both Unicode and ASCII symbols.
      */
     public function testParsingCssUnitsAndDms(): void
     {
-        $this->assertAngleEquals(Angle::fromDegrees(12), Angle::fromString('12deg'));
-        $this->assertAngleEquals(Angle::fromDegrees(12), Angle::fromString('12 DEG'));
-        $this->assertAngleEquals(Angle::fromTurns(0.5), Angle::fromString('0.5 turn'));
-        $this->assertAngleEquals(Angle::fromRadians(M_PI), Angle::fromString(M_PI . 'rad'));
+        $this->assertAngleEquals(Angle::fromDegrees(12), Angle::parse('12deg'));
+        $this->assertAngleEquals(Angle::fromDegrees(12), Angle::parse('12 DEG'));
+        $this->assertAngleEquals(Angle::fromTurns(0.5), Angle::parse('0.5 turn'));
+        $this->assertAngleEquals(Angle::fromRadians(M_PI), Angle::parse(M_PI . 'rad'));
 
-        // Unicode symbols.
-        $this->assertAngleEquals(Angle::fromDMS(12, 34, 56), Angle::fromString('12° 34′ 56″'));
-        // ASCII fallback.
-        $this->assertAngleEquals(Angle::fromDMS(-12, -34, -56), Angle::fromString("-12°34'56\""));
+        // Unicode symbols (°, ′, ″).
+        $this->assertAngleEquals(Angle::fromDMS(12, 34, 56), Angle::parse('12° 34′ 56″'));
+        // ASCII fallback (°, ', ").
+        $this->assertAngleEquals(Angle::fromDMS(-12, -34, -56), Angle::parse("-12°34'56\""));
     }
 
     /**
-     * Test parseRejectsBadInputs scenario.
-     *
-     * @return void
+     * Test that parsing empty or invalid input throws ValueError.
      */
     public function testParseRejectsBadInputs(): void
     {
-        $this->expectException(DomainException::class);
-        Angle::fromString('');
+        $this->expectException(ValueError::class);
+        Angle::parse('');
     }
 
     /**
-     * Test wrapUnsignedAndSigned scenario.
+     * Test wrapping angles into unsigned [0, τ) and signed [-π, π) ranges.
      *
-     * @return void
+     * Verifies that the wrap() method correctly normalizes angles to the
+     * appropriate range based on the signed parameter.
      */
     public function testWrapUnsignedAndSigned(): void
     {
-        $a = Angle::fromRadians(2 * M_PI)->wrap(); // pure
+        $a = Angle::fromRadians(2 * M_PI)->wrap();
         $this->assertFloatEquals(0.0, $a->toRadians());
 
         $b = Angle::fromRadians(M_PI)->wrap(true);
@@ -124,9 +151,10 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test arithmeticAndCompare scenario.
+     * Test arithmetic operations (add, sub, mul, div) and comparison.
      *
-     * @return void
+     * Verifies that angles can be added, subtracted, scaled, and compared
+     * with correct results, including wraparound behavior in comparisons.
      */
     public function testArithmeticAndCompare(): void
     {
@@ -146,9 +174,39 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test trigAndReciprocalsBehaviour scenario.
+     * Test that multiplying by infinity throws ValueError.
+     */
+    public function testMulWithNonFiniteParameter(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $this->expectException(ValueError::class);
+        $a->mul(INF);
+    }
+
+    /**
+     * Test that dividing by NaN throws ValueError.
+     */
+    public function testDivWithNonFiniteParameters(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $this->expectException(ValueError::class);
+        $a->div(NAN);
+    }
+
+    /**
+     * Test that wrapping with infinity throws ValueError.
+     */
+    public function testWrapWithNonFiniteParameters(): void
+    {
+        $this->expectException(ValueError::class);
+        Angle::wrapDegrees(INF);
+    }
+
+    /**
+     * Test trigonometric functions and their behavior at singularities.
      *
-     * @return void
+     * Verifies that sin, cos, tan return correct values and that tan
+     * produces infinity at 90° as expected.
      */
     public function testTrigAndReciprocalsBehaviour(): void
     {
@@ -157,17 +215,16 @@ final class AngleTests extends TestCase
         $this->assertFloatEquals(0.5, $a->cos());
         $this->assertFloatEquals(sqrt(3), $a->tan());
 
-        // Reciprocals: check INF at singularities.
-
-        // Tan(90°) = ∞.
+        // Verify that tan(90°) = ∞.
         $t = Angle::fromDegrees(90);
         $this->assertTrue(is_infinite($t->tan()));
     }
 
     /**
-     * Test formatVariants scenario.
+     * Test formatting angles in various output formats.
      *
-     * @return void
+     * Verifies that the format() method correctly produces strings in rad, deg,
+     * grad, turn, and DMS formats with specified decimal precision.
      */
     public function testFormatVariants(): void
     {
@@ -180,17 +237,75 @@ final class AngleTests extends TestCase
         // DMS via format.
         $this->assertSame("12° 30′ 0″", $a->format('dms', 0));
 
-        // Invalid decimals value.
-        $this->expectException(DomainException::class);
+        // Verify that negative decimals value throws ValueError.
+        $this->expectException(ValueError::class);
         $a->format('rad', -1);
     }
 
+    /**
+     * Test DMS formatting when no carry is needed.
+     *
+     * Verifies that values just below rounding thresholds are formatted
+     * correctly without triggering carry to the next unit.
+     */
+    public function testFormatDmsNoCarryNeeded(): void {
+        // Values that shouldn't trigger carry
+        $a = Angle::fromDMS(29, 59, 59.994);
+        $this->assertSame("29° 59′ 59.994″", $a->format('dms', 3));
+    }
+
+    /**
+     * Test DMS formatting with carry logic across unit boundaries.
+     *
+     * Verifies that rounding causes correct carry from seconds to minutes,
+     * minutes to degrees, and handles both positive and negative angles.
+     */
+    public function testFormatDmsWithCarry(): void {
+        // Test degree rounding (29.9999... → 30°)
+        $a = Angle::fromDegrees(29.9999999999);
+        $this->assertSame("30.000°", $a->format('d', 3));
+        $this->assertSame("30° 0.000′", $a->format('dm', 3));
+        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
+
+        // Test arcminute carry (29° 59.9999′ → 30° 0′)
+        $a = Angle::fromDMS(29, 59.9999999);
+        $this->assertSame("30° 0.000′", $a->format('dm', 3));
+
+        // Test arcsecond carry (29° 59′ 59.9999″ → 30° 0′ 0″)
+        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
+
+        // Test double carry (seconds → minutes → degrees)
+        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $this->assertSame("30.000°", $a->format('d', 3));
+
+        // Test mid-range carry (not at zero boundary)
+        $a = Angle::fromDMS(45, 59, 59.9995);
+        $this->assertSame("46° 0′ 0.000″", $a->format('dms', 3));
+
+        // Test negative angle carry
+        $a = Angle::fromDegrees(-29.9999999999);
+        $this->assertSame("-30.000°", $a->format('d', 3));
+        $this->assertSame("-30° 0.000′", $a->format('dm', 3));
+        $this->assertSame("-30° 0′ 0.000″", $a->format('dms', 3));
+    }
+
+    /**
+     * Set up the test environment with deterministic random seed.
+     */
     protected function setUp(): void
     {
-        // Deterministic randomness.
+        // Deterministic randomness for reproducible tests.
         mt_srand(0xC0FFEE);
     }
 
+    /**
+     * Generate a random float in the specified range.
+     *
+     * @param float $min The minimum value (inclusive).
+     * @param float $max The maximum value (exclusive).
+     * @return float A random float in [min, max).
+     */
     private function randFloat(float $min, float $max): float
     {
         // Uniform float in [min, max).
@@ -198,9 +313,10 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test randomRoundtripsRadiansDegreesGradiansTurns scenario.
+     * Test random round-trip conversions between all angle units.
      *
-     * @return void
+     * Performs 500 randomized tests converting angles between radians, degrees,
+     * gradians, and turns to verify conversion accuracy across a large range.
      */
     public function testRandomRoundtripsRadiansDegreesGradiansTurns(): void
     {
@@ -209,7 +325,7 @@ final class AngleTests extends TestCase
             $rad = $this->randFloat(-1e6, 1e6);
             $a   = Angle::fromRadians($rad);
 
-            // ToX / fromX.
+            // Verify toX() / fromX() round-trips.
             $this->assertFloatEquals($rad, Angle::fromRadians($a->toRadians())->toRadians());
 
             $deg = $a->toDegrees();
@@ -224,9 +340,11 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test formatThenParseRoundtripVariousStyles scenario.
+     * Test format-then-parse round-trips for all output styles.
      *
-     * @return void
+     * Performs 200 randomized tests formatting angles in all supported styles
+     * (rad, deg, grad, turn, d, dm, dms) and parsing them back to verify
+     * that no information is lost in the conversion.
      */
     public function testFormatThenParseRoundtripVariousStyles(): void
     {
@@ -237,22 +355,23 @@ final class AngleTests extends TestCase
             $a   = Angle::fromRadians($rad);
 
             foreach ($styles as $style) {
-                // Use max float precision to ensure correct round trip conversion.
+                // Use max float precision to ensure correct round-trip conversion.
                 $s = $a->format($style, 17);
-                $b = Angle::fromString($s);
+                $b = Angle::parse($s);
 
                 $this->assertTrue(
                     $a->eq($b),
-                    "Format/fromString mismatch for style '{$style}': {$s} → {$b} vs {$a}"
+                    "Format/parse mismatch for style '{$style}': {$s} → {$b} vs {$a}"
                 );
             }
         }
     }
 
     /**
-     * Test wrapBoundariesSignedAndUnsigned scenario.
+     * Test wrapping behavior at boundary values.
      *
-     * @return void
+     * Verifies that wrapping correctly handles edge cases like 0, 2π, -π
+     * in both unsigned [0, τ) and signed [-π, π) ranges.
      */
     public function testWrapBoundariesSignedAndUnsigned(): void
     {
@@ -270,7 +389,7 @@ final class AngleTests extends TestCase
         $this->assertFloatEquals(0.0, Angle::wrapRadians($twoPi, true));
         $this->assertFloatEquals(0.0, Angle::wrapRadians(-$twoPi, true));
 
-        // Instance versions stay pure vs. mutating pair.
+        // Verify that instance methods produce correct results.
         $a = Angle::fromRadians($twoPi)->wrap();
         $this->assertFloatEquals(0.0, $a->toRadians());
         $b = Angle::fromRadians(M_PI)->wrap(true);
@@ -278,9 +397,10 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test dmsExtremesAndOutOfRangeParts scenario.
+     * Test DMS conversion with extreme and out-of-range values.
      *
-     * @return void
+     * Verifies that fromDMS() correctly handles arcminutes and arcseconds
+     * beyond their normal ranges (0-59) and mixed sign values.
      */
     public function testDmsExtremesAndOutOfRangeParts(): void
     {
@@ -292,39 +412,38 @@ final class AngleTests extends TestCase
         $b = Angle::fromDMS(-12, -90, 30); // -12 - 1.5 + 0.008333... = -13.491666...
         $this->assertFloatEquals(-13.4916666667, $b->toDegrees(), 1e-9);
 
-        // Round-trip to DMS with carry after rounding.
-        $c = Angle::fromDegrees(29.999999999);
-        [$d, $m, $s] = $c->toDMS(2, 3);
-        $this->assertFloatEquals(30.0, $d);
-        $this->assertFloatEquals(0.0, $m);
-        $this->assertFloatEquals(0.0, $s);
+        // Exactly 60 seconds (should carry in formatting).
+        $a = Angle::fromDMS(29, 59, 60.0);
+        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
     }
 
     /**
-     * Test parsingWhitespaceAndCaseAndAsciiUnicodeSymbols scenario.
+     * Test parsing with various whitespace, case, and symbol variations.
      *
-     * @return void
+     * Verifies that the parser handles whitespace tolerance, case insensitivity,
+     * both Unicode and ASCII symbols, and rejects invalid input.
      */
     public function testParsingWhitespaceAndCaseAndAsciiUnicodeSymbols(): void
     {
-        $this->assertTrue(Angle::fromDegrees(12)->eq(Angle::fromString('12 DEG')));
-        $this->assertTrue(Angle::fromTurns(0.25)->eq(Angle::fromString(' 0.25   turn ')));
-        $this->assertTrue(Angle::fromRadians(M_PI)->eq(Angle::fromString(sprintf('%.12frad', M_PI))));
+        $this->assertTrue(Angle::fromDegrees(12)->eq(Angle::parse('12 DEG')));
+        $this->assertTrue(Angle::fromTurns(0.25)->eq(Angle::parse(' 0.25   turn ')));
+        $this->assertTrue(Angle::fromRadians(M_PI)->eq(Angle::parse(sprintf('%.12frad', M_PI))));
 
-        // Unicode DMS.
-        $this->assertTrue(Angle::fromDMS(12, 34, 56)->eq(Angle::fromString('12° 34′ 56″')));
-        // ASCII DMS.
-        $this->assertTrue(Angle::fromDMS(-12, -34, -56)->eq(Angle::fromString("-12°34'56\"")));
+        // Unicode DMS symbols (°, ′, ″).
+        $this->assertTrue(Angle::fromDMS(12, 34, 56)->eq(Angle::parse('12° 34′ 56″')));
+        // ASCII DMS fallback (°, ', ").
+        $this->assertTrue(Angle::fromDMS(-12, -34, -56)->eq(Angle::parse("-12°34'56\"")));
 
-        // Invalid DMS format.
-        $this->expectException(DomainException::class);
-        $a = Angle::fromString('-');
+        // Verify that invalid DMS format throws ValueError.
+        $this->expectException(ValueError::class);
+        $a = Angle::parse('-');
     }
 
     /**
-     * Test tryParseSuccessAndFailure scenario.
+     * Test the tryParse() method for both success and failure cases.
      *
-     * @return void
+     * Verifies that tryParse() returns true and sets the result for valid input,
+     * and returns false with null result for invalid input without throwing.
      */
     public function testTryParseSuccessAndFailure(): void
     {
@@ -338,21 +457,20 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test division by zero throws DivisionByZeroError.
-     *
-     * @return void
+     * Test that division by zero throws DivisionByZeroError.
      */
     public function testDivisionByZero(): void
     {
         $a = Angle::fromDegrees(90);
-        $this->expectException(DomainException::class);
+        $this->expectException(DivisionByZeroError::class);
         $a->div(0.0);
     }
 
     /**
-     * Test compare epsilon negative throws and delta sign behaviors.
+     * Test comparison behavior with epsilon tolerance and sign of delta.
      *
-     * @return void
+     * Verifies that cmp() correctly returns -1, 0, or 1 based on the
+     * difference between angles, and rejects negative epsilon values.
      */
     public function testCompareWithEpsilonAndDelta(): void
     {
@@ -366,14 +484,15 @@ final class AngleTests extends TestCase
         $this->assertSame(1, $b->cmp($a));
 
         // Epsilon negative -> invalid argument.
-        $this->expectException(DomainException::class);
+        $this->expectException(ValueError::class);
         $a->cmp($b, -1e-9);
     }
 
     /**
-     * Test wrapGradians normalizes values for signed and unsigned ranges.
+     * Test that wrapGradians() normalizes values correctly.
      *
-     * @return void
+     * Verifies wrapping behavior for gradians in both unsigned [0, 400)
+     * and signed [-200, 200) ranges.
      */
     public function testWrapGradiansBehaviour(): void
     {
@@ -382,9 +501,10 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test wrapDegrees normalizes values for signed and unsigned ranges.
+     * Test that wrapDegrees() normalizes values correctly.
      *
-     * @return void
+     * Verifies wrapping behavior for degrees in both unsigned [0, 360)
+     * and signed [-180, 180) ranges.
      */
     public function testWrapDegreesBehaviour(): void
     {
@@ -393,9 +513,10 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test hyperbolic trig functions match PHP's implementations.
+     * Test hyperbolic trigonometric functions.
      *
-     * @return void
+     * Verifies that sinh, cosh, and tanh methods return values matching
+     * PHP's built-in hyperbolic functions.
      */
     public function testHyperbolicTrigFunctions(): void
     {
@@ -405,5 +526,39 @@ final class AngleTests extends TestCase
         $this->assertFloatEquals(sinh($x), $a->sinh());
         $this->assertFloatEquals(cosh($x), $a->cosh());
         $this->assertFloatEquals(tanh($x), $a->tanh());
+    }
+
+    /**
+     * Test that formatting with an invalid format string throws ValueError.
+     */
+    public function testFormatInvalidFormatString(): void {
+        $a = Angle::fromDegrees(45);
+        $this->expectException(ValueError::class);
+        $a->format('invalid');
+    }
+
+    /**
+     * Test the __toString() magic method.
+     *
+     * Verifies that casting an angle to string produces the expected
+     * format (radians with CSS notation).
+     */
+    public function testToString(): void {
+        $a = Angle::fromRadians(M_PI);
+        $this->assertMatchesRegularExpression('/^\d+\.\d+rad$/', (string)$a);
+    }
+
+    /**
+     * Test the eq() equality method.
+     *
+     * Verifies that eq() correctly identifies equal and unequal angles.
+     */
+    public function testEquals(): void {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(20);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($a->eq($c));
+        $this->assertFalse($a->eq($b));
     }
 }
