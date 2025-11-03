@@ -4,12 +4,12 @@ declare(strict_types = 1);
 
 namespace Galaxon\Core\Tests;
 
+use DateTime;
 use Galaxon\Core\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
-use DateTime;
 
 /**
  * Test class for Type utility class.
@@ -154,7 +154,8 @@ final class TypesTest extends TestCase
         // Test that objects return 'object'.
         $this->assertSame('object', Types::getBasicType(new stdClass()));
         $this->assertSame('object', Types::getBasicType(new DateTime()));
-        $this->assertSame('object', Types::getBasicType(new class {}));
+        $this->assertSame('object', Types::getBasicType(new class {
+        }));
     }
 
     /**

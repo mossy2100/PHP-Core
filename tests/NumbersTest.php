@@ -7,7 +7,6 @@ namespace Galaxon\Core\Tests;
 use Galaxon\Core\Numbers;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use ValueError;
 
 /**

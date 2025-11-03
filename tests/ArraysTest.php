@@ -130,7 +130,7 @@ final class ArraysTest extends TestCase
         // Create array with reference to a sub-array (not recursion).
         $subArray = ['x' => 1, 'y' => 2];
         $arr = [
-            'original' => $subArray,
+            'original'  => $subArray,
             'reference' => &$subArray
         ];
 
@@ -147,12 +147,12 @@ final class ArraysTest extends TestCase
     {
         // Create complex array without recursion.
         $arr = [
-            'null' => null,
-            'bool' => true,
-            'int' => 42,
-            'float' => 3.14,
+            'null'   => null,
+            'bool'   => true,
+            'int'    => 42,
+            'float'  => 3.14,
             'string' => 'hello',
-            'array' => [1, 2, 3],
+            'array'  => [1, 2, 3],
             'nested' => [
                 'deep' => [
                     'value' => 'test'

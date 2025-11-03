@@ -4,19 +4,14 @@ declare(strict_types = 1);
 
 namespace Galaxon\Core\Tests;
 
-// Throwables
-use ValueError;
 use DivisionByZeroError;
-
-// PHPUnit
+use Galaxon\Core\Angle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-
-// Galaxon
-use Galaxon\Core\Angle;
+use ValueError;
 
 #[CoversClass(Angle::class)]
-final class AngleTests extends TestCase
+final class AngleTest extends TestCase
 {
     /**
      * Assert that two float values are equal within a delta tolerance.
@@ -244,7 +239,8 @@ final class AngleTests extends TestCase
      * Verifies that values just below rounding thresholds are formatted
      * correctly without triggering carry to the next unit.
      */
-    public function testFormatDmsNoCarryNeeded(): void {
+    public function testFormatDmsNoCarryNeeded(): void
+    {
         // Values that shouldn't trigger carry
         $a = Angle::fromDegrees(29, 59, 59.994);
         $this->assertSame("29° 59′ 59.994″", $a->format('dms', 3));
@@ -256,7 +252,8 @@ final class AngleTests extends TestCase
      * Verifies that rounding causes correct carry from seconds to minutes,
      * minutes to degrees, and handles both positive and negative angles.
      */
-    public function testFormatDmsWithCarry(): void {
+    public function testFormatDmsWithCarry(): void
+    {
         // Test degree rounding (29.9999... → 30°)
         $a = Angle::fromDegrees(29.9999999999);
         $this->assertSame("30.000°", $a->format('d', 3));
@@ -319,7 +316,7 @@ final class AngleTests extends TestCase
         for ($i = 0; $i < 500; $i++) {
             // Span a large range, including huge magnitudes.
             $rad = $this->randFloat(-1e6, 1e6);
-            $a   = Angle::fromRadians($rad);
+            $a = Angle::fromRadians($rad);
 
             // Verify toX() / fromX() round-trips.
             $this->assertFloatEquals($rad, Angle::fromRadians($a->toRadians())->toRadians());
@@ -348,7 +345,7 @@ final class AngleTests extends TestCase
 
         for ($i = 0; $i < 200; $i++) {
             $rad = $this->randFloat(-1000.0, 1000.0);
-            $a   = Angle::fromRadians($rad);
+            $a = Angle::fromRadians($rad);
 
             foreach ($styles as $style) {
                 // Use max float precision to ensure correct round-trip conversion.
@@ -527,7 +524,8 @@ final class AngleTests extends TestCase
     /**
      * Test that formatting with an invalid format string throws ValueError.
      */
-    public function testFormatInvalidFormatString(): void {
+    public function testFormatInvalidFormatString(): void
+    {
         $a = Angle::fromDegrees(45);
         $this->expectException(ValueError::class);
         $a->format('invalid');
@@ -539,7 +537,8 @@ final class AngleTests extends TestCase
      * Verifies that casting an angle to string produces the expected
      * format (radians with CSS notation).
      */
-    public function testToString(): void {
+    public function testToString(): void
+    {
         $a = Angle::fromRadians(M_PI);
         $this->assertMatchesRegularExpression('/^\d+\.\d+rad$/', (string)$a);
     }
@@ -549,7 +548,8 @@ final class AngleTests extends TestCase
      *
      * Verifies that eq() correctly identifies equal and unequal angles.
      */
-    public function testEquals(): void {
+    public function testEquals(): void
+    {
         $a = Angle::fromDegrees(10);
         $b = Angle::fromDegrees(20);
         $c = Angle::fromDegrees(10);

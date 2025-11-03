@@ -152,8 +152,12 @@ final class StringifyTest extends TestCase
         $this->assertSame('[[1, 2], [3, 4]]', Stringify::stringify([[1, 2], [3, 4]]));
 
         // Test nested associative array.
-        $this->assertSame('{"user": {"name": "John", "age": 30}}', Stringify::stringify(['user' => ['name' => 'John',
-                                                                                                    'age' => 30]]));
+        $this->assertSame('{"user": {"name": "John", "age": 30}}', Stringify::stringify([
+            'user' => [
+                'name' => 'John',
+                'age'  => 30
+            ]
+        ]));
 
         // Test mixed nesting.
         $this->assertSame('[1, ["a", "b"], 3]', Stringify::stringify([1, ['a', 'b'], 3]));
@@ -268,7 +272,8 @@ final class StringifyTest extends TestCase
     public function testStringifyEmptyObject(): void
     {
         // Create empty object.
-        $obj = new class {};
+        $obj = new class {
+        };
 
         // Test that empty object is rendered as self-closing tag.
         $result = Stringify::stringify($obj);
@@ -297,11 +302,11 @@ final class StringifyTest extends TestCase
 
         // Test that pretty print options adds newlines as expected.
         $str = <<<STR
-        <@anonymous
-            +name: "John",
-            +age: 30
-        >
-        STR;
+            <@anonymous
+                +name: "John",
+                +age: 30
+            >
+            STR;
         $this->assertSame($str, $result);
     }
 
