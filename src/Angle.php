@@ -92,38 +92,26 @@ class Angle implements Stringable
     }
 
     /**
-     * Create an angle from degrees.
-     *
-     * @param float $degrees The angle in degrees.
-     * @return self The angle instance.
-     * @throws ValueError If the argument is a non-finite number.
-     */
-    public static function fromDegrees(float $degrees): self
-    {
-        return new self($degrees / self::DEGREES_PER_RADIAN);
-    }
-
-    /**
      * Create an angle from degrees, arcminutes, and arcseconds.
      *
      * NB: In theory all parts SHOULD be either non-negative (i.e. 0 or positive) or non-positive (i.e. 0 or negative).
      * However, this is not enforced. Neither do any of the values have to be within a certain range (e.g. 0-60 for
      * minutes or seconds).
      *
-     * So, for example, if you want to convert -12° 34′ 56″ to degrees, call dmsToDeg(-12, -34, -56)
-     * If you want to convert -12° 56″ to degrees, call dmsToDeg(-12, 0, -56).
+     * So, for example, if you want to convert -12° 34′ 56″ to degrees, call fromDegrees(-12, -34, -56)
+     * If you want to convert -12° 56″ to degrees, call fromDegrees(-12, 0, -56).
      *
      * @param float $degrees The degrees part.
-     * @param float $minutes The arcminutes part.
-     * @param float $seconds The arcseconds part.
+     * @param float $arcmin The arcminutes part (optional).
+     * @param float $arcsec The arcseconds part (optional).
      * @return self A new angle with a magnitude equal to the provided angle.
      * @throws ValueError If any of the arguments are non-finite numbers.
      */
-    public static function fromDMS(float $degrees, float $minutes = 0.0, float $seconds = 0.0): self
+    public static function fromDegrees(float $degrees, float $arcmin = 0.0, float $arcsec = 0.0): self
     {
         // Compute the total degrees.
-        $total_deg = $degrees + $minutes / self::ARCMINUTES_PER_DEGREE + $seconds / self::ARCSECONDS_PER_DEGREE;
-        return self::fromDegrees($total_deg);
+        $total_deg = $degrees + $arcmin / self::ARCMINUTES_PER_DEGREE + $arcsec / self::ARCSECONDS_PER_DEGREE;
+        return new self($total_deg / self::DEGREES_PER_RADIAN);
     }
 
     /**
@@ -157,8 +145,7 @@ class Angle implements Stringable
      * There can be spaces between the number and the unit.
      * @see https://developer.mozilla.org/en-US/docs/Web/CSS/angle
      *
-     * The format with degrees, minutes, and seconds, as produced by the toDMSString() method, is
-     * also supported.
+     * Symbols for degrees, arcminutes, and arcseconds are also supported.
      * There cannot be any space between a number and its unit, but it's ok to have a single space
      * between two parts.
      *
@@ -179,8 +166,7 @@ class Angle implements Stringable
             throw new ValueError($err_msg);
         }
 
-        // Check for the DMS pattern as returned by toDMSString().
-        // That means optional minus, then optional degrees, minutes, seconds.
+        // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
         $num = '(?:\d+(?:\.\d+)?|\.\d+)';
         $pattern = "/^(?:(?P<sign>[-+]?)\s*)?"
                    . "(?:(?P<deg>$num)°\s*)?"
@@ -201,10 +187,10 @@ class Angle implements Stringable
             $s = isset($matches['sec']) ? $sign * (float)$matches['sec'] : 0.0;
 
             // Convert to angle.
-            return self::fromDMS($d, $m, $s);
+            return self::fromDegrees($d, $m, $s);
         }
 
-        // Check for units.
+        // Check for a format with CSS angle units.
         if (preg_match("/^(-?$num)\s*(rad|deg|grad|turn)$/i", $value, $m)) {
             $num = (float)$m[1];
             return match (strtolower($m[2])) {
@@ -225,7 +211,7 @@ class Angle implements Stringable
      * On success, sets $result to a new Angle and returns true.
      * On failure, sets $result to null and returns false.
      *
-     * @param string $value The input string to parse (supports deg, rad, grad, turn, or DMS format).
+     * @param string $value The input string to parse.
      * @param ?self &$result The parsed Angle on success; null on failure.
      * @return bool True if parsing succeeded; false otherwise.
      */
@@ -255,36 +241,30 @@ class Angle implements Stringable
     }
 
     /**
-     * Get the angle in degrees.
+     * Get the angle in degrees, with optional arcminutes and arcseconds.
      *
-     * @return float The angle in degrees.
-     */
-    public function toDegrees(): float
-    {
-        return $this->_radians * self::DEGREES_PER_RADIAN;
-    }
-
-    /**
-     * Get the angle in degrees, minutes, and seconds.
+     * The values will be returned as a single float (default), or an array of floats if arcminutes or arcseconds are
+     * requested.
      *
-     * The values will be returned in an array of floats. Only the smallest unit will be decimal; any larger ones will
-     * be whole numbers.
+     * If the result is an array, only the last item might have a fractional part; others will be whole numbers.
      *
-     * If the angle is non-negative, the resulting values will all be non-negative.
-     * If the angle is negative, the resulting values will all be zero or negative.
+     * If the angle is positive, the resulting values will all be positive.
+     * If the angle is zero, the resulting values will all be zero.
+     * If the angle is negative, the resulting values will all be negative.
      *
      * For the $smallest_unit parameter, you can use the UNIT class constants, i.e.
      * - UNIT_DEGREE for degrees only
      * - UNIT_ARCMINUTE for degrees and arcminutes
      * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
      *
-     * @param int $smallest_unit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default 2).
-     * @return float[] Array of 1-3 floats representing the degrees, arcminutes, and arcseconds.
+     * @param int $smallest_unit 0 for degrees (default), 1 for arcminutes, 2 for arcseconds.
+     * @return float|float[] Either a single float representing the degrees, an array of 2 floats with the degrees
+     * and arcminutes, or an array of 3 floats with the degrees, arcminutes, and arcseconds.
      * @throws ValueError If $smallest_unit is not 0, 1, or 2.
      */
-    public function toDMS(int $smallest_unit = self::UNIT_ARCSECOND): array
+    public function toDegrees(int $smallest_unit = self::UNIT_DEGREE): float|array
     {
-        $a = $this->toDegrees();
+        $a = $this->_radians * self::DEGREES_PER_RADIAN;
         $sign = Numbers::sign($a, false);
         $a = abs($a);
 
@@ -295,7 +275,7 @@ class Angle implements Stringable
                 // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
                 $d = Floats::normalizeZero($d * $sign);
 
-                return [$d];
+                return $d;
 
             case self::UNIT_ARCMINUTE:
                 // Convert the total degrees to degrees and minutes (non-negative).
@@ -323,7 +303,7 @@ class Angle implements Stringable
                 return [$d, $m, $s];
 
             default:
-                throw new ValueError("The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default).");
+                throw new ValueError("The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds.");
         }
     }
 
@@ -426,17 +406,27 @@ class Angle implements Stringable
     // region Comparison methods
 
     /**
-     * Compare this angle to another within a tolerance.
+     * Compare angles by their raw numeric values.
      *
-     * Returns:
-     *      0 if the two angles are equal (or close enough, within $eps)
-     *     -1 if this angle is smaller than the other
-     *      1 if this angle is larger than the other
+     * Compares angles as numerical values without normalization. This means
+     * 360° > 0° even though they represent the same angular position.
      *
-     * @param self $other The other angle to compare with.
-     * @param float $eps The tolerance for equality.
-     * @return int -1, 0, or 1
-     * @throws ValueError If $eps is negative.
+     * If you need to compare angular positions (where 0° = 360°), normalize
+     * both angles first using wrap() before comparing.
+     *
+     * @param self $other The angle to compare with.
+     * @param float $eps The tolerance for equality (default: RAD_EPSILON).
+     * @return int -1 if this < other, 0 if equal, 1 if this > other.
+     * @throws ValueError If epsilon is negative.
+     *
+     * @example
+     * $a = Angle::fromDegrees(10);
+     * $b = Angle::fromDegrees(350);
+     * $a->cmp($b); // -1 (10 < 350)
+     *
+     * // To compare as positions (accounting for wraparound):
+     * $a->wrap()->cmp($b->wrap()); // Still -1 (10 < 350 in unsigned range)
+     * $a->wrap(true)->cmp($b->wrap(true)); // 1 (10 > -10 in signed range)
      */
     public function cmp(self $other, float $eps = self::RAD_EPSILON): int
     {
@@ -445,8 +435,8 @@ class Angle implements Stringable
             throw new ValueError("Epsilon must be finite and non-negative.");
         }
 
-        // Compute minimal signed difference in [-π, π).
-        $delta = self::wrapRadians($this->_radians - $other->_radians, true);
+        // Compare raw radian values
+        $delta = $this->_radians - $other->_radians;
 
         // Check for equal or close enough.
         if (abs($delta) <= $eps) {
@@ -458,11 +448,30 @@ class Angle implements Stringable
     }
 
     /**
-     * Checks if two angles are equal within a tolerance.
+     * Check if two angles are equal within a tolerance.
      *
-     * @param self $other The other angle to compare with.
-     * @param float $eps The tolerance for equality.
-     * @return bool True if angles are equal within $eps; false otherwise.
+     * Compares angles by their raw numeric values without normalization.
+     * This means 10° will not equal 370° even though they represent the same rotation endpoint.
+     *
+     * If you need to compare angular positions (where 0° = 360°), normalize both angles using wrap() before comparing.
+     *
+     * @param self $other The angle to compare with.
+     * @param float $eps The tolerance for equality (default: RAD_EPSILON).
+     * @return bool True if angles are equal within tolerance; false otherwise.
+     * @throws ValueError If epsilon is negative.
+     *
+     * @example
+     * // Raw comparison (measures of rotation)
+     * $a = Angle::fromDegrees(10);
+     * $b = Angle::fromDegrees(370);
+     * $a->eq($b); // false (10 ≠ 370)
+     *
+     * // Position comparison (unsigned range [0°, 360°))
+     * $a->wrap()->eq($b->wrap()); // true (both normalize to 10°)
+     *
+     * // Position comparison (signed range [-180°, 180°))
+     * $c = Angle::fromDegrees(350);
+     * $a->wrap(true)->eq($c->wrap(true)); // false (10° ≠ -10°)
      */
     public function eq(self $other, float $eps = self::RAD_EPSILON): bool
     {
@@ -670,8 +679,9 @@ class Angle implements Stringable
     /**
      * Format a float with an optional number of decimal places.
      *
-     * NB: This is a private method called from format() and formatDMS(). It will not throw an exception on invalid
-     * input, as the arguments are assumed to be already validated in calling methods.
+     * NB: This is a private method called from format().
+     * It will not throw an exception on invalid input, as the arguments are assumed to be already validated in calling
+     * methods.
      *
      * @param float $value The value to format.
      * @param ?int $decimals Number of decimal places to show, or null for the maximum (with no trailing zeros).
@@ -698,22 +708,22 @@ class Angle implements Stringable
      * - UNIT_ARCMINUTE for degrees and arcminutes
      * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
      *
-     * @param int $smallest_unit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default).
+     * @param int $smallest_unit 0 for degrees (default), 1 for arcminutes, 2 for arcseconds.
      * @param ?int $decimals Optional number of decimal places for the smallest unit.
      * @return string The degrees, arcminutes, and arcseconds nicely formatted as a string.
      * @throws ValueError If the smallest unit argument is not 0, 1, or 2.
      */
-    private function _formatDMS(int $smallest_unit = self::UNIT_ARCSECOND, ?int $decimals = null): string
+    private function _formatDegrees(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
     {
         // Get the sign string.
         $sign = $this->_radians < 0 ? '-' : '';
 
         // Convert to degrees, with optional minutes and seconds.
-        $parts = $this->abs()->toDMS($smallest_unit);
+        $parts = $this->abs()->toDegrees($smallest_unit);
 
         switch ($smallest_unit) {
             case self::UNIT_DEGREE:
-                [$d] = $parts;
+                $d = $parts;
                 $str_d = self::_formatFloat($d, $decimals);
                 return "$sign{$str_d}°";
 
@@ -788,9 +798,9 @@ class Angle implements Stringable
             'deg'   => self::_formatFloat($this->toDegrees(), $decimals) . 'deg',
             'grad'  => self::_formatFloat($this->toGradians(), $decimals) . 'grad',
             'turn'  => self::_formatFloat($this->toTurns(), $decimals) . 'turn',
-            'd'     => $this->_formatDMS(self::UNIT_DEGREE, $decimals),
-            'dm'    => $this->_formatDMS(self::UNIT_ARCMINUTE, $decimals),
-            'dms'   => $this->_formatDMS(self::UNIT_ARCSECOND, $decimals),
+            'd'     => $this->_formatDegrees(self::UNIT_DEGREE, $decimals),
+            'dm'    => $this->_formatDegrees(self::UNIT_ARCMINUTE, $decimals),
+            'dms'   => $this->_formatDegrees(self::UNIT_ARCSECOND, $decimals),
             default => throw new ValueError(
                 "Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms."
             ),

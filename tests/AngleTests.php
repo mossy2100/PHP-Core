@@ -82,28 +82,28 @@ final class AngleTests extends TestCase
      */
     public function testDmsRoundtripAndCarry(): void
     {
-        $a = Angle::fromDMS(12, 34, 56);
-        [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
+        $a = Angle::fromDegrees(12, 34, 56);
+        [$d, $m, $s] = $a->toDegrees(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(12.0, $d);
         $this->assertFloatEquals(34.0, $m);
         $this->assertFloatEquals(56.0, $s);
 
         // Verify floating-point precision at seconds and minutes boundaries.
         $b = Angle::fromDegrees(29.999999999);
-        [$d2, $m2, $s2] = $b->toDMS(Angle::UNIT_ARCSECOND);
+        [$d2, $m2, $s2] = $b->toDegrees(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(29, $d2);
         $this->assertFloatEquals(59, $m2);
         $this->assertFloatEquals(59.9999964, $s2);
 
         // Verify floating-point precision at minutes boundary.
         $b = Angle::fromDegrees(29.999999999);
-        [$d3, $m3] = $b->toDMS(Angle::UNIT_ARCMINUTE);
+        [$d3, $m3] = $b->toDegrees(Angle::UNIT_ARCMINUTE);
         $this->assertFloatEquals(29, $d3);
         $this->assertFloatEquals(59.99999994, $m3);
 
         // Test that invalid smallest unit index throws ValueError.
         $this->expectException(ValueError::class);
-        $x = $b->toDMS(3);
+        $x = $b->toDegrees(3);
     }
 
     /**
@@ -120,9 +120,9 @@ final class AngleTests extends TestCase
         $this->assertAngleEquals(Angle::fromRadians(M_PI), Angle::parse(M_PI . 'rad'));
 
         // Unicode symbols (°, ′, ″).
-        $this->assertAngleEquals(Angle::fromDMS(12, 34, 56), Angle::parse('12° 34′ 56″'));
+        $this->assertAngleEquals(Angle::fromDegrees(12, 34, 56), Angle::parse('12° 34′ 56″'));
         // ASCII fallback (°, ', ").
-        $this->assertAngleEquals(Angle::fromDMS(-12, -34, -56), Angle::parse("-12°34'56\""));
+        $this->assertAngleEquals(Angle::fromDegrees(-12, -34, -56), Angle::parse("-12°34'56\""));
     }
 
     /**
@@ -151,17 +151,13 @@ final class AngleTests extends TestCase
     }
 
     /**
-     * Test arithmetic operations (add, sub, mul, div) and comparison.
+     * Test arithmetic operations (add, sub, mul, div).
      *
-     * Verifies that angles can be added, subtracted, scaled, and compared
-     * with correct results, including wraparound behavior in comparisons.
+     * Verifies that angles can be added, subtracted, and scaled with correct results.
      */
-    public function testArithmeticAndCompare(): void
+    public function testArithmetic(): void
     {
         $a = Angle::fromDegrees(10);
-        $b = Angle::fromDegrees(370);
-        // 10° vs. 370° differ by 0° on a circle.
-        $this->assertSame(0, $a->cmp($b));
 
         $sum = $a->add(Angle::fromDegrees(20));
         $this->assertFloatEquals(30.0, $sum->toDegrees());
@@ -250,7 +246,7 @@ final class AngleTests extends TestCase
      */
     public function testFormatDmsNoCarryNeeded(): void {
         // Values that shouldn't trigger carry
-        $a = Angle::fromDMS(29, 59, 59.994);
+        $a = Angle::fromDegrees(29, 59, 59.994);
         $this->assertSame("29° 59′ 59.994″", $a->format('dms', 3));
     }
 
@@ -268,19 +264,19 @@ final class AngleTests extends TestCase
         $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
 
         // Test arcminute carry (29° 59.9999′ → 30° 0′)
-        $a = Angle::fromDMS(29, 59.9999999);
+        $a = Angle::fromDegrees(29, 59.9999999);
         $this->assertSame("30° 0.000′", $a->format('dm', 3));
 
         // Test arcsecond carry (29° 59′ 59.9999″ → 30° 0′ 0″)
-        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $a = Angle::fromDegrees(29, 59, 59.9999999);
         $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
 
         // Test double carry (seconds → minutes → degrees)
-        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $a = Angle::fromDegrees(29, 59, 59.9999999);
         $this->assertSame("30.000°", $a->format('d', 3));
 
         // Test mid-range carry (not at zero boundary)
-        $a = Angle::fromDMS(45, 59, 59.9995);
+        $a = Angle::fromDegrees(45, 59, 59.9995);
         $this->assertSame("46° 0′ 0.000″", $a->format('dms', 3));
 
         // Test negative angle carry
@@ -399,21 +395,21 @@ final class AngleTests extends TestCase
     /**
      * Test DMS conversion with extreme and out-of-range values.
      *
-     * Verifies that fromDMS() correctly handles arcminutes and arcseconds
+     * Verifies that fromDegrees() correctly handles arcminutes and arcseconds
      * beyond their normal ranges (0-59) and mixed sign values.
      */
     public function testDmsExtremesAndOutOfRangeParts(): void
     {
         // Minutes/seconds beyond their usual ranges should still compute correctly.
-        $a = Angle::fromDMS(10, 120, 120); // 10° + 2° + 0.033...° = 12.033...
+        $a = Angle::fromDegrees(10, 120, 120); // 10° + 2° + 0.033...° = 12.033...
         $this->assertFloatEquals(12.0333333333, $a->toDegrees(), 1e-9);
 
         // Mixed signs as documented (caller responsibility).
-        $b = Angle::fromDMS(-12, -90, 30); // -12 - 1.5 + 0.008333... = -13.491666...
+        $b = Angle::fromDegrees(-12, -90, 30); // -12 - 1.5 + 0.008333... = -13.491666...
         $this->assertFloatEquals(-13.4916666667, $b->toDegrees(), 1e-9);
 
         // Exactly 60 seconds (should carry in formatting).
-        $a = Angle::fromDMS(29, 59, 60.0);
+        $a = Angle::fromDegrees(29, 59, 60.0);
         $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
     }
 
@@ -430,9 +426,9 @@ final class AngleTests extends TestCase
         $this->assertTrue(Angle::fromRadians(M_PI)->eq(Angle::parse(sprintf('%.12frad', M_PI))));
 
         // Unicode DMS symbols (°, ′, ″).
-        $this->assertTrue(Angle::fromDMS(12, 34, 56)->eq(Angle::parse('12° 34′ 56″')));
+        $this->assertTrue(Angle::fromDegrees(12, 34, 56)->eq(Angle::parse('12° 34′ 56″')));
         // ASCII DMS fallback (°, ', ").
-        $this->assertTrue(Angle::fromDMS(-12, -34, -56)->eq(Angle::parse("-12°34'56\"")));
+        $this->assertTrue(Angle::fromDegrees(-12, -34, -56)->eq(Angle::parse("-12°34'56\"")));
 
         // Verify that invalid DMS format throws ValueError.
         $this->expectException(ValueError::class);
