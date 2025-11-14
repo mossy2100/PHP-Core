@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Galaxon\Core;
 
 use TypeError;
 use ValueError;
+use JsonException;
 
 /**
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
@@ -38,18 +39,42 @@ final class Stringify
      * @return string The string representation of the value.
      * @throws ValueError If the value cannot be stringified.
      * @throws TypeError If the value has an unknown type.
+     * @see stringifyFloat()
+     * @see stringifyArray()
+     * @see stringifyResource()
+     * @see stringifyObject()
      */
     public static function stringify(mixed $value, bool $pretty_print = false, int $indent_level = 0): string
     {
         // Call the relevant method.
-        return match (Types::getBasicType($value)) {
-            'null', 'bool', 'int', 'string' => json_encode($value),
-            'float'                         => self::stringifyFloat($value),
-            'array'                         => self::stringifyArray($value, $pretty_print, $indent_level),
-            'resource'                      => self::stringifyResource($value),
-            'object'                        => self::stringifyObject($value, $pretty_print, $indent_level),
-            default                         => throw new TypeError("Unknown type.")
-        };
+        switch (Types::getBasicType($value)) {
+            case 'null':
+            case 'bool':
+            case 'int':
+            case 'string':
+                try {
+                    // This function call will never throw for these types but include the try-catch anyway to silence
+                    // the IDE and for robustness.
+                    return json_encode($value, JSON_THROW_ON_ERROR);
+                } catch (JsonException) {
+                    throw new ValueError("Cannot stringify value of type $value.");
+                }
+
+            case 'float':
+                return self::stringifyFloat($value);
+
+            case 'array':
+                return self::stringifyArray($value, $pretty_print, $indent_level);
+
+            case 'resource':
+                return self::stringifyResource($value);
+
+            case 'object':
+                return self::stringifyObject($value, $pretty_print, $indent_level);
+
+            default:
+                throw new TypeError("Unknown type.");
+        }
     }
 
     /**
@@ -115,8 +140,7 @@ final class Stringify
             // Encode a list without no keys.
             if ($is_list) {
                 $pairs[] = "$indent$value_str";
-            }
-            else {
+            } else {
                 // Encode an associative array with keys.
                 $key_str = self::stringify($key, $pretty_print, $indent_level + 1);
                 $pairs[] = "$indent$key_str: $value_str";
@@ -203,8 +227,7 @@ final class Stringify
             if (count($name_parts) === 1) {
                 // Property is public.
                 $vis_symbol = '+';
-            }
-            else {
+            } else {
                 // Property must be protected or private. If the second item in the $name_parts array is '*', the
                 // property is protected; otherwise, it's private.
                 $vis_symbol = $name_parts[1] === '*' ? '#' : '-';
@@ -229,6 +252,9 @@ final class Stringify
      * @param mixed $value The value to get the string representation for.
      * @param int $max_len The maximum length of the result.
      * @return string The short string representation.
+     * @throws ValueError If the maximum length is less than 10.
+     * @throws TypeError If the value has an unknown type.
+     * @see stringify()
      */
     public static function abbrev(mixed $value, int $max_len = 30): string
     {

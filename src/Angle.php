@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Galaxon\Core;
 
 // Interfaces
 use Stringable;
-
 // Attributes
 use Override;
-
 // Throwables
 use Throwable;
 use ValueError;
@@ -57,7 +55,7 @@ class Angle implements Stringable
      *
      * @var float
      */
-    private float $_radians;
+    private float $radians;
 
     // endregion
 
@@ -76,7 +74,7 @@ class Angle implements Stringable
             throw new ValueError("Angle size cannot be ±∞ or NaN.");
         }
 
-        $this->_radians = $radians;
+        $this->radians = $radians;
     }
 
     /**
@@ -237,7 +235,7 @@ class Angle implements Stringable
      */
     public function toRadians(): float
     {
-        return $this->_radians;
+        return $this->radians;
     }
 
     /**
@@ -264,7 +262,7 @@ class Angle implements Stringable
      */
     public function toDegrees(int $smallest_unit = self::UNIT_DEGREE): float|array
     {
-        $a = $this->_radians * self::DEGREES_PER_RADIAN;
+        $a = $this->radians * self::DEGREES_PER_RADIAN;
         $sign = Numbers::sign($a, false);
         $a = abs($a);
 
@@ -303,7 +301,9 @@ class Angle implements Stringable
                 return [$d, $m, $s];
 
             default:
-                throw new ValueError("The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds.");
+                throw new ValueError(
+                    "The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds."
+                );
         }
     }
 
@@ -314,7 +314,7 @@ class Angle implements Stringable
      */
     public function toGradians(): float
     {
-        return $this->_radians * self::GRADIANS_PER_RADIAN;
+        return $this->radians * self::GRADIANS_PER_RADIAN;
     }
 
     /**
@@ -324,7 +324,7 @@ class Angle implements Stringable
      */
     public function toTurns(): float
     {
-        return $this->_radians / self::RADIANS_PER_TURN;
+        return $this->radians / self::RADIANS_PER_TURN;
     }
 
     // endregion
@@ -339,7 +339,7 @@ class Angle implements Stringable
      */
     public function add(self $other): self
     {
-        return new self($this->_radians + $other->_radians);
+        return new self($this->radians + $other->radians);
     }
 
     /**
@@ -350,7 +350,7 @@ class Angle implements Stringable
      */
     public function sub(self $other): self
     {
-        return new self($this->_radians - $other->_radians);
+        return new self($this->radians - $other->radians);
     }
 
     /**
@@ -367,7 +367,7 @@ class Angle implements Stringable
             throw new ValueError("Multiplier cannot be ±∞ or NaN.");
         }
 
-        return new self($this->_radians * $k);
+        return new self($this->radians * $k);
     }
 
     /**
@@ -388,7 +388,7 @@ class Angle implements Stringable
             throw new ValueError("Divisor cannot be ±∞ or NaN.");
         }
 
-        return new self(fdiv($this->_radians, $k));
+        return new self(fdiv($this->radians, $k));
     }
 
     /**
@@ -398,7 +398,7 @@ class Angle implements Stringable
      */
     public function abs(): self
     {
-        return new self(abs($this->_radians));
+        return new self(abs($this->radians));
     }
 
     // endregion
@@ -422,13 +422,13 @@ class Angle implements Stringable
      * @example
      * $a = Angle::fromDegrees(10);
      * $b = Angle::fromDegrees(350);
-     * $a->cmp($b); // -1 (10 < 350)
+     * $a->compare($b); // -1 (10 < 350)
      *
      * // To compare as positions (accounting for wraparound):
-     * $a->wrap()->cmp($b->wrap()); // Still -1 (10 < 350 in unsigned range)
-     * $a->wrap(true)->cmp($b->wrap(true)); // 1 (10 > -10 in signed range)
+     * $a->wrap()->compare($b->wrap()); // Still -1 (10 < 350 in unsigned range)
+     * $a->wrap(true)->compare($b->wrap(true)); // 1 (10 > -10 in signed range)
      */
-    public function cmp(self $other, float $eps = self::RAD_EPSILON): int
+    public function compare(self $other, float $eps = self::RAD_EPSILON): int
     {
         // Ensure epsilon is finite and non-negative.
         if ($eps < 0 || !is_finite($eps)) {
@@ -436,7 +436,7 @@ class Angle implements Stringable
         }
 
         // Compare raw radian values
-        $delta = $this->_radians - $other->_radians;
+        $delta = $this->radians - $other->radians;
 
         // Check for equal or close enough.
         if (abs($delta) <= $eps) {
@@ -464,18 +464,18 @@ class Angle implements Stringable
      * // Raw comparison (measures of rotation)
      * $a = Angle::fromDegrees(10);
      * $b = Angle::fromDegrees(370);
-     * $a->eq($b); // false (10 ≠ 370)
+     * $a->equals($b); // false (10 ≠ 370)
      *
      * // Position comparison (unsigned range [0°, 360°))
-     * $a->wrap()->eq($b->wrap()); // true (both normalize to 10°)
+     * $a->wrap()->equals($b->wrap()); // true (both normalize to 10°)
      *
      * // Position comparison (signed range [-180°, 180°))
      * $c = Angle::fromDegrees(350);
-     * $a->wrap(true)->eq($c->wrap(true)); // false (10° ≠ -10°)
+     * $a->wrap(true)->equals($c->wrap(true)); // false (10° ≠ -10°)
      */
-    public function eq(self $other, float $eps = self::RAD_EPSILON): bool
+    public function equals(self $other, float $eps = self::RAD_EPSILON): bool
     {
-        return $this->cmp($other, $eps) === 0;
+        return $this->compare($other, $eps) === 0;
     }
 
     // endregion
@@ -489,7 +489,7 @@ class Angle implements Stringable
      */
     public function sin(): float
     {
-        return sin($this->_radians);
+        return sin($this->radians);
     }
 
     /**
@@ -499,7 +499,7 @@ class Angle implements Stringable
      */
     public function cos(): float
     {
-        return cos($this->_radians);
+        return cos($this->radians);
     }
 
     /**
@@ -509,8 +509,8 @@ class Angle implements Stringable
      */
     public function tan(): float
     {
-        $s = sin($this->_radians);
-        $c = cos($this->_radians);
+        $s = sin($this->radians);
+        $c = cos($this->radians);
 
         // If cos is effectively zero, return ±INF (sign chosen by the side, i.e., sign of sine).
         // The built-in tan() function normally doesn't ever return ±INF.
@@ -529,7 +529,7 @@ class Angle implements Stringable
      */
     public function sinh(): float
     {
-        return sinh($this->_radians);
+        return sinh($this->radians);
     }
 
     /**
@@ -539,7 +539,7 @@ class Angle implements Stringable
      */
     public function cosh(): float
     {
-        return cosh($this->_radians);
+        return cosh($this->radians);
     }
 
     /**
@@ -549,7 +549,7 @@ class Angle implements Stringable
      */
     public function tanh(): float
     {
-        return tanh($this->_radians);
+        return tanh($this->radians);
     }
 
     // endregion
@@ -572,7 +572,7 @@ class Angle implements Stringable
      * @return float The wrapped value.
      * @throws ValueError If the $value argument is non-finite.
      */
-    private static function _wrap(float $value, float $units_per_turn, bool $signed = false): float
+    private static function wrapAngle(float $value, float $units_per_turn, bool $signed = false): float
     {
         // Guard.
         if (!is_finite($value)) {
@@ -587,8 +587,7 @@ class Angle implements Stringable
             $half = $units_per_turn / 2.0;
             $min = -$half;
             $max = $half;
-        }
-        else {
+        } else {
             $min = 0.0;
             $max = $units_per_turn;
         }
@@ -597,8 +596,7 @@ class Angle implements Stringable
         // Adjust accordingly.
         if ($r < $min) {
             $r += $units_per_turn;
-        }
-        elseif ($r >= $max) {
+        } elseif ($r >= $max) {
             $r -= $units_per_turn;
         }
 
@@ -615,7 +613,7 @@ class Angle implements Stringable
      */
     public static function wrapRadians(float $radians, bool $signed = false): float
     {
-        return self::_wrap($radians, self::TAU, $signed);
+        return self::wrapAngle($radians, self::TAU, $signed);
     }
 
     /**
@@ -627,7 +625,7 @@ class Angle implements Stringable
      */
     public static function wrapDegrees(float $degrees, bool $signed = false): float
     {
-        return self::_wrap($degrees, self::DEGREES_PER_TURN, $signed);
+        return self::wrapAngle($degrees, self::DEGREES_PER_TURN, $signed);
     }
 
     /**
@@ -639,7 +637,7 @@ class Angle implements Stringable
      */
     public static function wrapGradians(float $gradians, bool $signed = false): float
     {
-        return self::_wrap($gradians, self::GRADIANS_PER_TURN, $signed);
+        return self::wrapAngle($gradians, self::GRADIANS_PER_TURN, $signed);
     }
 
     // endregion
@@ -664,7 +662,7 @@ class Angle implements Stringable
     public function wrap(bool $signed = false): self
     {
         // Wrap the angle.
-        $this->_radians = self::wrapRadians($this->_radians, $signed);
+        $this->radians = self::wrapRadians($this->radians, $signed);
 
         // Return $this for chaining.
         return $this;
@@ -687,7 +685,7 @@ class Angle implements Stringable
      * @param ?int $decimals Number of decimal places to show, or null for the maximum (with no trailing zeros).
      * @return string The formatted string.
      */
-    private static function _formatFloat(float $value, ?int $decimals = null): string
+    private static function formatFloat(float $value, ?int $decimals = null): string
     {
         // Canonicalize -0.0 to 0.0 to avoid surprising string output.
         $value = Floats::normalizeZero($value);
@@ -713,10 +711,10 @@ class Angle implements Stringable
      * @return string The degrees, arcminutes, and arcseconds nicely formatted as a string.
      * @throws ValueError If the smallest unit argument is not 0, 1, or 2.
      */
-    private function _formatDegrees(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
+    private function formatDegrees(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
     {
         // Get the sign string.
-        $sign = $this->_radians < 0 ? '-' : '';
+        $sign = $this->radians < 0 ? '-' : '';
 
         // Convert to degrees, with optional minutes and seconds.
         $parts = $this->abs()->toDegrees($smallest_unit);
@@ -724,7 +722,7 @@ class Angle implements Stringable
         switch ($smallest_unit) {
             case self::UNIT_DEGREE:
                 $d = $parts;
-                $str_d = self::_formatFloat($d, $decimals);
+                $str_d = self::formatFloat($d, $decimals);
                 return "$sign{$str_d}°";
 
             case self::UNIT_ARCMINUTE:
@@ -741,7 +739,7 @@ class Angle implements Stringable
                     }
                 }
 
-                $str_m = self::_formatFloat($m, $decimals);
+                $str_m = self::formatFloat($m, $decimals);
                 return "$sign{$d}° {$str_m}′";
 
             case self::UNIT_ARCSECOND:
@@ -762,12 +760,14 @@ class Angle implements Stringable
                     }
                 }
 
-                $str_s = self::_formatFloat($s, $decimals);
+                $str_s = self::formatFloat($s, $decimals);
                 return "$sign{$d}° {$m}′ {$str_s}″";
 
             // @codeCoverageIgnoreStart
             default:
-                throw new ValueError("The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default).");
+                throw new ValueError(
+                    "The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default)."
+                );
             // @codeCoverageIgnoreEnd
         }
     }
@@ -794,13 +794,13 @@ class Angle implements Stringable
         }
 
         return match (strtolower($format)) {
-            'rad'   => self::_formatFloat($this->toRadians(), $decimals) . 'rad',
-            'deg'   => self::_formatFloat($this->toDegrees(), $decimals) . 'deg',
-            'grad'  => self::_formatFloat($this->toGradians(), $decimals) . 'grad',
-            'turn'  => self::_formatFloat($this->toTurns(), $decimals) . 'turn',
-            'd'     => $this->_formatDegrees(self::UNIT_DEGREE, $decimals),
-            'dm'    => $this->_formatDegrees(self::UNIT_ARCMINUTE, $decimals),
-            'dms'   => $this->_formatDegrees(self::UNIT_ARCSECOND, $decimals),
+            'rad'   => self::formatFloat($this->toRadians(), $decimals) . 'rad',
+            'deg'   => self::formatFloat($this->toDegrees(), $decimals) . 'deg',
+            'grad'  => self::formatFloat($this->toGradians(), $decimals) . 'grad',
+            'turn'  => self::formatFloat($this->toTurns(), $decimals) . 'turn',
+            'd'     => $this->formatDegrees(self::UNIT_DEGREE, $decimals),
+            'dm'    => $this->formatDegrees(self::UNIT_ARCMINUTE, $decimals),
+            'dms'   => $this->formatDegrees(self::UNIT_ARCSECOND, $decimals),
             default => throw new ValueError(
                 "Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms."
             ),

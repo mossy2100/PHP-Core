@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Galaxon\Core;
 
@@ -94,7 +94,7 @@ final class Types
      * @param mixed $value The value to convert.
      * @return string The unique string key.
      */
-    public static function getStringKey(mixed $value): string
+    public static function getUniqueString(mixed $value): string
     {
         return match (self::getBasicType($value)) {
             'null'     => 'n',
@@ -132,8 +132,7 @@ final class Types
         if (func_num_args() > 2) {
             $actual_type = get_debug_type($value);
             $message .= ", $actual_type given.";
-        }
-        else {
+        } else {
             $message .= '.';
         }
 

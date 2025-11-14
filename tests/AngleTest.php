@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Galaxon\Core\Tests;
 
@@ -33,7 +33,7 @@ final class AngleTest extends TestCase
      */
     private function assertAngleEquals(Angle $a, Angle $b): void
     {
-        $this->assertTrue($a->eq($b), "Angles differ: {$a} vs {$b}");
+        $this->assertTrue($a->equals($b), "Angles differ: {$a} vs {$b}");
     }
 
     /**
@@ -353,7 +353,7 @@ final class AngleTest extends TestCase
                 $b = Angle::parse($s);
 
                 $this->assertTrue(
-                    $a->eq($b),
+                    $a->equals($b),
                     "Format/parse mismatch for style '{$style}': {$s} → {$b} vs {$a}"
                 );
             }
@@ -418,14 +418,14 @@ final class AngleTest extends TestCase
      */
     public function testParsingWhitespaceAndCaseAndAsciiUnicodeSymbols(): void
     {
-        $this->assertTrue(Angle::fromDegrees(12)->eq(Angle::parse('12 DEG')));
-        $this->assertTrue(Angle::fromTurns(0.25)->eq(Angle::parse(' 0.25   turn ')));
-        $this->assertTrue(Angle::fromRadians(M_PI)->eq(Angle::parse(sprintf('%.12frad', M_PI))));
+        $this->assertTrue(Angle::fromDegrees(12)->equals(Angle::parse('12 DEG')));
+        $this->assertTrue(Angle::fromTurns(0.25)->equals(Angle::parse(' 0.25   turn ')));
+        $this->assertTrue(Angle::fromRadians(M_PI)->equals(Angle::parse(sprintf('%.12frad', M_PI))));
 
         // Unicode DMS symbols (°, ′, ″).
-        $this->assertTrue(Angle::fromDegrees(12, 34, 56)->eq(Angle::parse('12° 34′ 56″')));
+        $this->assertTrue(Angle::fromDegrees(12, 34, 56)->equals(Angle::parse('12° 34′ 56″')));
         // ASCII DMS fallback (°, ', ").
-        $this->assertTrue(Angle::fromDegrees(-12, -34, -56)->eq(Angle::parse("-12°34'56\"")));
+        $this->assertTrue(Angle::fromDegrees(-12, -34, -56)->equals(Angle::parse("-12°34'56\"")));
 
         // Verify that invalid DMS format throws ValueError.
         $this->expectException(ValueError::class);
@@ -462,7 +462,7 @@ final class AngleTest extends TestCase
     /**
      * Test comparison behavior with epsilon tolerance and sign of delta.
      *
-     * Verifies that cmp() correctly returns -1, 0, or 1 based on the
+     * Verifies that compare() correctly returns -1, 0, or 1 based on the
      * difference between angles, and rejects negative epsilon values.
      */
     public function testCompareWithEpsilonAndDelta(): void
@@ -471,14 +471,14 @@ final class AngleTest extends TestCase
         $b = Angle::fromDegrees(20);
 
         // Delta is negative -> a < b.
-        $this->assertSame(-1, $a->cmp($b));
+        $this->assertSame(-1, $a->compare($b));
 
         // Delta is positive -> b > a.
-        $this->assertSame(1, $b->cmp($a));
+        $this->assertSame(1, $b->compare($a));
 
         // Epsilon negative -> invalid argument.
         $this->expectException(ValueError::class);
-        $a->cmp($b, -1e-9);
+        $a->compare($b, -1e-9);
     }
 
     /**
@@ -544,9 +544,9 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test the eq() equality method.
+     * Test the equals() equality method.
      *
-     * Verifies that eq() correctly identifies equal and unequal angles.
+     * Verifies that equals() correctly identifies equal and unequal angles.
      */
     public function testEquals(): void
     {
@@ -554,7 +554,7 @@ final class AngleTest extends TestCase
         $b = Angle::fromDegrees(20);
         $c = Angle::fromDegrees(10);
 
-        $this->assertTrue($a->eq($c));
-        $this->assertFalse($a->eq($b));
+        $this->assertTrue($a->equals($c));
+        $this->assertFalse($a->equals($b));
     }
 }

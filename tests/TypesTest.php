@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Galaxon\Core\Tests;
 
@@ -175,7 +175,7 @@ final class TypesTest extends TestCase
     public function testGetStringKeyNull(): void
     {
         // Test that null produces unique key.
-        $this->assertSame('n', Types::getStringKey(null));
+        $this->assertSame('n', Types::getUniqueString(null));
     }
 
     /**
@@ -184,11 +184,11 @@ final class TypesTest extends TestCase
     public function testGetStringKeyBool(): void
     {
         // Test that booleans produce unique keys.
-        $this->assertSame('b:T', Types::getStringKey(true));
-        $this->assertSame('b:F', Types::getStringKey(false));
+        $this->assertSame('b:T', Types::getUniqueString(true));
+        $this->assertSame('b:F', Types::getUniqueString(false));
 
         // Test that true and false produce different keys.
-        $this->assertNotSame(Types::getStringKey(true), Types::getStringKey(false));
+        $this->assertNotSame(Types::getUniqueString(true), Types::getUniqueString(false));
     }
 
     /**
@@ -197,12 +197,12 @@ final class TypesTest extends TestCase
     public function testGetStringKeyInt(): void
     {
         // Test that integers produce unique keys.
-        $this->assertSame('i:0', Types::getStringKey(0));
-        $this->assertSame('i:42', Types::getStringKey(42));
-        $this->assertSame('i:-17', Types::getStringKey(-17));
+        $this->assertSame('i:0', Types::getUniqueString(0));
+        $this->assertSame('i:42', Types::getUniqueString(42));
+        $this->assertSame('i:-17', Types::getUniqueString(-17));
 
         // Test that different integers produce different keys.
-        $this->assertNotSame(Types::getStringKey(1), Types::getStringKey(2));
+        $this->assertNotSame(Types::getUniqueString(1), Types::getUniqueString(2));
     }
 
     /**
@@ -211,22 +211,22 @@ final class TypesTest extends TestCase
     public function testGetStringKeyFloat(): void
     {
         // Test that floats produce unique keys starting with 'f:'.
-        $key1 = Types::getStringKey(3.14);
+        $key1 = Types::getUniqueString(3.14);
         $this->assertStringStartsWith('f:', $key1);
 
         // Test that different floats produce different keys.
-        $key2 = Types::getStringKey(2.71);
+        $key2 = Types::getUniqueString(2.71);
         $this->assertNotSame($key1, $key2);
 
         // Test that positive and negative zero produce different keys.
-        $keyPosZero = Types::getStringKey(0.0);
-        $keyNegZero = Types::getStringKey(-0.0);
+        $keyPosZero = Types::getUniqueString(0.0);
+        $keyNegZero = Types::getUniqueString(-0.0);
         $this->assertNotSame($keyPosZero, $keyNegZero);
 
         // Test special float values produce unique keys.
-        $this->assertStringStartsWith('f:', Types::getStringKey(INF));
-        $this->assertStringStartsWith('f:', Types::getStringKey(-INF));
-        $this->assertStringStartsWith('f:', Types::getStringKey(NAN));
+        $this->assertStringStartsWith('f:', Types::getUniqueString(INF));
+        $this->assertStringStartsWith('f:', Types::getUniqueString(-INF));
+        $this->assertStringStartsWith('f:', Types::getUniqueString(NAN));
     }
 
     /**
@@ -235,15 +235,15 @@ final class TypesTest extends TestCase
     public function testGetStringKeyString(): void
     {
         // Test that strings produce keys with format 's:length:content'.
-        $this->assertSame('s:5:hello', Types::getStringKey('hello'));
-        $this->assertSame('s:0:', Types::getStringKey(''));
-        $this->assertSame('s:2:42', Types::getStringKey('42'));
+        $this->assertSame('s:5:hello', Types::getUniqueString('hello'));
+        $this->assertSame('s:0:', Types::getUniqueString(''));
+        $this->assertSame('s:2:42', Types::getUniqueString('42'));
 
         // Test that different strings produce different keys.
-        $this->assertNotSame(Types::getStringKey('hello'), Types::getStringKey('world'));
+        $this->assertNotSame(Types::getUniqueString('hello'), Types::getUniqueString('world'));
 
         // Test that strings with same length but different content produce different keys.
-        $this->assertNotSame(Types::getStringKey('abc'), Types::getStringKey('def'));
+        $this->assertNotSame(Types::getUniqueString('abc'), Types::getUniqueString('def'));
     }
 
     /**
@@ -252,18 +252,18 @@ final class TypesTest extends TestCase
     public function testGetStringKeyArray(): void
     {
         // Test that arrays produce keys starting with 'a:count:'.
-        $key1 = Types::getStringKey([1, 2, 3]);
+        $key1 = Types::getUniqueString([1, 2, 3]);
         $this->assertStringStartsWith('a:3:', $key1);
 
         // Test empty array.
-        $key2 = Types::getStringKey([]);
+        $key2 = Types::getUniqueString([]);
         $this->assertStringStartsWith('a:0:', $key2);
 
         // Test that different arrays produce different keys.
-        $this->assertNotSame(Types::getStringKey([1, 2]), Types::getStringKey([3, 4]));
+        $this->assertNotSame(Types::getUniqueString([1, 2]), Types::getUniqueString([3, 4]));
 
         // Test associative array.
-        $key3 = Types::getStringKey(['key' => 'value']);
+        $key3 = Types::getUniqueString(['key' => 'value']);
         $this->assertStringStartsWith('a:1:', $key3);
     }
 
@@ -274,16 +274,16 @@ final class TypesTest extends TestCase
     {
         // Test that objects produce keys with their object ID.
         $obj1 = new stdClass();
-        $key1 = Types::getStringKey($obj1);
+        $key1 = Types::getUniqueString($obj1);
         $this->assertStringStartsWith('o:', $key1);
 
         // Test that different objects produce different keys.
         $obj2 = new stdClass();
-        $key2 = Types::getStringKey($obj2);
+        $key2 = Types::getUniqueString($obj2);
         $this->assertNotSame($key1, $key2);
 
         // Test that same object produces same key.
-        $key3 = Types::getStringKey($obj1);
+        $key3 = Types::getUniqueString($obj1);
         $this->assertSame($key1, $key3);
     }
 
@@ -294,14 +294,14 @@ final class TypesTest extends TestCase
     {
         // Test that resources produce keys with their resource ID.
         $resource = fopen('php://memory', 'rb');
-        $key = Types::getStringKey($resource);
+        $key = Types::getUniqueString($resource);
         $this->assertStringStartsWith('r:', $key);
         fclose($resource);
 
         // Test that different resources produce different keys.
         $resource1 = fopen('php://memory', 'rb');
         $resource2 = fopen('php://memory', 'rb');
-        $this->assertNotSame(Types::getStringKey($resource1), Types::getStringKey($resource2));
+        $this->assertNotSame(Types::getUniqueString($resource1), Types::getUniqueString($resource2));
         fclose($resource1);
         fclose($resource2);
     }
@@ -313,13 +313,13 @@ final class TypesTest extends TestCase
     {
         // Test that different types produce different keys.
         $keys = [
-            Types::getStringKey(null),
-            Types::getStringKey(true),
-            Types::getStringKey(0),
-            Types::getStringKey(0.0),
-            Types::getStringKey(''),
-            Types::getStringKey([]),
-            Types::getStringKey(new stdClass()),
+            Types::getUniqueString(null),
+            Types::getUniqueString(true),
+            Types::getUniqueString(0),
+            Types::getUniqueString(0.0),
+            Types::getUniqueString(''),
+            Types::getUniqueString([]),
+            Types::getUniqueString(new stdClass()),
         ];
 
         // Verify all keys are unique.
