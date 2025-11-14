@@ -196,6 +196,7 @@ class Angle implements Stringable
                 'deg'  => self::fromDegrees($num),
                 'grad' => self::fromGradians($num),
                 'turn' => self::fromTurns($num),
+                default => throw new ValueError($err_msg),
             };
         }
 

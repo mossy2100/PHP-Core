@@ -36,6 +36,8 @@ final class Integers
         $c = $a + $b;
 
         // Check for overflow.
+        // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
+        // @phpstan-ignore-next-line
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer addition.");
         }
@@ -58,6 +60,8 @@ final class Integers
         $c = $a - $b;
 
         // Check for overflow.
+        // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
+        // @phpstan-ignore-next-line
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer subtraction.");
         }
@@ -80,6 +84,8 @@ final class Integers
         $c = $a * $b;
 
         // Check for overflow.
+        // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
+        // @phpstan-ignore-next-line
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer multiplication.");
         }
@@ -119,7 +125,7 @@ final class Integers
     /**
      * Calculate the greatest common divisor of two or more integers.
      *
-     * @param array $nums The integers to calculate the GCD of.
+     * @param int ...$nums The integers to calculate the GCD of.
      * @return int The greatest common divisor.
      * @throws ArgumentCountError If no arguments are provided.
      */

@@ -251,6 +251,7 @@ final class StringifyTest extends TestCase
         $obj = new class {
             public string $publicProp = 'public';
             protected string $protectedProp = 'protected';
+            // @phpstan-ignore-next-line
             private string $privateProp = 'private';
         };
 

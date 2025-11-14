@@ -380,7 +380,7 @@ final class TypesTest extends TestCase
         $this->assertTrue(Types::usesTrait($obj, TestTrait::class));
 
         // Test that it returns false for non-existent trait.
-        $this->assertFalse(Types::usesTrait($obj, NonExistentTrait::class));
+        $this->assertFalse(Types::usesTrait($obj, 'NonExistentTrait'));
     }
 
     /**
@@ -474,11 +474,4 @@ class ChildClassUsingTrait extends ClassUsingTrait
 class ClassUsingNestedTrait
 {
     use NestedTrait;
-}
-
-/**
- * Placeholder for non-existent trait (for negative testing).
- */
-trait NonExistentTrait
-{
 }
