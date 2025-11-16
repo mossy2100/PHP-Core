@@ -23,7 +23,7 @@ final class Arrays
     /**
      * Checks if an array contains recursion.
      *
-     * @param array $arr The array to check.
+     * @param mixed[] $arr The array to check.
      * @return bool True if the array contains recursion, false otherwise.
      */
     public static function containsRecursion(array $arr): bool

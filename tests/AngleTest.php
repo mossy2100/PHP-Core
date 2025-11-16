@@ -78,27 +78,77 @@ final class AngleTest extends TestCase
     public function testDmsRoundtripAndCarry(): void
     {
         $a = Angle::fromDegrees(12, 34, 56);
-        [$d, $m, $s] = $a->toDegrees(Angle::UNIT_ARCSECOND);
+        [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(12.0, $d);
         $this->assertFloatEquals(34.0, $m);
         $this->assertFloatEquals(56.0, $s);
 
         // Verify floating-point precision at seconds and minutes boundaries.
         $b = Angle::fromDegrees(29.999999999);
-        [$d2, $m2, $s2] = $b->toDegrees(Angle::UNIT_ARCSECOND);
+        [$d2, $m2, $s2] = $b->toDMS(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(29, $d2);
         $this->assertFloatEquals(59, $m2);
         $this->assertFloatEquals(59.9999964, $s2);
 
         // Verify floating-point precision at minutes boundary.
         $b = Angle::fromDegrees(29.999999999);
-        [$d3, $m3] = $b->toDegrees(Angle::UNIT_ARCMINUTE);
+        [$d3, $m3] = $b->toDMS(Angle::UNIT_ARCMINUTE);
         $this->assertFloatEquals(29, $d3);
         $this->assertFloatEquals(59.99999994, $m3);
 
         // Test that invalid smallest unit index throws ValueError.
         $this->expectException(ValueError::class);
-        $x = $b->toDegrees(3);
+        $x = $b->toDMS(3);
+    }
+
+    /**
+     * Test toDMS() with degrees only (UNIT_DEGREE).
+     *
+     * Verifies that requesting only degrees returns a single-element array
+     * with the correct decimal degree value.
+     */
+    public function testToDmsWithDegreesOnly(): void
+    {
+        $a = Angle::fromDegrees(45.5);
+        [$d] = $a->toDMS(Angle::UNIT_DEGREE);
+        $this->assertFloatEquals(45.5, $d);
+    }
+
+    /**
+     * Test toDMS() with negative angles.
+     *
+     * Verifies that negative angles correctly apply the sign to all components
+     * when converted to DMS format.
+     */
+    public function testToDmsWithNegativeAngles(): void
+    {
+        $a = Angle::fromDegrees(-12, -34, -56);
+
+        // Test arcseconds
+        [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
+        $this->assertFloatEquals(-12.0, $d);
+        $this->assertFloatEquals(-34.0, $m);
+        $this->assertFloatEquals(-56.0, $s);
+
+        // Test arcminutes
+        [$d2, $m2] = $a->toDMS(Angle::UNIT_ARCMINUTE);
+        $this->assertFloatEquals(-12.0, $d2);
+        $this->assertFloatEquals(-34.933333, $m2, 1e-6);
+    }
+
+    /**
+     * Test toDMS() with zero angle.
+     *
+     * Verifies that a zero angle converts correctly to DMS format with
+     * all zero components.
+     */
+    public function testToDmsWithZeroAngle(): void
+    {
+        $a = Angle::fromDegrees(0);
+        [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
+        $this->assertFloatEquals(0.0, $d);
+        $this->assertFloatEquals(0.0, $m);
+        $this->assertFloatEquals(0.0, $s);
     }
 
     /**

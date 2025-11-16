@@ -203,6 +203,7 @@ final class StringifyTest extends TestCase
     {
         // Create a resource (file handle).
         $resource = fopen('php://memory', 'rb');
+        $this->assertIsResource($resource);
 
         // Test that resource is stringified as expected.
         $result = Stringify::stringify($resource);
@@ -377,7 +378,7 @@ final class StringifyTest extends TestCase
     {
         // Create complex nested structure.
         $obj = new class {
-            public array $items = [1, 2, 3];
+            public array $items = [1, 2, 3]; // @phpstan-ignore missingType.iterableValue
             public string $name = 'test';
         };
 

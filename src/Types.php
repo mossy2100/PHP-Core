@@ -6,6 +6,7 @@ namespace Galaxon\Core;
 
 // Throwables
 use TypeError;
+use ValueError;
 
 /**
  * Some convenience methods for working with types.
@@ -96,22 +97,42 @@ final class Types
      */
     public static function getUniqueString(mixed $value): string
     {
-        return match (self::getBasicType($value)) {
-            'null'     => 'n',
-            'bool'     => 'b:' . ($value ? 'T' : 'F'),
-            'int'      => 'i:' . $value,
-            // For floats, use toHex(), because this will be unique for every possible float value, including special
-            // values. The same can't be said for a cast to string, or sprintf().
-            'float'    => 'f:' . Floats::toHex($value),
-            'string'   => 's:' . strlen($value) . ":$value",
-            'array'    => 'a:' . count($value) . ':' . Stringify::stringifyArray($value),
-            'object'   => 'o:' . spl_object_id($value),
-            'resource' => 'r:' . get_resource_id($value),
-            // Unknown.
-            // Not sure if this can ever actually happen. gettype() can return 'unknown type' but
-            // get_debug_type() has no equivalent. Defensive programming.
-            default    => throw new TypeError("Value has unknown type."),
-        };
+        switch (self::getBasicType($value)) {
+            case 'null':
+                return 'n';
+
+            case 'bool':
+                return 'b:' . ($value ? 'T' : 'F');
+
+            case 'int':
+                /** @var int $value */
+                return 'i:' . $value;
+
+            case 'float':
+                /** @var float $value */
+                return 'f:' . Floats::toHex($value);
+
+            case 'string':
+                /** @var string $value */
+                return 's:' . strlen($value) . ":$value";
+
+            case 'array':
+                /** @var mixed[] $value */
+                return 'a:' . count($value) . ':' . Stringify::stringifyArray($value);
+
+            case 'object':
+                /** @var object $value */
+                return 'o:' . spl_object_id($value);
+
+            case 'resource':
+                /** @var resource $value */
+                return 'r:' . get_resource_id($value);
+
+            // @codeCoverageIgnoreStart
+            default:
+                return throw new TypeError("Value has unknown type.");
+            // @codeCoverageIgnoreEnd
+        }
     }
 
     // endregion
@@ -146,27 +167,61 @@ final class Types
     /**
      * Check if an object or class uses a given trait.
      * Handle both class names and objects, including trait inheritance.
+     *
+     * @param object|string $obj_or_class The object or class to inspect.
+     * @param string $trait The trait to check for.
+     * @return bool True if the object or class uses the trait, false otherwise.
      */
     public static function usesTrait(object|string $obj_or_class, string $trait): bool
     {
-        $all_traits = self::getTraitsRecursive($obj_or_class);
+        $all_traits = self::getTraits($obj_or_class);
         return in_array($trait, $all_traits, true);
     }
 
     /**
-     * Get all traits used by an object or class, including parent classes and trait inheritance.
+     * Get all traits used by an object, class, interface, or trait, including those inherited from parent classes and
+     * other traits.
+     *
+     * @param object|string $obj_or_class The object or class (or interface or trait) to inspect.
+     * @return string[] The list of traits used by the object or class.
+     * @throws ValueError If the provided class name is invalid.
      */
-    private static function getTraitsRecursive(object|string $obj_or_class): array
+    public static function getTraits(object|string $obj_or_class): array
     {
-        // Get class name.
-        $class = is_object($obj_or_class) ? get_class($obj_or_class) : $obj_or_class;
+        // Get class, interface, or trait name.
+        if (is_object($obj_or_class)) {
+            $class = get_class($obj_or_class);
+        } elseif (class_exists($obj_or_class) || interface_exists($obj_or_class) || trait_exists($obj_or_class)) {
+            $class = (string)$obj_or_class;
+        } else {
+            throw new ValueError("Invalid class name: $obj_or_class");
+        }
 
+        return self::getTraitsRecursive($class);
+    }
+
+    /**
+     * Get all traits used by a class, interface, or trait, including parent classes and trait inheritance.
+     *
+     * @param string $class The class, interface, or trait to inspect.
+     * @return string[] The list of traits used by the type.
+     */
+    private static function getTraitsRecursive(string $class): array
+    {
         // Collection for traits.
         $traits = [];
 
         // Get traits from current class and all parent classes.
         do {
+            // Get traits used by the current class.
             $class_traits = class_uses($class);
+
+            // Check for class not found. Should be never, but having this check satisfies phpstan.
+            if ($class_traits === false) {
+                break; // @codeCoverageIgnore
+            }
+
+            // Add traits from current class.
             $traits = array_merge($traits, $class_traits);
 
             // Also get traits used by the traits themselves.

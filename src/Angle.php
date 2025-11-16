@@ -240,28 +240,24 @@ class Angle implements Stringable
     }
 
     /**
-     * Get the angle in degrees, with optional arcminutes and arcseconds.
-     *
-     * The values will be returned as a single float (default), or an array of floats if arcminutes or arcseconds are
-     * requested.
-     *
-     * If the result is an array, only the last item might have a fractional part; others will be whole numbers.
+     * Get the angle in degrees, arcminutes, and arcseconds.
+     * The result will be an array with 1-3 values, depending on the requested smallest unit.
+     * Only the last item may have a fractional part; others will be whole numbers.
      *
      * If the angle is positive, the resulting values will all be positive.
      * If the angle is zero, the resulting values will all be zero.
      * If the angle is negative, the resulting values will all be negative.
      *
-     * For the $smallest_unit parameter, you can use the UNIT class constants, i.e.
+     * For the $smallest_unit parameter, you can use the UNIT_* class constants, i.e.
      * - UNIT_DEGREE for degrees only
      * - UNIT_ARCMINUTE for degrees and arcminutes
      * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
      *
-     * @param int $smallest_unit 0 for degrees (default), 1 for arcminutes, 2 for arcseconds.
-     * @return float|float[] Either a single float representing the degrees, an array of 2 floats with the degrees
-     * and arcminutes, or an array of 3 floats with the degrees, arcminutes, and arcseconds.
+     * @param int $smallest_unit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default).
+     * @return float[] An array of 1-3 floats with the degrees, arcminutes, and arcseconds.
      * @throws ValueError If $smallest_unit is not 0, 1, or 2.
      */
-    public function toDegrees(int $smallest_unit = self::UNIT_DEGREE): float|array
+    public function toDMS(int $smallest_unit = self::UNIT_ARCSECOND): array
     {
         $a = $this->radians * self::DEGREES_PER_RADIAN;
         $sign = Numbers::sign($a, false);
@@ -274,7 +270,7 @@ class Angle implements Stringable
                 // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
                 $d = Floats::normalizeZero($d * $sign);
 
-                return $d;
+                return [$d];
 
             case self::UNIT_ARCMINUTE:
                 // Convert the total degrees to degrees and minutes (non-negative).
@@ -306,6 +302,16 @@ class Angle implements Stringable
                     "The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds."
                 );
         }
+    }
+
+    /**
+     * Get the angle in degrees.
+     *
+     * @return float The angle in degrees.
+     */
+    public function toDegrees(): float
+    {
+        return $this->toDMS(self::UNIT_DEGREE)[0];
     }
 
     /**
@@ -712,17 +718,17 @@ class Angle implements Stringable
      * @return string The degrees, arcminutes, and arcseconds nicely formatted as a string.
      * @throws ValueError If the smallest unit argument is not 0, 1, or 2.
      */
-    private function formatDegrees(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
+    private function formatDMS(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
     {
         // Get the sign string.
         $sign = $this->radians < 0 ? '-' : '';
 
-        // Convert to degrees, with optional minutes and seconds.
-        $parts = $this->abs()->toDegrees($smallest_unit);
+        // Convert to degrees, with optional arcminutes and/or arcseconds.
+        $parts = $this->abs()->toDMS($smallest_unit);
 
         switch ($smallest_unit) {
             case self::UNIT_DEGREE:
-                $d = $parts;
+                [$d] = $parts;
                 $str_d = self::formatFloat($d, $decimals);
                 return "$sign{$str_d}°";
 
@@ -799,9 +805,9 @@ class Angle implements Stringable
             'deg'   => self::formatFloat($this->toDegrees(), $decimals) . 'deg',
             'grad'  => self::formatFloat($this->toGradians(), $decimals) . 'grad',
             'turn'  => self::formatFloat($this->toTurns(), $decimals) . 'turn',
-            'd'     => $this->formatDegrees(self::UNIT_DEGREE, $decimals),
-            'dm'    => $this->formatDegrees(self::UNIT_ARCMINUTE, $decimals),
-            'dms'   => $this->formatDegrees(self::UNIT_ARCSECOND, $decimals),
+            'd'     => $this->formatDMS(self::UNIT_DEGREE, $decimals),
+            'dm'    => $this->formatDMS(self::UNIT_ARCMINUTE, $decimals),
+            'dms'   => $this->formatDMS(self::UNIT_ARCSECOND, $decimals),
             default => throw new ValueError(
                 "Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms."
             ),

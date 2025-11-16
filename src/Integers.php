@@ -37,7 +37,7 @@ final class Integers
 
         // Check for overflow.
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer addition.");
         }
@@ -61,7 +61,7 @@ final class Integers
 
         // Check for overflow.
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer subtraction.");
         }
@@ -85,7 +85,7 @@ final class Integers
 
         // Check for overflow.
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
             throw new OverflowException("Overflow in integer multiplication.");
         }

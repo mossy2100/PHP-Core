@@ -52,28 +52,30 @@ final class Stringify
             case 'bool':
             case 'int':
             case 'string':
-                try {
-                    // This function call will never throw for these types but include the try-catch anyway to silence
-                    // the IDE and for robustness.
-                    return json_encode($value, JSON_THROW_ON_ERROR);
-                } catch (JsonException) {
-                    throw new ValueError("Cannot stringify value of type $value.");
-                }
+                // This function call will never error for these types.
+                return json_encode($value); // @phpstan-ignore return.type
 
             case 'float':
+                /** @var float $value */
                 return self::stringifyFloat($value);
 
             case 'array':
+                /** @var mixed[] $value */
                 return self::stringifyArray($value, $pretty_print, $indent_level);
 
             case 'resource':
                 return self::stringifyResource($value);
 
             case 'object':
+                /** @var object $value */
                 return self::stringifyObject($value, $pretty_print, $indent_level);
 
+            // @codeCoverageIgnoreStart
+            // This should never happen, but we'll include it for completeness.
+            // We can't test this, so get phpunit to ignore it for code coverage purposes.
             default:
                 throw new TypeError("Unknown type.");
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -117,7 +119,7 @@ final class Stringify
      *
      * If pretty printing is enabled, the result will be formatted with new lines and indentation.
      *
-     * @param array $ary The array to encode.
+     * @param mixed[] $ary The array to encode.
      * @param bool $pretty_print Whether to use pretty printing (default false).
      * @param int $indent_level The level of indentation for this structure (default 0).
      * @return string The string representation of the array.

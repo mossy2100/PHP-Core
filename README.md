@@ -2,6 +2,8 @@
 
 A general purpose library containing core utility classes and methods for use by other Galaxon PHP packages.
 
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)**
+
 ## Description
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations. All utility classes are final with static methods and cannot be instantiated.
@@ -9,8 +11,6 @@ This package provides a comprehensive set of utility classes for working with va
 ## Requirements
 
 - PHP ^8.4
-- ext-ctype
-- ext-mbstring
 
 ## Installation
 
@@ -48,6 +48,24 @@ Advanced value-to-string conversion with pretty printing, supporting all PHP typ
 
 Immutable angle class with support for multiple units (radians, degrees, gradians, turns, DMS), trigonometry, and arithmetic operations.
 
+## Testing
+
+Run the test suite:
+
+```bash
+composer test
+```
+
+For code coverage analysis:
+
+```bash
+composer test-coverage
+```
+
+## Contributing
+
+Please report bugs and feature requests on [GitHub Issues](https://github.com/mossy2100/Galaxon/issues).
+
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

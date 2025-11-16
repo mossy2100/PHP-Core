@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
+use ValueError;
 
 /**
  * Test class for Type utility class.
@@ -165,6 +166,7 @@ final class TypesTest extends TestCase
     {
         // Test that resources return 'resource'.
         $resource = fopen('php://memory', 'rb');
+        $this->assertIsResource($resource);
         $this->assertSame('resource', Types::getBasicType($resource));
         fclose($resource);
     }
@@ -294,13 +296,16 @@ final class TypesTest extends TestCase
     {
         // Test that resources produce keys with their resource ID.
         $resource = fopen('php://memory', 'rb');
+        $this->assertIsResource($resource);
         $key = Types::getUniqueString($resource);
         $this->assertStringStartsWith('r:', $key);
         fclose($resource);
 
         // Test that different resources produce different keys.
         $resource1 = fopen('php://memory', 'rb');
+        $this->assertIsResource($resource1);
         $resource2 = fopen('php://memory', 'rb');
+        $this->assertIsResource($resource2);
         $this->assertNotSame(Types::getUniqueString($resource1), Types::getUniqueString($resource2));
         fclose($resource1);
         fclose($resource2);
@@ -422,6 +427,85 @@ final class TypesTest extends TestCase
         // Test with standard class that doesn't use traits.
         $obj = new stdClass();
         $this->assertFalse(Types::usesTrait($obj, TestTrait::class));
+    }
+
+    /**
+     * Test usesTrait throws ValueError for non-existent class.
+     */
+    public function testUsesTraitThrowsValueErrorForNonExistentClass(): void
+    {
+        // Test that passing a non-existent class name throws ValueError.
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage("Invalid class name: NonExistentClass");
+        Types::usesTrait('NonExistentClass', TestTrait::class);
+    }
+
+    /**
+     * Test getTraits with a class using a trait.
+     */
+    public function testGetTraitsWithClass(): void
+    {
+        $traits = Types::getTraits(ClassUsingTrait::class);
+        $this->assertContains(TestTrait::class, $traits);
+        $this->assertCount(1, $traits);
+    }
+
+    /**
+     * Test getTraits with an object using a trait.
+     */
+    public function testGetTraitsWithObject(): void
+    {
+        $obj = new ClassUsingTrait();
+        $traits = Types::getTraits($obj);
+        $this->assertContains(TestTrait::class, $traits);
+    }
+
+    /**
+     * Test getTraits with inherited traits.
+     */
+    public function testGetTraitsWithInheritedTraits(): void
+    {
+        $traits = Types::getTraits(ChildClassUsingTrait::class);
+        $this->assertContains(TestTrait::class, $traits);
+    }
+
+    /**
+     * Test getTraits with nested traits.
+     */
+    public function testGetTraitsWithNestedTraits(): void
+    {
+        $traits = Types::getTraits(ClassUsingNestedTrait::class);
+        $this->assertContains(TestTrait::class, $traits);
+        $this->assertContains(NestedTrait::class, $traits);
+        $this->assertCount(2, $traits);
+    }
+
+    /**
+     * Test getTraits with a class not using any traits.
+     */
+    public function testGetTraitsWithNoTraits(): void
+    {
+        $traits = Types::getTraits(ClassNotUsingTrait::class);
+        $this->assertEmpty($traits);
+    }
+
+    /**
+     * Test getTraits with stdClass (no traits).
+     */
+    public function testGetTraitsWithStdClass(): void
+    {
+        $traits = Types::getTraits(stdClass::class);
+        $this->assertEmpty($traits);
+    }
+
+    /**
+     * Test getTraits throws ValueError for non-existent class.
+     */
+    public function testGetTraitsThrowsValueErrorForNonExistentClass(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage("Invalid class name: NonExistentClassName");
+        Types::getTraits('NonExistentClassName');
     }
 }
 
