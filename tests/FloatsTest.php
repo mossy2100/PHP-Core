@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test class for Double utility class.
+ * Test class for Floats utility class.
  */
 #[CoversClass(Floats::class)]
 final class FloatsTest extends TestCase

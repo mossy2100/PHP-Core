@@ -108,9 +108,8 @@ final class Floats
     /**
      * Convert a float to a hexadecimal string.
      *
-     * The advantage of this method over toString() is that every possible float value will produce a unique
-     * 16-character string.
-     * Whereas, with a cast to string, or sprintf(), the same string may be produced for different values.
+     * The advantage of this method is that every possible float value will produce a unique 16-character hex string.
+     * Whereas, with a cast to string or sprintf() the same string could be produced for different values.
      *
      * @param float $value The float to convert.
      * @return string The hexadecimal string representation of the float.
