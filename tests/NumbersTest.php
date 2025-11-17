@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use ValueError;
 
 /**
- * Test class for Number utility class.
+ * Test class for Numbers utility class.
  */
 #[CoversClass(Numbers::class)]
 final class NumbersTest extends TestCase

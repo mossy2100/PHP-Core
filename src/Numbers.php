@@ -21,18 +21,38 @@ final class Numbers
     }
 
     /**
+     * Copy the sign of one number to another.
+     *
+     * @param int|float $num The number whose magnitude to use.
+     * @param int|float $sign_source The number whose sign to copy.
+     * @return int|float The magnitude of $num with the sign of $sign_source.
+     * @throws ValueError If NaN is passed as either parameter.
+     */
+    public static function copySign(int|float $num, int|float $sign_source): int|float
+    {
+        // Guard. This method won't work for NaN, which doesn't have a sign.
+        if (is_nan($num) || is_nan($sign_source)) {
+            throw new ValueError("NaN is not allowed for either parameter.");
+        }
+
+        return abs($num) * self::sign($sign_source, false);
+    }
+
+    /**
      * Get the sign of a number.
      *
-     * This method has two main forms of operation, both of which are reasonably common.
-     * 1. The default behaviour is to return 1 for positive numbers, -1 for negative numbers, and 0 for zero.
-     * 2. The second form, where $zeroForZero is set to false, will only return -1 or 1. If the primary argument is
-     *    zero, it will return -1 for the special float value -0.0, or 1 for int 0 or float 0.0.
+     * This method has two modes of operation, determined by the $zero_for_zero parameter.
+     * In either mode, the method will return 1 for positive numbers and -1 for negative numbers.
+     * 1. The default mode (when $zero_for_zero is true) will return 0 when $value equals 0.
+     * 2. The alternate mode (when $zero_for_zero is false) will return -1 for the special float value -0.0, or 1 for
+     *    int 0 or float +0.0.
      *
-     * @param int|float $value The number whose sign to check.
-     * @param bool $zeroForZero If true (default), returns 0 if value is zero; otherwise, return the sign of the zero.
-     * @return int 1 if the number is positive, -1 if negative, and 0, 1, or -1 if 0, depending on the second argument.
+     * @param int|float $value The number to check.
+     * @param bool $zero_for_zero If true, return 0 when $value equals 0. If false, return 1 or -1, indicating the sign
+     * of the zero.
+     * @return int The sign of the $value argument (-1, 0, or 1).
      */
-    public static function sign(int|float $value, bool $zeroForZero = true): int
+    public static function sign(int|float $value, bool $zero_for_zero = true): int
     {
         // Check for positive.
         if ($value > 0) {
@@ -45,29 +65,11 @@ final class Numbers
         }
 
         // Value is 0. Return the default result if requested.
-        if ($zeroForZero) {
+        if ($zero_for_zero) {
             return 0;
         }
 
         // Return the sign of the zero.
         return is_float($value) && Floats::isNegativeZero($value) ? -1 : 1;
-    }
-
-    /**
-     * Copy the sign of one number to another.
-     *
-     * @param int|float $num The number to copy the sign to.
-     * @param int|float $sign_source The number to copy the sign from.
-     * @return int|float The number with the sign of $sign_source.
-     * @throws ValueError If NaN is passed as either parameter.
-     */
-    public static function copySign(int|float $num, int|float $sign_source): int|float
-    {
-        // Guard. This method won't work for NaN, which doesn't have a sign.
-        if (is_nan($num) || is_nan($sign_source)) {
-            throw new ValueError("NaN is not allowed for either parameter.");
-        }
-
-        return abs($num) * self::sign($sign_source, false);
     }
 }

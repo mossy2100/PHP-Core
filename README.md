@@ -2,11 +2,17 @@
 
 A general purpose library containing core utility classes and methods for use by other Galaxon PHP packages.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Coverage Report](https://html-preview.github.io/?url=https://github.com/mossy2100/PHP-Core/blob/main/build/coverage/index.html)**
 
 ## Description
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations. All utility classes are final with static methods and cannot be instantiated.
+
+## Development and Quality Assurance / AI Disclosure
+
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a high-quality, thoroughly-tested package delivered in significantly less time than traditional development methods.
+
+![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 ## Requirements
 
