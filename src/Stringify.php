@@ -12,10 +12,10 @@ use JsonException;
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
  * options of var_dump(), var_export(), print_r(), json_encode(), and serialize().
  *
- * 1. Floats never look like integers.
- * 2. Arrays that are lists will not show keys (like JSON arrays).
- * 3. Objects will be rendered in a style similar to an HTML tag, with UML-style visibility modifiers.
- * 4. Resources are also encoded in a style similar to HTML tags.
+ * - Floats never look like integers.
+ * - Arrays that are lists will not show keys (like JSON arrays).
+ * - Objects will be rendered in a style similar to an HTML tag, with UML-style visibility modifiers.
+ * - Resources are also encoded in a style similar to HTML tags.
  *
  * The purpose of the class is to offer a somewhat more concise, readable, and informative alternative to the usual
  * options. It can be useful for exception, log, and debug messages.
@@ -35,14 +35,11 @@ final class Stringify
      * Convert a value to a readable string representation.
      *
      * @param mixed $value The value to encode.
+     * @param bool $pretty_print Whether to use pretty printing with indentation (default false).
      * @param int $indent_level The level of indentation for this structure (default 0).
      * @return string The string representation of the value.
      * @throws ValueError If the value cannot be stringified.
      * @throws TypeError If the value has an unknown type.
-     * @see stringifyFloat()
-     * @see stringifyArray()
-     * @see stringifyResource()
-     * @see stringifyObject()
      */
     public static function stringify(mixed $value, bool $pretty_print = false, int $indent_level = 0): string
     {
@@ -71,7 +68,7 @@ final class Stringify
                 return self::stringifyObject($value, $pretty_print, $indent_level);
 
             // @codeCoverageIgnoreStart
-            // This should never happen, but we'll include it for completeness.
+            // This should never happen, but we'll include it for completeness/robustness.
             // We can't test this, so get phpunit to ignore it for code coverage purposes.
             default:
                 throw new TypeError("Unknown type.");
@@ -139,7 +136,7 @@ final class Stringify
         // Generate the pairs.
         foreach ($ary as $key => $value) {
             $value_str = self::stringify($value, $pretty_print, $indent_level + 1);
-            // Encode a list without no keys.
+            // Encode a list without keys.
             if ($is_list) {
                 $pairs[] = "$indent$value_str";
             } else {
