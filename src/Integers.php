@@ -27,7 +27,7 @@ final class Integers
      *
      * @param int $a The first integer.
      * @param int $b The second integer.
-     * @return int The added integers if no overflow occurs.
+     * @return int The sum of the two integers.
      * @throws OverflowException If the addition results in overflow.
      */
     public static function add(int $a, int $b): int
@@ -51,7 +51,7 @@ final class Integers
      *
      * @param int $a The first integer.
      * @param int $b The second integer.
-     * @return int The result of subtracting the second integer from the first, if no overflow occurs.
+     * @return int The difference.
      * @throws OverflowException If the subtraction results in overflow.
      */
     public static function sub(int $a, int $b): int
@@ -75,7 +75,7 @@ final class Integers
      *
      * @param int $a The first integer.
      * @param int $b The second integer.
-     * @return int The multiplied integers if no overflow occurs.
+     * @return int The product.
      * @throws OverflowException If the multiplication results in overflow.
      */
     public static function mul(int $a, int $b): int
@@ -97,9 +97,9 @@ final class Integers
     /**
      * Raise one integer to the power of another with an overflow check.
      *
-     * @param int $a The first integer.
-     * @param int $b The second integer. Must be non-negative.
-     * @return int The result integer if no overflow occurred.
+     * @param int $a The base.
+     * @param int $b The exponent (must be non-negative).
+     * @return int The result of raising a to the power of b.
      * @throws ValueError If $b is negative.
      * @throws OverflowException If the exponentiation results in overflow.
      */

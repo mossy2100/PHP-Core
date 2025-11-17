@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use ValueError;
 
 /**
- * Test class for Integer utility class.
+ * Test class for Integers utility class.
  */
 #[CoversClass(Integers::class)]
 final class IntegersTest extends TestCase
