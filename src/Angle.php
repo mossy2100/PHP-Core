@@ -267,7 +267,7 @@ class Angle implements Stringable
             case self::UNIT_DEGREE:
                 $d = $a;
 
-                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                // Apply sign and normalize -0.0 to 0.0.
                 $d = Floats::normalizeZero($d * $sign);
 
                 return [$d];
@@ -277,7 +277,7 @@ class Angle implements Stringable
                 $d = floor($a);
                 $m = ($a - $d) * self::ARCMINUTES_PER_DEGREE;
 
-                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                // Apply sign and normalize -0.0 to 0.0.
                 $d = Floats::normalizeZero($d * $sign);
                 $m = Floats::normalizeZero($m * $sign);
 
@@ -290,7 +290,7 @@ class Angle implements Stringable
                 $m = floor($f_min);
                 $s = ($f_min - $m) * self::ARCSECONDS_PER_ARCMINUTE;
 
-                // Apply sign and normalize -0.0 to 0.0 to avoid surprising string output.
+                // Apply sign and normalize -0.0 to 0.0.
                 $d = Floats::normalizeZero($d * $sign);
                 $m = Floats::normalizeZero($m * $sign);
                 $s = Floats::normalizeZero($s * $sign);
@@ -532,7 +532,7 @@ class Angle implements Stringable
     /**
      * Get the hyperbolic sine of the angle.
      *
-     * @return float
+     * @return float The hyperbolic sine value.
      */
     public function sinh(): float
     {
@@ -542,7 +542,7 @@ class Angle implements Stringable
     /**
      * Get the hyperbolic cosine of the angle.
      *
-     * @return float
+     * @return float The hyperbolic cosine value.
      */
     public function cosh(): float
     {
@@ -552,7 +552,7 @@ class Angle implements Stringable
     /**
      * Get the hyperbolic tangent of the angle.
      *
-     * @return float
+     * @return float The hyperbolic tangent value.
      */
     public function tanh(): float
     {
@@ -654,7 +654,7 @@ class Angle implements Stringable
     /**
      * Normalize an angle to a specified range.
      *
-     * NB: This is a mutating method.
+     * This method modifies the current instance and returns $this for chaining.
      *
      * If $signed is false (default), the range is [0, τ).
      * If $signed is true, the range is [-π, π).
@@ -694,7 +694,7 @@ class Angle implements Stringable
      */
     private static function formatFloat(float $value, ?int $decimals = null): string
     {
-        // Canonicalize -0.0 to 0.0 to avoid surprising string output.
+        // Canonicalize -0.0 to 0.0.
         $value = Floats::normalizeZero($value);
 
         // If the number of decimal places is specified, format with that many decimal places.

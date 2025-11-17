@@ -136,27 +136,59 @@ echo $angle->toRadians(); // 3.14159...
 ### toDegrees()
 
 ```php
-public function toDegrees(int $smallest_unit = Angle::UNIT_DEGREE): float|array
+public function toDegrees(): float
 ```
 
-By default, returns angle in degrees as a float.
+Get angle in degrees.
 
-If `$smallest_unit` is `UNIT_ARCMINUTE` (1), returns an array of two floats: degrees (whole number) and arcminutes (decimal, |value| < 60).
+**Example:**
+```php
+$angle = Angle::fromRadians(M_PI / 4);
+echo $angle->toDegrees(); // 45.0
+```
 
-If `$smallest_unit` is `UNIT_ARCSECOND` (2), returns an array of three floats: degrees (whole number), arcminutes (whole number, |value| < 60), and arcseconds (decimal, |value| < 60).
+### toDMS()
+
+```php
+public function toDMS(int $smallest_unit = Angle::UNIT_ARCSECOND): array
+```
+
+Get the angle in degrees, arcminutes, and arcseconds. The result will be an array with 1-3 values, depending on the requested smallest unit. Only the last item may have a fractional part; others will be whole numbers.
+
+If the angle is positive, the resulting values will all be positive. If the angle is zero, the resulting values will all be zero. If the angle is negative, the resulting values will all be negative.
+
+For the `$smallest_unit` parameter, you can use the UNIT_* class constants:
+- `UNIT_DEGREE` (0) for degrees only
+- `UNIT_ARCMINUTE` (1) for degrees and arcminutes
+- `UNIT_ARCSECOND` (2) for degrees, arcminutes, and arcseconds (default)
+
+(Note: If the smallest unit is degrees, you may prefer to use `toDegrees()` instead, which returns a float instead of an array.)
+
+**Parameters:**
+- `$smallest_unit` (int) - 0 for degrees, 1 for arcminutes, 2 for arcseconds (default)
+
+**Returns:**
+- `float[]` - An array of 1-3 floats with the degrees, arcminutes, and arcseconds
+
+**Throws:**
+- `ValueError` - If $smallest_unit is not 0, 1, or 2
 
 **Examples:**
 ```php
 $angle = Angle::fromRadians(M_PI / 4);
 
-// As decimal degrees
-$deg = $angle->toDegrees();  // 45.0
+// As decimal degrees only
+[$deg] = $angle->toDMS(Angle::UNIT_DEGREE);  // [45.0]
 
 // As degrees and arcminutes
-[$d, $m] = $angle->toDegrees(Angle::UNIT_ARCMINUTE);  // [45, 0.0]
+[$d, $m] = $angle->toDMS(Angle::UNIT_ARCMINUTE);  // [45.0, 0.0]
 
 // As degrees, arcminutes, and arcseconds
-[$d, $m, $s] = $angle->toDegrees(Angle::UNIT_ARCSECOND);  // [45, 0.0, 0.0]
+[$d, $m, $s] = $angle->toDMS(Angle::UNIT_ARCSECOND);  // [45.0, 0.0, 0.0]
+
+// Example with actual DMS values
+$angle = Angle::fromDegrees(12, 34, 56);
+[$d, $m, $s] = $angle->toDMS();  // [12.0, 34.0, 56.0]
 ```
 
 ### toGradians()
@@ -268,31 +300,51 @@ echo $positive->toDegrees(); // 45.0
 
 ## Comparison Methods
 
-### cmp()
+### compare()
 ```php
-public function cmp(self $other, float $eps = self::RAD_EPSILON): int
+public function compare(self $other, float $eps = self::RAD_EPSILON): int
 ```
 
 Compare angles by their raw numeric values with tolerance. Returns -1 if this angle is less, 0 if equal, 1 if greater.
 
 Angles are not normalized before comparison, so 10° < 370° even though they represent the same angular position. Use `wrap()` before comparing if you need to treat equivalent positions as equal.
 
+**Parameters:**
+- `$other` (Angle) - The angle to compare with
+- `$eps` (float) - The tolerance for equality (default: RAD_EPSILON)
+
+**Returns:**
+- `int` - -1 if this < other, 0 if equal, 1 if this > other
+
+**Throws:**
+- `ValueError` - If epsilon is negative
+
 **Example:**
 ```php
 $a = Angle::fromDegrees(10);
 $b = Angle::fromDegrees(370);
-echo $a->cmp($b); // -1 (10 < 370)
+echo $a->compare($b); // -1 (10 < 370)
 
 $b->wrap(); // now $b == 10°
-echo $a->cmp($b); // 0 (equal)
+echo $a->compare($b); // 0 (equal)
 ```
 
-### eq()
+### equals()
 ```php
-public function eq(self $other, float $eps = self::RAD_EPSILON): bool
+public function equals(self $other, float $eps = self::RAD_EPSILON): bool
 ```
 
 Check if two angles are equal within tolerance. Angles are not normalized before comparison, so use `wrap()` first if you need to compare angular positions rather than raw values.
+
+**Parameters:**
+- `$other` (Angle) - The angle to compare with
+- `$eps` (float) - The tolerance for equality (default: RAD_EPSILON)
+
+**Returns:**
+- `bool` - True if angles are equal within tolerance; false otherwise
+
+**Throws:**
+- `ValueError` - If epsilon is negative
 
 **Example:**
 ```php
@@ -300,11 +352,11 @@ $a = Angle::fromDegrees(45);
 $b = Angle::fromDegrees(45);
 $c = Angle::fromDegrees(405); // 45° + 360°
 
-var_dump($a->eq($b)); // true
-var_dump($a->eq($c)); // false (45 ≠ 405)
+var_dump($a->equals($b)); // true
+var_dump($a->equals($c)); // false (45 ≠ 405)
 
 $c->wrap(); // now $c == 45°
-var_dump($a->eq($c)); // true
+var_dump($a->equals($c)); // true
 ```
 
 
@@ -509,9 +561,9 @@ $grad = Angle::fromGradians(100);
 $turn = Angle::fromTurns(0.25);
 
 // All represent the same angle (90°)
-var_dump($rad->eq($deg)); // true
-var_dump($deg->eq($grad)); // true
-var_dump($grad->eq($turn)); // true
+var_dump($rad->equals($deg)); // true
+var_dump($deg->equals($grad)); // true
+var_dump($grad->equals($turn)); // true
 ```
 
 ### Working with DMS (degrees, minutes, seconds)
