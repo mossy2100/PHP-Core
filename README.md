@@ -4,6 +4,8 @@ A general purpose library containing core utility classes and methods for use by
 
 **[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Coverage Report](https://html-preview.github.io/?url=https://github.com/mossy2100/PHP-Core/blob/main/build/coverage/index.html)**
 
+![PHP 8.4](docs/logo_php8_4.png)
+
 ## Description
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations. All utility classes are final with static methods and cannot be instantiated.
