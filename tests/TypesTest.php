@@ -13,7 +13,7 @@ use TypeError;
 use ValueError;
 
 /**
- * Test class for Type utility class.
+ * Test class for Types utility class.
  */
 #[CoversClass(Types::class)]
 final class TypesTest extends TestCase

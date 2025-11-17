@@ -9,8 +9,7 @@ use TypeError;
 use ValueError;
 
 /**
- * Some convenience methods for working with types.
- * May move to Core later.
+ * Convenience methods for working with types.
  */
 final class Types
 {
