@@ -56,6 +56,14 @@ Advanced value-to-string conversion with pretty printing, supporting all PHP typ
 
 Immutable angle class with support for multiple units (radians, degrees, gradians, turns, DMS), trigonometry, and arithmetic operations.
 
+### [Equatable](docs/Equatable.md)
+
+Interface for objects that can be compared for equality. Provides a single `equals()` method for type-safe equality checks.
+
+### [Comparable](docs/Comparable.md)
+
+Trait providing a complete set of comparison operations (`equals()`, `isLessThan()`, `isGreaterThan()`, etc.) based on a single `compare()` method.
+
 ## Testing
 
 The library includes comprehensive test coverage:

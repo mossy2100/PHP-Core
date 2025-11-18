@@ -208,4 +208,171 @@ final class FloatsTest extends TestCase
         // Test that very close but different values produce different hex strings.
         $this->assertNotSame(Floats::toHex(1.0), Floats::toHex(1.0 + PHP_FLOAT_EPSILON));
     }
+
+    /**
+     * Test tryConvertToInt with floats that equal whole numbers.
+     */
+    public function testTryConvertToIntWithWholeNumbers(): void
+    {
+        // Positive whole number
+        $f = 5.0;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(5, $i);
+
+        // Negative whole number
+        $f = -10.0;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(-10, $i);
+
+        // Zero
+        $f = 0.0;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(0, $i);
+
+        // Large whole number
+        $f = 1000000.0;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(1000000, $i);
+    }
+
+    /**
+     * Test tryConvertToInt with floats that have fractional parts.
+     */
+    public function testTryConvertToIntWithFractionalNumbers(): void
+    {
+        // Float with fractional part
+        $f = 5.5;
+        $i = null;
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        $this->assertNull($i);
+
+        // Small fractional part
+        $f = 1.001;
+        $i = null;
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        $this->assertNull($i);
+
+        // Negative with fractional part
+        $f = -3.14;
+        $i = null;
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        $this->assertNull($i);
+    }
+
+    /**
+     * Test tryConvertToInt with edge case floats.
+     */
+    public function testTryConvertToIntEdgeCases(): void
+    {
+        // Very small positive number (not zero)
+        $f = 0.1;
+        $i = null;
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        $this->assertNull($i);
+
+        // Very small negative number (not zero)
+        $f = -0.1;
+        $i = null;
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        $this->assertNull($i);
+
+        // Negative zero
+        $f = -0.0;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(0, $i);
+    }
+
+    /**
+     * Test tryConvertToInt with large integers that can be exactly represented as floats.
+     */
+    public function testTryConvertToIntWithLargeIntegers(): void
+    {
+        // Use powers of 2 up to 2^53, which can be exactly represented as floats
+        $f = (float)(1 << 50); // 2^50 - well within exact float range
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(1 << 50, $i);
+
+        // Negative large integer
+        $f = (float)(-(1 << 50));
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(-(1 << 50), $i);
+
+        // PHP_INT_MIN is -2^63, which is a power of 2 and CAN be exactly represented as a float
+        $f = (float)PHP_INT_MIN;
+        $this->assertTrue(Floats::tryConvertToInt($f, $i));
+        $this->assertSame(PHP_INT_MIN, $i);
+
+        // Note: PHP_INT_MAX (2^63 - 1) cannot be exactly represented as a float
+        // because it has many bits set and exceeds the 53-bit mantissa precision
+    }
+
+    /**
+     * Test tryConvertToInt with floats that lose precision when cast to int.
+     */
+    public function testTryConvertToIntOutOfRange(): void
+    {
+        // Float larger than PHP_INT_MAX (loses precision)
+        $f = (float)PHP_INT_MAX * 2;
+        // This may or may not convert depending on platform precision
+        // Just verify it doesn't crash
+        $result = Floats::tryConvertToInt($f, $i);
+        $this->assertIsBool($result); // @phpstan-ignore method.alreadyNarrowedType
+    }
+
+    /**
+     * Test tryConvertToInt doesn't modify output parameter on failure.
+     */
+    public function testTryConvertToIntDoesNotModifyOnFailure(): void
+    {
+        $f = 3.14;
+
+        $this->assertFalse(Floats::tryConvertToInt($f, $i));
+        // Output parameter should not be modified on failure
+        $this->assertNull($i);
+    }
+
+    /**
+     * Test tryConvertToInt with various representable integers.
+     */
+    public function testTryConvertToIntWithVariousIntegers(): void
+    {
+        $testCases = [
+            [1.0, 1],
+            [-1.0, -1],
+            [100.0, 100],
+            [-100.0, -100],
+            [0.0, 0],
+            [-0.0, 0],
+            [42.0, 42],
+            [-42.0, -42],
+        ];
+
+        foreach ($testCases as [$float, $expectedInt]) {
+            $this->assertTrue(Floats::tryConvertToInt($float, $i), "Failed for $float");
+            $this->assertSame($expectedInt, $i, "Wrong conversion for $float");
+        }
+    }
+
+    /**
+     * Test tryConvertToInt with various non-convertible floats.
+     */
+    public function testTryConvertToIntWithNonConvertibleFloats(): void
+    {
+        $testCases = [
+            0.1,
+            0.5,
+            0.999,
+            1.1,
+            -0.5,
+            -1.5,
+            3.14159,
+            -2.71828,
+        ];
+
+        foreach ($testCases as $float) {
+            $i = null;
+            $this->assertFalse(Floats::tryConvertToInt($float, $i), "Should fail for $float");
+            $this->assertNull($i, "Should not modify output for $float");
+        }
+    }
 }

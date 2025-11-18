@@ -513,7 +513,7 @@ final class AngleTest extends TestCase
      * Test comparison behavior with epsilon tolerance and sign of delta.
      *
      * Verifies that compare() correctly returns -1, 0, or 1 based on the
-     * difference between angles, and rejects negative epsilon values.
+     * difference between angles.
      */
     public function testCompareWithEpsilonAndDelta(): void
     {
@@ -525,10 +525,6 @@ final class AngleTest extends TestCase
 
         // Delta is positive -> b > a.
         $this->assertSame(1, $b->compare($a));
-
-        // Epsilon negative -> invalid argument.
-        $this->expectException(ValueError::class);
-        $a->compare($b, -1e-9);
     }
 
     /**
@@ -606,5 +602,174 @@ final class AngleTest extends TestCase
 
         $this->assertTrue($a->equals($c));
         $this->assertFalse($a->equals($b));
+    }
+
+    /**
+     * Test equals() with epsilon tolerance.
+     *
+     * Verifies that angles differing by less than RAD_EPSILON are considered equal.
+     */
+    public function testEqualsWithEpsilonTolerance(): void
+    {
+        $a = Angle::fromRadians(1.0);
+        $b = Angle::fromRadians(1.0 + Angle::RAD_EPSILON / 2);
+
+        // Should be equal within epsilon
+        $this->assertTrue($a->equals($b));
+
+        // Should not be equal outside epsilon
+        $c = Angle::fromRadians(1.0 + Angle::RAD_EPSILON * 2);
+        $this->assertFalse($a->equals($c));
+    }
+
+    /**
+     * Test equals() with non-Angle types returns false.
+     *
+     * Verifies that equals() gracefully handles invalid types without throwing.
+     */
+    public function testEqualsWithInvalidType(): void
+    {
+        $a = Angle::fromDegrees(10);
+
+        $this->assertFalse($a->equals(10));
+        $this->assertFalse($a->equals(10.0));
+        $this->assertFalse($a->equals('10deg'));
+        $this->assertFalse($a->equals([]));
+        $this->assertFalse($a->equals(new \stdClass()));
+    }
+
+    /**
+     * Test compare() with equal angles within epsilon.
+     *
+     * Verifies that compare() returns 0 for angles within epsilon tolerance.
+     */
+    public function testCompareEqualWithinEpsilon(): void
+    {
+        $a = Angle::fromRadians(1.0);
+        $b = Angle::fromRadians(1.0 + Angle::RAD_EPSILON / 2);
+
+        $this->assertSame(0, $a->compare($b));
+    }
+
+    /**
+     * Test compare() throws TypeError for non-Angle types.
+     *
+     * Verifies that compare() throws TypeError when comparing with invalid types.
+     */
+    public function testCompareWithInvalidTypeThrows(): void
+    {
+        $a = Angle::fromDegrees(10);
+
+        $this->expectException(\TypeError::class);
+        $a->compare(10);
+    }
+
+    /**
+     * Test compare() throws TypeError for string.
+     */
+    public function testCompareWithStringThrows(): void
+    {
+        $a = Angle::fromDegrees(10);
+
+        $this->expectException(\TypeError::class);
+        $a->compare('10deg');
+    }
+
+    /**
+     * Test compare() throws TypeError for object.
+     */
+    public function testCompareWithObjectThrows(): void
+    {
+        $a = Angle::fromDegrees(10);
+
+        $this->expectException(\TypeError::class);
+        $a->compare(new \stdClass());
+    }
+
+    /**
+     * Test isLessThan() method from Comparable trait.
+     */
+    public function testIsLessThan(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(20);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($a->isLessThan($b));
+        $this->assertFalse($b->isLessThan($a));
+        $this->assertFalse($a->isLessThan($c)); // Equal, not less than
+    }
+
+    /**
+     * Test isLessThanOrEqual() method from Comparable trait.
+     */
+    public function testIsLessThanOrEqual(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(20);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($a->isLessThanOrEqual($b));
+        $this->assertTrue($a->isLessThanOrEqual($c)); // Equal counts as <=
+        $this->assertFalse($b->isLessThanOrEqual($a));
+    }
+
+    /**
+     * Test isGreaterThan() method from Comparable trait.
+     */
+    public function testIsGreaterThan(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(20);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($b->isGreaterThan($a));
+        $this->assertFalse($a->isGreaterThan($b));
+        $this->assertFalse($a->isGreaterThan($c)); // Equal, not greater than
+    }
+
+    /**
+     * Test isGreaterThanOrEqual() method from Comparable trait.
+     */
+    public function testIsGreaterThanOrEqual(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(20);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($b->isGreaterThanOrEqual($a));
+        $this->assertTrue($a->isGreaterThanOrEqual($c)); // Equal counts as >=
+        $this->assertFalse($a->isGreaterThanOrEqual($b));
+    }
+
+    /**
+     * Test comparison methods with negative angles.
+     */
+    public function testComparisonWithNegativeAngles(): void
+    {
+        $a = Angle::fromDegrees(-30);
+        $b = Angle::fromDegrees(-10);
+        $c = Angle::fromDegrees(10);
+
+        $this->assertTrue($a->isLessThan($b));
+        $this->assertTrue($b->isLessThan($c));
+        $this->assertTrue($c->isGreaterThan($a));
+    }
+
+    /**
+     * Test comparison methods with wrapped vs unwrapped angles.
+     */
+    public function testComparisonRawVsWrapped(): void
+    {
+        $a = Angle::fromDegrees(10);
+        $b = Angle::fromDegrees(370); // 10° + 360°
+
+        // Raw comparison: 370° > 10°
+        $this->assertTrue($b->isGreaterThan($a));
+
+        // After wrapping: both become 10° (unsigned)
+        $aWrapped = Angle::fromDegrees(10)->wrap();
+        $bWrapped = Angle::fromDegrees(370)->wrap();
+        $this->assertTrue($aWrapped->equals($bWrapped));
     }
 }

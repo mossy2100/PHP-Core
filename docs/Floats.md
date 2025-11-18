@@ -199,3 +199,69 @@ Floats::toHex($a) !== Floats::toHex($b);  // true
 - **Uniqueness**: Unlike casting to string or using `sprintf()`, every distinct float value (including -0.0 vs +0.0) produces a unique hex string
 - **Consistency**: Always produces exactly 16 characters
 - **Precision**: Preserves the exact binary representation of the float
+
+### tryConvertToInt()
+
+```php
+public static function tryConvertToInt(float $f, ?int &$i): bool
+```
+
+Attempt to convert a float to an integer losslessly. Returns `true` if the conversion succeeds (the float represents a whole number within the integer range), `false` otherwise.
+
+**Parameters:**
+- `$f` (float) - The float to convert
+- `$i` (int|null) - Output parameter that receives the converted integer on success
+
+**Returns:**
+- `bool` - `true` if the float can be converted to an integer losslessly, `false` otherwise
+
+**Behavior:**
+- Returns `true` and sets `$i` if the float equals a whole number (e.g., 5.0, -10.0, 0.0)
+- Returns `false` and leaves `$i` unchanged if the float has a fractional part (e.g., 5.5, 0.1)
+- Handles negative zero (-0.0) by converting it to integer 0
+- Works for any float value (without fractional part) within PHP's integer range (PHP_INT_MIN to PHP_INT_MAX)
+    
+**Examples:**
+
+```php
+// Successful conversion - whole number
+$f = 5.0;
+if (Floats::tryConvertToInt($f, $i)) {
+    echo $i; // 5
+}
+
+// Failed conversion - fractional part
+$f = 5.5;
+$i = null;
+if (!Floats::tryConvertToInt($f, $i)) {
+    echo "Cannot convert"; // $i remains null
+}
+
+// Large whole numbers
+$f = 1000000.0;
+Floats::tryConvertToInt($f, $i); // true, $i = 1000000
+
+// Negative zero
+$f = -0.0;
+Floats::tryConvertToInt($f, $i); // true, $i = 0
+
+// Powers of 2 work well (within precision)
+$f = (float)(1 << 50); // 2^50
+Floats::tryConvertToInt($f, $i); // true
+
+// PHP_INT_MIN is -2^63 (a power of 2), so it converts exactly
+$f = (float)PHP_INT_MIN;
+Floats::tryConvertToInt($f, $i); // true, $i = PHP_INT_MIN
+
+// PHP_INT_MAX is 2^63-1 (not a power of 2), loses precision as float
+$f = (float)PHP_INT_MAX;
+Floats::tryConvertToInt($f, $i); // false (loses precision)
+```
+
+**Use Cases:**
+- Optimizing constructors that accept `int|float` by avoiding expensive float-to-rational conversions when possible
+- Validating that a float represents a whole number before casting
+- Conditional type conversion in generic numeric code
+
+**Precision Limits:**
+On 64-bit systems, floats can exactly represent integers up to 2^53 (9,007,199,254,740,992). Beyond this, not all integers can be represented exactly as floats. Powers of 2 can be represented exactly up to much larger values.

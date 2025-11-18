@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Core;
 
+use ValueError;
+
 /**
  * Container for useful float-related methods.
  */
@@ -117,5 +119,25 @@ final class Floats
     public static function toHex(float $value): string
     {
         return bin2hex(pack('d', $value));
+    }
+
+    /**
+     * Try to convert a float to an integer losslessly.
+     *
+     * @param float $f The float to convert to an integer.
+     * @param ?int $i The equivalent integer.
+     * @return bool True if the float can be converted to an integer losslessly, false otherwise.
+     */
+    public static function tryConvertToInt(float $f, ?int &$i): bool
+    {
+        // Check if the argument is a float that can be converted to an integer.
+        $temp = (int)$f;
+        if ($f === (float)$temp) {
+            $i = $temp;
+            return true;
+        }
+
+        // Argument is a float that cannot be losslessly converted to an integer.
+        return false;
     }
 }

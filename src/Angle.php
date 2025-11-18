@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Galaxon\Core;
 
-// Interfaces
-use Stringable;
-// Attributes
-use Override;
-// Throwables
-use Throwable;
-use ValueError;
 use DivisionByZeroError;
+use Override;
+use Stringable;
+use Throwable;
+use TypeError;
+use ValueError;
 
-class Angle implements Stringable
+class Angle implements Stringable, Equatable
 {
+    use Comparable;
+
     // region Constants
 
     // Define τ = 2π.
@@ -192,10 +192,10 @@ class Angle implements Stringable
         if (preg_match("/^(-?$num)\s*(rad|deg|grad|turn)$/i", $value, $m)) {
             $num = (float)$m[1];
             return match (strtolower($m[2])) {
-                'rad'  => self::fromRadians($num),
-                'deg'  => self::fromDegrees($num),
-                'grad' => self::fromGradians($num),
-                'turn' => self::fromTurns($num),
+                'rad'   => self::fromRadians($num),
+                'deg'   => self::fromDegrees($num),
+                'grad'  => self::fromGradians($num),
+                'turn'  => self::fromTurns($num),
                 default => throw new ValueError($err_msg),
             };
         }
@@ -415,16 +415,13 @@ class Angle implements Stringable
     /**
      * Compare angles by their raw numeric values.
      *
-     * Compares angles as numerical values without normalization. This means
-     * 360° > 0° even though they represent the same angular position.
+     * Compares angles as numerical values without normalization. This means 360° > 0° even though they represent the
+     * same angular position.
+     * If you need to compare angular positions (where 0° = 360°), normalize both angles using wrap() before comparing.
      *
-     * If you need to compare angular positions (where 0° = 360°), normalize
-     * both angles first using wrap() before comparing.
-     *
-     * @param self $other The angle to compare with.
-     * @param float $eps The tolerance for equality (default: RAD_EPSILON).
+     * @param mixed $other The value to compare with.
      * @return int -1 if this < other, 0 if equal, 1 if this > other.
-     * @throws ValueError If epsilon is negative.
+     * @throws TypeError If the value to compare with is not an Angle.
      *
      * @example
      * $a = Angle::fromDegrees(10);
@@ -435,54 +432,21 @@ class Angle implements Stringable
      * $a->wrap()->compare($b->wrap()); // Still -1 (10 < 350 in unsigned range)
      * $a->wrap(true)->compare($b->wrap(true)); // 1 (10 > -10 in signed range)
      */
-    public function compare(self $other, float $eps = self::RAD_EPSILON): int
+    #[Override]
+    public function compare(mixed $other): int
     {
-        // Ensure epsilon is finite and non-negative.
-        if ($eps < 0 || !is_finite($eps)) {
-            throw new ValueError("Epsilon must be finite and non-negative.");
+        // Check we're comparing two Angles.
+        if (!$other instanceof self) {
+            throw new TypeError('Object to compare with must be an Angle.');
         }
 
-        // Compare raw radian values
-        $delta = $this->radians - $other->radians;
-
-        // Check for equal or close enough.
-        if (abs($delta) <= $eps) {
+        // Check for equality within a reasonable tolerance.
+        if (abs($this->radians - $other->radians) < self::RAD_EPSILON) {
             return 0;
         }
 
         // Check for less than or greater than.
-        return $delta < 0 ? -1 : 1;
-    }
-
-    /**
-     * Check if two angles are equal within a tolerance.
-     *
-     * Compares angles by their raw numeric values without normalization.
-     * This means 10° will not equal 370° even though they represent the same rotation endpoint.
-     *
-     * If you need to compare angular positions (where 0° = 360°), normalize both angles using wrap() before comparing.
-     *
-     * @param self $other The angle to compare with.
-     * @param float $eps The tolerance for equality (default: RAD_EPSILON).
-     * @return bool True if angles are equal within tolerance; false otherwise.
-     * @throws ValueError If epsilon is negative.
-     *
-     * @example
-     * // Raw comparison (measures of rotation)
-     * $a = Angle::fromDegrees(10);
-     * $b = Angle::fromDegrees(370);
-     * $a->equals($b); // false (10 ≠ 370)
-     *
-     * // Position comparison (unsigned range [0°, 360°))
-     * $a->wrap()->equals($b->wrap()); // true (both normalize to 10°)
-     *
-     * // Position comparison (signed range [-180°, 180°))
-     * $c = Angle::fromDegrees(350);
-     * $a->wrap(true)->equals($c->wrap(true)); // false (10° ≠ -10°)
-     */
-    public function equals(self $other, float $eps = self::RAD_EPSILON): bool
-    {
-        return $this->compare($other, $eps) === 0;
+        return $this->radians < $other->radians ? -1 : 1;
     }
 
     // endregion

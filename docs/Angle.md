@@ -300,24 +300,27 @@ echo $positive->toDegrees(); // 45.0
 
 ## Comparison Methods
 
+Angle implements the `Equatable` interface and uses the `Comparable` trait, providing a full set of comparison operations.
+
 ### compare()
 ```php
-public function compare(self $other, float $eps = self::RAD_EPSILON): int
+public function compare(mixed $other): int
 ```
 
-Compare angles by their raw numeric values with tolerance. Returns -1 if this angle is less, 0 if equal, 1 if greater.
+Compare angles by their raw numeric values with epsilon tolerance. Returns -1 if this angle is less, 0 if equal (within epsilon), 1 if greater.
 
-Angles are not normalized before comparison, so 10° < 370° even though they represent the same angular position. Use `wrap()` before comparing if you need to treat equivalent positions as equal.
+Angles are compared using their raw radian values without normalization, so 10° < 370° even though they represent the same angular position. Use `wrap()` before comparing if you need to treat equivalent positions as equal.
+
+Two angles are considered equal if their difference in radians is less than `RAD_EPSILON` (1e-9).
 
 **Parameters:**
-- `$other` (Angle) - The angle to compare with
-- `$eps` (float) - The tolerance for equality (default: RAD_EPSILON)
+- `$other` (mixed) - The value to compare with (must be an Angle)
 
 **Returns:**
-- `int` - -1 if this < other, 0 if equal, 1 if this > other
+- `int` - -1 if this < other, 0 if equal (within epsilon), 1 if this > other
 
 **Throws:**
-- `ValueError` - If epsilon is negative
+- `TypeError` - If $other is not an Angle
 
 **Example:**
 ```php
@@ -325,26 +328,31 @@ $a = Angle::fromDegrees(10);
 $b = Angle::fromDegrees(370);
 echo $a->compare($b); // -1 (10 < 370)
 
-$b->wrap(); // now $b == 10°
-echo $a->compare($b); // 0 (equal)
+$c = Angle::fromDegrees(10);
+echo $a->compare($c); // 0 (equal)
+
+// Wrapped comparison
+$aWrapped = Angle::fromDegrees(10)->wrap();
+$bWrapped = Angle::fromDegrees(370)->wrap();
+echo $aWrapped->compare($bWrapped); // 0 (both normalized to 10°)
 ```
 
 ### equals()
 ```php
-public function equals(self $other, float $eps = self::RAD_EPSILON): bool
+public function equals(mixed $other): bool
 ```
 
-Check if two angles are equal within tolerance. Angles are not normalized before comparison, so use `wrap()` first if you need to compare angular positions rather than raw values.
+Check if two angles are equal within epsilon tolerance (`RAD_EPSILON` = 1e-9). Provided by the `Comparable` trait - delegates to `compare()`.
+
+Angles are not normalized before comparison, so use `wrap()` first if you need to compare angular positions rather than raw values.
 
 **Parameters:**
-- `$other` (Angle) - The angle to compare with
-- `$eps` (float) - The tolerance for equality (default: RAD_EPSILON)
+- `$other` (mixed) - The value to compare with
 
 **Returns:**
-- `bool` - True if angles are equal within tolerance; false otherwise
+- `bool` - True if angles are equal within epsilon tolerance; false otherwise
 
-**Throws:**
-- `ValueError` - If epsilon is negative
+**Note:** Returns `false` gracefully for non-Angle types (doesn't throw).
 
 **Example:**
 ```php
@@ -355,8 +363,79 @@ $c = Angle::fromDegrees(405); // 45° + 360°
 var_dump($a->equals($b)); // true
 var_dump($a->equals($c)); // false (45 ≠ 405)
 
-$c->wrap(); // now $c == 45°
-var_dump($a->equals($c)); // true
+// After wrapping
+$cWrapped = Angle::fromDegrees(405)->wrap();
+var_dump($a->equals($cWrapped)); // true (both are 45°)
+
+// Gracefully handles wrong types
+var_dump($a->equals(45)); // false (not an Angle)
+var_dump($a->equals("45deg")); // false (not an Angle)
+```
+
+### isLessThan()
+```php
+public function isLessThan(mixed $other): bool
+```
+
+Check if this angle is less than another. Provided by the `Comparable` trait.
+
+**Example:**
+```php
+$a = Angle::fromDegrees(30);
+$b = Angle::fromDegrees(60);
+
+var_dump($a->isLessThan($b)); // true
+var_dump($b->isLessThan($a)); // false
+```
+
+### isLessThanOrEqual()
+```php
+public function isLessThanOrEqual(mixed $other): bool
+```
+
+Check if this angle is less than or equal to another. Provided by the `Comparable` trait.
+
+**Example:**
+```php
+$a = Angle::fromDegrees(45);
+$b = Angle::fromDegrees(45);
+$c = Angle::fromDegrees(90);
+
+var_dump($a->isLessThanOrEqual($b)); // true (equal)
+var_dump($a->isLessThanOrEqual($c)); // true (less than)
+```
+
+### isGreaterThan()
+```php
+public function isGreaterThan(mixed $other): bool
+```
+
+Check if this angle is greater than another. Provided by the `Comparable` trait.
+
+**Example:**
+```php
+$a = Angle::fromDegrees(90);
+$b = Angle::fromDegrees(45);
+
+var_dump($a->isGreaterThan($b)); // true
+var_dump($b->isGreaterThan($a)); // false
+```
+
+### isGreaterThanOrEqual()
+```php
+public function isGreaterThanOrEqual(mixed $other): bool
+```
+
+Check if this angle is greater than or equal to another. Provided by the `Comparable` trait.
+
+**Example:**
+```php
+$a = Angle::fromDegrees(60);
+$b = Angle::fromDegrees(60);
+$c = Angle::fromDegrees(30);
+
+var_dump($a->isGreaterThanOrEqual($b)); // true (equal)
+var_dump($a->isGreaterThanOrEqual($c)); // true (greater than)
 ```
 
 
