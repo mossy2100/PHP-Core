@@ -9,6 +9,7 @@ use Galaxon\Core\Integers;
 use OverflowException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RangeException;
 use ValueError;
 
 /**
@@ -298,5 +299,35 @@ final class IntegersTest extends TestCase
 
         // Test GCD with large numbers having common factors.
         $this->assertSame(3000, Integers::gcd(123000, 456000));
+    }
+
+    /**
+     * Test GCD with PHP_INT_MIN as first argument throws RangeException.
+     */
+    public function testGcdWithPhpIntMinFirstArgThrows(): void
+    {
+        $this->expectException(RangeException::class);
+        $this->expectExceptionMessage('Arguments must be greater than PHP_INT_MIN');
+        Integers::gcd(PHP_INT_MIN, 5);
+    }
+
+    /**
+     * Test GCD with PHP_INT_MIN as second argument throws RangeException.
+     */
+    public function testGcdWithPhpIntMinSecondArgThrows(): void
+    {
+        $this->expectException(RangeException::class);
+        $this->expectExceptionMessage('Arguments must be greater than PHP_INT_MIN');
+        Integers::gcd(5, PHP_INT_MIN);
+    }
+
+    /**
+     * Test GCD with PHP_INT_MIN as only argument throws RangeException.
+     */
+    public function testGcdWithPhpIntMinSingleArgThrows(): void
+    {
+        $this->expectException(RangeException::class);
+        $this->expectExceptionMessage('Arguments must be greater than PHP_INT_MIN');
+        Integers::gcd(PHP_INT_MIN);
     }
 }

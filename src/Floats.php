@@ -130,7 +130,12 @@ final class Floats
      */
     public static function tryConvertToInt(float $f, ?int &$i): bool
     {
-        // Check if the argument is a float that can be converted to an integer.
+        // Check the provided value is finite and within the valid range.
+        if (!is_finite($f) || $f < PHP_INT_MIN || $f > PHP_INT_MAX) {
+            return false;
+        }
+
+        // Check if the argument is a float that can be converted losslessly to an integer.
         $temp = (int)$f;
         if ($f === (float)$temp) {
             $i = $temp;

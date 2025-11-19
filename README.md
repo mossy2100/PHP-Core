@@ -1,4 +1,4 @@
-# Galaxon Core
+# Galaxon PHP Core
 
 A general purpose library containing core utility classes and methods for use by other Galaxon PHP packages.
 

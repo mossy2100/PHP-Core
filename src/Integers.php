@@ -6,6 +6,7 @@ namespace Galaxon\Core;
 
 use ArgumentCountError;
 use OverflowException;
+use RangeException;
 use ValueError;
 
 /**
@@ -128,12 +129,19 @@ final class Integers
      * @param int ...$nums The integers to calculate the GCD of.
      * @return int The greatest common divisor.
      * @throws ArgumentCountError If no arguments are provided.
+     * @throws RangeException If any of the integers equal PHP_INT_MIN.
      */
     public static function gcd(int ...$nums): int
     {
-        // Guard.
+        // Check we have the right number of arguments.
         if (count($nums) === 0) {
             throw new ArgumentCountError("At least one integer is required.");
+        }
+
+        // Check none of the values equal PHP_INT_MIN because otherwise abs() will not work properly.
+        $range_err = 'Arguments must be greater than PHP_INT_MIN (' . PHP_INT_MIN . ').';
+        if ($nums[0] === PHP_INT_MIN) {
+            throw new RangeException($range_err);
         }
 
         // Initialise to the first number.
@@ -141,6 +149,11 @@ final class Integers
 
         // Calculate the GCD using Euclid's algorithm.
         for ($i = 1, $n = count($nums); $i < $n; $i++) {
+            // Check integer is in the valid range.
+            if ($nums[$i] === PHP_INT_MIN) {
+                throw new RangeException($range_err);
+            }
+
             $a = $result;
             $b = abs($nums[$i]);
 
