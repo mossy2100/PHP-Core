@@ -479,82 +479,114 @@ echo $angle->tanh(); // 0.761...
 
 ## Wrapping Methods
 
+Wrapping normalizes angles to a canonical range, following the mathematical convention where:
+- **Unsigned range [0, 2π)**: Includes lower bound (0), excludes upper bound (2π)
+- **Signed range (-π, π]**: Excludes lower bound (-π), includes upper bound (π)
+
+This convention matches the [standard principal value for complex number arguments](https://en.wikipedia.org/wiki/Principal_value#Complex_argument) and ensures uniqueness.
+
+NB: The methods `wrapRadians()`, `wrapDegrees()`, and `wrapGradians()` are provided as utility methods for working with angles as floats, and do not operate on Angle objects. To wrap an Angle object, use the wrap() instance method, which is mutating.
+
 ### wrapRadians()
 
 ```php
-public static function wrapRadians(float $radians, bool $signed = false): float
+public static function wrapRadians(float $radians, bool $signed = true): float
 ```
 
-Normalize radians into [0, τ) or [-π, π) if signed.
+Normalize radians into the signed range (-π, π] by default, or unsigned range [0, τ) when `$signed = false`.
+
+**Parameters:**
+- `$radians` (float) - The angle in radians to normalize
+- `$signed` (bool) - Whether to use signed range (default: `true`)
 
 **Examples:**
 ```php
-// Unsigned range [0, 2π)
-$wrapped = Angle::wrapRadians(7.0); // 0.716... (7 - 2π)
+// Signed range (-π, π] - DEFAULT
+$wrapped = Angle::wrapRadians(4.0); // -2.283... (4 - 2π)
+$wrapped = Angle::wrapRadians(-M_PI); // π (lower bound excluded, wraps to upper)
+$wrapped = Angle::wrapRadians(M_PI); // π (upper bound included)
 
-// Signed range [-π, π)
-$wrapped = Angle::wrapRadians(4.0, true); // -2.283... (4 - 2π)
+// Unsigned range [0, 2π)
+$wrapped = Angle::wrapRadians(7.0, false); // 0.716... (7 - 2π)
+$wrapped = Angle::wrapRadians(-M_PI, false); // π (negative wraps to positive)
 ```
 
 ### wrapDegrees()
 
 ```php
-public static function wrapDegrees(float $degrees, bool $signed = false): float
+public static function wrapDegrees(float $degrees, bool $signed = true): float
 ```
 
-Normalize degrees into [0, 360) or [-180, 180) if signed.
+Normalize degrees into the signed range (-180, 180] by default, or unsigned range [0, 360) when `$signed = false`.
+
+**Parameters:**
+- `$degrees` (float) - The angle in degrees to normalize
+- `$signed` (bool) - Whether to use signed range (default: `true`)
 
 **Examples:**
 ```php
-// Unsigned range [0, 360)
-$wrapped = Angle::wrapDegrees(450); // 90.0
+// Signed range (-180, 180] - DEFAULT
+$wrapped = Angle::wrapDegrees(200); // -160.0
+$wrapped = Angle::wrapDegrees(-180); // 180.0 (lower bound excluded, wraps to upper)
+$wrapped = Angle::wrapDegrees(180); // 180.0 (upper bound included)
 
-// Signed range [-180, 180)
-$wrapped = Angle::wrapDegrees(200, true); // -160.0
+// Unsigned range [0, 360)
+$wrapped = Angle::wrapDegrees(450, false); // 90.0
+$wrapped = Angle::wrapDegrees(-90, false); // 270.0 (negative wraps to positive)
 ```
 
 ### wrapGradians()
 
 ```php
-public static function wrapGradians(float $gradians, bool $signed = false): float
+public static function wrapGradians(float $gradians, bool $signed = true): float
 ```
 
-Normalize gradians into [0, 400) or [-200, 200) if signed.
+Normalize gradians into the signed range (-200, 200] by default, or unsigned range [0, 400) when `$signed = false`.
+
+**Parameters:**
+- `$gradians` (float) - The angle in gradians to normalize
+- `$signed` (bool) - Whether to use signed range (default: `true`)
 
 **Examples:**
 ```php
-// Unsigned range [0, 400)
-$wrapped = Angle::wrapGradians(500); // 100.0
+// Signed range (-200, 200] - DEFAULT
+$wrapped = Angle::wrapGradians(250); // -150.0
+$wrapped = Angle::wrapGradians(-200); // 200.0 (lower bound excluded, wraps to upper)
+$wrapped = Angle::wrapGradians(200); // 200.0 (upper bound included)
 
-// Signed range [-200, 200)
-$wrapped = Angle::wrapGradians(250, true); // -150.0
+// Unsigned range [0, 400)
+$wrapped = Angle::wrapGradians(500, false); // 100.0
+$wrapped = Angle::wrapGradians(-100, false); // 300.0 (negative wraps to positive)
 ```
 
 ### wrap()
 
 ```php
-public function wrap(bool $signed = false): self
+public function wrap(bool $signed = true): self
 ```
 
 Normalize this angle (mutating method). Returns `$this` for chaining.
 
+**Parameters:**
+- `$signed` (bool) - Whether to use signed range (default: `true`)
+
 **Examples:**
 ```php
-// Unsigned wrapping
-$angle = Angle::fromDegrees(450);
-$angle->wrap();
-echo $angle->toDegrees(); // 90.0
-
-// Signed wrapping
+// Signed wrapping - DEFAULT
 $angle = Angle::fromDegrees(200);
-$angle->wrap(true);
+$angle->wrap();
 echo $angle->toDegrees(); // -160.0
 
-// Chaining
+// Unsigned wrapping
+$angle = Angle::fromDegrees(450);
+$angle->wrap(false);
+echo $angle->toDegrees(); // 90.0
+
+// Chaining with signed wrapping (default)
 $result = Angle::fromDegrees(540)
     ->wrap()
     ->mul(2);
-echo $result->toDegrees(); // 360.0
+echo $result->toDegrees(); // -360.0
 ```
 
 ## String Methods

@@ -39,11 +39,11 @@ final class TypesTest extends TestCase
         $this->assertTrue(Types::isNumber(NAN));
 
         // Test that numeric strings are NOT identified as numbers.
-        $this->assertFalse(Types::isNumber("42"));
-        $this->assertFalse(Types::isNumber("3.14"));
+        $this->assertFalse(Types::isNumber('42'));
+        $this->assertFalse(Types::isNumber('3.14'));
 
         // Test that other types are not identified as numbers.
-        $this->assertFalse(Types::isNumber("hello"));
+        $this->assertFalse(Types::isNumber('hello'));
         $this->assertFalse(Types::isNumber(true));
         $this->assertFalse(Types::isNumber(false));
         $this->assertFalse(Types::isNumber(null));
@@ -74,7 +74,7 @@ final class TypesTest extends TestCase
         $this->assertFalse(Types::isUint(-2.5));
 
         // Test that other types are not identified as unsigned integers.
-        $this->assertFalse(Types::isUint("42"));
+        $this->assertFalse(Types::isUint('42'));
         $this->assertFalse(Types::isUint(true));
         $this->assertFalse(Types::isUint(null));
     }
@@ -436,7 +436,7 @@ final class TypesTest extends TestCase
     {
         // Test that passing a non-existent class name throws ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("Invalid class name: NonExistentClass");
+        $this->expectExceptionMessage('Invalid class name: NonExistentClass');
         Types::usesTrait('NonExistentClass', TestTrait::class);
     }
 
@@ -504,7 +504,7 @@ final class TypesTest extends TestCase
     public function testGetTraitsThrowsValueErrorForNonExistentClass(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("Invalid class name: NonExistentClassName");
+        $this->expectExceptionMessage('Invalid class name: NonExistentClassName');
         Types::getTraits('NonExistentClassName');
     }
 }

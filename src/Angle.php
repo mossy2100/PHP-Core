@@ -71,7 +71,7 @@ class Angle implements Stringable, Equatable
     {
         // Guard.
         if (!is_finite($radians)) {
-            throw new ValueError("Angle size cannot be ±∞ or NaN.");
+            throw new ValueError('Angle size cannot be ±∞ or NaN.');
         }
 
         $this->radians = $radians;
@@ -299,7 +299,7 @@ class Angle implements Stringable, Equatable
 
             default:
                 throw new ValueError(
-                    "The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds."
+                    'The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds.'
                 );
         }
     }
@@ -371,7 +371,7 @@ class Angle implements Stringable, Equatable
     {
         // Guard.
         if (!is_finite($k)) {
-            throw new ValueError("Multiplier cannot be ±∞ or NaN.");
+            throw new ValueError('Multiplier cannot be ±∞ or NaN.');
         }
 
         return new self($this->radians * $k);
@@ -389,10 +389,10 @@ class Angle implements Stringable, Equatable
     {
         // Guards.
         if ($k === 0.0) {
-            throw new DivisionByZeroError("Divisor cannot be 0.");
+            throw new DivisionByZeroError('Divisor cannot be 0.');
         }
         if (!is_finite($k)) {
-            throw new ValueError("Divisor cannot be ±∞ or NaN.");
+            throw new ValueError('Divisor cannot be ±∞ or NaN.');
         }
 
         return new self(fdiv($this->radians, $k));
@@ -532,10 +532,15 @@ class Angle implements Stringable, Equatable
     /**
      * Normalize a scalar angle value into a specified half-open interval.
      *
-     * NB: This is a private method called from the public static wrap[Unit]() methods.
+     * This is a private method called from the public wrap[Unit]() methods.
      *
-     * If $signed is false (default), the range is [0, $units_per_turn).
-     * If $signed is true, the range is [-$units_per_turn/2, $units_per_turn/2).
+     * The range of values varies depending on the $units_per_turn parameter *and* the $signed flag.
+     * 1. If $signed is true (default), the range is (-$units_per_turn/2, $units_per_turn/2].
+     * NB: This means the minimum value is *excluded* in the range, while the maximum value is *included*.
+     * 2. If $signed is false, the range is [0, $units_per_turn).
+     * NB: This means the minimum value is *included* in the range, while the maximum value is *excluded*.
+     * This may seem counterintuitive, but it's consistent with mathematical conventions.
+     * @see https://en.wikipedia.org/wiki/Principal_value#Complex_argument
      *
      * @param float $value The value to wrap.
      * @param float $units_per_turn Units per full turn (e.g., τ for radians, 360 for degrees, 400 for gradians).
@@ -543,32 +548,33 @@ class Angle implements Stringable, Equatable
      * @return float The wrapped value.
      * @throws ValueError If the $value argument is non-finite.
      */
-    private static function wrapAngle(float $value, float $units_per_turn, bool $signed = false): float
+    private static function wrapAngle(float $value, float $units_per_turn, bool $signed = true): float
     {
         // Guard.
         if (!is_finite($value)) {
-            throw new ValueError("Value must be finite.");
+            throw new ValueError('Value must be finite.');
         }
 
         // Reduce using fmod to avoid large magnitudes.
         $r = fmod($value, $units_per_turn);
 
-        // Get the range bounds.
-        if ($signed) {
-            $half = $units_per_turn / 2.0;
-            $min = -$half;
-            $max = $half;
-        } else {
-            $min = 0.0;
-            $max = $units_per_turn;
-        }
-
+        // Adjust to fit within range bounds.
         // The value may be outside the range due to the sign of $value or the value of $signed.
-        // Adjust accordingly.
-        if ($r < $min) {
-            $r += $units_per_turn;
-        } elseif ($r >= $max) {
-            $r -= $units_per_turn;
+        if ($signed) {
+            // Signed range is (-$half, $half]
+            $half = $units_per_turn / 2.0;
+            if ($r <= -$half) {
+                $r += $units_per_turn;
+            } elseif ($r > $half) {
+                $r -= $units_per_turn;
+            }
+        } else {
+            // Unsigned range is [0, $units_per_turn)
+            if ($r < 0.0) {
+                $r += $units_per_turn;
+            } elseif ($r >= $units_per_turn) {
+                $r -= $units_per_turn;
+            }
         }
 
         // Canonicalize -0.0 to 0.0.
@@ -576,37 +582,37 @@ class Angle implements Stringable, Equatable
     }
 
     /**
-     * Normalize radians into [0, τ) or [-π, π).
+     * Normalize radians into [0, τ) or (-π, π].
      *
      * @param float $radians The angle in radians.
      * @param bool $signed Whether to return a signed range.
      * @return float The normalized angle in radians.
      */
-    public static function wrapRadians(float $radians, bool $signed = false): float
+    public static function wrapRadians(float $radians, bool $signed = true): float
     {
         return self::wrapAngle($radians, self::TAU, $signed);
     }
 
     /**
-     * Normalize degrees into [0, 360) or [-180, 180).
+     * Normalize degrees into [0, 360) or (-180, 180].
      *
      * @param float $degrees The angle in degrees.
      * @param bool $signed Whether to return a signed range.
      * @return float The normalized angle in degrees.
      */
-    public static function wrapDegrees(float $degrees, bool $signed = false): float
+    public static function wrapDegrees(float $degrees, bool $signed = true): float
     {
         return self::wrapAngle($degrees, self::DEGREES_PER_TURN, $signed);
     }
 
     /**
-     * Normalize gradians into [0, 400) or [-200, 200).
+     * Normalize gradians into [0, 400) or (-200, 200].
      *
      * @param float $gradians The angle in gradians.
      * @param bool $signed Whether to return a signed range.
      * @return float The normalized angle in gradians.
      */
-    public static function wrapGradians(float $gradians, bool $signed = false): float
+    public static function wrapGradians(float $gradians, bool $signed = true): float
     {
         return self::wrapAngle($gradians, self::GRADIANS_PER_TURN, $signed);
     }
@@ -630,7 +636,7 @@ class Angle implements Stringable, Equatable
      * $alpha = Angle::fromRadians(M_PI * 5);
      * $alpha->wrap();
      */
-    public function wrap(bool $signed = false): self
+    public function wrap(bool $signed = true): self
     {
         // Wrap the angle.
         $this->radians = self::wrapRadians($this->radians, $signed);
@@ -737,7 +743,7 @@ class Angle implements Stringable, Equatable
             // @codeCoverageIgnoreStart
             default:
                 throw new ValueError(
-                    "The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default)."
+                    'The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default).'
                 );
             // @codeCoverageIgnoreEnd
         }
@@ -761,7 +767,7 @@ class Angle implements Stringable, Equatable
     {
         // Guard.
         if ($decimals !== null && $decimals < 0) {
-            throw new ValueError("Decimals must be non-negative or null.");
+            throw new ValueError('Decimals must be non-negative or null.');
         }
 
         return match (strtolower($format)) {
@@ -773,7 +779,7 @@ class Angle implements Stringable, Equatable
             'dm'    => $this->formatDMS(self::UNIT_ARCMINUTE, $decimals),
             'dms'   => $this->formatDMS(self::UNIT_ARCSECOND, $decimals),
             default => throw new ValueError(
-                "Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms."
+                'Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms.'
             ),
         };
     }

@@ -181,19 +181,26 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test wrapping angles into unsigned [0, τ) and signed [-π, π) ranges.
+     * Test wrapping angles into unsigned and signed ranges with non-boundary values.
      *
      * Verifies that the wrap() method correctly normalizes angles to the
-     * appropriate range based on the signed parameter.
+     * appropriate range. This tests general behavior, not boundary conditions.
      */
     public function testWrapUnsignedAndSigned(): void
     {
-        $a = Angle::fromRadians(2 * M_PI)->wrap();
-        $this->assertFloatEquals(0.0, $a->toRadians());
+        // Unsigned range [0, τ) - test values in the middle of ranges
+        $a = Angle::fromRadians(3 * M_PI);  // 1.5 turns
+        $this->assertFloatEquals(M_PI, $a->wrap(false)->toRadians());
 
-        $b = Angle::fromRadians(M_PI)->wrap(true);
-        // Signed range is [-π, π): π maps to -π.
-        $this->assertFloatEquals(-M_PI, $b->toRadians());
+        $b = Angle::fromRadians(-3 * M_PI / 2);  // -0.75 turns
+        $this->assertFloatEquals(M_PI / 2, $b->wrap(false)->toRadians());
+
+        // Signed range (-π, π] - test values in quadrants
+        $c = Angle::fromRadians(5 * M_PI / 4);  // 225 degrees, should wrap to -135 degrees
+        $this->assertFloatEquals(-3 * M_PI / 4, $c->wrap(true)->toRadians());
+
+        $d = Angle::fromRadians(-5 * M_PI / 4);  // -225 degrees, should wrap to 135 degrees
+        $this->assertFloatEquals(3 * M_PI / 4, $d->wrap(true)->toRadians());
     }
 
     /**
@@ -277,7 +284,7 @@ final class AngleTest extends TestCase
         $this->assertSame('0.0347222222turn', $a->format('turn', 10));
 
         // DMS via format.
-        $this->assertSame("12° 30′ 0″", $a->format('dms', 0));
+        $this->assertSame('12° 30′ 0″', $a->format('dms', 0));
 
         // Verify that negative decimals value throws ValueError.
         $this->expectException(ValueError::class);
@@ -294,7 +301,7 @@ final class AngleTest extends TestCase
     {
         // Values that shouldn't trigger carry
         $a = Angle::fromDegrees(29, 59, 59.994);
-        $this->assertSame("29° 59′ 59.994″", $a->format('dms', 3));
+        $this->assertSame('29° 59′ 59.994″', $a->format('dms', 3));
     }
 
     /**
@@ -307,31 +314,31 @@ final class AngleTest extends TestCase
     {
         // Test degree rounding (29.9999... → 30°)
         $a = Angle::fromDegrees(29.9999999999);
-        $this->assertSame("30.000°", $a->format('d', 3));
-        $this->assertSame("30° 0.000′", $a->format('dm', 3));
-        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
+        $this->assertSame('30.000°', $a->format('d', 3));
+        $this->assertSame('30° 0.000′', $a->format('dm', 3));
+        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
 
         // Test arcminute carry (29° 59.9999′ → 30° 0′)
         $a = Angle::fromDegrees(29, 59.9999999);
-        $this->assertSame("30° 0.000′", $a->format('dm', 3));
+        $this->assertSame('30° 0.000′', $a->format('dm', 3));
 
         // Test arcsecond carry (29° 59′ 59.9999″ → 30° 0′ 0″)
         $a = Angle::fromDegrees(29, 59, 59.9999999);
-        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
+        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
 
         // Test double carry (seconds → minutes → degrees)
         $a = Angle::fromDegrees(29, 59, 59.9999999);
-        $this->assertSame("30.000°", $a->format('d', 3));
+        $this->assertSame('30.000°', $a->format('d', 3));
 
         // Test mid-range carry (not at zero boundary)
         $a = Angle::fromDegrees(45, 59, 59.9995);
-        $this->assertSame("46° 0′ 0.000″", $a->format('dms', 3));
+        $this->assertSame('46° 0′ 0.000″', $a->format('dms', 3));
 
         // Test negative angle carry
         $a = Angle::fromDegrees(-29.9999999999);
-        $this->assertSame("-30.000°", $a->format('d', 3));
-        $this->assertSame("-30° 0.000′", $a->format('dm', 3));
-        $this->assertSame("-30° 0′ 0.000″", $a->format('dms', 3));
+        $this->assertSame('-30.000°', $a->format('d', 3));
+        $this->assertSame('-30° 0.000′', $a->format('dm', 3));
+        $this->assertSame('-30° 0′ 0.000″', $a->format('dms', 3));
     }
 
     /**
@@ -406,25 +413,23 @@ final class AngleTest extends TestCase
      */
     public function testWrapBoundariesSignedAndUnsigned(): void
     {
-        $twoPi = 2 * M_PI;
-
         // Unsigned [0, τ).
         $this->assertFloatEquals(0.0, Angle::wrapRadians(0.0, false));
-        $this->assertFloatEquals(0.0, Angle::wrapRadians($twoPi, false));
-        $this->assertFloatEquals(0.0, Angle::wrapRadians(-$twoPi, false));
+        $this->assertFloatEquals(0.0, Angle::wrapRadians(Angle::TAU, false));
+        $this->assertFloatEquals(0.0, Angle::wrapRadians(-Angle::TAU, false));
         $this->assertFloatEquals(M_PI, Angle::wrapRadians(-M_PI, false));
 
-        // Signed [-π, π).
-        $this->assertFloatEquals(-M_PI, Angle::wrapRadians(M_PI, true));  // right edge maps to -π
-        $this->assertFloatEquals(-M_PI, Angle::wrapRadians(-M_PI, true));
-        $this->assertFloatEquals(0.0, Angle::wrapRadians($twoPi, true));
-        $this->assertFloatEquals(0.0, Angle::wrapRadians(-$twoPi, true));
+        // Signed (-π, π].
+        $this->assertFloatEquals(M_PI, Angle::wrapRadians(-M_PI, true));
+        $this->assertFloatEquals(M_PI, Angle::wrapRadians(M_PI, true));
+        $this->assertFloatEquals(0.0, Angle::wrapRadians(Angle::TAU, true));
+        $this->assertFloatEquals(0.0, Angle::wrapRadians(-Angle::TAU, true));
 
         // Verify that instance methods produce correct results.
-        $a = Angle::fromRadians($twoPi)->wrap();
+        $a = Angle::fromRadians(Angle::TAU)->wrap();
         $this->assertFloatEquals(0.0, $a->toRadians());
-        $b = Angle::fromRadians(M_PI)->wrap(true);
-        $this->assertFloatEquals(-M_PI, $b->toRadians());
+        $b = Angle::fromRadians(-M_PI)->wrap(true);
+        $this->assertFloatEquals(M_PI, $b->toRadians());
     }
 
     /**
@@ -445,7 +450,7 @@ final class AngleTest extends TestCase
 
         // Exactly 60 seconds (should carry in formatting).
         $a = Angle::fromDegrees(29, 59, 60.0);
-        $this->assertSame("30° 0′ 0.000″", $a->format('dms', 3));
+        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
     }
 
     /**

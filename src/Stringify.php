@@ -6,7 +6,6 @@ namespace Galaxon\Core;
 
 use TypeError;
 use ValueError;
-use JsonException;
 
 /**
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
@@ -71,7 +70,7 @@ final class Stringify
             // This should never happen, but we'll include it for completeness/robustness.
             // We can't test this, so get phpunit to ignore it for code coverage purposes.
             default:
-                throw new TypeError("Unknown type.");
+                throw new TypeError('Unknown type.');
             // @codeCoverageIgnoreEnd
         }
     }
@@ -126,7 +125,7 @@ final class Stringify
     {
         // Detect circular references.
         if (Arrays::containsRecursion($ary)) {
-            throw new ValueError("Cannot stringify arrays containing circular references.");
+            throw new ValueError('Cannot stringify arrays containing circular references.');
         }
 
         $pairs = [];
@@ -173,7 +172,7 @@ final class Stringify
     {
         // Can't type hint for resource, so check manually.
         if (!is_resource($value)) {
-            throw new TypeError("Value is not a resource.");
+            throw new TypeError('Value is not a resource.');
         }
 
         return '(resource type: "' . get_resource_type($value) . '", id: ' . get_resource_id($value) . ')';
@@ -259,7 +258,7 @@ final class Stringify
     {
         // Check the max length is reasonable.
         if ($max_len < 10) {
-            throw new ValueError("The maximum string length must be at least 10.");
+            throw new ValueError('The maximum string length must be at least 10.');
         }
 
         // Get the value as a string without newlines or indentation.

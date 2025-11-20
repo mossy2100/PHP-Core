@@ -32,7 +32,7 @@ final class Numbers
     {
         // Guard. This method won't work for NaN, which doesn't have a sign.
         if (is_nan($num) || is_nan($sign_source)) {
-            throw new ValueError("NaN is not allowed for either parameter.");
+            throw new ValueError('NaN is not allowed for either parameter.');
         }
 
         return abs($num) * self::sign($sign_source, false);

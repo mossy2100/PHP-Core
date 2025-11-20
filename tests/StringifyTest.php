@@ -192,7 +192,7 @@ final class StringifyTest extends TestCase
 
         // Test that circular reference throws ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("Cannot stringify arrays containing circular references.");
+        $this->expectExceptionMessage('Cannot stringify arrays containing circular references.');
         Stringify::stringify($array);
     }
 
@@ -220,7 +220,7 @@ final class StringifyTest extends TestCase
     {
         // Test that non-resource throws TypeError.
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessage("Value is not a resource.");
+        $this->expectExceptionMessage('Value is not a resource.');
         Stringify::stringifyResource('not a resource');
     }
 
@@ -355,7 +355,7 @@ final class StringifyTest extends TestCase
     public function testAbbrevMaxLenTooSmall(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("The maximum string length must be at least 10.");
+        $this->expectExceptionMessage('The maximum string length must be at least 10.');
         Stringify::abbrev(123, 9);
     }
 

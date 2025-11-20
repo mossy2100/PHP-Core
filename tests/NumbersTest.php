@@ -154,7 +154,7 @@ final class NumbersTest extends TestCase
     {
         // Test that NaN as first parameter throws ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("NaN is not allowed for either parameter.");
+        $this->expectExceptionMessage('NaN is not allowed for either parameter.');
         Numbers::copySign(NAN, 5);
     }
 
@@ -165,7 +165,7 @@ final class NumbersTest extends TestCase
     {
         // Test that NaN as second parameter throws ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("NaN is not allowed for either parameter.");
+        $this->expectExceptionMessage('NaN is not allowed for either parameter.');
         Numbers::copySign(5, NAN);
     }
 
@@ -176,7 +176,7 @@ final class NumbersTest extends TestCase
     {
         // Test that NaN as both parameters throws ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("NaN is not allowed for either parameter.");
+        $this->expectExceptionMessage('NaN is not allowed for either parameter.');
         Numbers::copySign(NAN, NAN);
     }
 

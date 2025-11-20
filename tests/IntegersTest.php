@@ -47,7 +47,7 @@ final class IntegersTest extends TestCase
     {
         // Test positive overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer addition.");
+        $this->expectExceptionMessage('Overflow in integer addition.');
         Integers::add(PHP_INT_MAX, 1);
     }
 
@@ -58,7 +58,7 @@ final class IntegersTest extends TestCase
     {
         // Test negative overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer addition.");
+        $this->expectExceptionMessage('Overflow in integer addition.');
         Integers::add(PHP_INT_MIN, -1);
     }
 
@@ -91,7 +91,7 @@ final class IntegersTest extends TestCase
     {
         // Test positive overflow (subtracting a large negative number).
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer subtraction.");
+        $this->expectExceptionMessage('Overflow in integer subtraction.');
         Integers::sub(PHP_INT_MAX, -1);
     }
 
@@ -102,7 +102,7 @@ final class IntegersTest extends TestCase
     {
         // Test negative overflow (subtracting a large positive number from minimum).
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer subtraction.");
+        $this->expectExceptionMessage('Overflow in integer subtraction.');
         Integers::sub(PHP_INT_MIN, 1);
     }
 
@@ -139,7 +139,7 @@ final class IntegersTest extends TestCase
     {
         // Test positive overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer multiplication.");
+        $this->expectExceptionMessage('Overflow in integer multiplication.');
         Integers::mul(PHP_INT_MAX, 2);
     }
 
@@ -150,7 +150,7 @@ final class IntegersTest extends TestCase
     {
         // Test negative overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in integer multiplication.");
+        $this->expectExceptionMessage('Overflow in integer multiplication.');
         Integers::mul(PHP_INT_MAX, -2);
     }
 
@@ -189,7 +189,7 @@ final class IntegersTest extends TestCase
     {
         // Test that negative exponents throw ValueError.
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("Negative exponents are not supported.");
+        $this->expectExceptionMessage('Negative exponents are not supported.');
         Integers::pow(2, -3);
     }
 
@@ -200,7 +200,7 @@ final class IntegersTest extends TestCase
     {
         // Test positive overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in exponentiation.");
+        $this->expectExceptionMessage('Overflow in exponentiation.');
         Integers::pow(PHP_INT_MAX, 2);
     }
 
@@ -211,7 +211,7 @@ final class IntegersTest extends TestCase
     {
         // Test overflow with large exponent.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage("Overflow in exponentiation.");
+        $this->expectExceptionMessage('Overflow in exponentiation.');
         Integers::pow(10, 100);
     }
 
@@ -285,7 +285,7 @@ final class IntegersTest extends TestCase
     {
         // Test that calling GCD with no arguments throws ArgumentCountError.
         $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessage("At least one integer is required.");
+        $this->expectExceptionMessage('At least one integer is required.');
         Integers::gcd();
     }
 

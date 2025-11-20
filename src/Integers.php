@@ -40,7 +40,7 @@ final class Integers
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
         // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
-            throw new OverflowException("Overflow in integer addition.");
+            throw new OverflowException('Overflow in integer addition.');
         }
 
         // Return the result.
@@ -64,7 +64,7 @@ final class Integers
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
         // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
-            throw new OverflowException("Overflow in integer subtraction.");
+            throw new OverflowException('Overflow in integer subtraction.');
         }
 
         // Return the result.
@@ -88,7 +88,7 @@ final class Integers
         // NB: phpstan complains because it thinks $c is always an int, but it could be a float.
         // @phpstan-ignore function.impossibleType
         if (is_float($c)) {
-            throw new OverflowException("Overflow in integer multiplication.");
+            throw new OverflowException('Overflow in integer multiplication.');
         }
 
         // Return the result.
@@ -108,7 +108,7 @@ final class Integers
     {
         // Handle b < 0.
         if ($b < 0) {
-            throw new ValueError("Negative exponents are not supported.");
+            throw new ValueError('Negative exponents are not supported.');
         }
 
         // Do the exponentiation.
@@ -116,7 +116,7 @@ final class Integers
 
         // Check for overflow.
         if (is_float($c)) {
-            throw new OverflowException("Overflow in exponentiation.");
+            throw new OverflowException('Overflow in exponentiation.');
         }
 
         // Return the result.
@@ -135,7 +135,7 @@ final class Integers
     {
         // Check we have the right number of arguments.
         if (count($nums) === 0) {
-            throw new ArgumentCountError("At least one integer is required.");
+            throw new ArgumentCountError('At least one integer is required.');
         }
 
         // Check none of the values equal PHP_INT_MIN because otherwise abs() will not work properly.

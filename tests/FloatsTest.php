@@ -403,9 +403,9 @@ final class FloatsTest extends TestCase
         // Generate multiple random floats and verify they're all finite
         for ($i = 0; $i < 100; $i++) {
             $f = Floats::rand();
-            $this->assertTrue(is_finite($f), "Random float should be finite");
-            $this->assertFalse(is_nan($f), "Random float should not be NaN");
-            $this->assertFalse(Floats::isSpecial($f), "Random float should not be special");
+            $this->assertTrue(is_finite($f), 'Random float should be finite');
+            $this->assertFalse(is_nan($f), 'Random float should not be NaN');
+            $this->assertFalse(Floats::isSpecial($f), 'Random float should not be special');
         }
     }
 
@@ -422,7 +422,7 @@ final class FloatsTest extends TestCase
 
         // Check that we got at least 2 different values (extremely unlikely to fail)
         $unique = array_unique($values);
-        $this->assertGreaterThan(1, count($unique), "Should generate different random values");
+        $this->assertGreaterThan(1, count($unique), 'Should generate different random values');
     }
 
     /**
@@ -436,9 +436,9 @@ final class FloatsTest extends TestCase
         // Generate multiple values and verify they're all in range
         for ($i = 0; $i < 100; $i++) {
             $f = Floats::randInRange($min, $max);
-            $this->assertGreaterThanOrEqual($min, $f, "Value should be >= min");
-            $this->assertLessThanOrEqual($max, $f, "Value should be <= max");
-            $this->assertTrue(is_finite($f), "Value should be finite");
+            $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
+            $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
+            $this->assertTrue(is_finite($f), 'Value should be finite');
         }
     }
 
@@ -755,7 +755,7 @@ final class FloatsTest extends TestCase
         $hex1 = Floats::toHex($f);
         $hex2 = Floats::toHex($next);
 
-        $this->assertNotSame($hex1, $hex2, "next() should produce different binary representation");
+        $this->assertNotSame($hex1, $hex2, 'next() should produce different binary representation');
     }
 
     /**
@@ -769,7 +769,7 @@ final class FloatsTest extends TestCase
         $hex1 = Floats::toHex($f);
         $hex2 = Floats::toHex($prev);
 
-        $this->assertNotSame($hex1, $hex2, "previous() should produce different binary representation");
+        $this->assertNotSame($hex1, $hex2, 'previous() should produce different binary representation');
     }
 
     /**

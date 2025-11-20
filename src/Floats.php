@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Core;
 
-use ArithmeticError;
 use Random\RandomException;
 use ValueError;
 

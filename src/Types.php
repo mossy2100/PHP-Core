@@ -129,7 +129,7 @@ final class Types
 
             // @codeCoverageIgnoreStart
             default:
-                return throw new TypeError("Value has unknown type.");
+                return throw new TypeError('Value has unknown type.');
             // @codeCoverageIgnoreEnd
         }
     }
