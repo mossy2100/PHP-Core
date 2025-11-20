@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Core;
 
+use ArithmeticError;
+use Random\RandomException;
 use ValueError;
 
 /**
@@ -130,8 +132,8 @@ final class Floats
      */
     public static function tryConvertToInt(float $f, ?int &$i): bool
     {
-        // Check the provided value is finite and within the valid range.
-        if (!is_finite($f) || $f < PHP_INT_MIN || $f > PHP_INT_MAX) {
+        // Check the provided value is finite.
+        if (!is_finite($f)) {
             return false;
         }
 
@@ -144,5 +146,140 @@ final class Floats
 
         // Argument is a float that cannot be losslessly converted to an integer.
         return false;
+    }
+
+    /**
+     * Returns the next floating-point number after the given one.
+     *
+     * @param float $f The given number.
+     * @return float The next floating-point number after the given number.
+     */
+    public static function next(float $f): float
+    {
+        // Handle special cases.
+        if (is_nan($f)) {
+            return NAN;
+        }
+        if ($f === PHP_FLOAT_MAX || $f === INF) {
+            return INF;
+        }
+        if ($f === -INF) {
+            return -PHP_FLOAT_MAX;
+        }
+        if (self::isNegativeZero($f)) {
+            return 0.0;
+        }
+
+        $bits = self::floatToBits($f);
+        $bits += $bits >= 0 ? 1 : -1;
+        return self::bitsToFloat($bits);
+    }
+
+    /**
+     * Returns the previous floating-point number before the given one.
+     *
+     * @param float $f The given number.
+     * @return float The previous floating-point number before the given number.
+     */
+    public static function previous(float $f): float
+    {
+        // Handle special cases.
+        if (is_nan($f)) {
+            return NAN;
+        }
+        if ($f === -PHP_FLOAT_MAX || $f === -INF) {
+            return -INF;
+        }
+        if ($f === INF) {
+            return PHP_FLOAT_MAX;
+        }
+        if (self::isPositiveZero($f)) {
+            return -0.0;
+        }
+
+        $bits = self::floatToBits($f);
+        $bits += $bits >= 0 ? -1 : 1;
+        return self::bitsToFloat($bits);
+    }
+
+    /**
+     * Converts a float to its 64-bit integer representation.
+     *
+     * @param float $f The float to convert.
+     * @return int The 64-bit integer representation.
+     */
+    private static function floatToBits(float $f): int
+    {
+        $packed = pack('d', $f);
+        /** @var array<string, int> $bytes */
+        $bytes = unpack('C*', $packed);
+
+        $bits = 0;
+        for ($i = 8; $i >= 1; $i--) {
+            $bits = ($bits << 8) | $bytes[$i];
+        }
+
+        return $bits;
+    }
+
+    /**
+     * Converts a 64-bit integer to its float representation.
+     *
+     * @param int $bits The 64-bit integer.
+     * @return float The float representation.
+     */
+    private static function bitsToFloat(int $bits): float
+    {
+        $bytes = [];
+        for ($i = 1; $i <= 8; $i++) {
+            $bytes[$i] = $bits & 0xFF;
+            $bits >>= 8;
+        }
+
+        $packed = pack('C*', ...$bytes);
+        /** @var array<int, float> $result */
+        $result = unpack('d', $packed);
+
+        return $result[1];
+    }
+
+    /**
+     * Generate a random finite float.
+     *
+     * @return float A random finite float (excludes NaN, ±INF, -0.0).
+     * @throws RandomException If an appropriate source of randomness is unavailable.
+     */
+    public static function rand(): float
+    {
+        do {
+            $bytes = random_bytes(8);
+            $f = unpack('d', $bytes)[1];
+        } while (self::isSpecial($f));
+        return $f;
+    }
+
+    /**
+     * Generate a random float in the specified range.
+     *
+     * Not every possible float within the given range may be returnable from this method,
+     * given that mt_rand() can only return 2^31 distinct values.
+     *
+     * @param float $min The minimum value (inclusive).
+     * @param float $max The maximum value (inclusive).
+     * @return float A random float in the range [min, max].
+     * @throws ValueError If min or max are special values, or if min > max.
+     */
+    public static function randInRange(float $min, float $max): float
+    {
+        // Validate parameters.
+        if (self::isSpecial($min) || self::isSpecial($max)) {
+            throw new ValueError('Min and max must be finite, normal floats.');
+        }
+        if ($min > $max) {
+            throw new ValueError('Min must be less than or equal to max.');
+        }
+
+        // Uniform float in [min, max].
+        return $min + (mt_rand() / mt_getrandmax()) * ($max - $min);
     }
 }

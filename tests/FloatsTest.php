@@ -7,6 +7,7 @@ namespace Galaxon\Core\Tests;
 use Galaxon\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ValueError;
 
 /**
  * Test class for Floats utility class.
@@ -374,5 +375,436 @@ final class FloatsTest extends TestCase
             $this->assertFalse(Floats::tryConvertToInt($float, $i), "Should fail for $float");
             $this->assertNull($i, "Should not modify output for $float");
         }
+    }
+
+    /**
+     * Test tryConvertToInt with non-finite floats.
+     */
+    public function testTryConvertToIntWithNonFiniteFloats(): void
+    {
+        $testCases = [
+            NAN,
+            INF,
+            -INF
+        ];
+
+        foreach ($testCases as $float) {
+            $i = null;
+            $this->assertFalse(Floats::tryConvertToInt($float, $i), "Should fail for $float");
+            $this->assertNull($i, "Should not modify output for $float");
+        }
+    }
+
+    /**
+     * Test rand returns finite floats.
+     */
+    public function testRandReturnsFiniteFloats(): void
+    {
+        // Generate multiple random floats and verify they're all finite
+        for ($i = 0; $i < 100; $i++) {
+            $f = Floats::rand();
+            $this->assertTrue(is_finite($f), "Random float should be finite");
+            $this->assertFalse(is_nan($f), "Random float should not be NaN");
+            $this->assertFalse(Floats::isSpecial($f), "Random float should not be special");
+        }
+    }
+
+    /**
+     * Test rand returns different values.
+     */
+    public function testRandReturnsDifferentValues(): void
+    {
+        // Generate multiple random floats and verify they're not all the same
+        $values = [];
+        for ($i = 0; $i < 10; $i++) {
+            $values[] = Floats::rand();
+        }
+
+        // Check that we got at least 2 different values (extremely unlikely to fail)
+        $unique = array_unique($values);
+        $this->assertGreaterThan(1, count($unique), "Should generate different random values");
+    }
+
+    /**
+     * Test randInRange with valid range.
+     */
+    public function testRandInRangeWithValidRange(): void
+    {
+        $min = 10.0;
+        $max = 20.0;
+
+        // Generate multiple values and verify they're all in range
+        for ($i = 0; $i < 100; $i++) {
+            $f = Floats::randInRange($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f, "Value should be >= min");
+            $this->assertLessThanOrEqual($max, $f, "Value should be <= max");
+            $this->assertTrue(is_finite($f), "Value should be finite");
+        }
+    }
+
+    /**
+     * Test randInRange with negative range.
+     */
+    public function testRandInRangeWithNegativeRange(): void
+    {
+        $min = -50.0;
+        $max = -10.0;
+
+        $f = Floats::randInRange($min, $max);
+        $this->assertGreaterThanOrEqual($min, $f);
+        $this->assertLessThanOrEqual($max, $f);
+    }
+
+    /**
+     * Test randInRange with range crossing zero.
+     */
+    public function testRandInRangeWithRangeCrossingZero(): void
+    {
+        $min = -10.0;
+        $max = 10.0;
+
+        $f = Floats::randInRange($min, $max);
+        $this->assertGreaterThanOrEqual($min, $f);
+        $this->assertLessThanOrEqual($max, $f);
+    }
+
+    /**
+     * Test randInRange with min equal to max.
+     */
+    public function testRandInRangeWithMinEqualToMax(): void
+    {
+        $value = 42.5;
+        $f = Floats::randInRange($value, $value);
+        $this->assertSame($value, $f);
+    }
+
+    /**
+     * Test randInRange with min > max throws ValueError.
+     */
+    public function testRandInRangeWithMinGreaterThanMaxThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min must be less than or equal to max');
+        Floats::randInRange(20.0, 10.0);
+    }
+
+    /**
+     * Test randInRange with NaN min throws ValueError.
+     */
+    public function testRandInRangeWithNanMinThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(NAN, 10.0);
+    }
+
+    /**
+     * Test randInRange with NaN max throws ValueError.
+     */
+    public function testRandInRangeWithNanMaxThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(0.0, NAN);
+    }
+
+    /**
+     * Test randInRange with positive infinity min throws ValueError.
+     */
+    public function testRandInRangeWithInfMinThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(INF, 10.0);
+    }
+
+    /**
+     * Test randInRange with negative infinity max throws ValueError.
+     */
+    public function testRandInRangeWithNegativeInfMaxThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(0.0, -INF);
+    }
+
+    /**
+     * Test randInRange with negative zero min throws ValueError.
+     */
+    public function testRandInRangeWithNegativeZeroMinThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(-0.0, 10.0);
+    }
+
+    /**
+     * Test randInRange with negative zero max throws ValueError.
+     */
+    public function testRandInRangeWithNegativeZeroMaxThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite, normal floats');
+        Floats::randInRange(0.0, -0.0);
+    }
+
+    /**
+     * Test next with regular positive numbers.
+     */
+    public function testNextWithPositiveNumbers(): void
+    {
+        $f = 1.0;
+        $next = Floats::next($f);
+        $this->assertGreaterThan($f, $next);
+        $this->assertNotSame($f, $next);
+    }
+
+    /**
+     * Test next with regular negative numbers.
+     */
+    public function testNextWithNegativeNumbers(): void
+    {
+        $f = -1.0;
+        $next = Floats::next($f);
+        $this->assertGreaterThan($f, $next);
+        $this->assertLessThan(0.0, $next);
+    }
+
+    /**
+     * Test next with positive zero.
+     */
+    public function testNextWithPositiveZero(): void
+    {
+        $f = 0.0;
+        $next = Floats::next($f);
+        $this->assertGreaterThan(0.0, $next);
+        $this->assertTrue(Floats::isPositive($next));
+    }
+
+    /**
+     * Test next with negative zero returns positive zero.
+     */
+    public function testNextWithNegativeZero(): void
+    {
+        $f = -0.0;
+        $next = Floats::next($f);
+        $this->assertSame(0.0, $next);
+        $this->assertTrue(Floats::isPositiveZero($next));
+    }
+
+    /**
+     * Test next with NaN returns NaN.
+     */
+    public function testNextWithNaN(): void
+    {
+        $next = Floats::next(NAN);
+        $this->assertTrue(is_nan($next));
+    }
+
+    /**
+     * Test next with PHP_FLOAT_MAX returns INF.
+     */
+    public function testNextWithMaxFloat(): void
+    {
+        $next = Floats::next(PHP_FLOAT_MAX);
+        $this->assertSame(INF, $next);
+    }
+
+    /**
+     * Test next with INF returns INF.
+     */
+    public function testNextWithInf(): void
+    {
+        $next = Floats::next(INF);
+        $this->assertSame(INF, $next);
+    }
+
+    /**
+     * Test next with -INF returns -PHP_FLOAT_MAX.
+     */
+    public function testNextWithNegativeInf(): void
+    {
+        $next = Floats::next(-INF);
+        $this->assertSame(-PHP_FLOAT_MAX, $next);
+    }
+
+    /**
+     * Test next with very small positive number.
+     */
+    public function testNextWithSmallPositiveNumber(): void
+    {
+        $f = 1e-100;
+        $next = Floats::next($f);
+        $this->assertGreaterThan($f, $next);
+    }
+
+    /**
+     * Test previous with regular positive numbers.
+     */
+    public function testPreviousWithPositiveNumbers(): void
+    {
+        $f = 1.0;
+        $prev = Floats::previous($f);
+        $this->assertLessThan($f, $prev);
+        $this->assertGreaterThan(0.0, $prev);
+    }
+
+    /**
+     * Test previous with regular negative numbers.
+     */
+    public function testPreviousWithNegativeNumbers(): void
+    {
+        $f = -1.0;
+        $prev = Floats::previous($f);
+        $this->assertLessThan($f, $prev);
+        $this->assertNotSame($f, $prev);
+    }
+
+    /**
+     * Test previous with positive zero returns negative zero.
+     */
+    public function testPreviousWithPositiveZero(): void
+    {
+        $f = 0.0;
+        $prev = Floats::previous($f);
+        $this->assertSame(-0.0, $prev);
+        $this->assertTrue(Floats::isNegativeZero($prev));
+    }
+
+    /**
+     * Test previous with negative zero.
+     */
+    public function testPreviousWithNegativeZero(): void
+    {
+        $f = -0.0;
+        $prev = Floats::previous($f);
+        $this->assertLessThan(0.0, $prev);
+        $this->assertTrue(Floats::isNegative($prev));
+    }
+
+    /**
+     * Test previous with NaN returns NaN.
+     */
+    public function testPreviousWithNaN(): void
+    {
+        $prev = Floats::previous(NAN);
+        $this->assertTrue(is_nan($prev));
+    }
+
+    /**
+     * Test previous with -PHP_FLOAT_MAX returns -INF.
+     */
+    public function testPreviousWithMinFloat(): void
+    {
+        $prev = Floats::previous(-PHP_FLOAT_MAX);
+        $this->assertSame(-INF, $prev);
+    }
+
+    /**
+     * Test previous with -INF returns -INF.
+     */
+    public function testPreviousWithNegativeInf(): void
+    {
+        $prev = Floats::previous(-INF);
+        $this->assertSame(-INF, $prev);
+    }
+
+    /**
+     * Test previous with INF returns PHP_FLOAT_MAX.
+     */
+    public function testPreviousWithInf(): void
+    {
+        $prev = Floats::previous(INF);
+        $this->assertSame(PHP_FLOAT_MAX, $prev);
+    }
+
+    /**
+     * Test round-trip: next(previous(x)) should equal x for regular floats.
+     */
+    public function testNextPreviousRoundTrip(): void
+    {
+        $testValues = [1.0, -1.0, 42.5, -99.9, 1e10, -1e-10];
+
+        foreach ($testValues as $value) {
+            $result = Floats::next(Floats::previous($value));
+            $this->assertSame($value, $result, "Round trip failed for $value");
+        }
+    }
+
+    /**
+     * Test round-trip: previous(next(x)) should equal x for regular floats.
+     */
+    public function testPreviousNextRoundTrip(): void
+    {
+        $testValues = [1.0, -1.0, 42.5, -99.9, 1e10, -1e-10];
+
+        foreach ($testValues as $value) {
+            $result = Floats::previous(Floats::next($value));
+            $this->assertSame($value, $result, "Round trip failed for $value");
+        }
+    }
+
+    /**
+     * Test that next produces unique hex values.
+     */
+    public function testNextProducesUniqueHexValues(): void
+    {
+        $f = 1.0;
+        $next = Floats::next($f);
+
+        $hex1 = Floats::toHex($f);
+        $hex2 = Floats::toHex($next);
+
+        $this->assertNotSame($hex1, $hex2, "next() should produce different binary representation");
+    }
+
+    /**
+     * Test that previous produces unique hex values.
+     */
+    public function testPreviousProducesUniqueHexValues(): void
+    {
+        $f = 1.0;
+        $prev = Floats::previous($f);
+
+        $hex1 = Floats::toHex($f);
+        $hex2 = Floats::toHex($prev);
+
+        $this->assertNotSame($hex1, $hex2, "previous() should produce different binary representation");
+    }
+
+    /**
+     * Test next across zero boundary.
+     */
+    public function testNextAcrossZero(): void
+    {
+        // Start with negative zero
+        $f = -0.0;
+        $next = Floats::next($f);
+
+        // Should get positive zero
+        $this->assertSame(0.0, $next);
+        $this->assertTrue(Floats::isPositiveZero($next));
+
+        // Next from positive zero should be smallest positive number
+        $next2 = Floats::next($next);
+        $this->assertGreaterThan(0.0, $next2);
+    }
+
+    /**
+     * Test previous across zero boundary.
+     */
+    public function testPreviousAcrossZero(): void
+    {
+        // Start with positive zero
+        $f = 0.0;
+        $prev = Floats::previous($f);
+
+        // Should get negative zero
+        $this->assertSame(-0.0, $prev);
+        $this->assertTrue(Floats::isNegativeZero($prev));
+
+        // Previous from negative zero should be smallest negative number
+        $prev2 = Floats::previous($prev);
+        $this->assertLessThan(0.0, $prev2);
     }
 }

@@ -265,3 +265,194 @@ Floats::tryConvertToInt($f, $i); // false (loses precision)
 
 **Precision Limits:**
 On 64-bit systems, floats can exactly represent integers up to 2^53 (9,007,199,254,740,992). Beyond this, not all integers can be represented exactly as floats. Powers of 2 can be represented exactly up to much larger values.
+
+### next()
+
+```php
+public static function next(float $f): float
+```
+
+Returns the next representable floating-point number after the given value. This performs bit-level manipulation to move to the adjacent float in the IEEE-754 number line.
+
+**Parameters:**
+- `$f` (float) - The given number
+
+**Returns:**
+- `float` - The next floating-point number after the given number
+
+**Behavior:**
+- For positive numbers: returns the next larger float
+- For negative numbers: returns a float closer to zero
+- `-0.0` → `+0.0`
+- `PHP_FLOAT_MAX` → `INF`
+- `INF` → `INF`
+- `-INF` → `-PHP_FLOAT_MAX`
+- `NAN` → `NAN`
+
+**Examples:**
+
+```php
+$f = 1.0;
+$next = Floats::next($f);
+// $next > $f (next representable float after 1.0)
+
+// Navigate from negative zero to smallest positive number
+$f = -0.0;
+$next = Floats::next($f);  // 0.0
+$next2 = Floats::next($next);  // smallest positive float
+
+// At the boundary
+$next = Floats::next(PHP_FLOAT_MAX);  // INF
+```
+
+**Use Cases:**
+- Implementing "nextafter" functionality for numerical algorithms
+- Testing floating-point edge cases
+- Exploring the floating-point number space
+
+### previous()
+
+```php
+public static function previous(float $f): float
+```
+
+Returns the previous representable floating-point number before the given value. This performs bit-level manipulation to move to the adjacent float in the IEEE-754 number line.
+
+**Parameters:**
+- `$f` (float) - The given number
+
+**Returns:**
+- `float` - The previous floating-point number before the given number
+
+**Behavior:**
+- For positive numbers: returns a float closer to zero
+- For negative numbers: returns the next smaller (more negative) float
+- `+0.0` → `-0.0`
+- `-PHP_FLOAT_MAX` → `-INF`
+- `-INF` → `-INF`
+- `INF` → `PHP_FLOAT_MAX`
+- `NAN` → `NAN`
+
+**Examples:**
+
+```php
+$f = 1.0;
+$prev = Floats::previous($f);
+// $prev < $f (previous representable float before 1.0)
+
+// Navigate from positive zero to smallest negative number
+$f = 0.0;
+$prev = Floats::previous($f);  // -0.0
+$prev2 = Floats::previous($prev);  // smallest negative float
+
+// At the boundary
+$prev = Floats::previous(-PHP_FLOAT_MAX);  // -INF
+```
+
+**Round-trip Property:**
+
+For regular floats (not at boundaries):
+```php
+$f = 42.5;
+Floats::next(Floats::previous($f)) === $f;  // true
+Floats::previous(Floats::next($f)) === $f;  // true
+```
+
+**Use Cases:**
+- Implementing interval arithmetic with tight bounds
+- Generating test cases for numerical code
+- Exploring floating-point precision limits
+
+### rand()
+
+```php
+public static function rand(): float
+```
+
+Generate a random finite float by creating random bytes and unpacking them as a double. Repeatedly generates values until a non-special float is produced.
+
+**Returns:**
+- `float` - A random finite float (excludes NaN, ±INF, -0.0)
+
+**Throws:**
+- `RandomException` - If an appropriate source of randomness is unavailable
+
+**Examples:**
+
+```php
+$f = Floats::rand();
+// $f is a finite float, could be any value in the full range
+
+// Generate 100 random floats
+for ($i = 0; $i < 100; $i++) {
+    $values[] = Floats::rand();
+}
+```
+
+**Characteristics:**
+- Produces floats with **all possible exponents** (-1022 to 1023)
+- Can generate very small numbers (e.g., 1e-100) and very large numbers (e.g., 1e100)
+- Much better distribution across the float space than linear methods
+- Does not guarantee uniform distribution (biased by IEEE-754 representation)
+
+**Use Cases:**
+- Fuzzing and property-based testing
+- Finding edge cases in floating-point algorithms
+- Stress testing numerical code with diverse inputs
+
+**Note:** This method uses `random_bytes()` to generate truly random bit patterns, then filters out special values. This means it explores the entire IEEE-754 float space, unlike range-based methods which are biased toward certain magnitudes.
+
+### randInRange()
+
+```php
+public static function randInRange(float $min, float $max): float
+```
+
+Generate a random float uniformly distributed in the specified range using `mt_rand()`.
+
+**Parameters:**
+- `$min` (float) - The minimum value (inclusive)
+- `$max` (float) - The maximum value (inclusive)
+
+**Returns:**
+- `float` - A random float in the range [min, max]
+
+**Throws:**
+- `ValueError` - If min or max are special values (NaN, ±INF, -0.0), or if min > max
+
+**Examples:**
+
+```php
+// Random float between 0.0 and 1.0
+$f = Floats::randInRange(0.0, 1.0);
+
+// Random temperature between -10°C and 40°C
+$temp = Floats::randInRange(-10.0, 40.0);
+
+// When min equals max, returns that value
+$f = Floats::randInRange(5.0, 5.0);  // 5.0
+```
+
+**Limitations:**
+- Uses `mt_rand() / mt_getrandmax()` which can only produce 2^31 distinct values
+- Not all floats in the range are returnable
+- Uniform distribution in the numeric range, but biased by float density
+- For small ranges (e.g., -1.0 to 1.0), better coverage than large ranges
+
+**Validation:**
+```php
+// These throw ValueError
+Floats::randInRange(NAN, 10.0);      // min is NaN
+Floats::randInRange(0.0, INF);       // max is infinite
+Floats::randInRange(-0.0, 10.0);     // min is negative zero
+Floats::randInRange(20.0, 10.0);     // min > max
+```
+
+**Use Cases:**
+- Generating test data within specific ranges
+- Monte Carlo simulations
+- Random sampling for statistical analysis
+
+**Comparison with `rand()`:**
+- `rand()`: Explores full float space, good for finding edge cases
+- `randInRange()`: Constrained distribution, good for domain-specific testing

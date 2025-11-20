@@ -6,6 +6,7 @@ namespace Galaxon\Core\Tests;
 
 use DivisionByZeroError;
 use Galaxon\Core\Angle;
+use Galaxon\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
@@ -343,19 +344,6 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Generate a random float in the specified range.
-     *
-     * @param float $min The minimum value (inclusive).
-     * @param float $max The maximum value (exclusive).
-     * @return float A random float in [min, max).
-     */
-    private function randFloat(float $min, float $max): float
-    {
-        // Uniform float in [min, max).
-        return $min + (mt_rand() / mt_getrandmax()) * ($max - $min);
-    }
-
-    /**
      * Test random round-trip conversions between all angle units.
      *
      * Performs 500 randomized tests converting angles between radians, degrees,
@@ -365,7 +353,7 @@ final class AngleTest extends TestCase
     {
         for ($i = 0; $i < 500; $i++) {
             // Span a large range, including huge magnitudes.
-            $rad = $this->randFloat(-1e6, 1e6);
+            $rad = Floats::randInRange(-1e6, 1e6);
             $a = Angle::fromRadians($rad);
 
             // Verify toX() / fromX() round-trips.
@@ -394,7 +382,7 @@ final class AngleTest extends TestCase
         $styles = ['rad', 'deg', 'grad', 'turn', 'd', 'dm', 'dms'];
 
         for ($i = 0; $i < 200; $i++) {
-            $rad = $this->randFloat(-1000.0, 1000.0);
+            $rad = Floats::randInRange(-1000.0, 1000.0);
             $a = Angle::fromRadians($rad);
 
             foreach ($styles as $style) {
