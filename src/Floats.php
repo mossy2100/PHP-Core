@@ -211,7 +211,7 @@ final class Floats
     private static function floatToBits(float $f): int
     {
         $packed = pack('d', $f);
-        /** @var array<string, int> $bytes */
+        /** @var int[] $bytes */
         $bytes = unpack('C*', $packed);
 
         $bits = 0;
@@ -237,7 +237,7 @@ final class Floats
         }
 
         $packed = pack('C*', ...$bytes);
-        /** @var array<int, float> $result */
+        /** @var float[] $result */
         $result = unpack('d', $packed);
 
         return $result[1];
@@ -253,7 +253,9 @@ final class Floats
     {
         do {
             $bytes = random_bytes(8);
-            $f = unpack('d', $bytes)[1];
+            /** @var float[] $unpacked */
+            $unpacked = unpack('d', $bytes);
+            $f = $unpacked[1];
         } while (self::isSpecial($f));
         return $f;
     }
