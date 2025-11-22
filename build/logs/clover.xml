@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1763788442">
-  <project timestamp="1763788442" name="Clover Coverage">
+<coverage generated="1763789604">
+  <project timestamp="1763789604" name="Clover Coverage">
     <package name="Galaxon\Core">
       <file name="C:\Users\shaun\Projects\PHP\Galaxon\Core\src\Angle.php">
         <class name="Galaxon\Core\Angle" namespace="Galaxon\Core">
-          <metrics complexity="85" methods="34" coveredmethods="34" conditionals="0" coveredconditionals="0" statements="147" coveredstatements="147" elements="181" coveredelements="181"/>
+          <metrics complexity="96" methods="40" coveredmethods="40" conditionals="0" coveredconditionals="0" statements="169" coveredstatements="169" elements="209" coveredelements="209"/>
         </class>
-        <line num="69" type="method" name="__construct" visibility="private" complexity="2" crap="2" count="39"/>
-        <line num="72" type="stmt" count="39"/>
+        <line num="69" type="method" name="__construct" visibility="private" complexity="2" crap="2" count="42"/>
+        <line num="72" type="stmt" count="42"/>
         <line num="73" type="stmt" count="2"/>
-        <line num="76" type="stmt" count="37"/>
-        <line num="86" type="method" name="fromRadians" visibility="public" complexity="1" crap="1" count="11"/>
-        <line num="88" type="stmt" count="11"/>
-        <line num="109" type="method" name="fromDMS" visibility="public" complexity="1" crap="1" count="32"/>
-        <line num="112" type="stmt" count="32"/>
-        <line num="113" type="stmt" count="32"/>
-        <line num="123" type="method" name="fromDegrees" visibility="public" complexity="1" crap="1" count="29"/>
-        <line num="125" type="stmt" count="29"/>
+        <line num="76" type="stmt" count="40"/>
+        <line num="86" type="method" name="fromRadians" visibility="public" complexity="1" crap="1" count="13"/>
+        <line num="88" type="stmt" count="13"/>
+        <line num="109" type="method" name="fromDMS" visibility="public" complexity="1" crap="1" count="33"/>
+        <line num="112" type="stmt" count="33"/>
+        <line num="113" type="stmt" count="33"/>
+        <line num="123" type="method" name="fromDegrees" visibility="public" complexity="1" crap="1" count="30"/>
+        <line num="125" type="stmt" count="30"/>
         <line num="135" type="method" name="fromGradians" visibility="public" complexity="1" crap="1" count="2"/>
         <line num="137" type="stmt" count="2"/>
         <line num="147" type="method" name="fromTurns" visibility="public" complexity="1" crap="1" count="4"/>
@@ -114,80 +114,108 @@
         <line num="498" type="stmt" count="1"/>
         <line num="499" type="stmt" count="1"/>
         <line num="503" type="stmt" count="1"/>
-        <line num="511" type="method" name="sinh" visibility="public" complexity="1" crap="1" count="1"/>
+        <line num="511" type="method" name="sec" visibility="public" complexity="2" crap="2" count="1"/>
         <line num="513" type="stmt" count="1"/>
-        <line num="521" type="method" name="cosh" visibility="public" complexity="1" crap="1" count="1"/>
-        <line num="523" type="stmt" count="1"/>
-        <line num="531" type="method" name="tanh" visibility="public" complexity="1" crap="1" count="1"/>
+        <line num="516" type="stmt" count="1"/>
+        <line num="517" type="stmt" count="1"/>
+        <line num="520" type="stmt" count="1"/>
+        <line num="528" type="method" name="csc" visibility="public" complexity="2" crap="2" count="1"/>
+        <line num="530" type="stmt" count="1"/>
         <line num="533" type="stmt" count="1"/>
-        <line num="558" type="method" name="wrapAngle" visibility="private" complexity="6" crap="6" count="7"/>
-        <line num="561" type="stmt" count="7"/>
-        <line num="562" type="stmt" count="1"/>
-        <line num="567" type="stmt" count="6"/>
-        <line num="571" type="stmt" count="6"/>
-        <line num="573" type="stmt" count="6"/>
-        <line num="574" type="stmt" count="6"/>
-        <line num="575" type="stmt" count="5"/>
-        <line num="576" type="stmt" count="3"/>
-        <line num="577" type="stmt" count="1"/>
-        <line num="581" type="stmt" count="5"/>
-        <line num="582" type="stmt" count="2"/>
-        <line num="587" type="stmt" count="6"/>
-        <line num="597" type="method" name="wrapRadians" visibility="public" complexity="1" crap="1" count="3"/>
-        <line num="599" type="stmt" count="3"/>
-        <line num="609" type="method" name="wrapDegrees" visibility="public" complexity="1" crap="1" count="2"/>
-        <line num="611" type="stmt" count="2"/>
-        <line num="621" type="method" name="wrapGradians" visibility="public" complexity="1" crap="1" count="1"/>
-        <line num="623" type="stmt" count="1"/>
-        <line num="633" type="method" name="wrapTurns" visibility="public" complexity="1" crap="1" count="1"/>
-        <line num="635" type="stmt" count="1"/>
-        <line num="653" type="method" name="formatFloat" visibility="private" complexity="2" crap="2" count="7"/>
-        <line num="656" type="stmt" count="7"/>
+        <line num="534" type="stmt" count="1"/>
+        <line num="537" type="stmt" count="1"/>
+        <line num="545" type="method" name="cot" visibility="public" complexity="2" crap="2" count="1"/>
+        <line num="547" type="stmt" count="1"/>
+        <line num="548" type="stmt" count="1"/>
+        <line num="551" type="stmt" count="1"/>
+        <line num="552" type="stmt" count="1"/>
+        <line num="555" type="stmt" count="1"/>
+        <line num="567" type="method" name="sinh" visibility="public" complexity="1" crap="1" count="2"/>
+        <line num="569" type="stmt" count="2"/>
+        <line num="577" type="method" name="cosh" visibility="public" complexity="1" crap="1" count="2"/>
+        <line num="579" type="stmt" count="2"/>
+        <line num="587" type="method" name="tanh" visibility="public" complexity="1" crap="1" count="2"/>
+        <line num="589" type="stmt" count="2"/>
+        <line num="597" type="method" name="sech" visibility="public" complexity="1" crap="1" count="1"/>
+        <line num="599" type="stmt" count="1"/>
+        <line num="607" type="method" name="csch" visibility="public" complexity="2" crap="2" count="1"/>
+        <line num="609" type="stmt" count="1"/>
+        <line num="612" type="stmt" count="1"/>
+        <line num="613" type="stmt" count="1"/>
+        <line num="616" type="stmt" count="1"/>
+        <line num="624" type="method" name="coth" visibility="public" complexity="2" crap="2" count="1"/>
+        <line num="626" type="stmt" count="1"/>
+        <line num="629" type="stmt" count="1"/>
+        <line num="630" type="stmt" count="1"/>
+        <line num="633" type="stmt" count="1"/>
+        <line num="658" type="method" name="wrapAngle" visibility="private" complexity="6" crap="6" count="7"/>
         <line num="661" type="stmt" count="7"/>
-        <line num="662" type="stmt" count="5"/>
-        <line num="663" type="stmt" count="7"/>
-        <line num="685" type="method" name="formatDMS" visibility="public" complexity="11" crap="11" count="4"/>
-        <line num="688" type="stmt" count="4"/>
-        <line num="691" type="stmt" count="4"/>
-        <line num="695" type="stmt" count="1"/>
-        <line num="696" type="stmt" count="1"/>
-        <line num="697" type="stmt" count="1"/>
-        <line num="700" type="stmt" count="1"/>
-        <line num="703" type="stmt" count="1"/>
-        <line num="704" type="stmt" count="1"/>
-        <line num="707" type="stmt" count="1"/>
-        <line num="708" type="stmt" count="1"/>
-        <line num="709" type="stmt" count="1"/>
-        <line num="713" type="stmt" count="1"/>
-        <line num="714" type="stmt" count="1"/>
-        <line num="717" type="stmt" count="4"/>
-        <line num="720" type="stmt" count="4"/>
-        <line num="721" type="stmt" count="4"/>
-        <line num="724" type="stmt" count="4"/>
-        <line num="725" type="stmt" count="2"/>
-        <line num="726" type="stmt" count="2"/>
-        <line num="728" type="stmt" count="4"/>
-        <line num="729" type="stmt" count="2"/>
-        <line num="730" type="stmt" count="2"/>
-        <line num="734" type="stmt" count="4"/>
-        <line num="735" type="stmt" count="4"/>
-        <line num="757" type="method" name="format" visibility="public" complexity="8" crap="8" count="5"/>
-        <line num="760" type="stmt" count="5"/>
-        <line num="761" type="stmt" count="1"/>
-        <line num="765" type="stmt" count="5"/>
-        <line num="768" type="stmt" count="5"/>
-        <line num="769" type="stmt" count="4"/>
-        <line num="770" type="stmt" count="2"/>
-        <line num="771" type="stmt" count="2"/>
-        <line num="772" type="stmt" count="2"/>
-        <line num="773" type="stmt" count="1"/>
-        <line num="774" type="stmt" count="1"/>
-        <line num="775" type="stmt" count="1"/>
-        <line num="776" type="stmt" count="5"/>
-        <line num="779" type="stmt" count="4"/>
-        <line num="787" type="method" name="__toString" visibility="public" complexity="1" crap="1" count="3"/>
-        <line num="790" type="stmt" count="3"/>
-        <metrics loc="795" ncloc="425" classes="1" methods="34" coveredmethods="34" conditionals="0" coveredconditionals="0" statements="147" coveredstatements="147" elements="181" coveredelements="181"/>
+        <line num="662" type="stmt" count="1"/>
+        <line num="667" type="stmt" count="6"/>
+        <line num="671" type="stmt" count="6"/>
+        <line num="673" type="stmt" count="6"/>
+        <line num="674" type="stmt" count="6"/>
+        <line num="675" type="stmt" count="5"/>
+        <line num="676" type="stmt" count="3"/>
+        <line num="677" type="stmt" count="1"/>
+        <line num="681" type="stmt" count="5"/>
+        <line num="682" type="stmt" count="2"/>
+        <line num="687" type="stmt" count="6"/>
+        <line num="697" type="method" name="wrapRadians" visibility="public" complexity="1" crap="1" count="3"/>
+        <line num="699" type="stmt" count="3"/>
+        <line num="709" type="method" name="wrapDegrees" visibility="public" complexity="1" crap="1" count="2"/>
+        <line num="711" type="stmt" count="2"/>
+        <line num="721" type="method" name="wrapGradians" visibility="public" complexity="1" crap="1" count="1"/>
+        <line num="723" type="stmt" count="1"/>
+        <line num="733" type="method" name="wrapTurns" visibility="public" complexity="1" crap="1" count="1"/>
+        <line num="735" type="stmt" count="1"/>
+        <line num="753" type="method" name="formatFloat" visibility="private" complexity="2" crap="2" count="7"/>
+        <line num="756" type="stmt" count="7"/>
+        <line num="761" type="stmt" count="7"/>
+        <line num="762" type="stmt" count="5"/>
+        <line num="763" type="stmt" count="7"/>
+        <line num="785" type="method" name="formatDMS" visibility="public" complexity="11" crap="11" count="4"/>
+        <line num="788" type="stmt" count="4"/>
+        <line num="791" type="stmt" count="4"/>
+        <line num="795" type="stmt" count="1"/>
+        <line num="796" type="stmt" count="1"/>
+        <line num="797" type="stmt" count="1"/>
+        <line num="800" type="stmt" count="1"/>
+        <line num="803" type="stmt" count="1"/>
+        <line num="804" type="stmt" count="1"/>
+        <line num="807" type="stmt" count="1"/>
+        <line num="808" type="stmt" count="1"/>
+        <line num="809" type="stmt" count="1"/>
+        <line num="813" type="stmt" count="1"/>
+        <line num="814" type="stmt" count="1"/>
+        <line num="817" type="stmt" count="4"/>
+        <line num="820" type="stmt" count="4"/>
+        <line num="821" type="stmt" count="4"/>
+        <line num="824" type="stmt" count="4"/>
+        <line num="825" type="stmt" count="2"/>
+        <line num="826" type="stmt" count="2"/>
+        <line num="828" type="stmt" count="4"/>
+        <line num="829" type="stmt" count="2"/>
+        <line num="830" type="stmt" count="2"/>
+        <line num="834" type="stmt" count="4"/>
+        <line num="835" type="stmt" count="4"/>
+        <line num="857" type="method" name="format" visibility="public" complexity="8" crap="8" count="5"/>
+        <line num="860" type="stmt" count="5"/>
+        <line num="861" type="stmt" count="1"/>
+        <line num="865" type="stmt" count="5"/>
+        <line num="868" type="stmt" count="5"/>
+        <line num="869" type="stmt" count="4"/>
+        <line num="870" type="stmt" count="2"/>
+        <line num="871" type="stmt" count="2"/>
+        <line num="872" type="stmt" count="2"/>
+        <line num="873" type="stmt" count="1"/>
+        <line num="874" type="stmt" count="1"/>
+        <line num="875" type="stmt" count="1"/>
+        <line num="876" type="stmt" count="5"/>
+        <line num="879" type="stmt" count="4"/>
+        <line num="887" type="method" name="__toString" visibility="public" complexity="1" crap="1" count="3"/>
+        <line num="890" type="stmt" count="3"/>
+        <metrics loc="895" ncloc="488" classes="1" methods="40" coveredmethods="40" conditionals="0" coveredconditionals="0" statements="169" coveredstatements="169" elements="209" coveredelements="209"/>
       </file>
       <file name="C:\Users\shaun\Projects\PHP\Galaxon\Core\src\Arrays.php">
         <class name="Galaxon\Core\Arrays" namespace="Galaxon\Core">
@@ -510,6 +538,6 @@
     <file name="C:\Users\shaun\Projects\PHP\Galaxon\Core\src\Equatable.php">
       <metrics loc="17" ncloc="11" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="0" coveredstatements="0" elements="0" coveredelements="0"/>
     </file>
-    <metrics files="9" loc="2008" ncloc="1091" classes="8" methods="76" coveredmethods="76" conditionals="0" coveredconditionals="0" statements="380" coveredstatements="380" elements="456" coveredelements="456"/>
+    <metrics files="9" loc="2108" ncloc="1154" classes="8" methods="82" coveredmethods="82" conditionals="0" coveredconditionals="0" statements="402" coveredstatements="402" elements="484" coveredelements="484"/>
   </project>
 </coverage>

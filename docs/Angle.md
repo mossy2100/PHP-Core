@@ -295,6 +295,36 @@ $positive = $angle->abs();
 echo $positive->toDegrees(); // 45.0
 ```
 
+### wrap()
+
+```php
+public function wrap(bool $signed = true): self
+```
+
+Normalize this angle. Returns a new Angle with the wrapped value (the original is unchanged).
+
+**Parameters:**
+- `$signed` (bool) - Whether to use signed range (default: `true`)
+
+**Examples:**
+```php
+// Signed wrapping - DEFAULT
+$angle = Angle::fromDegrees(200);
+$wrapped = $angle->wrap();
+echo $wrapped->toDegrees(); // -160.0
+
+// Unsigned wrapping
+$angle = Angle::fromDegrees(450);
+$wrapped = $angle->wrap(false);
+echo $wrapped->toDegrees(); // 90.0
+
+// Chaining
+$result = Angle::fromDegrees(540)
+    ->wrap()
+    ->mul(2);
+echo $result->toDegrees(); // 360.0
+```
+
 ## Comparison Methods
 
 Angle implements the `Equatable` interface and uses the `Comparable` trait, providing a full set of comparison operations.
@@ -435,8 +465,7 @@ var_dump($a->isGreaterThanOrEqual($b)); // true (equal)
 var_dump($a->isGreaterThanOrEqual($c)); // true (greater than)
 ```
 
-
-## Trigonometry Methods
+## Trigonometric Functions
 
 ### sin(), cos(), tan()
 
@@ -456,6 +485,28 @@ echo $angle->cos(); // 0.866...
 echo $angle->tan(); // 0.577...
 ```
 
+### sec(), csc(), cot()
+
+```php
+public function sec(): float
+public function csc(): float
+public function cot(): float
+```
+
+Reciprocal trigonometric functions: secant (1/cos), cosecant (1/sin), cotangent (cos/sin).
+
+Returns `±INF` at singularities (e.g., `sec(90°)`, `csc(0°)`, `cot(0°)`).
+
+**Example:**
+```php
+$angle = Angle::fromDegrees(60);
+echo $angle->sec(); // 2.0
+echo $angle->csc(); // 1.154...
+echo $angle->cot(); // 0.577...
+```
+
+## Hyperbolic Functions
+
 ### sinh(), cosh(), tanh()
 
 ```php
@@ -464,7 +515,7 @@ public function cosh(): float
 public function tanh(): float
 ```
 
-Hyperbolic trigonometric functions.
+Hyperbolic functions.
 
 **Example:**
 ```php
@@ -474,15 +525,123 @@ echo $angle->cosh(); // 1.543...
 echo $angle->tanh(); // 0.761...
 ```
 
-## Wrapping Methods
+### sech(), csch(), coth()
 
-Wrapping normalizes angles to a canonical range, following the mathematical convention where:
+```php
+public function sech(): float
+public function csch(): float
+public function coth(): float
+```
+
+Reciprocal hyperbolic functions: hyperbolic secant (1/cosh), hyperbolic cosecant (1/sinh), hyperbolic cotangent (cosh/sinh).
+
+Returns `±INF` at singularities (e.g., `csch(0)`, `coth(0)`).
+
+**Example:**
+```php
+$angle = Angle::fromRadians(1.0);
+echo $angle->sech(); // 0.648...
+echo $angle->csch(); // 0.850...
+echo $angle->coth(); // 1.313...
+```
+
+## String Methods
+
+### format()
+
+```php
+public function format(string $unit = 'rad', ?int $decimals = null): string
+```
+
+Format angle in CSS style, with no space between number and unit.
+Supported units are `'rad'`, `'deg'`, `'grad'`, and `'turn'`.
+
+The `$decimals` parameter controls decimal places. If `null`, maximum precision is used with trailing zeros removed.
+
+**Examples:**
+```php
+$angle = Angle::fromDegrees(12.5);
+
+// Different units
+echo $angle->format('rad', 4);  // 0.2182rad
+echo $angle->format('deg', 2);  // 12.50deg
+echo $angle->format('grad', 3); // 13.889grad
+echo $angle->format('turn', 5); // 0.03472turn
+
+// Maximum precision (default)
+echo $angle->format('rad'); // 0.21816615649929rad
+
+// Complex angle
+$angle = Angle::fromDegrees(45, 30, 15);
+echo $angle->format('deg', 4); // 45.5042deg
+```
+
+### formatDMS()
+
+```php
+public function formatDMS(int $smallest_unit = UNIT_ARCSECOND, ?int $decimals = null): string
+```
+
+Options for $smallest_unit:
+- `UNIT_DEGREE` - Degrees only with ° symbol
+- `UNIT_ARCMINUTE` - Degrees and arcminutes with ° ′ symbols
+- `UNIT_ARCSECOND` - Degrees, arcminutes, and arcseconds with ° ′ ″ symbols
+
+
+**Examples:**
+```php
+$angle = Angle::fromDegrees(12.5);
+
+// DMS formats
+echo $angle->formatDMS(Angle::UNIT_DEGREE, 1);     // 12.5°
+echo $angle->formatDMS(Angle::UNIT_ARCMINUTE, 0);  // 12° 30′
+echo $angle->formatDMS(Angle::UNIT_ARCSECOND, 2);  // 12° 30′ 0.00″
+
+// Complex angle
+$angle = Angle::fromDegrees(45, 30, 15);
+echo $angle->formatDMS(decimals: 1); // 45° 30′ 15.0″
+
+// Negative angles
+$angle = Angle::fromDegrees(-30, -15, -45);
+echo $angle->formatDMS(); // -30° 15′ 45″
+```
+
+**Carry behavior:**
+
+When rounding with `$decimals`, the formatter handles carry correctly:
+
+```php
+$angle = Angle::fromDegrees(29, 59, 59.9999);
+echo $angle->formatDMS(decimals: 3); // 30° 0′ 0.000″ (carried to next degree)
+
+$angle = Angle::fromDegrees(29, 59.9999);
+echo $angle->formatDMS(Angle::UNIT_ARCMINUTE, 3); // 30° 0.000′ (carried to next degree)
+```
+
+### __toString()
+
+```php
+public function __toString(): string
+```
+
+Convert to string in CSS notation using radians as the unit, with maximum precision.
+
+**Example:**
+```php
+$angle = Angle::fromDegrees(45);
+echo $angle; // 0.78539816339745rad
+echo (string)$angle; // 0.78539816339745rad
+```
+
+## Static Wrapping Methods
+
+These static utility methods normalize raw float values to a canonical range. They do not operate on Angle objects - use the `wrap()` instance method for that.
+
+Wrapping follows the mathematical convention where:
 - **Unsigned range [0, 2π)**: Includes lower bound (0), excludes upper bound (2π)
 - **Signed range (-π, π]**: Excludes lower bound (-π), includes upper bound (π)
 
 This convention matches the [standard principal value for complex number arguments](https://en.wikipedia.org/wiki/Principal_value#Complex_argument) and ensures uniqueness.
-
-NB: The methods `wrapRadians()`, `wrapDegrees()`, `wrapGradians()`, and `wrapTurns()` are utility methods for working with angles as floats, and do not operate on Angle objects. To wrap an Angle object, use the `wrap()` instance method, which returns a new Angle.
 
 ### wrapRadians()
 
@@ -578,124 +737,6 @@ $wrapped = Angle::wrapTurns(0.5); // 0.5 (upper bound included)
 // Unsigned range [0, 1)
 $wrapped = Angle::wrapTurns(1.25, false); // 0.25
 $wrapped = Angle::wrapTurns(-0.25, false); // 0.75 (negative wraps to positive)
-```
-
-### wrap()
-
-```php
-public function wrap(bool $signed = true): self
-```
-
-Normalize this angle. Returns a new Angle with the wrapped value (the original is unchanged).
-
-**Parameters:**
-- `$signed` (bool) - Whether to use signed range (default: `true`)
-
-**Examples:**
-```php
-// Signed wrapping - DEFAULT
-$angle = Angle::fromDegrees(200);
-$wrapped = $angle->wrap();
-echo $wrapped->toDegrees(); // -160.0
-
-// Unsigned wrapping
-$angle = Angle::fromDegrees(450);
-$wrapped = $angle->wrap(false);
-echo $wrapped->toDegrees(); // 90.0
-
-// Chaining
-$result = Angle::fromDegrees(540)
-    ->wrap()
-    ->mul(2);
-echo $result->toDegrees(); // 360.0
-```
-
-## String Methods
-
-### format()
-
-```php
-public function format(string $unit = 'rad', ?int $decimals = null): string
-```
-
-Format angle in CSS style, with no space between number and unit.
-Supported units are `'rad'`, `'deg'`, `'grad'`, and `'turn'`.
-
-The `$decimals` parameter controls decimal places. If `null`, maximum precision is used with trailing zeros removed.
-
-**Examples:**
-```php
-$angle = Angle::fromDegrees(12.5);
-
-// Different units
-echo $angle->format('rad', 4);  // 0.2182rad
-echo $angle->format('deg', 2);  // 12.50deg
-echo $angle->format('grad', 3); // 13.889grad
-echo $angle->format('turn', 5); // 0.03472turn
-
-// Maximum precision (default)
-echo $angle->format('rad'); // 0.21816615649929rad
-
-// Complex angle
-$angle = Angle::fromDegrees(45, 30, 15);
-echo $angle->format('deg', 4); // 45.5042deg
-```
-
-### formatDMS()
-
-```php
-public function formatDMS(int $smallest_unit = UNIT_ARCSECOND, ?int $decimals = null): string
-```
-
-Options for $smallest_unit:
-- `UNIT_DEGREE` - Degrees only with ° symbol
-- `UNIT_ARCMINUTE` - Degrees and arcminutes with ° ′ symbols
-- `UNIT_ARCSECOND` - Degrees, arcminutes, and arcseconds with ° ′ ″ symbols
-
-
-**Examples:**
-```php
-$angle = Angle::fromDegrees(12.5);
-
-// DMS formats
-echo $angle->formatDMS(Angle::UNIT_DEGREE, 1);     // 12.5°
-echo $angle->formatDMS(Angle::UNIT_ARCMINUTE, 0);  // 12° 30′
-echo $angle->formatDMS(Angle::UNIT_ARCSECOND, 2);  // 12° 30′ 0.00″
-
-// Complex angle
-$angle = Angle::fromDegrees(45, 30, 15);
-echo $angle->formatDMS(decimals: 1); // 45° 30′ 15.0″
-
-// Negative angles
-$angle = Angle::fromDegrees(-30, -15, -45);
-echo $angle->formatDMS(); // -30° 15′ 45″
-```
-
-**Carry behavior:**
-
-When rounding with `$decimals`, the formatter handles carry correctly:
-
-```php
-$angle = Angle::fromDegrees(29, 59, 59.9999);
-echo $angle->formatDMS(decimals: 3); // 30° 0′ 0.000″ (carried to next degree)
-
-$angle = Angle::fromDegrees(29, 59.9999);
-echo $angle->formatDMS(Angle::UNIT_ARCMINUTE, 3); // 30° 0.000′ (carried to next degree)
-```
-
-### __toString()
-
-```php
-public function __toString(): string
-```
-
-Convert to string in CSS notation using radians as the unit, with maximum precision.
-
-**Example:**
-```php
-$angle = Angle::fromDegrees(45);
-echo $angle; // 0.78539816339745rad
-echo (string)$angle; // 0.78539816339745rad
 ```
 
 ## Usage Examples

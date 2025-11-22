@@ -461,7 +461,7 @@ class Angle implements Stringable, Equatable
 
     // endregion
 
-    // region Trigonometry methods
+    // region Trigonometric methods
 
     /**
      * Sine of the angle.
@@ -504,6 +504,62 @@ class Angle implements Stringable, Equatable
     }
 
     /**
+     * Secant of the angle (1/cos).
+     *
+     * @return float The secant value.
+     */
+    public function sec(): float
+    {
+        $c = cos($this->radians);
+
+        // If cos is effectively zero, return ±INF.
+        if (Floats::approxEqual($c, 0, self::TRIG_EPSILON)) {
+            return Numbers::copySign(INF, $c);
+        }
+
+        return fdiv(1.0, $c);
+    }
+
+    /**
+     * Cosecant of the angle (1/sin).
+     *
+     * @return float The cosecant value.
+     */
+    public function csc(): float
+    {
+        $s = sin($this->radians);
+
+        // If sin is effectively zero, return ±INF.
+        if (Floats::approxEqual($s, 0, self::TRIG_EPSILON)) {
+            return Numbers::copySign(INF, $s);
+        }
+
+        return fdiv(1.0, $s);
+    }
+
+    /**
+     * Cotangent of the angle (cos/sin).
+     *
+     * @return float The cotangent value.
+     */
+    public function cot(): float
+    {
+        $s = sin($this->radians);
+        $c = cos($this->radians);
+
+        // If sin is effectively zero, return ±INF.
+        if (Floats::approxEqual($s, 0, self::TRIG_EPSILON)) {
+            return Numbers::copySign(INF, $c);
+        }
+
+        return fdiv($c, $s);
+    }
+
+    // endregion
+
+    // region Hyperbolic methods
+
+    /**
      * Get the hyperbolic sine of the angle.
      *
      * @return float The hyperbolic sine value.
@@ -531,6 +587,50 @@ class Angle implements Stringable, Equatable
     public function tanh(): float
     {
         return tanh($this->radians);
+    }
+
+    /**
+     * Get the hyperbolic secant of the angle (1/cosh).
+     *
+     * @return float The hyperbolic secant value.
+     */
+    public function sech(): float
+    {
+        return fdiv(1.0, cosh($this->radians));
+    }
+
+    /**
+     * Get the hyperbolic cosecant of the angle (1/sinh).
+     *
+     * @return float The hyperbolic cosecant value.
+     */
+    public function csch(): float
+    {
+        $sh = sinh($this->radians);
+
+        // sinh(0) = 0, so return ±INF for values near zero.
+        if (Floats::approxEqual($sh, 0, self::TRIG_EPSILON)) {
+            return Numbers::copySign(INF, $sh);
+        }
+
+        return fdiv(1.0, $sh);
+    }
+
+    /**
+     * Get the hyperbolic cotangent of the angle (cosh/sinh).
+     *
+     * @return float The hyperbolic cotangent value.
+     */
+    public function coth(): float
+    {
+        $sh = sinh($this->radians);
+
+        // sinh(0) = 0, so return ±INF for values near zero.
+        if (Floats::approxEqual($sh, 0, self::TRIG_EPSILON)) {
+            return Numbers::copySign(INF, cosh($this->radians));
+        }
+
+        return fdiv(cosh($this->radians), $sh);
     }
 
     // endregion

@@ -279,6 +279,75 @@ final class AngleTest extends TestCase
     }
 
     /**
+     * Test secant, cosecant, and cotangent functions.
+     *
+     * Verifies that sec, csc, cot return correct values and produce
+     * infinity at appropriate singularities.
+     */
+    public function testSecCscCot(): void
+    {
+        $a = Angle::fromDegrees(60);
+        // sec(60°) = 1/cos(60°) = 1/0.5 = 2
+        $this->assertFloatEquals(2.0, $a->sec());
+        // csc(60°) = 1/sin(60°) = 1/(√3/2) = 2/√3
+        $this->assertFloatEquals(2 / sqrt(3), $a->csc());
+        // cot(60°) = cos(60°)/sin(60°) = 0.5/(√3/2) = 1/√3
+        $this->assertFloatEquals(1 / sqrt(3), $a->cot());
+
+        // Verify singularities.
+        $at90 = Angle::fromDegrees(90);
+        $this->assertTrue(is_infinite($at90->sec())); // sec(90°) = ∞
+        $this->assertFloatEquals(1.0, $at90->csc()); // csc(90°) = 1
+
+        $at0 = Angle::fromDegrees(0);
+        $this->assertFloatEquals(1.0, $at0->sec()); // sec(0°) = 1
+        $this->assertTrue(is_infinite($at0->csc())); // csc(0°) = ∞
+        $this->assertTrue(is_infinite($at0->cot())); // cot(0°) = ∞
+    }
+
+    /**
+     * Test hyperbolic functions sinh, cosh, tanh.
+     *
+     * Verifies correct values for basic hyperbolic functions.
+     */
+    public function testHyperbolicFunctions(): void
+    {
+        $a = Angle::fromRadians(1.0);
+        $this->assertFloatEquals(sinh(1.0), $a->sinh());
+        $this->assertFloatEquals(cosh(1.0), $a->cosh());
+        $this->assertFloatEquals(tanh(1.0), $a->tanh());
+
+        // At zero.
+        $zero = Angle::fromRadians(0);
+        $this->assertFloatEquals(0.0, $zero->sinh());
+        $this->assertFloatEquals(1.0, $zero->cosh());
+        $this->assertFloatEquals(0.0, $zero->tanh());
+    }
+
+    /**
+     * Test hyperbolic secant, cosecant, and cotangent functions.
+     *
+     * Verifies that sech, csch, coth return correct values and handle
+     * singularities appropriately.
+     */
+    public function testSechCschCoth(): void
+    {
+        $a = Angle::fromRadians(1.0);
+        // sech(1) = 1/cosh(1)
+        $this->assertFloatEquals(1 / cosh(1.0), $a->sech());
+        // csch(1) = 1/sinh(1)
+        $this->assertFloatEquals(1 / sinh(1.0), $a->csch());
+        // coth(1) = cosh(1)/sinh(1)
+        $this->assertFloatEquals(cosh(1.0) / sinh(1.0), $a->coth());
+
+        // At zero: csch and coth have singularities.
+        $zero = Angle::fromRadians(0);
+        $this->assertFloatEquals(1.0, $zero->sech()); // sech(0) = 1/cosh(0) = 1
+        $this->assertFloatEquals(INF, $zero->csch()); // csch(0) = ∞
+        $this->assertFloatEquals(INF, $zero->coth()); // coth(0) = ∞
+    }
+
+    /**
      * Test formatting angles in various output formats.
      *
      * Verifies that the format() method correctly produces strings in rad, deg,
