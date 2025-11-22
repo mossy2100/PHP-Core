@@ -78,7 +78,7 @@ final class AngleTest extends TestCase
      */
     public function testDmsRoundtripAndCarry(): void
     {
-        $a = Angle::fromDegrees(12, 34, 56);
+        $a = Angle::fromDMS(12, 34, 56);
         [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
         $this->assertFloatEquals(12.0, $d);
         $this->assertFloatEquals(34.0, $m);
@@ -123,7 +123,7 @@ final class AngleTest extends TestCase
      */
     public function testToDmsWithNegativeAngles(): void
     {
-        $a = Angle::fromDegrees(-12, -34, -56);
+        $a = Angle::fromDMS(-12, -34, -56);
 
         // Test arcseconds
         [$d, $m, $s] = $a->toDMS(Angle::UNIT_ARCSECOND);
@@ -166,18 +166,27 @@ final class AngleTest extends TestCase
         $this->assertAngleEquals(Angle::fromRadians(M_PI), Angle::parse(M_PI . 'rad'));
 
         // Unicode symbols (°, ′, ″).
-        $this->assertAngleEquals(Angle::fromDegrees(12, 34, 56), Angle::parse('12° 34′ 56″'));
+        $this->assertAngleEquals(Angle::fromDMS(12, 34, 56), Angle::parse('12° 34′ 56″'));
         // ASCII fallback (°, ', ").
-        $this->assertAngleEquals(Angle::fromDegrees(-12, -34, -56), Angle::parse("-12°34'56\""));
+        $this->assertAngleEquals(Angle::fromDMS(-12, -34, -56), Angle::parse("-12°34'56\""));
     }
 
     /**
-     * Test that parsing empty or invalid input throws ValueError.
+     * Test that parsing empty input throws ValueError.
      */
     public function testParseRejectsBadInputs(): void
     {
         $this->expectException(ValueError::class);
         Angle::parse('');
+    }
+
+    /**
+     * Test that parsing invalid input throws ValueError.
+     */
+    public function testParseRejectsInvalidString(): void
+    {
+        $this->expectException(ValueError::class);
+        Angle::parse('456 bananas');
     }
 
     /**
@@ -284,7 +293,7 @@ final class AngleTest extends TestCase
         $this->assertSame('0.0347222222turn', $a->format('turn', 10));
 
         // DMS via format.
-        $this->assertSame('12° 30′ 0″', $a->format('dms', 0));
+        $this->assertSame('12° 30′ 0″', $a->formatDMS(Angle::UNIT_ARCSECOND, 0));
 
         // Verify that negative decimals value throws ValueError.
         $this->expectException(ValueError::class);
@@ -300,8 +309,8 @@ final class AngleTest extends TestCase
     public function testFormatDmsNoCarryNeeded(): void
     {
         // Values that shouldn't trigger carry
-        $a = Angle::fromDegrees(29, 59, 59.994);
-        $this->assertSame('29° 59′ 59.994″', $a->format('dms', 3));
+        $a = Angle::fromDMS(29, 59, 59.994);
+        $this->assertSame('29° 59′ 59.994″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
     }
 
     /**
@@ -314,31 +323,31 @@ final class AngleTest extends TestCase
     {
         // Test degree rounding (29.9999... → 30°)
         $a = Angle::fromDegrees(29.9999999999);
-        $this->assertSame('30.000°', $a->format('d', 3));
-        $this->assertSame('30° 0.000′', $a->format('dm', 3));
-        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
+        $this->assertSame('30.000°', $a->formatDMS(Angle::UNIT_DEGREE, 3));
+        $this->assertSame('30° 0.000′', $a->formatDMS(Angle::UNIT_ARCMINUTE, 3));
+        $this->assertSame('30° 0′ 0.000″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
 
         // Test arcminute carry (29° 59.9999′ → 30° 0′)
-        $a = Angle::fromDegrees(29, 59.9999999);
-        $this->assertSame('30° 0.000′', $a->format('dm', 3));
+        $a = Angle::fromDMS(29, 59.9999999);
+        $this->assertSame('30° 0.000′', $a->formatDMS(Angle::UNIT_ARCMINUTE, 3));
 
         // Test arcsecond carry (29° 59′ 59.9999″ → 30° 0′ 0″)
-        $a = Angle::fromDegrees(29, 59, 59.9999999);
-        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
+        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $this->assertSame('30° 0′ 0.000″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
 
         // Test double carry (seconds → minutes → degrees)
-        $a = Angle::fromDegrees(29, 59, 59.9999999);
-        $this->assertSame('30.000°', $a->format('d', 3));
+        $a = Angle::fromDMS(29, 59, 59.9999999);
+        $this->assertSame('30.000°', $a->formatDMS(Angle::UNIT_DEGREE, 3));
 
         // Test mid-range carry (not at zero boundary)
-        $a = Angle::fromDegrees(45, 59, 59.9995);
-        $this->assertSame('46° 0′ 0.000″', $a->format('dms', 3));
+        $a = Angle::fromDMS(45, 59, 59.9995);
+        $this->assertSame('46° 0′ 0.000″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
 
         // Test negative angle carry
         $a = Angle::fromDegrees(-29.9999999999);
-        $this->assertSame('-30.000°', $a->format('d', 3));
-        $this->assertSame('-30° 0.000′', $a->format('dm', 3));
-        $this->assertSame('-30° 0′ 0.000″', $a->format('dms', 3));
+        $this->assertSame('-30.000°', $a->formatDMS(Angle::UNIT_DEGREE, 3));
+        $this->assertSame('-30° 0.000′', $a->formatDMS(Angle::UNIT_ARCMINUTE, 3));
+        $this->assertSame('-30° 0′ 0.000″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
     }
 
     /**
@@ -386,20 +395,20 @@ final class AngleTest extends TestCase
      */
     public function testFormatThenParseRoundtripVariousStyles(): void
     {
-        $styles = ['rad', 'deg', 'grad', 'turn', 'd', 'dm', 'dms'];
+        $units = ['rad', 'deg', 'grad', 'turn'];
 
         for ($i = 0; $i < 200; $i++) {
             $rad = Floats::randInRange(-1000.0, 1000.0);
             $a = Angle::fromRadians($rad);
 
-            foreach ($styles as $style) {
+            foreach ($units as $unit) {
                 // Use max float precision to ensure correct round-trip conversion.
-                $s = $a->format($style, 17);
+                $s = $a->format($unit, 17);
                 $b = Angle::parse($s);
 
                 $this->assertTrue(
                     $a->equals($b),
-                    "Format/parse mismatch for style '{$style}': {$s} → {$b} vs {$a}"
+                    "Format/parse mismatch for unit '{$unit}': {$s} → {$b} vs {$a}"
                 );
             }
         }
@@ -441,16 +450,16 @@ final class AngleTest extends TestCase
     public function testDmsExtremesAndOutOfRangeParts(): void
     {
         // Minutes/seconds beyond their usual ranges should still compute correctly.
-        $a = Angle::fromDegrees(10, 120, 120); // 10° + 2° + 0.033...° = 12.033...
+        $a = Angle::fromDMS(10, 120, 120); // 10° + 2° + 0.033...° = 12.033...
         $this->assertFloatEquals(12.0333333333, $a->toDegrees(), 1e-9);
 
         // Mixed signs as documented (caller responsibility).
-        $b = Angle::fromDegrees(-12, -90, 30); // -12 - 1.5 + 0.008333... = -13.491666...
+        $b = Angle::fromDMS(-12, -90, 30); // -12 - 1.5 + 0.008333... = -13.491666...
         $this->assertFloatEquals(-13.4916666667, $b->toDegrees(), 1e-9);
 
         // Exactly 60 seconds (should carry in formatting).
-        $a = Angle::fromDegrees(29, 59, 60.0);
-        $this->assertSame('30° 0′ 0.000″', $a->format('dms', 3));
+        $a = Angle::fromDMS(29, 59, 60.0);
+        $this->assertSame('30° 0′ 0.000″', $a->formatDMS(Angle::UNIT_ARCSECOND, 3));
     }
 
     /**
@@ -466,30 +475,13 @@ final class AngleTest extends TestCase
         $this->assertTrue(Angle::fromRadians(M_PI)->equals(Angle::parse(sprintf('%.12frad', M_PI))));
 
         // Unicode DMS symbols (°, ′, ″).
-        $this->assertTrue(Angle::fromDegrees(12, 34, 56)->equals(Angle::parse('12° 34′ 56″')));
+        $this->assertTrue(Angle::fromDMS(12, 34, 56)->equals(Angle::parse('12° 34′ 56″')));
         // ASCII DMS fallback (°, ', ").
-        $this->assertTrue(Angle::fromDegrees(-12, -34, -56)->equals(Angle::parse("-12°34'56\"")));
+        $this->assertTrue(Angle::fromDMS(-12, -34, -56)->equals(Angle::parse("-12°34'56\"")));
 
         // Verify that invalid DMS format throws ValueError.
         $this->expectException(ValueError::class);
         $a = Angle::parse('-');
-    }
-
-    /**
-     * Test the tryParse() method for both success and failure cases.
-     *
-     * Verifies that tryParse() returns true and sets the result for valid input,
-     * and returns false with null result for invalid input without throwing.
-     */
-    public function testTryParseSuccessAndFailure(): void
-    {
-        $ok = Angle::tryParse('12deg', $a);
-        $this->assertTrue($ok);
-        $this->assertInstanceOf(Angle::class, $a);
-
-        $bad = Angle::tryParse('not an angle', $b);
-        $this->assertFalse($bad);
-        $this->assertNull($b);
     }
 
     /**
@@ -521,10 +513,20 @@ final class AngleTest extends TestCase
     }
 
     /**
+     * Test that wrapDegrees() normalizes values correctly.
+     *
+     * Verifies wrapping behavior for degrees in both unsigned [0, 360) and signed (-180, 180] ranges.
+     */
+    public function testWrapDegreesBehaviour(): void
+    {
+        $this->assertFloatEquals(50.0, Angle::wrapDegrees(410.0, false));
+        $this->assertFloatEquals(150.0, Angle::wrapDegrees(-210.0, true));
+    }
+
+    /**
      * Test that wrapGradians() normalizes values correctly.
      *
-     * Verifies wrapping behavior for gradians in both unsigned [0, 400)
-     * and signed [-200, 200) ranges.
+     * Verifies wrapping behavior for gradians in both unsigned [0, 400) and signed (-200, 200] ranges.
      */
     public function testWrapGradiansBehaviour(): void
     {
@@ -533,15 +535,14 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test that wrapDegrees() normalizes values correctly.
+     * Test that wrapTurns() normalizes values correctly.
      *
-     * Verifies wrapping behavior for degrees in both unsigned [0, 360)
-     * and signed [-180, 180) ranges.
+     * Verifies wrapping behavior for turns in both unsigned [0, 1) and signed (-0.5, 0.5] ranges.
      */
-    public function testWrapDegreesBehaviour(): void
+    public function testWrapTurnsBehaviour(): void
     {
-        $this->assertFloatEquals(50.0, Angle::wrapDegrees(410.0, false));
-        $this->assertFloatEquals(150.0, Angle::wrapDegrees(-210.0, true));
+        $this->assertFloatEquals(0.2, Angle::wrapTurns(1.2, false));
+        $this->assertFloatEquals(0.25, Angle::wrapTurns(-0.75, true));
     }
 
     /**

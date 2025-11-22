@@ -7,7 +7,6 @@ namespace Galaxon\Core;
 use DivisionByZeroError;
 use Override;
 use Stringable;
-use Throwable;
 use TypeError;
 use ValueError;
 
@@ -94,10 +93,12 @@ class Angle implements Stringable, Equatable
      *
      * NB: In theory all parts SHOULD be either non-negative (i.e. 0 or positive) or non-positive (i.e. 0 or negative).
      * However, this is not enforced. Neither do any of the values have to be within a certain range (e.g. 0-60 for
-     * minutes or seconds).
+     * arcminutes or arcseconds).
+     * Typically you'll want to use the same sign for all parts.
      *
-     * So, for example, if you want to convert -12° 34′ 56″ to degrees, call fromDegrees(-12, -34, -56)
-     * If you want to convert -12° 56″ to degrees, call fromDegrees(-12, 0, -56).
+     * @example
+     * If you want to convert -12° 34′ 56″ to degrees, call fromDMS(-12, -34, -56)
+     * If you want to convert -12° 56″ to degrees, call fromDMS(-12, 0, -56).
      *
      * @param float $degrees The degrees part.
      * @param float $arcmin The arcminutes part (optional).
@@ -105,11 +106,23 @@ class Angle implements Stringable, Equatable
      * @return self A new angle with a magnitude equal to the provided angle.
      * @throws ValueError If any of the arguments are non-finite numbers.
      */
-    public static function fromDegrees(float $degrees, float $arcmin = 0.0, float $arcsec = 0.0): self
+    public static function fromDMS(float $degrees, float $arcmin = 0.0, float $arcsec = 0.0): self
     {
         // Compute the total degrees.
         $total_deg = $degrees + $arcmin / self::ARCMINUTES_PER_DEGREE + $arcsec / self::ARCSECONDS_PER_DEGREE;
         return new self($total_deg / self::DEGREES_PER_RADIAN);
+    }
+
+    /**
+     * Create an angle from degrees.
+     *
+     * @param float $degrees The angle in degrees.
+     * @return self The angle instance.
+     * @throws ValueError If the argument is a non-finite number.
+     */
+    public static function fromDegrees(float $degrees): self
+    {
+        return self::fromDMS($degrees);
     }
 
     /**
@@ -185,7 +198,7 @@ class Angle implements Stringable, Equatable
             $s = isset($matches['sec']) ? $sign * (float)$matches['sec'] : 0.0;
 
             // Convert to angle.
-            return self::fromDegrees($d, $m, $s);
+            return self::fromDMS($d, $m, $s);
         }
 
         // Check for a format with CSS angle units.
@@ -202,27 +215,6 @@ class Angle implements Stringable, Equatable
 
         // No valid units.
         throw new ValueError($err_msg);
-    }
-
-    /**
-     * Attempts to parse an angle string without throwing.
-     *
-     * On success, sets $result to a new Angle and returns true.
-     * On failure, sets $result to null and returns false.
-     *
-     * @param string $value The input string to parse.
-     * @param ?self &$result The parsed Angle on success; null on failure.
-     * @return bool True if parsing succeeded; false otherwise.
-     */
-    public static function tryParse(string $value, ?self &$result): bool
-    {
-        try {
-            $result = self::parse($value);
-            return true;
-        } catch (Throwable) {
-            $result = null;
-            return false;
-        }
     }
 
     // endregion
@@ -253,7 +245,7 @@ class Angle implements Stringable, Equatable
      * - UNIT_ARCMINUTE for degrees and arcminutes
      * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
      *
-     * @param int $smallest_unit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default).
+     * @param int $smallest_unit 0 for degree, 1 for arcminute, 2 for arcsecond (default).
      * @return float[] An array of 1-3 floats with the degrees, arcminutes, and arcseconds.
      * @throws ValueError If $smallest_unit is not 0, 1, or 2.
      */
@@ -299,7 +291,7 @@ class Angle implements Stringable, Equatable
 
             default:
                 throw new ValueError(
-                    'The smallest unit must be 0 for degrees (default), 1 for arcminutes, or 2 for arcseconds.'
+                    'The smallest unit must be 0 for degree, 1 for arcminute, or 2 for arcsecond (default).'
                 );
         }
     }
@@ -406,6 +398,24 @@ class Angle implements Stringable, Equatable
     public function abs(): self
     {
         return new self(abs($this->radians));
+    }
+
+    /**
+     * Normalize an angle to a standard range.
+     *
+     * If $signed is true (default), the range is (-π, π]
+     * If $signed is false, the range is [0, τ)
+     *
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
+     * @return self A new angle with the wrapped value.
+     *
+     * @example
+     * $alpha = Angle::fromRadians(M_PI * 5);
+     * $wrapped = $alpha->wrap();
+     */
+    public function wrap(bool $signed = true): self
+    {
+        return new self(self::wrapRadians($this->radians, $signed));
     }
 
     // endregion
@@ -525,9 +535,7 @@ class Angle implements Stringable, Equatable
 
     // endregion
 
-    // region Wrap methods
-
-    // region Static methods
+    // region Static wrap methods
 
     /**
      * Normalize a scalar angle value into a specified half-open interval.
@@ -535,16 +543,15 @@ class Angle implements Stringable, Equatable
      * This is a private method called from the public wrap[Unit]() methods.
      *
      * The range of values varies depending on the $units_per_turn parameter *and* the $signed flag.
-     * 1. If $signed is true (default), the range is (-$units_per_turn/2, $units_per_turn/2].
+     * 1. If $signed is true (default), the range is (-$units_per_turn/2, $units_per_turn/2]
      * NB: This means the minimum value is *excluded* in the range, while the maximum value is *included*.
-     * 2. If $signed is false, the range is [0, $units_per_turn).
+     * 2. If $signed is false, the range is [0, $units_per_turn)
      * NB: This means the minimum value is *included* in the range, while the maximum value is *excluded*.
-     * This may seem counterintuitive, but it's consistent with mathematical conventions.
      * @see https://en.wikipedia.org/wiki/Principal_value#Complex_argument
      *
      * @param float $value The value to wrap.
      * @param float $units_per_turn Units per full turn (e.g., τ for radians, 360 for degrees, 400 for gradians).
-     * @param bool $signed Whether to return a signed range instead of the default positive range.
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
      * @return float The wrapped value.
      * @throws ValueError If the $value argument is non-finite.
      */
@@ -584,7 +591,7 @@ class Angle implements Stringable, Equatable
      * Normalize radians into [0, τ) or (-π, π].
      *
      * @param float $radians The angle in radians.
-     * @param bool $signed Whether to return a signed range.
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
      * @return float The normalized angle in radians.
      */
     public static function wrapRadians(float $radians, bool $signed = true): float
@@ -596,7 +603,7 @@ class Angle implements Stringable, Equatable
      * Normalize degrees into [0, 360) or (-180, 180].
      *
      * @param float $degrees The angle in degrees.
-     * @param bool $signed Whether to return a signed range.
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
      * @return float The normalized angle in degrees.
      */
     public static function wrapDegrees(float $degrees, bool $signed = true): float
@@ -608,7 +615,7 @@ class Angle implements Stringable, Equatable
      * Normalize gradians into [0, 400) or (-200, 200].
      *
      * @param float $gradians The angle in gradians.
-     * @param bool $signed Whether to return a signed range.
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
      * @return float The normalized angle in gradians.
      */
     public static function wrapGradians(float $gradians, bool $signed = true): float
@@ -616,35 +623,17 @@ class Angle implements Stringable, Equatable
         return self::wrapAngle($gradians, self::GRADIANS_PER_TURN, $signed);
     }
 
-    // endregion
-
-    // region Instance method
-
     /**
-     * Normalize an angle to a specified range.
+     * Normalize turns into [0, 1) or (-0.5, 0.5].
      *
-     * This method modifies the current instance and returns $this for chaining.
-     *
-     * If $signed is false (default), the range is [0, τ).
-     * If $signed is true, the range is [-π, π).
-     *
-     * @param bool $signed Whether to use a signed range, or the default positive range.
-     * @return $this The current angle instance.
-     *
-     * @example
-     * $alpha = Angle::fromRadians(M_PI * 5);
-     * $alpha->wrap();
+     * @param float $turns The angle in turns.
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
+     * @return float The normalized angle in turns.
      */
-    public function wrap(bool $signed = true): self
+    public static function wrapTurns(float $turns, bool $signed = true): float
     {
-        // Wrap the angle.
-        $this->radians = self::wrapRadians($this->radians, $signed);
-
-        // Return $this for chaining.
-        return $this;
+        return self::wrapAngle($turns, 1, $signed);
     }
-
-    // endregion
 
     // endregion
 
@@ -666,7 +655,7 @@ class Angle implements Stringable, Equatable
         // Canonicalize -0.0 to 0.0.
         $value = Floats::normalizeZero($value);
 
-        // If the number of decimal places is specified, format with that many decimal places.
+        // If the number of decimal places is specified, format with exactly that many decimal places.
         // If the number of decimal places isn't specified, use the max float precision, then trim off any trailing
         // 0's or decimal point.
         return $decimals !== null
@@ -675,19 +664,25 @@ class Angle implements Stringable, Equatable
     }
 
     /**
-     * Format angle given in degrees, arcminutes, and arcseconds as "D° M′ S″".
+     * Format a given angle with degrees symbol, plus optional arcminutes and arcseconds.
+     *
+     * @example
+     * $alpha = Angle::fromDegrees(12.3456789);
+     * echo $alpha->formatDMS(UNIT_DEGREE);    // 12.3456789°
+     * echo $alpha->formatDMS(UNIT_ARCMINUTE); // 12° 20.740734′
+     * echo $alpha->formatDMS(UNIT_ARCSECOND); // 12° 20′ 44.44404″
      *
      * For the $smallest_unit parameter, you can use the UNIT class constants, i.e.
      * - UNIT_DEGREE for degrees only
      * - UNIT_ARCMINUTE for degrees and arcminutes
      * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
      *
-     * @param int $smallest_unit 0 for degrees (default), 1 for arcminutes, 2 for arcseconds.
+     * @param int $smallest_unit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default).
      * @param ?int $decimals Optional number of decimal places for the smallest unit.
      * @return string The degrees, arcminutes, and arcseconds nicely formatted as a string.
      * @throws ValueError If the smallest unit argument is not 0, 1, or 2.
      */
-    private function formatDMS(int $smallest_unit = self::UNIT_DEGREE, ?int $decimals = null): string
+    public function formatDMS(int $smallest_unit = self::UNIT_ARCSECOND, ?int $decimals = null): string
     {
         // Get the sign string.
         $sign = $this->radians < 0 ? '-' : '';
@@ -742,7 +737,7 @@ class Angle implements Stringable, Equatable
             // @codeCoverageIgnoreStart
             default:
                 throw new ValueError(
-                    'The smallest unit must be 0 for degrees, 1 for arcminutes, or 2 for arcseconds (default).'
+                    'The smallest unit must be 0 for degree, 1 for arcminute, or 2 for arcsecond (default).'
                 );
             // @codeCoverageIgnoreEnd
         }
@@ -751,36 +746,37 @@ class Angle implements Stringable, Equatable
     /**
      * Format the angle as a string.
      *
-     *  Supported formats:
-     *  - 'rad', 'deg', 'grad', 'turn'  => CSS-style numeric+unit (no space)
-     *  - 'd'    => degrees only (°)
-     *  - 'dm'   => degrees + minutes (° ′)
-     *  - 'dms'  => degrees + minutes + seconds (° ′ ″)
+     * Supported units are the same as for CSS: 'rad', 'deg', 'grad', 'turn'
+     * The result is formatted as CSS-style numeric+unit, with no space between, e.g. '1.23rad' or '12.5deg'.
      *
-     * @param string $format A format string (case-insensitive).
-     * @param ?int $decimals Optional number of decimal places for the value (or the smallest unit in DMS formats).
+     * @param string $unit The unit string (case-insensitive).
+     * @param ?int $decimals Optional number of decimal places.
      * @return string The angle as a string.
-     * @throws ValueError If $format is not one of the supported formats or if $decimals is negative.
+     * @throws ValueError If $unit is not one of the supported units or $decimals is negative.
      */
-    public function format(string $format = 'rad', ?int $decimals = null): string
+    public function format(string $unit = 'rad', ?int $decimals = null): string
     {
         // Guard.
         if ($decimals !== null && $decimals < 0) {
             throw new ValueError('Decimals must be non-negative or null.');
         }
 
-        return match (strtolower($format)) {
-            'rad'   => self::formatFloat($this->toRadians(), $decimals) . 'rad',
-            'deg'   => self::formatFloat($this->toDegrees(), $decimals) . 'deg',
-            'grad'  => self::formatFloat($this->toGradians(), $decimals) . 'grad',
-            'turn'  => self::formatFloat($this->toTurns(), $decimals) . 'turn',
-            'd'     => $this->formatDMS(self::UNIT_DEGREE, $decimals),
-            'dm'    => $this->formatDMS(self::UNIT_ARCMINUTE, $decimals),
-            'dms'   => $this->formatDMS(self::UNIT_ARCSECOND, $decimals),
+        // Get the unit string in lowercase.
+        $unit = strtolower($unit);
+
+        // Convert the angle to the specified unit.
+        $amount = match ($unit) {
+            'rad'   => $this->toRadians(),
+            'deg'   => $this->toDegrees(),
+            'grad'  => $this->toGradians(),
+            'turn'  => $this->toTurns(),
             default => throw new ValueError(
-                'Invalid format string. Allowed: rad, deg, grad, turn, d, dm, dms.'
+                'Invalid unit string. Allowed: rad, deg, grad, turn.'
             ),
         };
+
+        // Return the formatted string.
+        return self::formatFloat($amount, $decimals) . $unit;
     }
 
     /**
