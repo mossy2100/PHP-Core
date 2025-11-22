@@ -22,6 +22,26 @@ final class Floats
     }
 
     /**
+     * Check if two floats are approximately equal within a given epsilon.
+     *
+     * @param float $f1 The first float.
+     * @param float $f2 The second float.
+     * @param float $epsilon The maximum allowed difference between the two floats.
+     * @return bool True if the two floats are approximately equal, false otherwise.
+     * @throws ValueError If epsilon is negative.
+     */
+    public static function approxEqual(float $f1, float $f2, float $epsilon = 1e-10): bool
+    {
+        // Make sure epsilon is non-negative.
+        if ($epsilon < 0) {
+            throw new ValueError('Epsilon must be non-negative.');
+        }
+
+        // Compare absolute differences.
+        return abs($f1 - $f2) <= $epsilon;
+    }
+
+    /**
      * Determines if a floating-point number is negative zero (-0.0).
      *
      * In IEEE-754 floating-point arithmetic, negative zero is a distinct value from positive zero, though they compare
@@ -111,8 +131,10 @@ final class Floats
     /**
      * Convert a float to a hexadecimal string.
      *
-     * The advantage of this method is that every possible float value will produce a unique 16-character hex string.
-     * Whereas, with a cast to string or sprintf() the same string could be produced for different values.
+     * The advantage of this method is that every possible float value will produce a unique 16-character hex string,
+     * including special values.
+     * Whereas, with a cast to string, or formatting with sprintf() or number_format(), the same string could be
+     * produced for different values.
      *
      * @param float $value The float to convert.
      * @return string The hexadecimal string representation of the float.

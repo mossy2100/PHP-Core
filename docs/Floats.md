@@ -1,18 +1,110 @@
 # Floats
 
-Float-specific utilities for handling IEEE-754 special values like -0.0, ±INF, NaN, and hexadecimal conversion.
+A comprehensive utility class for working with floating-point numbers in PHP, providing tools for comparison, conversion, navigation, random generation, and handling of IEEE-754 special values.
 
 ## Background
 
-The IEEE-754 floating-point standard defines several special values that have unique properties:
+Floating-point arithmetic presents several challenges that this class helps address:
+
+### Comparison Issues
+
+Direct comparison of floats using `===` often fails due to precision loss in calculations:
+
+```php
+0.1 + 0.2 === 0.3;  // false (!)
+```
+
+The `approxEqual()` method provides reliable approximate comparison with configurable tolerance.
+
+### IEEE-754 Special Values
+
+The IEEE-754 standard defines several special values with unique properties:
 
 - **-0.0 and +0.0**: Distinct values that compare as equal (`-0.0 === 0.0` returns `true`), but have different binary representations and can produce different results in certain operations (e.g., `1.0 / -0.0` returns `-INF`)
 - **INF and -INF**: Positive and negative infinity, representing values too large to represent
 - **NaN**: Not a Number, the result of undefined operations (e.g., `0.0 / 0.0`, `sqrt(-1)`)
 
-This class provides utilities to work with these special values in a consistent and predictable way.
+Several methods are provided to facilitate working with these values: `isNegativeZero()`, `isPositiveZero()`, `isSpecial()`, and `normalizeZero()`.
+
+### Float-to-Integer Conversion
+
+Converting floats to integers can lose precision. The `tryConvertToInt()` method provides safe, lossless conversion when possible.
+
+### Navigating the Float Space
+
+The `next()` and `previous()` methods allow traversal of the IEEE-754 number line, useful for testing edge cases and understanding float precision.
+
+### Random Float Generation
+
+Two methods provide random floats for different use cases: `rand()` explores the full float space for fuzzing, while `randInRange()` generates values within specific bounds.
 
 ## Methods
+
+### approxEqual()
+
+```php
+public static function approxEqual(float $f1, float $f2, float $epsilon = 1e-10): bool
+```
+
+Check if two floats are approximately equal within a given epsilon (tolerance). This is the recommended way to compare floating-point numbers for equality, as direct comparison (`===`) can fail due to precision issues.
+
+**Parameters:**
+- `$f1` (float) - The first float
+- `$f2` (float) - The second float
+- `$epsilon` (float) - The maximum allowed absolute difference between the two floats (default: `1e-10`)
+
+**Returns:**
+- `bool` - Returns `true` if the absolute difference between the two floats is less than or equal to epsilon, `false` otherwise
+
+**Throws:**
+- `ValueError` - If epsilon is negative
+
+**Examples:**
+
+```php
+// Direct float comparison can fail due to precision issues
+0.1 + 0.2 === 0.3;  // false (!)
+
+// Use approxEqual instead
+Floats::approxEqual(0.1 + 0.2, 0.3);  // true
+
+// Identical values
+Floats::approxEqual(1.0, 1.0);  // true
+
+// Values within default epsilon (1e-10)
+Floats::approxEqual(1.0, 1.0 + 1e-11);  // true
+Floats::approxEqual(1.0, 1.0 + 1e-9);   // false
+
+// Custom epsilon for looser comparison
+Floats::approxEqual(1.0, 1.1, 0.2);  // true
+Floats::approxEqual(1.0, 1.3, 0.2);  // false
+
+// Zero epsilon for exact comparison
+Floats::approxEqual(1.0, 1.0, 0.0);  // true
+Floats::approxEqual(1.0, 1.0 + PHP_FLOAT_EPSILON, 0.0);  // false
+
+// Handles positive and negative zero
+Floats::approxEqual(0.0, -0.0);  // true
+```
+
+**Behavior:**
+- Uses **absolute difference**: `abs($f1 - $f2) <= $epsilon`
+- **Symmetric**: `approxEqual($a, $b)` equals `approxEqual($b, $a)`
+- Positive and negative zero are considered equal (their difference is 0)
+
+**Choosing Epsilon:**
+- `1e-10` (default): Good for most general-purpose comparisons
+- `1e-6` to `1e-9`: Suitable for results of moderate computation
+- `1e-14` to `1e-15`: Near machine precision for doubles
+- Domain-specific: Use tolerances appropriate to your application (e.g., 0.01 for percentages)
+
+**Use Cases:**
+- Comparing results of floating-point calculations
+- Unit testing numerical code
+- Checking convergence in iterative algorithms
+- Color space conversions (RGB ↔ HSL)
+
+**Note:** This method uses absolute difference, which works well when values are near zero or of similar magnitude. For comparing values of very different magnitudes, consider relative comparison methods.
 
 ### isNegativeZero()
 

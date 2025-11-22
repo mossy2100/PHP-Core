@@ -441,7 +441,7 @@ class Angle implements Stringable, Equatable
         }
 
         // Check for equality within a reasonable tolerance.
-        if (abs($this->radians - $other->radians) < self::RAD_EPSILON) {
+        if (Floats::approxEqual($this->radians, $other->radians, self::RAD_EPSILON)) {
             return 0;
         }
 
@@ -485,7 +485,7 @@ class Angle implements Stringable, Equatable
 
         // If cos is effectively zero, return ±INF (sign chosen by the side, i.e., sign of sine).
         // The built-in tan() function normally doesn't ever return ±INF.
-        if (abs($c) < self::TRIG_EPSILON) {
+        if (Floats::approxEqual($c, 0, self::TRIG_EPSILON)) {
             return Numbers::copySign(INF, $s);
         }
 
@@ -556,6 +556,7 @@ class Angle implements Stringable, Equatable
         }
 
         // Reduce using fmod to avoid large magnitudes.
+        // $r will be in the range [0, $units_per_turn) if $value is positive, or (-$units_per_turn, 0] if negative.
         $r = fmod($value, $units_per_turn);
 
         // Adjust to fit within range bounds.
@@ -572,8 +573,6 @@ class Angle implements Stringable, Equatable
             // Unsigned range is [0, $units_per_turn)
             if ($r < 0.0) {
                 $r += $units_per_turn;
-            } elseif ($r >= $units_per_turn) {
-                $r -= $units_per_turn;
             }
         }
 

@@ -15,6 +15,169 @@ use ValueError;
 #[CoversClass(Floats::class)]
 final class FloatsTest extends TestCase
 {
+    // region approxEqual tests
+
+    /**
+     * Test approxEqual with identical values.
+     */
+    public function testApproxEqualWithIdenticalValues(): void
+    {
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0));
+        $this->assertTrue(Floats::approxEqual(0.0, 0.0));
+        $this->assertTrue(Floats::approxEqual(-5.5, -5.5));
+        $this->assertTrue(Floats::approxEqual(1e100, 1e100));
+    }
+
+    /**
+     * Test approxEqual with values within default epsilon.
+     */
+    public function testApproxEqualWithinDefaultEpsilon(): void
+    {
+        // Default epsilon is 1e-10
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0 + 1e-11));
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0 - 1e-11));
+        $this->assertTrue(Floats::approxEqual(0.0, 1e-11));
+        $this->assertTrue(Floats::approxEqual(0.0, -1e-11));
+    }
+
+    /**
+     * Test approxEqual with values outside default epsilon.
+     */
+    public function testApproxEqualOutsideDefaultEpsilon(): void
+    {
+        // Default epsilon is 1e-10
+        $this->assertFalse(Floats::approxEqual(1.0, 1.0 + 1e-9));
+        $this->assertFalse(Floats::approxEqual(1.0, 1.0 - 1e-9));
+        $this->assertFalse(Floats::approxEqual(0.0, 1e-9));
+    }
+
+    /**
+     * Test approxEqual with custom epsilon.
+     */
+    public function testApproxEqualWithCustomEpsilon(): void
+    {
+        // Use a larger epsilon
+        $this->assertTrue(Floats::approxEqual(1.0, 1.1, 0.2));
+        $this->assertTrue(Floats::approxEqual(1.0, 0.9, 0.2));
+        $this->assertFalse(Floats::approxEqual(1.0, 1.3, 0.2));
+
+        // Use a smaller epsilon
+        $this->assertFalse(Floats::approxEqual(1.0, 1.0 + 1e-15, 1e-16));
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0 + 1e-17, 1e-16));
+    }
+
+    /**
+     * Test approxEqual with zero epsilon (exact equality).
+     */
+    public function testApproxEqualWithZeroEpsilon(): void
+    {
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0, 0.0));
+        $this->assertFalse(Floats::approxEqual(1.0, 1.0 + PHP_FLOAT_EPSILON, 0.0));
+    }
+
+    /**
+     * Test approxEqual with negative epsilon throws ValueError.
+     */
+    public function testApproxEqualWithNegativeEpsilonThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Epsilon must be non-negative');
+        Floats::approxEqual(1.0, 1.0, -0.1);
+    }
+
+    /**
+     * Test approxEqual with negative values.
+     */
+    public function testApproxEqualWithNegativeValues(): void
+    {
+        $this->assertTrue(Floats::approxEqual(-1.0, -1.0));
+        $this->assertTrue(Floats::approxEqual(-1.0, -1.0 + 1e-11));
+        $this->assertTrue(Floats::approxEqual(-1.0, -1.0 - 1e-11));
+        $this->assertFalse(Floats::approxEqual(-1.0, -2.0));
+    }
+
+    /**
+     * Test approxEqual with values of opposite sign.
+     */
+    public function testApproxEqualWithOppositeSign(): void
+    {
+        $this->assertFalse(Floats::approxEqual(1.0, -1.0));
+        $this->assertFalse(Floats::approxEqual(-1.0, 1.0));
+        // But close to zero with appropriate epsilon
+        $this->assertTrue(Floats::approxEqual(0.05, -0.05, 0.2));
+    }
+
+    /**
+     * Test approxEqual with very large values.
+     */
+    public function testApproxEqualWithLargeValues(): void
+    {
+        $large = 1e15;
+        $this->assertTrue(Floats::approxEqual($large, $large));
+        $this->assertTrue(Floats::approxEqual($large, $large + 1e-11));
+        // Note: at large magnitudes, the absolute difference may still be tiny
+        $this->assertFalse(Floats::approxEqual($large, $large + 1.0));
+    }
+
+    /**
+     * Test approxEqual with very small values.
+     */
+    public function testApproxEqualWithSmallValues(): void
+    {
+        $small = 1e-15;
+        $this->assertTrue(Floats::approxEqual($small, $small));
+        $this->assertTrue(Floats::approxEqual($small, $small + 1e-26));
+        $this->assertFalse(Floats::approxEqual($small, $small * 2, 1e-16));
+    }
+
+    /**
+     * Test approxEqual symmetry (order of arguments shouldn't matter).
+     */
+    public function testApproxEqualSymmetry(): void
+    {
+        $a = 1.0;
+        $b = 1.0 + 1e-11;
+
+        $this->assertSame(
+            Floats::approxEqual($a, $b),
+            Floats::approxEqual($b, $a)
+        );
+
+        $this->assertSame(
+            Floats::approxEqual($a, $b, 1e-12),
+            Floats::approxEqual($b, $a, 1e-12)
+        );
+    }
+
+    /**
+     * Test approxEqual at boundary of epsilon.
+     */
+    public function testApproxEqualAtBoundary(): void
+    {
+        $epsilon = 0.1;
+
+        // Exactly at epsilon - should be false (uses < not <=)
+        $this->assertFalse(Floats::approxEqual(1.0, 1.1, $epsilon));
+
+        // Just under epsilon - should be true
+        $this->assertTrue(Floats::approxEqual(1.0, 1.0999999, $epsilon));
+    }
+
+    /**
+     * Test approxEqual with zero values.
+     */
+    public function testApproxEqualWithZeros(): void
+    {
+        $this->assertTrue(Floats::approxEqual(0.0, 0.0));
+        $this->assertTrue(Floats::approxEqual(0.0, -0.0));
+        $this->assertTrue(Floats::approxEqual(-0.0, 0.0));
+        $this->assertTrue(Floats::approxEqual(-0.0, -0.0));
+    }
+
+    // endregion
+
+    // region isNegativeZero tests
+
     /**
      * Test detection of negative zero.
      */
