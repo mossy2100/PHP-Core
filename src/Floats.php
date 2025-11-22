@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Core;
 
 use Random\RandomException;
+use RuntimeException;
 use ValueError;
 
 /**
@@ -148,25 +149,23 @@ final class Floats
      * Try to convert a float to an integer losslessly.
      *
      * @param float $f The float to convert to an integer.
-     * @param ?int $i The equivalent integer.
-     * @return bool True if the float can be converted to an integer losslessly, false otherwise.
+     * @return null|int The equivalent integer, or null if conversion would lose precision.
      */
-    public static function tryConvertToInt(float $f, ?int &$i): bool
+    public static function tryConvertToInt(float $f): ?int
     {
         // Check the provided value is finite.
         if (!is_finite($f)) {
-            return false;
+            return null;
         }
 
         // Check if the argument is a float that can be converted losslessly to an integer.
-        $temp = (int)$f;
-        if ($f === (float)$temp) {
-            $i = $temp;
-            return true;
+        $i = (int)$f;
+        if ($f === (float)$i) {
+            return $i;
         }
 
         // Argument is a float that cannot be losslessly converted to an integer.
-        return false;
+        return null;
     }
 
     /**
@@ -174,9 +173,12 @@ final class Floats
      *
      * @param float $f The given number.
      * @return float The next floating-point number after the given number.
+     * @throws RuntimeException If the system is not a 64-bit system.
      */
     public static function next(float $f): float
     {
+        self::check64bit();
+
         // Handle special cases.
         if (is_nan($f)) {
             return NAN;
@@ -201,9 +203,12 @@ final class Floats
      *
      * @param float $f The given number.
      * @return float The previous floating-point number before the given number.
+     * @throws RuntimeException If the system is not a 64-bit system.
      */
     public static function previous(float $f): float
     {
+        self::check64bit();
+
         // Handle special cases.
         if (is_nan($f)) {
             return NAN;
@@ -221,6 +226,20 @@ final class Floats
         $bits = self::floatToBits($f);
         $bits += $bits >= 0 ? -1 : 1;
         return self::bitsToFloat($bits);
+    }
+
+    /**
+     * Check if the current system is a 64-bit system.
+     *
+     * @return void
+     * @throws RuntimeException
+     */
+    private static function check64bit()
+    {
+        // Check if we're on a 32-bit system.
+        if (PHP_INT_SIZE === 4) {
+            throw new RuntimeException('This method is designed for 64-bit systems.'); // @codeCoverageIgnore
+        }
     }
 
     /**
@@ -265,12 +284,71 @@ final class Floats
     }
 
     /**
+     * Disassemble a float into its IEEE-754 components.
+     *
+     * IEEE-754 double-precision format:
+     * - Sign: 1 bit (0 = positive, 1 = negative)
+     * - Exponent: 11 bits (biased by 1023)
+     * - Fraction: 52 bits (implicit leading 1 for normalized numbers)
+     *
+     * @param float $f The float to disassemble.
+     * @return array{sign: int, exponent: int, fraction: int} The IEEE-754 components.
+     * @throws RuntimeException If the system is not a 64-bit system.
+     */
+    public static function disassemble(float $f): array
+    {
+        self::check64bit();
+
+        // Convert float to bits.
+        $bits = self::floatToBits($f);
+
+        // Extract components.
+        return [
+            'sign'     => ($bits >> 63) & 0x1,
+            'exponent' => ($bits >> 52) & 0x7FF,
+            'fraction' => $bits & 0xFFFFFFFFFFFFF,
+        ];
+    }
+
+    /**
+     * Assemble a float from its IEEE-754 components.
+     *
+     * @param int $sign The sign bit (0 = positive, 1 = negative).
+     * @param int $exponent The 11-bit biased exponent (0-2047).
+     * @param int $fraction The 52-bit fraction/mantissa.
+     * @return float The assembled float.
+     * @throws RuntimeException If the system is not a 64-bit system.
+     * @throws ValueError If any component is out of range.
+     */
+    public static function assemble(int $sign, int $exponent, int $fraction): float
+    {
+        self::check64bit();
+
+        // Validate components.
+        if ($sign < 0 || $sign > 1) {
+            throw new ValueError('Sign must be 0 or 1.');
+        }
+        if ($exponent < 0 || $exponent > 2047) {
+            throw new ValueError('Exponent must be in the range [0, 2047].');
+        }
+        if ($fraction < 0 || $fraction > 0xFFFFFFFFFFFFF) {
+            throw new ValueError('Fraction must be in the range [0, 2^52 - 1].');
+        }
+
+        // Assemble the float: sign (1 bit) | exponent (11 bits) | fraction (52 bits)
+        $bits = ($sign << 63) | ($exponent << 52) | $fraction;
+
+        // Convert bits to float.
+        return self::bitsToFloat($bits);
+    }
+
+    /**
      * Generate a random finite float.
      *
-     * @return float A random finite float (excludes NaN, ±INF, -0.0).
+     * @return float A random float. Excludes NAN, ±INF, -0.0.
      * @throws RandomException If an appropriate source of randomness is unavailable.
      */
-    public static function rand(): float
+    private static function randFloat(): float
     {
         do {
             $bytes = random_bytes(8);
@@ -282,21 +360,110 @@ final class Floats
     }
 
     /**
+     * Generate a random float in the specified range by constructing IEEE-754 components.
+     *
+     * This method can return any representable float in the given range, unlike randUniform() which is limited by
+     * mt_rand()'s 2^31 distinct values.
+     * Also unlike randUniform(), the possible resulting values are not evenly distributed within the range, but will
+     * increase in density closer to zero.
+     *
+     * The method works by:
+     * 1. Determining valid sign bit values based on min/max
+     * 2. Determining valid exponent range based on min/max
+     * 3. Determining valid fraction range based on min/max
+     * 4. Generating random components
+     * 5. Assembling the result
+     * 6. Looping until a valid float within the defined range is generated
+     *
+     * @param float $min The minimum value (inclusive).
+     * @param float $max The maximum value (inclusive).
+     * @return float A random float in the range [min, max]. Excludes NAN, ±INF, -0.0.
+     * @throws ValueError If min or max are non-finite, or if min > max.
+     */
+    public static function rand(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
+    {
+        // Validate parameters.
+        if (!is_finite($min) || !is_finite($max)) {
+            throw new ValueError('Min and max must be finite.');
+        }
+        if ($min > $max) {
+            throw new ValueError('Min must be less than or equal to max.');
+        }
+
+        // Accept negative zero arguments but normalize to positive zero.
+        $min = self::normalizeZero($min);
+        $max = self::normalizeZero($max);
+
+        // Handle edge case where min equals max.
+        if ($min === $max) {
+            return $min;
+        }
+
+        // If the default range is specified, use the faster method.
+        if ($min === -PHP_FLOAT_MAX && $max === PHP_FLOAT_MAX) {
+            return self::randFloat();
+        }
+
+        // Disassemble min and max into their IEEE-754 components.
+        $minParts = self::disassemble($min);
+        $maxParts = self::disassemble($max);
+
+        // Get the min and max exponents and fractions.
+        $minExp = min($minParts['exponent'], $maxParts['exponent']);
+        $maxExp = max($minParts['exponent'], $maxParts['exponent']);
+        $minFrac = min($minParts['fraction'], $maxParts['fraction']);
+        $maxFrac = max($minParts['fraction'], $maxParts['fraction']);
+
+        // Cache these comparisons.
+        $sameSign = $minParts['sign'] === $maxParts['sign'];
+        $sameExp = $minParts['exponent'] === $maxParts['exponent'];
+
+        // Generate random floats with constrained components until one falls in range.
+        do {
+            // Get the random sign and exponent.
+            if ($sameSign) {
+                $sign = $minParts['sign'];
+                // If the signs are the same, we can constrain the random exponent range to save time.
+                $exp = random_int($minExp, $maxExp);
+            } else {
+                $sign = random_int(0, 1);
+                $exp = random_int(0, $maxExp);
+            }
+
+            // If the signs and exponents are the same, we can constrain the random fraction range to save time.
+            if ($sameSign && $sameExp) {
+                $fraction = random_int($minFrac, $maxFrac);
+            } else {
+                $fraction = random_int(0, 0xFFFFFFFFFFFFF);
+            }
+
+            // Convert components to float.
+            $f = self::assemble($sign, $exp, $fraction);
+        } while (self::isSpecial($f) || $f < $min || $f > $max);
+
+        return $f;
+    }
+
+    /**
      * Generate a random float in the specified range.
      *
-     * Not every possible float within the given range may be returnable from this method,
-     * given that mt_rand() can only return 2^31 distinct values.
+     * Not every possible float within the given range is returnable from this method, because mt_rand() can only
+     * return 2^31 distinct values.
+     *
+     * The main benefit of this method over rand() is speed.
+     * It may also be beneficial for certain use cases that the possible resulting values are evenly distributed within
+     * the range.
      *
      * @param float $min The minimum value (inclusive).
      * @param float $max The maximum value (inclusive).
      * @return float A random float in the range [min, max].
-     * @throws ValueError If min or max are special values, or if min > max.
+     * @throws ValueError If min or max are non-finite, or if min > max.
      */
-    public static function randInRange(float $min, float $max): float
+    public static function randUniform(float $min, float $max): float
     {
         // Validate parameters.
-        if (self::isSpecial($min) || self::isSpecial($max)) {
-            throw new ValueError('Min and max must be finite, normal floats.');
+        if (!is_finite($min) || !is_finite($max)) {
+            throw new ValueError('Min and max must be finite.');
         }
         if ($min > $max) {
             throw new ValueError('Min must be less than or equal to max.');

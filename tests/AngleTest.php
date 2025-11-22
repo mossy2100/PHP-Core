@@ -438,7 +438,7 @@ final class AngleTest extends TestCase
     {
         for ($i = 0; $i < 500; $i++) {
             // Span a large range, including huge magnitudes.
-            $rad = Floats::randInRange(-1e6, 1e6);
+            $rad = Floats::rand(-1e6, 1e6);
             $a = Angle::fromRadians($rad);
 
             // Verify toX() / fromX() round-trips.
@@ -467,7 +467,7 @@ final class AngleTest extends TestCase
         $units = ['rad', 'deg', 'grad', 'turn'];
 
         for ($i = 0; $i < 200; $i++) {
-            $rad = Floats::randInRange(-1000.0, 1000.0);
+            $rad = Floats::rand(-1000.0, 1000.0);
             $a = Angle::fromRadians($rad);
 
             foreach ($units as $unit) {

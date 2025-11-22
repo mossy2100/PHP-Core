@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Core\Tests;
 
 use Galaxon\Core\Floats;
+use Galaxon\Core\Stringify;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
@@ -378,25 +379,10 @@ final class FloatsTest extends TestCase
      */
     public function testTryConvertToIntWithWholeNumbers(): void
     {
-        // Positive whole number
-        $f = 5.0;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(5, $i);
-
-        // Negative whole number
-        $f = -10.0;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(-10, $i);
-
-        // Zero
-        $f = 0.0;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(0, $i);
-
-        // Large whole number
-        $f = 1000000.0;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(1000000, $i);
+        $this->assertSame(5, Floats::tryConvertToInt(5.0));
+        $this->assertSame(-10, Floats::tryConvertToInt(-10.0));
+        $this->assertSame(0, Floats::tryConvertToInt(0.0));
+        $this->assertSame(1000000, Floats::tryConvertToInt(1000000.0));
     }
 
     /**
@@ -404,23 +390,9 @@ final class FloatsTest extends TestCase
      */
     public function testTryConvertToIntWithFractionalNumbers(): void
     {
-        // Float with fractional part
-        $f = 5.5;
-        $i = null;
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        $this->assertNull($i);
-
-        // Small fractional part
-        $f = 1.001;
-        $i = null;
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        $this->assertNull($i);
-
-        // Negative with fractional part
-        $f = -3.14;
-        $i = null;
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        $this->assertNull($i);
+        $this->assertNull(Floats::tryConvertToInt(5.5));
+        $this->assertNull(Floats::tryConvertToInt(1.001));
+        $this->assertNull(Floats::tryConvertToInt(-3.14));
     }
 
     /**
@@ -429,21 +401,13 @@ final class FloatsTest extends TestCase
     public function testTryConvertToIntEdgeCases(): void
     {
         // Very small positive number (not zero)
-        $f = 0.1;
-        $i = null;
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        $this->assertNull($i);
+        $this->assertNull(Floats::tryConvertToInt(0.1));
 
         // Very small negative number (not zero)
-        $f = -0.1;
-        $i = null;
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        $this->assertNull($i);
+        $this->assertNull(Floats::tryConvertToInt(-0.1));
 
         // Negative zero
-        $f = -0.0;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(0, $i);
+        $this->assertSame(0, Floats::tryConvertToInt(-0.0));
     }
 
     /**
@@ -452,19 +416,13 @@ final class FloatsTest extends TestCase
     public function testTryConvertToIntWithLargeIntegers(): void
     {
         // Use powers of 2 up to 2^53, which can be exactly represented as floats
-        $f = (float)(1 << 50); // 2^50 - well within exact float range
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(1 << 50, $i);
+        $this->assertSame(1 << 50, Floats::tryConvertToInt((float)(1 << 50)));
 
         // Negative large integer
-        $f = (float)(-(1 << 50));
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(-(1 << 50), $i);
+        $this->assertSame(-(1 << 50), Floats::tryConvertToInt((float)(-(1 << 50))));
 
         // PHP_INT_MIN is -2^63, which is a power of 2 and CAN be exactly represented as a float
-        $f = (float)PHP_INT_MIN;
-        $this->assertTrue(Floats::tryConvertToInt($f, $i));
-        $this->assertSame(PHP_INT_MIN, $i);
+        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float)PHP_INT_MIN));
 
         // Note: PHP_INT_MAX (2^63 - 1) cannot be exactly represented as a float
         // because it has many bits set and exceeds the 53-bit mantissa precision
@@ -477,22 +435,10 @@ final class FloatsTest extends TestCase
     {
         // Float larger than PHP_INT_MAX (loses precision)
         $f = (float)PHP_INT_MAX * 2;
-        // This may or may not convert depending on platform precision
-        // Just verify it doesn't crash
-        $result = Floats::tryConvertToInt($f, $i);
-        $this->assertIsBool($result); // @phpstan-ignore method.alreadyNarrowedType
-    }
-
-    /**
-     * Test tryConvertToInt doesn't modify output parameter on failure.
-     */
-    public function testTryConvertToIntDoesNotModifyOnFailure(): void
-    {
-        $f = 3.14;
-
-        $this->assertFalse(Floats::tryConvertToInt($f, $i));
-        // Output parameter should not be modified on failure
-        $this->assertNull($i);
+        // Verify it doesn't crash and returns int or null
+        /** @var null|int $result */
+        $result = Floats::tryConvertToInt($f);
+        $this->assertTrue($result === null || is_int($result));
     }
 
     /**
@@ -512,8 +458,7 @@ final class FloatsTest extends TestCase
         ];
 
         foreach ($testCases as [$float, $expectedInt]) {
-            $this->assertTrue(Floats::tryConvertToInt($float, $i), "Failed for $float");
-            $this->assertSame($expectedInt, $i, "Wrong conversion for $float");
+            $this->assertSame($expectedInt, Floats::tryConvertToInt($float), "Wrong conversion for $float");
         }
     }
 
@@ -534,9 +479,7 @@ final class FloatsTest extends TestCase
         ];
 
         foreach ($testCases as $float) {
-            $i = null;
-            $this->assertFalse(Floats::tryConvertToInt($float, $i), "Should fail for $float");
-            $this->assertNull($i, "Should not modify output for $float");
+            $this->assertNull(Floats::tryConvertToInt($float), "Should return null for $float");
         }
     }
 
@@ -545,17 +488,9 @@ final class FloatsTest extends TestCase
      */
     public function testTryConvertToIntWithNonFiniteFloats(): void
     {
-        $testCases = [
-            NAN,
-            INF,
-            -INF
-        ];
-
-        foreach ($testCases as $float) {
-            $i = null;
-            $this->assertFalse(Floats::tryConvertToInt($float, $i), "Should fail for $float");
-            $this->assertNull($i, "Should not modify output for $float");
-        }
+        $this->assertNull(Floats::tryConvertToInt(NAN));
+        $this->assertNull(Floats::tryConvertToInt(INF));
+        $this->assertNull(Floats::tryConvertToInt(-INF));
     }
 
     /**
@@ -589,16 +524,16 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test randInRange with valid range.
+     * Test randUniform with valid range.
      */
-    public function testRandInRangeWithValidRange(): void
+    public function testRandUniformWithValidRange(): void
     {
         $min = 10.0;
         $max = 20.0;
 
         // Generate multiple values and verify they're all in range
         for ($i = 0; $i < 100; $i++) {
-            $f = Floats::randInRange($min, $max);
+            $f = Floats::randUniform($min, $max);
             $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
             $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
             $this->assertTrue(is_finite($f), 'Value should be finite');
@@ -606,109 +541,110 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test randInRange with negative range.
+     * Test randUniform with negative range.
      */
-    public function testRandInRangeWithNegativeRange(): void
+    public function testRandUniformWithNegativeRange(): void
     {
         $min = -50.0;
         $max = -10.0;
 
-        $f = Floats::randInRange($min, $max);
+        $f = Floats::randUniform($min, $max);
         $this->assertGreaterThanOrEqual($min, $f);
         $this->assertLessThanOrEqual($max, $f);
     }
 
     /**
-     * Test randInRange with range crossing zero.
+     * Test randUniform with range crossing zero.
      */
-    public function testRandInRangeWithRangeCrossingZero(): void
+    public function testRandUniformWithRangeCrossingZero(): void
     {
         $min = -10.0;
         $max = 10.0;
 
-        $f = Floats::randInRange($min, $max);
+        $f = Floats::randUniform($min, $max);
         $this->assertGreaterThanOrEqual($min, $f);
         $this->assertLessThanOrEqual($max, $f);
     }
 
     /**
-     * Test randInRange with min equal to max.
+     * Test randUniform with min equal to max.
      */
-    public function testRandInRangeWithMinEqualToMax(): void
+    public function testRandUniformWithMinEqualToMax(): void
     {
         $value = 42.5;
-        $f = Floats::randInRange($value, $value);
+        $f = Floats::randUniform($value, $value);
         $this->assertSame($value, $f);
     }
 
     /**
-     * Test randInRange with min > max throws ValueError.
+     * Test randUniform with min > max throws ValueError.
      */
-    public function testRandInRangeWithMinGreaterThanMaxThrows(): void
+    public function testRandUniformWithMinGreaterThanMaxThrows(): void
     {
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Min must be less than or equal to max');
-        Floats::randInRange(20.0, 10.0);
+        Floats::randUniform(20.0, 10.0);
     }
 
     /**
-     * Test randInRange with NaN min throws ValueError.
+     * Test randUniform with NaN min throws ValueError.
      */
-    public function testRandInRangeWithNanMinThrows(): void
+    public function testRandUniformWithNanMinThrows(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(NAN, 10.0);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::randUniform(NAN, 10.0);
     }
 
     /**
-     * Test randInRange with NaN max throws ValueError.
+     * Test randUniform with NaN max throws ValueError.
      */
-    public function testRandInRangeWithNanMaxThrows(): void
+    public function testRandUniformWithNanMaxThrows(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(0.0, NAN);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::randUniform(0.0, NAN);
     }
 
     /**
-     * Test randInRange with positive infinity min throws ValueError.
+     * Test randUniform with positive infinity min throws ValueError.
      */
-    public function testRandInRangeWithInfMinThrows(): void
+    public function testRandUniformWithInfMinThrows(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(INF, 10.0);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::randUniform(INF, 10.0);
     }
 
     /**
-     * Test randInRange with negative infinity max throws ValueError.
+     * Test randUniform with negative infinity max throws ValueError.
      */
-    public function testRandInRangeWithNegativeInfMaxThrows(): void
+    public function testRandUniformWithNegativeInfMaxThrows(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(0.0, -INF);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::randUniform(0.0, -INF);
     }
 
     /**
-     * Test randInRange with negative zero min throws ValueError.
+     * Test randUniform with negative zero accepts the value (treats as zero).
      */
-    public function testRandInRangeWithNegativeZeroMinThrows(): void
+    public function testRandUniformWithNegativeZeroMin(): void
     {
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(-0.0, 10.0);
+        // -0.0 is finite and compares equal to 0.0, so it's accepted
+        $f = Floats::randUniform(-0.0, 10.0);
+        $this->assertGreaterThanOrEqual(0.0, $f);
+        $this->assertLessThanOrEqual(10.0, $f);
     }
 
     /**
-     * Test randInRange with negative zero max throws ValueError.
+     * Test randUniform with negative zero max accepts the value (treats as zero).
      */
-    public function testRandInRangeWithNegativeZeroMaxThrows(): void
+    public function testRandUniformWithNegativeZeroMax(): void
     {
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Min and max must be finite, normal floats');
-        Floats::randInRange(0.0, -0.0);
+        // -0.0 compares equal to 0.0, so range [0.0, -0.0] is valid but degenerate
+        $f = Floats::randUniform(0.0, -0.0);
+        $this->assertSame(0.0, $f);
     }
 
     /**
@@ -970,4 +906,434 @@ final class FloatsTest extends TestCase
         $prev2 = Floats::previous($prev);
         $this->assertLessThan(0.0, $prev2);
     }
+
+    // region disassemble tests
+
+    /**
+     * Test disassemble with positive one.
+     */
+    public function testDisassemblePositiveOne(): void
+    {
+        $result = Floats::disassemble(1.0);
+
+        $this->assertSame(0, $result['sign']);
+        $this->assertSame(1023, $result['exponent']); // Bias is 1023, so 1.0 has exponent 0 + 1023
+        $this->assertSame(0, $result['fraction']); // 1.0 has implicit 1, no fraction bits set
+    }
+
+    /**
+     * Test disassemble with negative one.
+     */
+    public function testDisassembleNegativeOne(): void
+    {
+        $result = Floats::disassemble(-1.0);
+
+        $this->assertSame(1, $result['sign']);
+        $this->assertSame(1023, $result['exponent']);
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with positive zero.
+     */
+    public function testDisassemblePositiveZero(): void
+    {
+        $result = Floats::disassemble(0.0);
+
+        $this->assertSame(0, $result['sign']);
+        $this->assertSame(0, $result['exponent']);
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with negative zero.
+     */
+    public function testDisassembleNegativeZero(): void
+    {
+        $result = Floats::disassemble(-0.0);
+
+        $this->assertSame(1, $result['sign']);
+        $this->assertSame(0, $result['exponent']);
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with two (2^1).
+     */
+    public function testDisassembleTwo(): void
+    {
+        $result = Floats::disassemble(2.0);
+
+        $this->assertSame(0, $result['sign']);
+        $this->assertSame(1024, $result['exponent']); // Exponent 1 + bias 1023
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with 1.5 (1 + 0.5).
+     */
+    public function testDisassembleOnePointFive(): void
+    {
+        $result = Floats::disassemble(1.5);
+
+        $this->assertSame(0, $result['sign']);
+        $this->assertSame(1023, $result['exponent']);
+        // 1.5 = 1.1 in binary, so fraction has MSB set
+        $this->assertSame(1 << 51, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with infinity.
+     */
+    public function testDisassembleInfinity(): void
+    {
+        $result = Floats::disassemble(INF);
+
+        $this->assertSame(0, $result['sign']);
+        $this->assertSame(2047, $result['exponent']); // All 11 bits set
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with negative infinity.
+     */
+    public function testDisassembleNegativeInfinity(): void
+    {
+        $result = Floats::disassemble(-INF);
+
+        $this->assertSame(1, $result['sign']);
+        $this->assertSame(2047, $result['exponent']);
+        $this->assertSame(0, $result['fraction']);
+    }
+
+    /**
+     * Test disassemble with NaN.
+     */
+    public function testDisassembleNaN(): void
+    {
+        $result = Floats::disassemble(NAN);
+
+        // NaN has exponent all 1s and non-zero fraction
+        $this->assertSame(2047, $result['exponent']);
+        $this->assertGreaterThan(0, $result['fraction']);
+    }
+
+    // endregion
+
+    // region assemble tests
+
+    /**
+     * Test assemble with positive one.
+     */
+    public function testAssemblePositiveOne(): void
+    {
+        $result = Floats::assemble(0, 1023, 0);
+        $this->assertSame(1.0, $result);
+    }
+
+    /**
+     * Test assemble with negative one.
+     */
+    public function testAssembleNegativeOne(): void
+    {
+        $result = Floats::assemble(1, 1023, 0);
+        $this->assertSame(-1.0, $result);
+    }
+
+    /**
+     * Test assemble with positive zero.
+     */
+    public function testAssemblePositiveZero(): void
+    {
+        $result = Floats::assemble(0, 0, 0);
+        $this->assertSame(0.0, $result);
+        $this->assertTrue(Floats::isPositiveZero($result));
+    }
+
+    /**
+     * Test assemble with negative zero.
+     */
+    public function testAssembleNegativeZero(): void
+    {
+        $result = Floats::assemble(1, 0, 0);
+        $this->assertSame(-0.0, $result);
+        $this->assertTrue(Floats::isNegativeZero($result));
+    }
+
+    /**
+     * Test assemble with two.
+     */
+    public function testAssembleTwo(): void
+    {
+        $result = Floats::assemble(0, 1024, 0);
+        $this->assertSame(2.0, $result);
+    }
+
+    /**
+     * Test assemble with 1.5.
+     */
+    public function testAssembleOnePointFive(): void
+    {
+        $result = Floats::assemble(0, 1023, 1 << 51);
+        $this->assertSame(1.5, $result);
+    }
+
+    /**
+     * Test assemble with infinity.
+     */
+    public function testAssembleInfinity(): void
+    {
+        $result = Floats::assemble(0, 2047, 0);
+        $this->assertSame(INF, $result);
+    }
+
+    /**
+     * Test assemble with negative infinity.
+     */
+    public function testAssembleNegativeInfinity(): void
+    {
+        $result = Floats::assemble(1, 2047, 0);
+        $this->assertSame(-INF, $result);
+    }
+
+    /**
+     * Test assemble with NaN (exponent 2047, non-zero fraction).
+     */
+    public function testAssembleNaN(): void
+    {
+        $result = Floats::assemble(0, 2047, 1);
+        $this->assertTrue(is_nan($result));
+    }
+
+    /**
+     * Test assemble round-trip with disassemble.
+     */
+    public function testAssembleDisassembleRoundTrip(): void
+    {
+        $testValues = [1.0, -1.0, 2.0, 0.5, 1.5, -42.25, 1e10, 1e-10, PHP_FLOAT_MAX];
+
+        foreach ($testValues as $value) {
+            $parts = Floats::disassemble($value);
+            $result = Floats::assemble($parts['sign'], $parts['exponent'], $parts['fraction']);
+            $this->assertSame($value, $result, "Round trip failed for $value");
+        }
+    }
+
+    /**
+     * Test assemble with invalid sign throws ValueError.
+     */
+    public function testAssembleInvalidSignThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Sign must be 0 or 1');
+        Floats::assemble(2, 1023, 0);
+    }
+
+    /**
+     * Test assemble with negative sign throws ValueError.
+     */
+    public function testAssembleNegativeSignThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Sign must be 0 or 1');
+        Floats::assemble(-1, 1023, 0);
+    }
+
+    /**
+     * Test assemble with invalid exponent throws ValueError.
+     */
+    public function testAssembleInvalidExponentThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Exponent must be in the range [0, 2047]');
+        Floats::assemble(0, 2048, 0);
+    }
+
+    /**
+     * Test assemble with negative exponent throws ValueError.
+     */
+    public function testAssembleNegativeExponentThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Exponent must be in the range [0, 2047]');
+        Floats::assemble(0, -1, 0);
+    }
+
+    /**
+     * Test assemble with invalid fraction throws ValueError.
+     */
+    public function testAssembleInvalidFractionThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Fraction must be in the range');
+        Floats::assemble(0, 1023, 0x10000000000000); // 2^52, one too large
+    }
+
+    /**
+     * Test assemble with negative fraction throws ValueError.
+     */
+    public function testAssembleNegativeFractionThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Fraction must be in the range');
+        Floats::assemble(0, 1023, -1);
+    }
+
+    // endregion
+
+    // region rand with range tests
+
+    /**
+     * Test rand with valid positive range.
+     */
+    public function testRandWithRangeWithPositiveRange(): void
+    {
+        $min = 10.0;
+        $max = 20.0;
+
+        // Generate multiple values and verify they're all in range
+        for ($i = 0; $i < 100; $i++) {
+            $f = Floats::rand($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
+            $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
+            $this->assertTrue(is_finite($f), 'Value should be finite');
+        }
+    }
+
+    /**
+     * Test rand with negative range.
+     */
+    public function testRandWithRangeWithNegativeRange(): void
+    {
+        $min = -50.0;
+        $max = -10.0;
+
+        for ($i = 0; $i < 50; $i++) {
+            $f = Floats::rand($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+        }
+    }
+
+    /**
+     * Test rand with range crossing zero.
+     */
+    public function testRandWithRangeWithRangeCrossingZero(): void
+    {
+        $min = -10.0;
+        $max = 10.0;
+
+        for ($i = 0; $i < 50; $i++) {
+            $f = Floats::rand($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+        }
+    }
+
+    /**
+     * Test rand with narrow range (e.g., [0, 1]).
+     */
+    public function testRandWithRangeWithNarrowRange(): void
+    {
+        $min = 0.0;
+        $max = 1.0;
+
+        for ($i = 0; $i < 50; $i++) {
+            $f = Floats::rand($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+        }
+    }
+
+    /**
+     * Test rand with min equal to max returns that value.
+     */
+    public function testRandWithRangeWithMinEqualToMax(): void
+    {
+        $value = 42.5;
+        $f = Floats::rand($value, $value);
+        $this->assertSame($value, $f);
+    }
+
+    /**
+     * Test rand with min > max throws ValueError.
+     */
+    public function testRandWithRangeWithMinGreaterThanMaxThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min must be less than or equal to max');
+        Floats::rand(20.0, 10.0);
+    }
+
+    /**
+     * Test rand with NaN throws ValueError.
+     */
+    public function testRandWithRangeWithNanThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::rand(NAN, 10.0);
+    }
+
+    /**
+     * Test rand with INF throws ValueError.
+     */
+    public function testRandWithRangeWithInfThrows(): void
+    {
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessage('Min and max must be finite');
+        Floats::rand(0.0, INF);
+    }
+
+    /**
+     * Test rand returns different values (statistical test).
+     */
+    public function testRandWithRangeReturnsDifferentValues(): void
+    {
+        $min = 0.0;
+        $max = 100.0;
+        $values = [];
+
+        for ($i = 0; $i < 20; $i++) {
+            $values[] = Floats::rand($min, $max);
+        }
+
+        // Should have at least 2 different values
+        $unique = array_unique($values);
+        $this->assertGreaterThan(1, count($unique), 'Should generate different random values');
+    }
+
+    /**
+     * Test rand with very small range.
+     */
+    public function testRandWithRangeWithVerySmallRange(): void
+    {
+        $min = 1.0;
+        $max = 1.0 + 1e-10;
+
+        for ($i = 0; $i < 20; $i++) {
+            $f = Floats::rand($min, $max);
+//            echo Stringify::stringifyFloat($f), PHP_EOL;
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+        }
+    }
+
+    /**
+     * Test rand with large range.
+     */
+    public function testRandWithRangeWithLargeRange(): void
+    {
+        $min = -1e100;
+        $max = 1e100;
+
+        for ($i = 0; $i < 20; $i++) {
+            $f = Floats::rand($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+            $this->assertTrue(is_finite($f));
+        }
+    }
+
+    // endregion
 }
