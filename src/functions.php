@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core;
+namespace OceanMoon\Core;
 
 /**
  * Print a value and append a newline character.

@@ -1,5 +1,5 @@
 {
-    "name": "galaxon/core",
+    "name": "oceanmoon/core",
     "description": "Core PHP utilities for floats, integers, arrays, types, and string conversion with IEEE-754 support.",
     "type": "library",
     "license": "MIT",
@@ -21,13 +21,13 @@
     "authors": [
         {
             "name": "Shaun Moss",
-            "email": "shaun@astromultimedia.com"
+            "email": "shaun@oceanmoon.software"
         }
     ],
-    "homepage": "https://github.com/mossy2100/Galaxon-PHP-Core",
+    "homepage": "https://github.com/mossy2100/PHP-Core",
     "support": {
-        "issues": "https://github.com/mossy2100/Galaxon-PHP-Core/issues",
-        "source": "https://github.com/mossy2100/Galaxon-PHP-Core"
+        "issues": "https://github.com/mossy2100/PHP-Core/issues",
+        "source": "https://github.com/mossy2100/PHP-Core"
     },
     "require": {
         "php": "^8.4"
@@ -37,11 +37,11 @@
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "galaxon/coding-standard": "^1.0"
+        "oceanmoon/coding-standard": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "Galaxon\\Core\\": "src/"
+            "OceanMoon\\Core\\": "src/"
         },
         "files": [
             "src/functions.php"
@@ -49,7 +49,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Galaxon\\Core\\Tests\\": "tests/"
+            "OceanMoon\\Core\\Tests\\": "tests/"
         }
     },
     "scripts": {

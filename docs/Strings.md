@@ -73,7 +73,7 @@ public static function println(mixed $value): void
 
 Print a value to stdout followed by a newline. Equivalent to `echo Strings::toString($value), PHP_EOL`.
 
-Also available as a plain function: `Galaxon\Core\println()`.
+Also available as a plain function: `OceanMoon\Core\println()`.
 
 **Parameters:**
 - `$value` (mixed) - The value to print.

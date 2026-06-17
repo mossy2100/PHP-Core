@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
 use DomainException;
-use Galaxon\Core\Stringify;
 use InvalidArgumentException;
+use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -387,7 +387,7 @@ final class StringifyTest extends TestCase
     {
         // Test that stringify() dispatches enums correctly.
         $result = Stringify::stringify(TestEnum::Foo);
-        $this->assertSame('Galaxon\Core\Tests\TestEnum::Foo', $result);
+        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Foo', $result);
     }
 
     /**
@@ -395,8 +395,8 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyEnumDirect(): void
     {
-        $this->assertSame('Galaxon\Core\Tests\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
-        $this->assertSame('Galaxon\Core\Tests\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
+        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
+        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
     }
 
     /**
@@ -405,7 +405,7 @@ final class StringifyTest extends TestCase
     public function testStringifyBackedEnum(): void
     {
         $this->assertSame(
-            'Galaxon\Core\Tests\TestBackedEnum::Alpha',
+            'OceanMoon\Core\Tests\TestBackedEnum::Alpha',
             Stringify::stringifyEnum(TestBackedEnum::Alpha)
         );
     }

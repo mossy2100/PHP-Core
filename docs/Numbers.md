@@ -26,7 +26,7 @@ public static function isNumber(mixed $value): bool
 
 Check if a value is a number (int or float). This differs from PHP's built-in `is_numeric()`, which also returns `true` for numeric strings like `"42"` or `"3.14"`.
 
-Also available as a plain function: `Galaxon\Core\is_number()`.
+Also available as a plain function: `OceanMoon\Core\is_number()`.
 
 **Parameters:**
 - `$value` (mixed) - The value to check.

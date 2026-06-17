@@ -50,8 +50,8 @@ abstract public function approxEqual(
 ### Using ApproxEquatable for Complex Numbers
 
 ```php
-use Galaxon\Core\Floats;
-use Galaxon\Core\Traits\Comparison\ApproxEquatable;
+use OceanMoon\Core\Floats;
+use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
 
 class Complex
 {
@@ -99,8 +99,8 @@ var_dump($z1->approxEqual($z3));  // true (within default tolerance)
 ### Custom Tolerance for Scientific Measurements
 
 ```php
-use Galaxon\Core\Floats;
-use Galaxon\Core\Traits\Comparison\ApproxEquatable;
+use OceanMoon\Core\Floats;
+use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
 
 class Measurement
 {
@@ -161,7 +161,7 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ## Classes Using ApproxEquatable
 
-- `Galaxon\Math\Complex` - Complex numbers (no natural ordering, needs approximate equality).
+- `OceanMoon\Math\Complex` - Complex numbers (no natural ordering, needs approximate equality).
 
 ---
 

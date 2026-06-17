@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Traits\Comparison;
+namespace OceanMoon\Core\Traits\Comparison;
 
 /**
  * Trait for objects that can be compared for equality.

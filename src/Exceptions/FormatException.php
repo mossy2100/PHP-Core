@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Exceptions;
+namespace OceanMoon\Core\Exceptions;
 
 use DomainException;
 

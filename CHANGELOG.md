@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-06-18
+
+### Changed
+
+- **Renamed package** from `galaxon/core` to `oceanmoon/core` — update your `composer.json` require accordingly.
+- **Renamed PHP namespaces** from `Galaxon\Core\*` to `OceanMoon\Core\*` throughout all source and test files.
+- Updated dev dependency `galaxon/coding-standard` → `oceanmoon/coding-standard: ^2.0`.
+- `composer.json`: updated author email, homepage, and support URLs to Ocean Moon Software.
+
+---
+
 ## [1.6.0] - 2026-04-09
 
 ### Added

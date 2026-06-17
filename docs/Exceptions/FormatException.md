@@ -17,7 +17,7 @@ This can help distinguish between string format errors and other types of `Domai
 ## Class Definition
 
 ```php
-namespace Galaxon\Core\Exceptions;
+namespace OceanMoon\Core\Exceptions;
 
 class FormatException extends DomainException
 ```
@@ -27,7 +27,7 @@ class FormatException extends DomainException
 ## Usage Example
 
 ```php
-use Galaxon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Exceptions\FormatException;
 
 class PhoneNumber
 {

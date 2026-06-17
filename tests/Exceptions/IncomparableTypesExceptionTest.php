@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests\Exceptions;
+namespace OceanMoon\Core\Tests\Exceptions;
 
 use DateTime;
-use Galaxon\Core\Exceptions\IncomparableTypesException;
 use InvalidArgumentException;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

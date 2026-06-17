@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests\Traits;
+namespace OceanMoon\Core\Tests\Traits;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 

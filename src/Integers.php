@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core;
+namespace OceanMoon\Core;
 
 use ArgumentCountError;
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Exceptions\FormatException;
 use OverflowException;
 
 /**

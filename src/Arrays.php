@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core;
+namespace OceanMoon\Core;
 
 use InvalidArgumentException;
 use JsonException;

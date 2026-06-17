@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-use function Galaxon\Core\println;
+use function OceanMoon\Core\println;
 
 /**
  * Tests for the convenience functions in functions.php.

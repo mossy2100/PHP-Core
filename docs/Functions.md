@@ -1,12 +1,12 @@
 # Functions
 
-Convenience functions in the `Galaxon\Core` namespace that work better as plain functions than static methods.
+Convenience functions in the `OceanMoon\Core` namespace that work better as plain functions than static methods.
 
 ---
 
 ## Overview
 
-The `functions.php` file provides a small set of utility functions that are more natural to call as plain functions than as static class methods. These are namespaced under `Galaxon\Core`.
+The `functions.php` file provides a small set of utility functions that are more natural to call as plain functions than as static class methods. These are namespaced under `OceanMoon\Core`.
 
 ---
 
@@ -17,7 +17,7 @@ Since these are functions rather than classes, PSR-4 autoloading won't discover 
 ```json
 "autoload": {
     "psr-4": {
-        "Galaxon\\Core\\": "src/"
+        "OceanMoon\\Core\\": "src/"
     },
     "files": [
         "src/functions.php"
@@ -25,10 +25,10 @@ Since these are functions rather than classes, PSR-4 autoloading won't discover 
 }
 ```
 
-This means the functions are loaded automatically in any project that requires `galaxon/core`. To use them, add a `use function` import:
+This means the functions are loaded automatically in any project that requires `oceanmoon/core`. To use them, add a `use function` import:
 
 ```php
-use function Galaxon\Core\println;
+use function OceanMoon\Core\println;
 ```
 
 ---
@@ -49,7 +49,7 @@ Print a value and append a newline character. Strings are output as-is, `Stringa
 **Examples:**
 
 ```php
-use function Galaxon\Core\println;
+use function OceanMoon\Core\println;
 
 println('Hello, world!');  // Outputs: Hello, world!\n
 println(42);               // Outputs: 42\n

@@ -141,8 +141,8 @@ Check if this object is greater than or equal to another.
 ### Basic Implementation for Integers
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
-use Galaxon\Core\Traits\Comparison\Comparable;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Traits\Comparison\Comparable;
 
 class Score
 {
@@ -182,9 +182,9 @@ var_dump($s1->lessThanOrEqual($s3));    // true
 ### Using Spaceship Operator with Sign Normalization
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
-use Galaxon\Core\Numbers;
-use Galaxon\Core\Traits\Comparison\Comparable;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Numbers;
+use OceanMoon\Core\Traits\Comparison\Comparable;
 
 class Version
 {
@@ -228,9 +228,9 @@ var_dump($v3->greaterThan($v1));  // true (2.0.0 > 1.2.3)
 ### Comparing with Multiple Types
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
-use Galaxon\Core\Numbers;
-use Galaxon\Core\Traits\Comparison\Comparable;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Numbers;
+use OceanMoon\Core\Traits\Comparison\Comparable;
 
 class Priority
 {
@@ -276,7 +276,7 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ## Classes Using Comparable
 
-- `Galaxon\Quantities\Quantity` - Physical quantities with unit-aware ordering.
+- `OceanMoon\Quantities\Quantity` - Physical quantities with unit-aware ordering.
 
 ---
 

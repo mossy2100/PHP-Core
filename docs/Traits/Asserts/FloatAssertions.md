@@ -71,7 +71,7 @@ Asserts that a floating-point value is approximately zero within specified absol
 ### Basic Usage
 
 ```php
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\TestCase;
 
 class CalculationTest extends TestCase

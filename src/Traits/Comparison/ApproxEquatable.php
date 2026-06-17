@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Traits\Comparison;
+namespace OceanMoon\Core\Traits\Comparison;
 
-use Galaxon\Core\Floats;
+use OceanMoon\Core\Floats;
 
 /**
  * Trait for objects that support approximate equality comparison with configurable tolerances.

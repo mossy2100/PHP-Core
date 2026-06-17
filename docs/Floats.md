@@ -1518,7 +1518,7 @@ Floats::ulp(1e12);  // 0.0001220703125
 - `next()` - Get the next representable float
 - `previous()` - Get the previous representable float
 - `randUniform()` - Uses ULP for collision-free random generation
-- [FloatWithError](https://github.com/mossy2100/Galaxon-PHP-Units/blob/main/docs/FloatWithError.md) - Uses ULP for the estimated increase in error resulting from arithmetic operations with floats
+- [FloatWithError](https://github.com/mossy2100/PHP-Units/blob/main/docs/FloatWithError.md) - Uses ULP for the estimated increase in error resulting from arithmetic operations with floats
 
 ---
 

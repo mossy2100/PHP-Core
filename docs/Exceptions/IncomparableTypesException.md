@@ -15,7 +15,7 @@ The exception extends `InvalidArgumentException` and automatically generates a d
 ## Class Definition
 
 ```php
-namespace Galaxon\Core\Exceptions;
+namespace OceanMoon\Core\Exceptions;
 
 class IncomparableTypesException extends InvalidArgumentException
 ```
@@ -46,7 +46,7 @@ Where `{typeA}` and `{typeB}` are the types returned by `get_debug_type()`.
 ## Usage Example
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 
 class Temperature
 {

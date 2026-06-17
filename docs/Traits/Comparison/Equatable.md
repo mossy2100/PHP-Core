@@ -44,7 +44,7 @@ abstract public function equal(mixed $other): bool
 ### Using Equatable for Value Objects
 
 ```php
-use Galaxon\Core\Traits\Comparison\Equatable;
+use OceanMoon\Core\Traits\Comparison\Equatable;
 
 class Point
 {
@@ -90,8 +90,8 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ## Classes Using Equatable
 
-- `Galaxon\Collections\Collection` - Base class for type-safe collections.
-- `Galaxon\Color\Color` - Encapsulates a CSS color.
+- `OceanMoon\Collections\Collection` - Base class for type-safe collections.
+- `OceanMoon\Color\Color` - Encapsulates a CSS color.
 
 ---
 

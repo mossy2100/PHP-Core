@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
 use DateTime;
 use DomainException;
-use Galaxon\Core\Types;
+use OceanMoon\Core\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -256,7 +256,7 @@ final class TypesTest extends TestCase
     {
         // Test that unit enums produce keys with class and case name.
         $key = Types::getUniqueString(TestSuit::Hearts);
-        $this->assertSame('e:Galaxon\Core\Tests\TestSuit::Hearts', $key);
+        $this->assertSame('e:OceanMoon\Core\Tests\TestSuit::Hearts', $key);
 
         // Test that different cases produce different keys.
         $key2 = Types::getUniqueString(TestSuit::Diamonds);
@@ -268,7 +268,7 @@ final class TypesTest extends TestCase
 
         // Test with a backed enum.
         $key4 = Types::getUniqueString(TestColor::Red);
-        $this->assertSame('e:Galaxon\Core\Tests\TestColor::Red', $key4);
+        $this->assertSame('e:OceanMoon\Core\Tests\TestColor::Red', $key4);
 
         // Test that enums from different classes are distinct.
         $this->assertNotSame($key, $key4);

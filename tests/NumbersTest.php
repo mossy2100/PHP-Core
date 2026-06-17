@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
 use DomainException;
-use Galaxon\Core\Numbers;
+use OceanMoon\Core\Numbers;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

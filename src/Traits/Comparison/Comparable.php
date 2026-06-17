@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Traits\Comparison;
+namespace OceanMoon\Core\Traits\Comparison;
 
-use Galaxon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use Override;
 
 /**

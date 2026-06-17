@@ -1,6 +1,6 @@
-# Galaxon PHP Core
+# OceanMoon PHP Core
 
-A general purpose library containing core utility classes and methods for use by other Galaxon PHP packages.
+A general purpose package containing core PHP utility classes and methods for use by other OceanMoon PHP packages.
 
 **[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)**
 
@@ -31,7 +31,7 @@ This package provides a comprehensive set of utility classes for working with va
 ## Installation
 
 ```bash
-composer require galaxon/core
+composer require oceanmoon/core
 ```
 
 ---
@@ -72,7 +72,7 @@ Advanced value-to-string conversion with pretty printing, supporting all PHP typ
 
 ### [Functions](docs/Functions.md)
 
-Convenience functions in the `Galaxon\Core` namespace, including `println()` for outputting strings and other values.
+Convenience functions in the `OceanMoon\Core` namespace, including `println()` for outputting strings and other values.
 
 ---
 
@@ -136,11 +136,11 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ## Support
 
-- **Issues**: https://github.com/mossy2100/Galaxon-PHP-Core/issues
+- **Issues**: https://github.com/mossy2100/PHP-Core/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
 - **Examples**: See test files for comprehensive usage examples
 
-For questions or suggestions, please [open an issue](https://github.com/mossy2100/Galaxon-PHP-Core/issues).
+For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Core/issues).
 
 ---
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
 use ArgumentCountError;
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Integers;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Integers;
 use OverflowException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

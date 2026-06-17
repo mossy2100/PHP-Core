@@ -82,9 +82,9 @@ Compare with approximate equality awareness. Returns 0 if values are approximate
 ### Sorting with Approximate Equality
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
-use Galaxon\Core\Floats;
-use Galaxon\Core\Traits\Comparison\ApproxComparable;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Floats;
+use OceanMoon\Core\Traits\Comparison\ApproxComparable;
 
 class Score
 {
@@ -139,10 +139,10 @@ usort($scores, fn($a, $b) => $a->approxCompare($b, 0.01));
 ### Vector Comparison with Magnitude
 
 ```php
-use Galaxon\Core\Exceptions\IncomparableTypesException;
-use Galaxon\Core\Floats;
-use Galaxon\Core\Numbers;
-use Galaxon\Core\Traits\Comparison\ApproxComparable;
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
+use OceanMoon\Core\Floats;
+use OceanMoon\Core\Numbers;
+use OceanMoon\Core\Traits\Comparison\ApproxComparable;
 
 class Vector2D
 {
@@ -205,7 +205,7 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ## Classes Using ApproxComparable
 
-- `Galaxon\Math\Rational` - Rational numbers, require approximate equality and less/greater than comparisons.
+- `OceanMoon\Math\Rational` - Rational numbers, require approximate equality and less/greater than comparisons.
 
 ---
 

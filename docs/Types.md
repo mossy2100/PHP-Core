@@ -254,7 +254,7 @@ Types::getTraits(TraitC::class);   // ['TraitA']
 ### Using Types with Collections
 
 ```php
-use Galaxon\Core\Types;
+use OceanMoon\Core\Types;
 
 // Generate unique keys for a custom dictionary that accepts any value type
 $dictionary = [];
@@ -271,7 +271,7 @@ $dictionary[$key3] = 'float value';
 ### Type Validation in Functions
 
 ```php
-use Galaxon\Core\Types;
+use OceanMoon\Core\Types;
 
 function processItems(array $items): void
 {
@@ -287,8 +287,8 @@ function processItems(array $items): void
 ### Capability Detection with Traits
 
 ```php
-use Galaxon\Core\Types;
-use Galaxon\Core\Traits\Comparison\Comparable;
+use OceanMoon\Core\Types;
+use OceanMoon\Core\Traits\Comparison\Comparable;
 
 function sortIfComparable(array $items): array
 {

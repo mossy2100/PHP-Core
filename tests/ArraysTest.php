@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Tests;
+namespace OceanMoon\Core\Tests;
 
-use Galaxon\Core\Arrays;
 use InvalidArgumentException;
 use LengthException;
+use OceanMoon\Core\Arrays;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

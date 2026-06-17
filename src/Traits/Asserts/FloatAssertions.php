@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Core\Traits\Asserts;
+namespace OceanMoon\Core\Traits\Asserts;
 
-use Galaxon\Core\Floats;
+use OceanMoon\Core\Floats;
 
 /**
  * Trait providing PHPUnit assertions for approximate floating-point equality.
