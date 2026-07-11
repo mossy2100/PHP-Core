@@ -583,7 +583,8 @@ final class Stringify
             throw new InvalidArgumentException('Value is not a resource.');
         }
 
-        return @(string) $value . ' ' . substr($type, 9);
+        /** @var resource $value */
+        return (string) $value . ' ' . substr($type, 9);
     }
 
     #endregion

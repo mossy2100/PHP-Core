@@ -1,6 +1,7 @@
 {
     "name": "oceanmoon/core",
     "description": "Core PHP utilities for floats, integers, arrays, types, and string conversion with IEEE-754 support.",
+    "version": "2.0.1",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -39,6 +40,12 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "oceanmoon/coding-standard": "^2.0"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../CodingStandard"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "OceanMoon\\Core\\": "src/"
