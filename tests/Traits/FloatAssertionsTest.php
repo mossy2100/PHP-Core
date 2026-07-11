@@ -17,7 +17,7 @@ final class FloatAssertionsTest extends TestCase
 {
     use FloatAssertions;
 
-    // region assertApproxEqual tests
+    #region assertApproxEqual tests
 
     /**
      * Test assertApproxEqual passes for equal values.
@@ -119,9 +119,9 @@ final class FloatAssertionsTest extends TestCase
         $this->assertApproxEqual(INF, -INF);
     }
 
-    // endregion
+    #endregion
 
-    // region assertApproxZero tests
+    #region assertApproxZero tests
 
     /**
      * Test assertApproxZero passes for zero.
@@ -152,5 +152,5 @@ final class FloatAssertionsTest extends TestCase
         $this->assertApproxZero(1.0);
     }
 
-    // endregion
+    #endregion
 }

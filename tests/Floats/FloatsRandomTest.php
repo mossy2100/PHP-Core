@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsRandomTest extends TestCase
 {
-    // region Random methods tests
+    #region Random methods tests
 
     /**
      * Test rand returns finite floats.
@@ -350,5 +350,5 @@ final class FloatsRandomTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 }

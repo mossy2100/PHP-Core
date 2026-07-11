@@ -6,12 +6,13 @@ namespace OceanMoon\Core;
 
 use DomainException;
 use InvalidArgumentException;
+use Stringable;
 use UnexpectedValueException;
 use UnitEnum;
 
 /**
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
- * options of var_dump(), var_export(), print_r(), json_encode(), and serialize().
+ * options of echo(), print(), var_dump(), var_export(), print_r(), json_encode(), and serialize().
  *
  * - Floats never look like integers.
  * - Strings are single-quoted.
@@ -20,16 +21,16 @@ use UnitEnum;
  * - Objects are rendered like arrays but with a class name and curly braces instead of square brackets.
  * - Object properties are shown with UML visibility modifiers: + (public), # (protected), and - (private).
  * - Enums are rendered as Fully\Qualified\ClassName::CaseName
- * - Resources have a unique encoding showing the type and id.
+ * - Resources show both id and type.
  *
  * The stringify results for objects and resources are not parseable by PHP, but they are for other types.
  *
  * The purpose of the class is to offer a somewhat more concise, readable, and informative alternative to the usual
- * options. It can be useful for exception, log, and debug messages.
+ * options. This can be useful for exception, log, and debug messages.
  */
 final class Stringify
 {
-    // region Constants
+    #region Constants
 
     /**
      * The default number of spaces to indent each level.
@@ -51,9 +52,9 @@ final class Stringify
      */
     private static int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
 
-    // endregion
+    #endregion
 
-    // region Configuration
+    #region Configuration
 
     /**
      * Set the number of spaces used for each indentation level.
@@ -112,22 +113,20 @@ final class Stringify
         self::$maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
-    // endregion
+    #endregion
 
-    // region Formatting methods
+    #region Main stringification methods
 
     /**
      * Convert a value to a readable string representation.
@@ -154,7 +153,7 @@ final class Stringify
 
             case 'int':
                 assert(is_int($value));
-                return (string)$value;
+                return (string) $value;
 
             case 'float':
                 assert(is_float($value));
@@ -187,6 +186,52 @@ final class Stringify
     }
 
     /**
+     * Get a short string representation of the given value for use in error messages, log messages, and the like.
+     *
+     * @param mixed $value The value to get the string representation for.
+     * @param int $maxLen The maximum length of the result.
+     * @return string The short string representation.
+     * @throws DomainException If the maximum length is less than the minimum, or if the value cannot be stringified.
+     * @throws UnexpectedValueException If the type cannot be inferred.
+     */
+    public static function abbrev(mixed $value, int $maxLen = 30): string
+    {
+        // Check the max length is reasonable.
+        $minMaxLen = 10;
+        if ($maxLen < $minMaxLen) {
+            throw new DomainException("Invalid maximum string length: $maxLen. Must be at least $minMaxLen.");
+        }
+
+        // Get the value as a string without newlines or indentation.
+        $result = self::stringify($value);
+
+        // Trim if necessary.
+        if (mb_strlen($result) > $maxLen) {
+            $result = mb_substr($result, 0, $maxLen - 3) . '...';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert any value to a string.
+     *
+     * Strings pass through as-is. Stringable objects use __toString(). All other types are
+     * converted via Stringify::stringify() (without pretty printing).
+     *
+     * @param mixed $value The value to convert.
+     * @return string The string representation.
+     */
+    public static function toString(mixed $value): string
+    {
+        return is_string($value) || $value instanceof Stringable ? (string) $value : self::stringify($value);
+    }
+
+    #endregion
+
+    #region Type-specific stringification methods
+
+    /**
      * Encode a float in such a way that it doesn't look like an integer.
      *
      * @param float $value The float value to encode.
@@ -196,7 +241,7 @@ final class Stringify
     {
         // Convert the float to a string. This will also work for ±INF and NAN.
         // The @ suppresses PHP 8.5's warning when casting NAN to string.
-        $s = @(string)$value;
+        $s = @(string) $value;
 
         // Handle non-finite values.
         if (!is_finite($value)) {
@@ -287,7 +332,7 @@ final class Stringify
     {
         // Get the values as strings.
         $values = array_values($arr);
-        $valueStrings = array_map(static fn ($value) => self::stringify($value), $values);
+        $valueStrings = array_map(static fn($value) => self::stringify($value), $values);
 
         // Generate the compact (single-line) format. No trailing comma.
         $compactList = '[' . implode(', ', $valueStrings) . ']';
@@ -305,7 +350,7 @@ final class Stringify
         $nItems = count($arr);
 
         // Check if all items are null or scalar.
-        if (array_all($values, static fn ($value) => $value === null || is_scalar($value))) {
+        if (array_all($values, static fn($value) => $value === null || is_scalar($value))) {
             // If the compact format fits on one line, return it.
             if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
                 return $compactList;
@@ -321,7 +366,7 @@ final class Stringify
             }
 
             // Calculate the number of items per line.
-            $nItemsPerLine = (int)floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
+            $nItemsPerLine = (int) floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
             if ($nItemsPerLine === 0) {
                 $nItemsPerLine = 1;
             }
@@ -454,7 +499,7 @@ final class Stringify
         }
 
         // Convert the object to an array to get its properties.
-        $arr = (array)$obj;
+        $arr = (array) $obj;
 
         // Early return if no properties.
         if (count($arr) === 0) {
@@ -522,51 +567,24 @@ final class Stringify
     /**
      * Stringify a resource.
      *
-     * Uses get_debug_type() result, which is like 'resource (stream)', 'resource (closed)', etc.
+     * Result combines the result of casting the resource to string with the resource type.
+     * Example: 'Resource id #15 (stream)'
      *
      * @param mixed $value The resource to stringify.
-     * @return string The string representation of the resource, e.g. 'resource (stream)'.
+     * @return string The string representation of the resource.
      * @throws InvalidArgumentException If the value is not a resource.
      */
     public static function stringifyResource(mixed $value): string
     {
         // We can't type hint for resource, and is_resource() returns false for a closed resource.
-        // Check the debug type.
+        // So, check the debug type.
         $type = get_debug_type($value);
         if (!str_starts_with($type, 'resource (')) {
             throw new InvalidArgumentException('Value is not a resource.');
         }
 
-        return $type;
+        return @(string) $value . ' ' . substr($type, 9);
     }
 
-    /**
-     * Get a short string representation of the given value for use in error messages, log messages, and the like.
-     *
-     * @param mixed $value The value to get the string representation for.
-     * @param int $maxLen The maximum length of the result.
-     * @return string The short string representation.
-     * @throws DomainException If the maximum length is less than the minimum, or if the value cannot be stringified.
-     * @throws UnexpectedValueException
-     */
-    public static function abbrev(mixed $value, int $maxLen = 30): string
-    {
-        // Check the max length is reasonable.
-        $minMaxLen = 10;
-        if ($maxLen < $minMaxLen) {
-            throw new DomainException("Invalid maximum string length: $maxLen. Must be at least $minMaxLen.");
-        }
-
-        // Get the value as a string without newlines or indentation.
-        $result = self::stringify($value);
-
-        // Trim if necessary.
-        if (mb_strlen($result) > $maxLen) {
-            $result = mb_substr($result, 0, $maxLen - 3) . '...';
-        }
-
-        return $result;
-    }
-
-    // endregion
+    #endregion
 }

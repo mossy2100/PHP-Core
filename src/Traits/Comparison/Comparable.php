@@ -14,11 +14,15 @@ use Override;
  * -1, 0, or 1, and the trait provides all other comparison methods automatically: equal(), lessThan(),
  * lessThanOrEqual(), greaterThan(), and greaterThanOrEqual().
  *
- * The trait uses Equatable via composition, providing an equal() method that returns false gracefully for incompatible
- * types (rather than throwing IncomparableTypesException like the ordering methods do).
+ * The trait uses Equatable via composition.
  *
  * Type safety should be enforced within the compare() implementation. Use Types::same() or `instanceof` to verify
- * type compatibility, and throw IncomparableTypesException if no ordering relationship exists between the two types.
+ * type compatibility, or convert/cast $other to the calling object's type where a sensible conversion exists (e.g.
+ * via a toX() method); only throw IncomparableTypesException once no such conversion is possible or appropriate.
+ *
+ * If a type is not sortable, then these methods should in theory all throw IncomparableTypesException even if the
+ * argument has the same type as the calling object; however, in that case, just don't use this trait. Just use
+ * Equatable or nothing.
  *
  * Example usage:
  * <code>
@@ -52,18 +56,20 @@ trait Comparable
     /**
      * Compare this object with another and return an integer indicating the ordering relationship.
      *
-     * Implementations must return exactly -1, 0, or 1 (not just negative/zero/positive):
-     *   -1 if this object is less than the other object
-     *    0 if this object equals the other object
-     *    1 if this object is greater than the other object
+     * Implementations must return exactly -1, 0, or 1:
+     *   -1 if this object is less than the other value
+     *    0 if this object equals the other value
+     *    1 if this object is greater than the other value
      *
      * Important: Return values must be exactly -1, 0, or 1 because the convenience methods (lessThan, etc.) use
      * strict equality checks. Use Numbers::sign() to normalize spaceship operator results.
      *
      * Implementation guidelines:
-     * - May throw IncomparableTypesException for incompatible types (this is expected behavior)
-     * - Must be consistent (same inputs always produce same result)
-     * - Should be transitive (if A < B and B < C, then A < C)
+     * - Type juggling is encouraged; convert or cast $other to the calling object's type where a sensible
+     *   conversion exists (e.g. via a toX() method) so that comparable-but-differently-typed values can be ordered.
+     * - Should throw IncomparableTypesException only once no such conversion is possible or appropriate.
+     * - Must be deterministic (same inputs always produce same result).
+     * - Should be transitive (if A < B and B < C, then A < C).
      *
      * @param mixed $other The value to compare with.
      * @return int Exactly -1, 0, or 1 indicating the ordering relationship.
@@ -74,27 +80,20 @@ trait Comparable
     /**
      * Check if this object is equal to another value.
      *
-     * This method overrides the abstract equal() method from the Equatable trait. Unlike the other comparison methods
-     * in this trait (lessThan, greaterThan, etc.), equal() returns false gracefully for incompatible types instead
-     * of throwing IncomparableTypesException.
+     * This method overrides the abstract equal() method from the Equatable trait.
      *
      * @param mixed $other The value to compare with.
-     * @return bool True if the values are equal, false otherwise (including for incomparable types).
+     * @return bool True if the values are equal, false otherwise.
+     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     #[Override]
     public function equal(mixed $other): bool
     {
-        try {
-            return $this->compare($other) === 0;
-        } catch (IncomparableTypesException) {
-            return false;
-        }
+        return $this->compare($other) === 0;
     }
 
     /**
-     * Check if this object is less than another object.
-     *
-     * Verifies type compatibility before delegating to compare(). Throws exception for incompatible types.
+     * Check if this object is less than another value.
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is less than the other object, false otherwise.
@@ -106,10 +105,9 @@ trait Comparable
     }
 
     /**
-     * Check if this object is less than or equal to another object.
+     * Check if this object is less than or equal to another value.
      *
-     * Implemented as the negation of greaterThan() to maintain consistency. Throws IncomparableTypesException for
-     * incompatible types.
+     * Implemented as the negation of greaterThan() to maintain consistency.
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is less than or equal to the other object, false otherwise.
@@ -121,10 +119,7 @@ trait Comparable
     }
 
     /**
-     * Check if this object is greater than another object.
-     *
-     * Verifies type compatibility before delegating to compare(). Throws IncomparableTypesException for incompatible
-     * types.
+     * Check if this object is greater than another value.
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is greater than the other object, false otherwise.
@@ -136,10 +131,9 @@ trait Comparable
     }
 
     /**
-     * Check if this object is greater than or equal to another object.
+     * Check if this object is greater than or equal to another value.
      *
-     * Implemented as the negation of lessThan() to maintain consistency. Throws IncomparableTypesException for
-     * incompatible types.
+     * Implemented as the negation of lessThan() to maintain consistency.
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is greater than or equal to the other object, false otherwise.

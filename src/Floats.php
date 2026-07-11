@@ -14,7 +14,7 @@ use UnexpectedValueException;
  */
 final class Floats
 {
-    // region Constants
+    #region Constants
 
     /**
      * The default relative tolerance used by approxEqual().
@@ -39,9 +39,9 @@ final class Floats
      */
     public const float TAU = 2 * M_PI;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
@@ -52,9 +52,9 @@ final class Floats
     {
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Determines if a floating-point number is negative zero (-0.0).
@@ -186,9 +186,9 @@ final class Floats
         return self::approxEqual($value, round($value), $relTol, $absTol);
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if two floats are approximately equal.
@@ -275,9 +275,9 @@ final class Floats
         return self::approxEqual($a, $b, $relTol, $absTol) ? 0 : Numbers::sign($a <=> $b);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Normalize negative zero to positive zero. This can be used to avoid surprising results from certain operations.
@@ -321,7 +321,7 @@ final class Floats
     /**
      * Return the fractional part of a float.
      *
-     * This method satisfies the identity x = trunc(x) + frac(x), even for infinities.
+     * This method satisfies the identity x = trunc(x) + frac(x), even for non-finite numbers.
      *
      * For result will have the same sign as the input value. For example:
      * - frac(3.7) → 0.7
@@ -394,9 +394,9 @@ final class Floats
         return self::normalizeZero($r);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Try to convert a float to an integer losslessly.
@@ -414,7 +414,7 @@ final class Floats
         // Check if the argument is a float that can be converted losslessly to an integer.
         if ($f >= PHP_INT_MIN && $f <= PHP_INT_MAX) {
             // Try to cast the float to an integer. Suppress overflow warning.
-            $i = @(int)$f;
+            $i = @(int) $f;
 
             // If overflow occurred (value close to PHP_INT_MAX), return null.
             if ($f > 0 && $i === PHP_INT_MIN) {
@@ -422,7 +422,7 @@ final class Floats
             }
 
             // Cast the integer back to a float and compare with the original float.
-            if ($f === (float)$i) {
+            if ($f === (float) $i) {
                 return $i;
             }
         }
@@ -551,16 +551,16 @@ final class Floats
         // If we want Unicode format and there's an exponent, replace it with the Unicode version.
         if (!$ascii) {
             $expSeparator = '×10';
-            $exp = Integers::toSuperscript((int)$exp);
+            $exp = Integers::toSuperscript((int) $exp);
         }
 
         // Reassemble the value string.
         return $mantissa . $expSeparator . $exp;
     }
 
-    // endregion
+    #endregion
 
-    // region Random methods
+    #region Random methods
 
     /**
      * Generate a random float in the specified range by constructing random IEEE-754 components.
@@ -693,16 +693,16 @@ final class Floats
 
         // Calculate number of steps that ensures no collisions.
         $range = $max - $min;
-        $nValues = (int)round($range / $ulp);
+        $nValues = (int) round($range / $ulp);
 
         // Generate uniform random value.
         $r = random_int(0, $nValues) / $nValues;
         return $min + $r * $range;
     }
 
-    // endregion
+    #endregion
 
-    // region Bit operations
+    #region Bit operations
 
     /**
      * Converts a float to its 64-bit integer representation.
@@ -916,5 +916,5 @@ final class Floats
         return self::next($abs) - $abs;
     }
 
-    // endregion
+    #endregion
 }

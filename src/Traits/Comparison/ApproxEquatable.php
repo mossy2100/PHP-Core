@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Traits\Comparison;
 
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 
 /**
@@ -14,7 +15,8 @@ use OceanMoon\Core\Floats;
  * numbers or Quantities), where exact equality comparison may fail due to floating-point precision limitations.
  *
  * The trait uses Equatable via composition, so classes using ApproxEquatable get both exact equality (equal()) and
- * approximate equality (approxEqual()) methods.
+ * approximate equality (approxEqual()) methods. Both throw IncomparableTypesException for incompatible types, per
+ * Equatable's contract.
  *
  * Implementations should use the same tolerance algorithm as Floats::approxEqual():
  * 1. Check absolute tolerance first (useful for values near zero)
@@ -31,16 +33,19 @@ use OceanMoon\Core\Floats;
  *     #[Override]
  *     public function equal(mixed $other): bool
  *     {
- *         return $other instanceof self
- *             && $this->real === $other->real
- *             && $this->imag === $other->imag;
+ *         if (!$other instanceof self) {
+ *             throw new IncomparableTypesException($this, $other);
+ *         }
+ *         return $this->real === $other->real && $this->imag === $other->imag;
  *     }
  *
  *     #[Override]
  *     public function approxEqual(mixed $other, float $relTol = ..., float $absTol = ...): bool
  *     {
- *         return $other instanceof self
- *             && Floats::approxEqual($this->real, $other->real, $relTol, $absTol)
+ *         if (!$other instanceof self) {
+ *             throw new IncomparableTypesException($this, $other);
+ *         }
+ *         return Floats::approxEqual($this->real, $other->real, $relTol, $absTol)
  *             && Floats::approxEqual($this->imag, $other->imag, $relTol, $absTol);
  *     }
  * }
@@ -67,13 +72,16 @@ trait ApproxEquatable
      * To compare using only absolute difference, set $relTol to 0.0.
      * To compare using only relative difference, set $absTol to 0.0.
      *
-     * Implementations should return false for incompatible types rather than throwing an exception, to match the
-     * behavior of equal().
+     * As with equal(), implementations should first attempt to convert or cast $other to the calling object's type
+     * where a sensible conversion exists (e.g. via a toX() method), and throw IncomparableTypesException only once
+     * no such conversion is possible or appropriate: an incompatible type indicates a programming error worth
+     * surfacing, not merely "not equal."
      *
      * @param mixed $other The value to compare with.
      * @param float $relTol The maximum allowed relative difference (default: 1e-9).
      * @param float $absTol The maximum allowed absolute difference (default: PHP_FLOAT_EPSILON).
      * @return bool True if the values are equal within the given tolerances, false otherwise.
+     * @throws IncomparableTypesException If the types are incompatible for comparison.
      * @see Floats::approxEqual() For the tolerance algorithm details.
      */
     abstract public function approxEqual(

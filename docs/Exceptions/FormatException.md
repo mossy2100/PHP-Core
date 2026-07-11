@@ -6,11 +6,14 @@ Exception thrown when a string has an invalid format for the desired operation.
 
 ## Overview
 
-`FormatException` is used when a value is of the correct type (string) but has an invalid format that doesn't match an expected pattern. This is typically thrown by parse methods or constructors that accept string arguments.
+`FormatException` is used when a value is of the correct type (string) but has an invalid format that doesn't match an
+expected pattern. This is typically thrown by parse methods or constructors that accept string arguments.
 
-The exception extends `DomainException` to indicate that the input value is outside the domain of acceptable values for the operation.
+The exception extends `DomainException` to indicate that the input value is outside the domain of acceptable values for
+the operation.
 
-This can help distinguish between string format errors and other types of `DomainException` exceptions, such as a numeric value being out of range.
+This can help distinguish between string format errors and other types of `DomainException` exceptions, such as a
+numeric value being out of range.
 
 ---
 
@@ -67,8 +70,8 @@ Throw this exception when:
 
 Use other exceptions when:
 
-- The value is the wrong type entirely (use `TypeError` or `InvalidArgumentException`)
-- The value is valid but outside an acceptable range (use `DomainException` or `RangeException`)
+- The value is the wrong type entirely (use `InvalidArgumentException`)
+- The value is valid but outside an acceptable range (use `DomainException`)
 - The value would cause an overflow or underflow (use `OverflowException` or `UnderflowException`)
 
 ---

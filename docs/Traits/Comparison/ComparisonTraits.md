@@ -15,6 +15,7 @@ Comparable   ApproxEquatable
 ```
 
 **Key:**
+
 - `→` indicates trait composition (`use`)
 - ApproxComparable uses both Comparable and ApproxEquatable
 
@@ -22,12 +23,12 @@ Comparable   ApproxEquatable
 
 ## Quick Reference
 
-| Trait | Uses                         | Must Implement | Provides | Use When |
-|-------|------------------------------|----------------|----------|----------|
-| **[Equatable](Equatable.md)** | -                            | `equal()` | - | Need exact equality only |
-| **[Comparable](Comparable.md)** | Equatable                    | `compare()` | `equal()`, `lessThan()`, `greaterThan()`, etc. | Need exact equality + ordering |
-| **[ApproxEquatable](ApproxEquatable.md)** | Equatable                    | `equal()`, `approxEqual()` | - | Need exact + approximate equality, no ordering |
-| **[ApproxComparable](ApproxComparable.md)** | Comparable + ApproxEquatable | `compare()`, `approxEqual()` | All comparison methods + `approxCompare()` | Need full comparison suite |
+| Trait                                       | Uses                         | Must Implement               | Provides                                                      | Use When                                       |
+| ------------------------------------------- | ---------------------------- | ---------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| **[Equatable](Equatable.md)**               | -                            | `equal()`                    | `identical()`                                                 | Need exact equality only                       |
+| **[Comparable](Comparable.md)**             | Equatable                    | `compare()`                  | `equal()`, `identical()`, `lessThan()`, `greaterThan()`, etc. | Need exact equality + ordering                 |
+| **[ApproxEquatable](ApproxEquatable.md)**   | Equatable                    | `equal()`, `approxEqual()`   | `identical()`                                                 | Need exact + approximate equality, no ordering |
+| **[ApproxComparable](ApproxComparable.md)** | Comparable + ApproxEquatable | `compare()`, `approxEqual()` | All comparison methods + `approxCompare()`                    | Need full comparison suite                     |
 
 ---
 
@@ -39,12 +40,15 @@ Comparable   ApproxEquatable
 trait Equatable
 {
     abstract public function equal(mixed $other): bool;
+    // Provides: identical()
 }
 ```
 
 **You implement:** `equal()` for exact equality comparison
 
-**You get:** Nothing - this is the base trait
+**You get:** `identical()` -- a stricter counterpart to `equal()`, built entirely on it
+(`Types::same($this, $other) && $this->equal($other)`); no implementation needed. Only behaves differently from
+`equal()` for classes that deliberately widen `equal()` to accept other types.
 
 ### Comparable (Extends Equatable)
 
@@ -60,7 +64,8 @@ trait Comparable
 
 **You implement:** `compare()` returning -1, 0, or 1
 
-**You get:** `equal()` (based on `compare()`), `lessThan()`, `greaterThan()`, `lessThanOrEqual()`, `greaterThanOrEqual()`
+**You get:** `equal()` (based on `compare()`), `identical()` (inherited from Equatable, based on `equal()`),
+`lessThan()`, `greaterThan()`, `lessThanOrEqual()`, `greaterThanOrEqual()`
 
 **Note:** You don't implement `equal()` - the trait provides it based on `compare()`
 
@@ -81,7 +86,7 @@ trait ApproxEquatable
 
 **You implement:** `equal()` and `approxEqual()`
 
-**You get:** Nothing additional - just the combined contract
+**You get:** `identical()` (inherited from Equatable, based on `equal()`)
 
 ### ApproxComparable (Extends Both)
 
@@ -116,7 +121,10 @@ class Color
 
     public function equal(mixed $other): bool
     {
-        return $other instanceof self && $this->rgb === $other->rgb;
+        if (!$other instanceof self) {
+            throw new IncomparableTypesException($this, $other);
+        }
+        return $this->rgb === $other->rgb;
     }
 }
 ```
@@ -162,8 +170,10 @@ class Complex
 
     public function equal(mixed $other): bool
     {
-        return $other instanceof self
-            && $this->real === $other->real
+        if (!$other instanceof self) {
+            throw new IncomparableTypesException($this, $other);
+        }
+        return $this->real === $other->real
             && $this->imag === $other->imag;
     }
 
@@ -173,7 +183,7 @@ class Complex
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         return Floats::approxEqual($this->real, $other->real, $relTol, $absTol)
@@ -209,7 +219,7 @@ class Rational
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         return Floats::approxEqual(
@@ -248,27 +258,32 @@ class CustomComparable
 }
 ```
 
-**Best Practice:** Don't override provided methods unless you have a specific reason. The default implementations are well-tested and consistent.
+**Best Practice:** Don't override provided methods unless you have a specific reason. The default implementations are
+well-tested and consistent.
 
 ---
 
 ## Choosing the Right Trait
 
 **Use Equatable when:**
+
 - You only need equality comparison
 - Your type has no natural ordering (e.g., colors, sets)
 
 **Use Comparable when:**
+
 - Your type has a natural ordering
 - You need exact comparison
 - Integer or rational number types
 
 **Use ApproxEquatable when:**
+
 - You need both exact and approximate equality
 - Your type contains floating-point values
 - Your type has no natural ordering (e.g., complex numbers, matrices)
 
 **Use ApproxComparable when:**
+
 - Your type has a natural ordering
 - You need both exact and approximate comparison
 - Mixed integer/float types (e.g., rational numbers converted to float)

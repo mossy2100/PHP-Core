@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Integers::class)]
 final class IntegersTest extends TestCase
 {
-    // region Tests for add()
+    #region Tests for add()
 
     /**
      * Test addition of integers without overflow.
@@ -64,9 +64,9 @@ final class IntegersTest extends TestCase
         Integers::add(PHP_INT_MIN, -1);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for sub()
+    #region Tests for sub()
 
     /**
      * Test subtraction of integers without overflow.
@@ -112,9 +112,9 @@ final class IntegersTest extends TestCase
         Integers::sub(PHP_INT_MIN, 1);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for mul()
+    #region Tests for mul()
 
     /**
      * Test multiplication of integers without overflow.
@@ -164,9 +164,9 @@ final class IntegersTest extends TestCase
         Integers::mul(PHP_INT_MAX, -2);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for pow()
+    #region Tests for pow()
 
     /**
      * Test exponentiation of integers without overflow.
@@ -229,9 +229,9 @@ final class IntegersTest extends TestCase
         Integers::pow(10, 100);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for gcd()
+    #region Tests for gcd()
 
     /**
      * Test GCD calculation with two integers.
@@ -349,9 +349,9 @@ final class IntegersTest extends TestCase
         Integers::gcd(PHP_INT_MIN);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for toSubscript()
+    #region Tests for toSubscript()
 
     /**
      * Test toSubscript with positive integer.
@@ -372,9 +372,9 @@ final class IntegersTest extends TestCase
         $this->assertSame('₋₁', Integers::toSubscript(-1));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for toSuperscript()
+    #region Tests for toSuperscript()
 
     /**
      * Test toSuperscript with positive integer.
@@ -395,9 +395,9 @@ final class IntegersTest extends TestCase
         $this->assertSame('⁻¹', Integers::toSuperscript(-1));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for isSubscript()
+    #region Tests for isSubscript()
 
     /**
      * Test isSubscript with valid subscript strings.
@@ -446,9 +446,9 @@ final class IntegersTest extends TestCase
         $this->assertFalse(Integers::isSubscript('₁₋₂'));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for isSuperscript()
+    #region Tests for isSuperscript()
 
     /**
      * Test isSuperscript with valid superscript strings.
@@ -497,9 +497,9 @@ final class IntegersTest extends TestCase
         $this->assertFalse(Integers::isSuperscript('¹⁻²'));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for fromSubscript()
+    #region Tests for fromSubscript()
 
     /**
      * Test fromSubscript with valid subscript strings.
@@ -549,9 +549,9 @@ final class IntegersTest extends TestCase
         Integers::fromSubscript('123');
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for fromSuperscript()
+    #region Tests for fromSuperscript()
 
     /**
      * Test fromSuperscript with valid superscript strings.
@@ -601,9 +601,9 @@ final class IntegersTest extends TestCase
         Integers::fromSuperscript('123');
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test round-trip conversion: toSubscript then fromSubscript.
@@ -631,5 +631,5 @@ final class IntegersTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 }

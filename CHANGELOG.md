@@ -2,7 +2,71 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [Unreleased]
+
+### Added
+
+- **Equatable::identical()** — New concrete method on the `Equatable` trait (inherited by `Comparable`,
+  `ApproxEquatable`, and `ApproxComparable`): `Types::same($this, $other) && $this->equal($other)`. A stricter,
+  never-throwing counterpart to `equal()`, useful for classes that deliberately widen `equal()` to accept other types.
+  No implementation needed — the default is correct for any `equal()`.
+- **Stringify::toString()** — New method for lightweight, user-facing string conversion: strings pass through as-is,
+  `Stringable` objects use their own `__toString()`, everything else goes through `stringify()` (without pretty
+  printing). Replaces the removed `Strings::toString()`.
+- **functions.php: write() / writeln()** — New namespaced convenience functions replacing `println()`. `write()`
+  prints a value with no trailing newline; `writeln()` appends `PHP_EOL`. Both delegate to `Stringify::toString()`.
+
+### Changed
+
+- **`equal()` and `approxEqual()` now throw `IncomparableTypesException`** for incompatible types, matching
+  `compare()`'s existing contract, instead of returning `false`. This applies to the `Equatable`, `Comparable`,
+  `ApproxEquatable`, and `ApproxComparable` traits. `identical()` (see Added, above) is the new forgiving,
+  never-throwing alternative. Implementations should still attempt to convert/cast `$other` to the calling object's
+  type first (e.g. via a `toX()` method) where a sensible conversion exists, and throw only once no such conversion
+  is possible.
+- **IncomparableTypesException** — Generated message changed from `"Cannot compare X with Y."` to
+  `"Can't compare X with Y."`.
+- **Stringify::stringifyResource()** — Now combines PHP's own resource-to-string cast (`Resource id #N`) with the
+  resource type from `get_debug_type()`, e.g. `'Resource id #5 (stream)'`, instead of just `'resource (stream)'`.
+- **Region comments** — Switched from `// region` / `// endregion` to `#region` / `#endregion` (VS Code-compatible)
+  throughout the package.
+- Cast spacing normalized to PSR-12 style throughout (e.g. `(int)$x` → `(int) $x`).
+
+### Removed
+
+- **Strings class** (`src/Strings.php`) — Removed. `toString()` moved to `Stringify::toString()`; `print()` and
+  `println()` replaced by the plain functions `write()` and `writeln()` in `functions.php`.
+- **docs/Strings.md** — Removed along with the class.
+
+### Fixed
+
+- **Floats::frac()** — Docblock corrected: the identity `x = trunc(x) + frac(x)` is described as holding "even for
+  non-finite numbers" (previously said "even for infinities", which didn't mention `NAN`).
+
+### Documentation
+
+- Updated `Equatable.md`, `Comparable.md`, `ApproxEquatable.md`, `ApproxComparable.md`, and `ComparisonTraits.md` for
+  the `equal()`/`approxEqual()` throwing contract and the new `identical()` method; converted each trait's "provides"
+  bullet list to a table (Name / Description / Implementation).
+- Updated `Exceptions/IncomparableTypesException.md` for the new message text and its expanded scope (now also used
+  by `Equatable` and `ApproxEquatable`, not just the ordering traits).
+- Updated `Stringify.md`: added a `toString()` section, updated the `stringifyResource()` example, and reorganized
+  method sections to match the source file's new grouping (Main Stringification Methods / Type-Specific
+  Stringification Methods).
+- Updated `Functions.md` for `write()`/`writeln()`.
+- Updated `README.md`: removed the Strings class entry, updated the Functions and Stringify blurbs.
+- All markdown files rewrapped to a consistent 120-character line width.
+
+### Tests
+
+- Added tests for `Equatable::identical()`, `Stringify::toString()`, `write()`, and `writeln()`.
+- Updated `StringifyTest` for the new `stringifyResource()` output format.
+- Updated exception-message assertions across the test suite for the `IncomparableTypesException` wording change.
 
 ---
 
@@ -21,20 +85,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- **Floats::format()** — New method for formatting floats as strings with control over precision, notation, and trailing zeros. Supports Unicode scientific notation (e.g. `1.50×10³`) as well as ASCII. Moved from `Quantity::formatValue()`. When `$precision` is `null`, defaults to 6 for `e`/`E`/`f`/`F` and 7 for `g`/`G`/`h`/`H` so that `g` is genuinely "the shorter of `e` and `f` at matching precision". Format string is always explicit `%.Nspec`.
-- **Traits reorganisation** — Traits split into `Traits/Asserts/` (testing assertion traits) and `Traits/Comparison/` (value comparison traits).
+- **Floats::format()** — New method for formatting floats as strings with control over precision, notation, and trailing
+  zeros. Supports Unicode scientific notation (e.g. `1.50×10³`) as well as ASCII. Moved from `Quantity::formatValue()`.
+  When `$precision` is `null`, defaults to 6 for `e`/`E`/`f`/`F` and 7 for `g`/`G`/`h`/`H` so that `g` is genuinely "the
+  shorter of `e` and `f` at matching precision". Format string is always explicit `%.Nspec`.
+- **Traits reorganisation** — Traits split into `Traits/Asserts/` (testing assertion traits) and `Traits/Comparison/`
+  (value comparison traits).
 
 ### Changed
 
-- **Integers::fromSubscript() / fromSuperscript()** — Now throw `FormatException` instead of `DomainException` when the input contains characters that are not valid sub/superscript digits. Invalid input is a parsing/format problem, not a domain-of-values problem.
+- **Integers::fromSubscript() / fromSuperscript()** — Now throw `FormatException` instead of `DomainException` when the
+  input contains characters that are not valid sub/superscript digits. Invalid input is a parsing/format problem, not a
+  domain-of-values problem.
 
 ### Removed
 
-- **NullArgumentException** — Removed before its first release. The downstream Quantities use case that motivated it ended up not needing it, and no other consumers materialised. Never shipped, so not a breaking change.
+- **NullArgumentException** — Removed before its first release. The downstream Quantities use case that motivated it
+  ended up not needing it, and no other consumers materialised. Never shipped, so not a breaking change.
 
 ### Fixed
 
-- **Floats::frac()** — Returns `0.0` for ±INF instead of `NAN`, so the identity `x = trunc(x) + frac(x)` now holds for all values.
+- **Floats::frac()** — Returns `0.0` for ±INF instead of `NAN`, so the identity `x = trunc(x) + frac(x)` now holds for
+  all values.
 
 ---
 
@@ -43,7 +115,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - **Strings** — New static utility class for string conversion and output:
-  - `toString()` — Convert any value to a string. Strings pass through, Stringable objects use `__toString()`, all other types go through `Stringify::stringify()`.
+  - `toString()` — Convert any value to a string. Strings pass through, Stringable objects use `__toString()`, all other
+    types go through `Stringify::stringify()`.
   - `print()` — Print a value to stdout via `toString()`.
   - `println()` — Print a value to stdout with a newline via `toString()`.
 - **docs/Strings.md** — Documentation for the new Strings class.
@@ -69,7 +142,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - **functions.php** - New namespaced convenience functions with `files` autoload entry:
-  - `println()` - Print a value with a newline. Strings output as-is, `Stringable` objects use `__toString()`, all other types go through `Stringify::stringify()`.
+  - `println()` - Print a value with a newline. Strings output as-is, `Stringable` objects use `__toString()`, all other
+    types go through `Stringify::stringify()`.
 - **Numbers::isNumber()** - Strict type check for `int` or `float` (rejects numeric strings unlike `is_numeric()`).
 - **Numbers::isZero()** - Check if a number is zero (`0`, `0.0`, or `-0.0`).
 - **Types::getBasicType()** - Now returns `'enum'` for `UnitEnum` instances (previously returned `'object'`).
@@ -85,12 +159,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Skip grid format when items are too wide for 2 per line.
 - **Floats::floatToBits()** - Simplified from byte-array loop to single `pack`/`unpack` call.
 - **Floats::bitsToFloat()** - Same simplification.
-- **Exception messages** - Standardised across all classes to follow the guidelines in `EXCEPTIONS.md`: "state what went wrong" format with offending values and concise constraints where useful.
+- **Exception messages** - Standardised across all classes to follow the guidelines in `EXCEPTIONS.md`: "state what went
+  wrong" format with offending values and concise constraints where useful.
 - **composer.json** - Updated `galaxon/coding-standard` dependency to `^1.0`.
 
 ### Fixed
 
-- **Floats::tryConvertToInt()** - Fixed overflow bug where floats near `PHP_INT_MAX` could silently overflow to `PHP_INT_MIN` during `(int)` cast. Now detects and returns `null`.
+- **Floats::tryConvertToInt()** - Fixed overflow bug where floats near `PHP_INT_MAX` could silently overflow to
+  `PHP_INT_MIN` during `(int)` cast. Now detects and returns `null`.
 
 ### Removed
 
@@ -101,16 +177,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **Functions.md** - New documentation page for `println()` and `is_number()`, including autoloading setup.
 - **README.md** - Added Functions section linking to new docs.
-- **Types.md** - Added `enum` to `getBasicType()` return values and examples. Added `enum` format to `getUniqueString()`. Fixed `throws` annotation (`TypeError` → `UnexpectedValueException`).
-- **Floats.md** - Fixed `bitsToFloat()` examples that used overflowing hex literals. Added note about PHP signed int overflow.
+- **Types.md** - Added `enum` to `getBasicType()` return values and examples. Added `enum` format to
+  `getUniqueString()`. Fixed `throws` annotation (`TypeError` → `UnexpectedValueException`).
+- **Floats.md** - Fixed `bitsToFloat()` examples that used overflowing hex literals. Added note about PHP signed int
+  overflow.
 - **Stringify.md** - Updated for configurable indent/max line length, new constant name.
 
 ### Tests
 
 - **FunctionsTest** - Tests for `println()` (strings, ints, floats, booleans, null, empty, stringable objects).
 - **NumbersTest** - Tests for `isNumber()` and `isZero()`.
-- **FloatsBitOperationsTest** - 15 new tests for `floatToBits()` and `bitsToFloat()` covering known bit patterns, special values (±0, ±INF, NAN), and round-trip verification.
-- **TypesTest** - Added `testGetBasicTypeEnum` (unit and backed enums) and `testGetStringKeyEnum` (unique string format, different cases, different enum classes).
+- **FloatsBitOperationsTest** - 15 new tests for `floatToBits()` and `bitsToFloat()` covering known bit patterns,
+  special values (±0, ±INF, NAN), and round-trip verification.
+- **TypesTest** - Added `testGetBasicTypeEnum` (unit and backed enums) and `testGetStringKeyEnum` (unique string format,
+  different cases, different enum classes).
 - **StringifyTest** - Additional tests for configurable indent and max line length.
 
 ---
@@ -120,16 +200,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **Stringify** - Major overhaul of output formatting:
-  - Strings now use single quotes with backslash and single-quote escaping instead of `json_encode()` double quotes. Unicode characters are preserved as-is.
-  - Arrays use PHP square bracket syntax for both lists and associative arrays (`['key' => 'value']`) instead of JSON-style formatting with curly braces and colons.
+  - Strings now use single quotes with backslash and single-quote escaping instead of `json_encode()` double quotes.
+    Unicode characters are preserved as-is.
+  - Arrays use PHP square bracket syntax for both lists and associative arrays (`['key' => 'value']`) instead of
+    JSON-style formatting with curly braces and colons.
   - Objects use `ClassName {+prop => 'value'}` format instead of `<ClassName +prop: "value">`.
-  - Resources use `get_debug_type()` output (e.g. `resource (stream)`, `resource (closed)`) instead of custom format with type and id. Closed resources are now supported.
+  - Resources use `get_debug_type()` output (e.g. `resource (stream)`, `resource (closed)`) instead of custom format
+    with type and id. Closed resources are now supported.
   - `null`, `bool`, and `int` are now rendered inline instead of via `json_encode()`.
   - `echo()` renamed to `print()` and now accepts a `$prettyPrint` parameter.
-  - `stringifyFloat()` uses `(string)` cast instead of `sprintf('%.16H')`, with early return for non-finite values. Suppresses PHP 8.5 NAN cast warning.
+  - `stringifyFloat()` uses `(string)` cast instead of `sprintf('%.16H')`, with early return for non-finite values.
+    Suppresses PHP 8.5 NAN cast warning.
   - `abbrev()` now uses `mb_strlen()`/`mb_substr()` for multibyte-safe truncation.
-  - `stringifyObject()` now detects enums via `instanceof UnitEnum` and delegates to `stringifyEnum()`. Property names are aligned in pretty-print mode.
-  - `stringifyArray()` now supports three pretty-print layout strategies for scalar lists: single-line, grid, and one-per-line. Associative arrays align keys. New `$maxLineLen` parameter.
+  - `stringifyObject()` now detects enums via `instanceof UnitEnum` and delegates to `stringifyEnum()`. Property names
+    are aligned in pretty-print mode.
+  - `stringifyArray()` now supports three pretty-print layout strategies for scalar lists: single-line, grid, and
+    one-per-line. Associative arrays align keys. New `$maxLineLen` parameter.
 
 ### Added
 
@@ -140,7 +226,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Constants `NUM_SPACES_INDENT` (4) and `DEFAULT_MAX_LINE_LENGTH` (120).
 
 - **Arrays** - New methods:
-  - `toSerialList()` - Convert an array of strings to a serial list with Oxford comma (e.g. `'a, b, and c'`). Supports custom conjunctions.
+  - `toSerialList()` - Convert an array of strings to a serial list with Oxford comma (e.g. `'a, b, and c'`). Supports
+    custom conjunctions.
   - `removeValue()` - Remove all instances of a value from an array using strict comparison. Keys are preserved.
 
 ### Fixed
@@ -150,12 +237,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Documentation
 
 - **Stringify.md** - Completely rewritten for new output format, new methods, and updated examples.
-- **Arrays.md** - Added documentation for `toSerialList()` and `removeValue()`. Updated overview to include String Methods and Transformation Methods sections.
+- **Arrays.md** - Added documentation for `toSerialList()` and `removeValue()`. Updated overview to include String
+  Methods and Transformation Methods sections.
 
 ### Tests
 
-- **StringifyTest** - Completely rewritten (36 tests, 100+ assertions) covering single-quoted strings, escaping, UTF-8 conversion, undetectable encoding, open/closed resources, enums, grid layout, and all other formatting changes.
-- **ArraysTest** - Added 15 tests for `toSerialList()` (empty, one/two/three/four items, custom conjunction, non-string validation) and `removeValue()` (existing/missing values, multiple instances, key preservation, strict comparison, null removal).
+- **StringifyTest** - Completely rewritten (36 tests, 100+ assertions) covering single-quoted strings, escaping, UTF-8
+  conversion, undetectable encoding, open/closed resources, enums, grid layout, and all other formatting changes.
+- **ArraysTest** - Added 15 tests for `toSerialList()` (empty, one/two/three/four items, custom conjunction, non-string
+  validation) and `removeValue()` (existing/missing values, multiple instances, key preservation, strict comparison,
+  null removal).
 
 ---
 
@@ -177,7 +268,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Tests
 
-- Added 12 tests for FloatAssertions trait covering passing/failing assertions, error messages, infinity handling, and assertApproxZero
+- Added 12 tests for FloatAssertions trait covering passing/failing assertions, error messages, infinity handling, and
+  assertApproxZero
 
 ---
 
@@ -196,7 +288,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - **Floats::normalizeZero()** - Simplified logic using `=== 0.0` comparison
-- **Floats::tryConvertToInt()** - Added bounds check for `PHP_INT_MIN`/`PHP_INT_MAX` before conversion to prevent overflow
+- **Floats::tryConvertToInt()** - Added bounds check for `PHP_INT_MIN`/`PHP_INT_MAX` before conversion to prevent
+  overflow
 - **Stringify::stringify()** - Added error suppression for non-finite float string conversion
 
 ### Tests
@@ -208,7 +301,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Documentation
 
 - **Arrays.md** - Added "Extraction Methods" section with `first()` and `last()` documentation
-- **Integers.md** - Renamed "Conversion Methods" to "Subscript/Superscript Methods", added documentation for validation and parsing methods
+- **Integers.md** - Renamed "Conversion Methods" to "Subscript/Superscript Methods", added documentation for validation
+  and parsing methods
 
 ---
 
@@ -238,8 +332,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Tests
 
-- Added 7 tests for `isApproxInt()` covering exact integers, near-integers, fractions, logarithms, custom tolerance, and non-finite values
-- Added 6 tests for `trunc()` and `frac()` covering positive/negative values, zero, non-finite values, and the identity property
+- Added 7 tests for `isApproxInt()` covering exact integers, near-integers, fractions, logarithms, custom tolerance, and
+  non-finite values
+- Added 6 tests for `trunc()` and `frac()` covering positive/negative values, zero, non-finite values, and the identity
+  property
 
 ---
 
@@ -467,7 +563,6 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 - **NumbersTest** - Updated for new `approxEqual()` signature
 - **TypesTest** - Added tests for `same()`
 
-
 ---
 
 ## [0.3.0] - 2025-01-15
@@ -500,8 +595,10 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
   - Key preservation and immutability
 
 - Added 18 comprehensive tests for Floats precision methods:
-  - `ulp()` tests: standard values, zero handling, negative values, large/small magnitudes, non-finite values, relationship with `next()`
-  - `isExactInt()` tests: whole numbers, fractional values, boundary cases (±2⁵³), non-finite values, comparison with `tryConvertToInt()`
+  - `ulp()` tests: standard values, zero handling, negative values, large/small magnitudes, non-finite values,
+    relationship with `next()`
+  - `isExactInt()` tests: whole numbers, fractional values, boundary cases (±2⁵³), non-finite values, comparison with
+    `tryConvertToInt()`
 
 ### Documentation
 
@@ -608,9 +705,11 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
   - Requires implementing class to provide `compare()` method
 
 ### Requirements
+
 - PHP ^8.4
 
 ### Development
+
 - PSR-12 coding standards
 - PHPStan level 9 static analysis
 - PHPUnit test coverage

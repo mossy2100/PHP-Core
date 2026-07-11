@@ -12,7 +12,7 @@ use DomainException;
  * This exception is used when a value is of the correct type (string) but has an invalid format (e.g. a string that
  * doesn't match an expected pattern).
  *
- * Typical use cases would be parse() methods or constructors that accept string arguments.
+ * Typical use cases would be fromString() methods or constructors that accept string arguments.
  */
 class FormatException extends DomainException
 {

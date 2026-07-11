@@ -2,6 +2,7 @@
 
 /**
  * Convenience functions that work better as plain functions than methods.
+ * These are used mostly for debugging purposes, and provide a more useful output than the usual var_dump() etc.
  */
 
 declare(strict_types=1);
@@ -9,18 +10,21 @@ declare(strict_types=1);
 namespace OceanMoon\Core;
 
 /**
- * Print a value and append a newline character.
+ * Write a value to stdout.
  *
- * Strings are output as-is.
- * Objects with a __toString() method are cast to strings.
- * Otherwise, the value is converted to a string using Stringify::stringify() (no pretty printing).
- *
- * This method makes it easier to distinguish null, bool, int, float, and string values, and provides a nice output
- * for arrays, objects, enums, and resources.
- *
- * @param mixed $value The value to echo.
+ * @param mixed $value The value to print.
  */
-function println(mixed $value = ''): void
+function write(mixed $value = ''): void
 {
-    Strings::println($value);
+    echo Stringify::toString($value);
+}
+
+/**
+ * Write a value to stdout followed by a newline.
+ *
+ * @param mixed $value The value to print.
+ */
+function writeln(mixed $value = ''): void
+{
+    echo Stringify::toString($value), PHP_EOL;
 }

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsBitOperationsTest extends TestCase
 {
-    // region Adjacent floats method tests
+    #region Adjacent floats method tests
 
     /**
      * Test next with regular positive numbers.
@@ -277,9 +277,9 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertLessThan(0.0, $prev2);
     }
 
-    // endregion
+    #endregion
 
-    // region floatToBits and bitsToFloat tests
+    #region floatToBits and bitsToFloat tests
 
     /**
      * Test floatToBits with positive zero.
@@ -433,9 +433,9 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertTrue(is_nan($result));
     }
 
-    // endregion
+    #endregion
 
-    // region disassemble and assemble tests
+    #region disassemble and assemble tests
 
     /**
      * Test disassemble with positive one.
@@ -703,9 +703,9 @@ final class FloatsBitOperationsTest extends TestCase
         Floats::assemble(0, 1023, -1);
     }
 
-    // endregion
+    #endregion
 
-    // region ULP tests
+    #region ULP tests
 
     /**
      * Test ULP with standard values.
@@ -810,5 +810,5 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertLessThanOrEqual($ulp * 2, $diff);
     }
 
-    // endregion
+    #endregion
 }

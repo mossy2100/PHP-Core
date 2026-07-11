@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Stringable;
 
 /**
  * Test class for Stringify utility class.
@@ -16,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Stringify::class)]
 final class StringifyTest extends TestCase
 {
-    // region Scalar types
+    #region Scalar types
 
     /**
      * Test stringifying null values.
@@ -161,9 +162,9 @@ final class StringifyTest extends TestCase
         $this->assertSame('INF', Stringify::stringify(INF));
     }
 
-    // endregion
+    #endregion
 
-    // region Arrays — non-pretty
+    #region Arrays — non-pretty
 
     /**
      * Test stringifying simple lists without pretty print.
@@ -228,9 +229,9 @@ final class StringifyTest extends TestCase
         ]));
     }
 
-    // endregion
+    #endregion
 
-    // region Arrays — pretty print
+    #region Arrays — pretty print
 
     /**
      * Test that a short scalar list fits on one line when pretty printing.
@@ -337,9 +338,9 @@ final class StringifyTest extends TestCase
         Stringify::stringify($array);
     }
 
-    // endregion
+    #endregion
 
-    // region Resources
+    #region Resources
 
     /**
      * Test stringifying an open resource.
@@ -349,7 +350,7 @@ final class StringifyTest extends TestCase
         $resource = fopen('php://memory', 'rb');
         $this->assertIsResource($resource);
 
-        $this->assertSame('resource (stream)', Stringify::stringify($resource));
+        $this->assertMatchesRegularExpression('/^Resource id #\d+ \(stream\)$/', Stringify::stringify($resource));
 
         fclose($resource);
     }
@@ -363,7 +364,10 @@ final class StringifyTest extends TestCase
         $this->assertIsResource($resource);
         fclose($resource);
 
-        $this->assertSame('resource (closed)', Stringify::stringifyResource($resource));
+        $this->assertMatchesRegularExpression(
+            '/^Resource id #\d+ \(closed\)$/',
+            Stringify::stringifyResource($resource)
+        );
     }
 
     /**
@@ -376,9 +380,9 @@ final class StringifyTest extends TestCase
         Stringify::stringifyResource('not a resource');
     }
 
-    // endregion
+    #endregion
 
-    // region Enums
+    #region Enums
 
     /**
      * Test stringifying enum cases.
@@ -410,9 +414,9 @@ final class StringifyTest extends TestCase
         );
     }
 
-    // endregion
+    #endregion
 
-    // region Objects
+    #region Objects
 
     /**
      * Test stringifying simple objects.
@@ -506,9 +510,9 @@ final class StringifyTest extends TestCase
         $this->assertStringContainsString("'numbers' => [4, 5, 6]", $result);
     }
 
-    // endregion
+    #endregion
 
-    // region abbrev
+    #region abbrev
 
     /**
      * Test abbrev method with short strings.
@@ -554,9 +558,9 @@ final class StringifyTest extends TestCase
         Stringify::abbrev(123, 9);
     }
 
-    // endregion
+    #endregion
 
-    // region Configuration
+    #region Configuration
 
     /**
      * Test getIndent() returns the default value initially.
@@ -661,7 +665,79 @@ final class StringifyTest extends TestCase
         $this->assertSame(Stringify::DEFAULT_MAX_LINE_LENGTH, Stringify::getMaxLineLength());
     }
 
-    // endregion
+    #endregion
+
+    #region toString() tests
+
+    /**
+     * Test toString with a string passes through as-is.
+     */
+    public function testToStringWithString(): void
+    {
+        $this->assertSame('hello', Stringify::toString('hello'));
+        $this->assertSame('', Stringify::toString(''));
+    }
+
+    /**
+     * Test toString with a Stringable object uses __toString().
+     */
+    public function testToStringWithStringableObject(): void
+    {
+        $obj = new class implements Stringable {
+            public function __toString(): string
+            {
+                return 'stringable object';
+            }
+        };
+
+        $this->assertSame('stringable object', Stringify::toString($obj));
+    }
+
+    /**
+     * Test toString with an integer uses Stringify.
+     */
+    public function testToStringWithInteger(): void
+    {
+        $this->assertSame('42', Stringify::toString(42));
+        $this->assertSame('0', Stringify::toString(0));
+        $this->assertSame('-7', Stringify::toString(-7));
+    }
+
+    /**
+     * Test toString with a float uses Stringify.
+     */
+    public function testToStringWithFloat(): void
+    {
+        $this->assertSame('3.14', Stringify::toString(3.14));
+        $this->assertSame('5.0', Stringify::toString(5.0));
+    }
+
+    /**
+     * Test toString with a boolean uses Stringify.
+     */
+    public function testToStringWithBoolean(): void
+    {
+        $this->assertSame('true', Stringify::toString(true));
+        $this->assertSame('false', Stringify::toString(false));
+    }
+
+    /**
+     * Test toString with null uses Stringify.
+     */
+    public function testToStringWithNull(): void
+    {
+        $this->assertSame('null', Stringify::toString(null));
+    }
+
+    /**
+     * Test toString with an array uses Stringify.
+     */
+    public function testToStringWithArray(): void
+    {
+        $this->assertSame('[1, 2, 3]', Stringify::toString([1, 2, 3]));
+    }
+
+    #endregion
 }
 
 /**

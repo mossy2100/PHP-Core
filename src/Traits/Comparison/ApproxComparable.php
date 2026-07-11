@@ -43,7 +43,9 @@ use OceanMoon\Core\Floats;
  *     #[Override]
  *     public function approxEqual(mixed $other, float $relTol = ..., float $absTol = ...): bool
  *     {
- *         if (!$other instanceof self) return false;
+ *         if (!Types::same($this, $other)) {
+ *             throw new IncomparableTypesException($this, $other);
+ *         }
  *         return Floats::approxEqual($this->toFloat(), $other->toFloat(), $relTol, $absTol);
  *     }
  * }

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsTest extends TestCase
 {
-    // region approxEqual tests
+    #region approxEqual tests
 
     /**
      * Test approxEqual uses both relative and absolute tolerance.
@@ -116,9 +116,9 @@ final class FloatsTest extends TestCase
         $this->assertFalse(Floats::approxEqual(0.0, NAN));
     }
 
-    // endregion
+    #endregion
 
-    // region compare tests
+    #region compare tests
 
     /**
      * Test compare with equal values.
@@ -203,9 +203,9 @@ final class FloatsTest extends TestCase
         Floats::approxCompare(1.0, NAN);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation method tests
+    #region Transformation method tests
 
     /**
      * Test normalization of zero values.
@@ -597,13 +597,13 @@ final class FloatsTest extends TestCase
     public function testTryConvertToIntWithLargeIntegers(): void
     {
         // Use powers of 2 up to 2^53, which can be exactly represented as floats
-        $this->assertSame(1 << 50, Floats::tryConvertToInt((float)(1 << 50)));
+        $this->assertSame(1 << 50, Floats::tryConvertToInt((float) (1 << 50)));
 
         // Negative large integer
-        $this->assertSame(-(1 << 50), Floats::tryConvertToInt((float)(-(1 << 50))));
+        $this->assertSame(-(1 << 50), Floats::tryConvertToInt((float) (-(1 << 50))));
 
         // PHP_INT_MIN is -2^63, which is a power of 2 and CAN be exactly represented as a float
-        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float)PHP_INT_MIN));
+        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float) PHP_INT_MIN));
 
         // Note: PHP_INT_MAX (2^63 - 1) cannot be exactly represented as a float
         // because it has many bits set and exceeds the 53-bit mantissa precision
@@ -615,7 +615,7 @@ final class FloatsTest extends TestCase
     public function testTryConvertToIntOutOfRange(): void
     {
         // Float larger than PHP_INT_MAX (loses precision)
-        $f = (float)PHP_INT_MAX * 2;
+        $f = (float) PHP_INT_MAX * 2;
         // Verify it doesn't crash and returns int or null
         /** @var null|int $result */
         $result = Floats::tryConvertToInt($f);
@@ -629,10 +629,10 @@ final class FloatsTest extends TestCase
     {
         // (float)PHP_INT_MAX rounds up to 2^63, which overflows int.
         // This must return null without triggering a PHP warning.
-        $this->assertNull(Floats::tryConvertToInt((float)PHP_INT_MAX));
+        $this->assertNull(Floats::tryConvertToInt((float) PHP_INT_MAX));
 
         // PHP_INT_MIN is -2^63, exactly representable as a float.
-        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float)PHP_INT_MIN));
+        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float) PHP_INT_MIN));
 
         // Largest float that fits in an int: 2^63 - 1024 = 9223372036854774784.
         $largest = 9223372036854774784.0;
@@ -685,9 +685,9 @@ final class FloatsTest extends TestCase
         $this->assertNull(Floats::tryConvertToInt(-INF));
     }
 
-    // endregion
+    #endregion
 
-    // region Precision method tests
+    #region Precision method tests
 
     /**
      * Test isExactInt with whole number floats.
@@ -729,8 +729,8 @@ final class FloatsTest extends TestCase
     {
         // 2^53 is the largest consecutive integer exactly representable
         $boundary = 1 << 53; // 9007199254740992
-        $this->assertTrue(Floats::isExactInt((float)$boundary));
-        $this->assertTrue(Floats::isExactInt((float)-$boundary));
+        $this->assertTrue(Floats::isExactInt((float) $boundary));
+        $this->assertTrue(Floats::isExactInt((float) -$boundary));
     }
 
     /**
@@ -739,11 +739,11 @@ final class FloatsTest extends TestCase
     public function testIsExactIntBeyondBoundary(): void
     {
         // 2^54 is beyond our ±2^53 range
-        $this->assertFalse(Floats::isExactInt((float)(1 << 54)));
-        $this->assertFalse(Floats::isExactInt((float)(-(1 << 54))));
+        $this->assertFalse(Floats::isExactInt((float) (1 << 54)));
+        $this->assertFalse(Floats::isExactInt((float) (-(1 << 54))));
 
         // Very large values are beyond the range
-        $this->assertFalse(Floats::isExactInt((float)PHP_INT_MAX));
+        $this->assertFalse(Floats::isExactInt((float) PHP_INT_MAX));
         $this->assertFalse(Floats::isExactInt(1e20));
     }
 
@@ -753,9 +753,9 @@ final class FloatsTest extends TestCase
     public function testIsExactIntWithLargeIntegers(): void
     {
         // Powers of 2 up to 2^53
-        $this->assertTrue(Floats::isExactInt((float)(1 << 40)));
-        $this->assertTrue(Floats::isExactInt((float)(1 << 50)));
-        $this->assertTrue(Floats::isExactInt((float)(1 << 52)));
+        $this->assertTrue(Floats::isExactInt((float) (1 << 40)));
+        $this->assertTrue(Floats::isExactInt((float) (1 << 50)));
+        $this->assertTrue(Floats::isExactInt((float) (1 << 52)));
     }
 
     /**
@@ -801,9 +801,9 @@ final class FloatsTest extends TestCase
             [-1.0, true],
             [100.0, true],
             [-100.0, true],
-            [(float)(1 << 52), true],
-            [(float)(1 << 53), true],
-            [(float)(1 << 54), false],
+            [(float) (1 << 52), true],
+            [(float) (1 << 53), true],
+            [(float) (1 << 54), false],
             [0.5, false],
             [1.1, false],
             [1e20, false],
@@ -896,9 +896,9 @@ final class FloatsTest extends TestCase
         $this->assertFalse(Floats::isApproxInt(NAN));
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection method tests
+    #region Inspection method tests
 
     /**
      * Test detection of negative zero.
@@ -1039,9 +1039,9 @@ final class FloatsTest extends TestCase
         $this->assertFalse(Floats::isSpecial(-42.5));
     }
 
-    // endregion
+    #endregion
 
-    // region format() tests
+    #region format() tests
 
     /**
      * Test format() with default parameters trims trailing zeros.
@@ -1162,5 +1162,5 @@ final class FloatsTest extends TestCase
         $this->assertSame('1500', Floats::format(1500.0, 'f', 2, true));
     }
 
-    // endregion
+    #endregion
 }

@@ -30,6 +30,6 @@ class IncomparableTypesException extends InvalidArgumentException
     {
         $typeA = get_debug_type($a);
         $typeB = get_debug_type($b);
-        parent::__construct("Cannot compare $typeA with $typeB.");
+        parent::__construct("Can't compare $typeA with $typeB.");
     }
 }

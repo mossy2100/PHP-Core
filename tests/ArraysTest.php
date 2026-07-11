@@ -17,7 +17,7 @@ use stdClass;
 #[CoversClass(Arrays::class)]
 final class ArraysTest extends TestCase
 {
-    // region Tests for containsRecursion()
+    #region Tests for containsRecursion()
 
     /**
      * Test that simple arrays without recursion return false.
@@ -194,9 +194,9 @@ final class ArraysTest extends TestCase
         $this->assertFalse(Arrays::containsRecursion($arr));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for quoteValues()
+    #region Tests for quoteValues()
 
     /**
      * Test quoteValues with single quotes (default).
@@ -444,9 +444,9 @@ final class ArraysTest extends TestCase
         $this->assertEquals($original, $input);
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for first()
+    #region Tests for first()
 
     /**
      * Test first() returns first value of a list array.
@@ -505,9 +505,9 @@ final class ArraysTest extends TestCase
         Arrays::first([]); // @phpstan-ignore argument.type
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for last()
+    #region Tests for last()
 
     /**
      * Test last() returns last value of a list array.
@@ -577,9 +577,9 @@ final class ArraysTest extends TestCase
         $this->assertEquals(Arrays::first($arr), Arrays::last($arr));
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for toSerialList()
+    #region Tests for toSerialList()
 
     /**
      * Test toSerialList with empty array returns empty string.
@@ -647,9 +647,9 @@ final class ArraysTest extends TestCase
         Arrays::toSerialList(['foo', 42, 'bar']); // @phpstan-ignore argument.type
     }
 
-    // endregion
+    #endregion
 
-    // region Tests for removeValue()
+    #region Tests for removeValue()
 
     /**
      * Test removeValue removes a value that exists.
@@ -734,5 +734,5 @@ final class ArraysTest extends TestCase
         ], Arrays::removeValue([1, null, 3], null));
     }
 
-    // endregion
+    #endregion
 }

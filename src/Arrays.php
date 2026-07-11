@@ -13,7 +13,7 @@ use LengthException;
  */
 final class Arrays
 {
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
@@ -24,9 +24,9 @@ final class Arrays
     {
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Checks if an array contains recursion.
@@ -47,9 +47,9 @@ final class Arrays
         return false;
     }
 
-    // endregion
+    #endregion
 
-    // region String methods
+    #region String methods
 
     /**
      * Wrap each string value in the array with quotes.
@@ -115,9 +115,9 @@ final class Arrays
         };
     }
 
-    // endregion
+    #endregion
 
-    // region Extraction methods
+    #region Extraction methods
 
     /**
      * Get the first value in an array.
@@ -157,9 +157,9 @@ final class Arrays
         return $arr[array_key_last($arr)];
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Remove all instances of a value from an array.
@@ -175,5 +175,5 @@ final class Arrays
         return array_filter($arr, static fn ($value) => $value !== $valueToRemove);
     }
 
-    // endregion
+    #endregion
 }

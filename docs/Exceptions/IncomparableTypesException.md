@@ -6,9 +6,12 @@ Exception thrown when attempting to compare values of incompatible types.
 
 ## Overview
 
-`IncomparableTypesException` is used by the `Comparable` and `ApproxComparable` traits when a comparison is attempted between objects of different types that cannot be meaningfully compared.
+`IncomparableTypesException` is used by the `Equatable`, `Comparable`, `ApproxEquatable`, and `ApproxComparable` traits
+when a comparison is attempted between values of different types that cannot be meaningfully compared. `identical()`
+(provided by `Equatable`) is the one exception -- it never throws, returning `false` for different operand types.
 
-The exception extends `InvalidArgumentException` and automatically generates a descriptive error message based on the types of the values being compared.
+The exception extends `InvalidArgumentException` and automatically generates a descriptive error message based on the
+types of the values being compared.
 
 ---
 
@@ -31,12 +34,14 @@ public function __construct(mixed $a, mixed $b)
 Creates a new exception with an auto-generated message describing the incompatible types.
 
 **Parameters:**
+
 - `$a` (mixed) - The first value in the failed comparison
 - `$b` (mixed) - The second value in the failed comparison
 
 **Generated Message Format:**
+
 ```
-Cannot compare {typeA} with {typeB}.
+Can't compare {typeA} with {typeB}.
 ```
 
 Where `{typeA}` and `{typeB}` are the types returned by `get_debug_type()`.
@@ -70,7 +75,7 @@ try {
     $temp->lessThan("hot");
 } catch (IncomparableTypesException $e) {
     echo $e->getMessage();
-    // Output: Cannot compare Temperature with string.
+    // Output: Can't compare Temperature with string.
 }
 ```
 
@@ -78,11 +83,11 @@ try {
 
 ## When to Use
 
-Throw this exception in your `compare()` or `approxCompare()` implementations when:
+Throw this exception in your `equal()`, `compare()`, or `approxEqual()` implementations when:
 
-- The `$other` value is not an instance of the expected class
-- The types cannot be meaningfully compared
-- You want a consistent, descriptive error message for type mismatches
+- The `$other` value is not an instance of the expected class and cannot be converted to one.
+- The types cannot be meaningfully compared.
+- You want a consistent, descriptive error message for type mismatches.
 
 ---
 

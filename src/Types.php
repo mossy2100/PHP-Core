@@ -13,7 +13,7 @@ use UnitEnum;
  */
 final class Types
 {
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
@@ -24,9 +24,9 @@ final class Types
     {
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Get the basic type of a value.
@@ -65,9 +65,9 @@ final class Types
         return explode(' ', $type)[0];
     }
 
-    // endregion
+    #endregion
 
-    // region Formatting methods
+    #region Formatting methods
 
     /**
      * Convert any PHP value into a unique string.
@@ -116,22 +116,22 @@ final class Types
                 /** @var resource $value */
                 return 'r:' . get_resource_id($value);
 
-            // @codeCoverageIgnoreStart
+                // @codeCoverageIgnoreStart
             default:
                 return throw new UnexpectedValueException('Value has unknown type.');
-            // @codeCoverageIgnoreEnd
+                // @codeCoverageIgnoreEnd
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Type checking methods
+    #region Type checking methods
 
     /**
-     * Check if two values have the same type.
+     * Check if two values have the same type (i.e. same scalar type or same class).
      *
-     * Uses get_debug_type() for type comparison, which provides more accurate type information than instanceof,
-     * especially for distinguishing between different class instances.
+     * Uses get_debug_type() for type comparison. This is preferable to comparing using `instanceof`, which will return
+     * true for subclasses, or get_class(), which doesn't work for scalars.
      *
      * @param mixed $obj1 The first value to compare.
      * @param mixed $obj2 The second value to compare.
@@ -142,9 +142,9 @@ final class Types
         return get_debug_type($obj1) === get_debug_type($obj2);
     }
 
-    // endregion
+    #endregion
 
-    // region Trait-related methods
+    #region Trait-related methods
 
     /**
      * Check if an object or class uses a given trait.
@@ -174,7 +174,7 @@ final class Types
         if (is_object($objOrClass)) {
             $class = $objOrClass::class;
         } elseif (class_exists($objOrClass) || interface_exists($objOrClass) || trait_exists($objOrClass)) {
-            $class = (string)$objOrClass;
+            $class = (string) $objOrClass;
         } else {
             throw new DomainException("Invalid class name: '$objOrClass'.");
         }
@@ -182,9 +182,9 @@ final class Types
         return self::getTraitsRecursive($class);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Get all traits used by a class, interface, or trait, including parent classes and trait inheritance.
@@ -223,5 +223,5 @@ final class Types
         return array_values(array_unique($traits));
     }
 
-    // endregion
+    #endregion
 }

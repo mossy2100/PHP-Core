@@ -6,11 +6,16 @@ Trait providing approximate equality comparison for objects with floating-point 
 
 ## Overview
 
-The `ApproxEquatable` trait extends `Equatable` by adding an `approxEqual()` method for tolerance-based comparison. This is essential for types containing floating-point values where exact equality is unreliable due to precision limitations.
+The `ApproxEquatable` trait extends `Equatable` by adding an `approxEqual()` method for tolerance-based comparison. This
+is essential for types containing floating-point values where exact equality is unreliable due to precision limitations.
 
-The trait provides:
-- `equal()` - Exact equality (from Equatable trait)
-- `approxEqual()` - Approximate equality with configurable tolerances
+The trait provides the following methods:
+
+| Name            | Description                                         | Implementation                                             |
+| --------------- | --------------------------------------------------- | ---------------------------------------------------------- |
+| `equal()`       | Exact equality comparison                           | Todo (via Equatable)                                       |
+| `identical()`   | Stricter than `equal()`, requires the same type too | Provided (via Equatable; see [Equatable.md](Equatable.md)) |
+| `approxEqual()` | Approximate equality with configurable tolerances   | Todo                                                       |
 
 ---
 
@@ -26,22 +31,33 @@ abstract public function approxEqual(
 ): bool
 ```
 
-**You must implement this method.** It should compare this object with another using tolerance-based comparison suitable for floating-point values.
+**You must implement this method.** It should compare this object with another using tolerance-based comparison suitable
+for floating-point values.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 - `$relTol` (float) - Relative tolerance (default: 1e-9)
 - `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16)
 
 **Returns:**
+
 - `bool` - `true` if approximately equal within tolerances, `false` otherwise
 
 **Implementation Guidelines:**
-- Should return `false` for incompatible types (not throw exceptions)
+
+- Should attempt to convert or cast `$other` to the calling object's type first where a sensible conversion exists (e.g.
+  via a `toX()` method), as with `equal()`
+- Should throw `IncomparableTypesException` only once no such conversion is possible or appropriate (matching
+  `equal()`'s contract)
 - Use combined relative and absolute tolerance: `|a - b| ≤ max(relTol * max(|a|, |b|), absTol)`
 - Relative tolerance matters for large values
 - Absolute tolerance matters for values near zero
 - Consider using `Floats::approxEqual()` for float comparisons
+
+**Throws:**
+
+- `IncomparableTypesException` - If `$other` is not a compatible type
 
 ---
 
@@ -50,6 +66,7 @@ abstract public function approxEqual(
 ### Using ApproxEquatable for Complex Numbers
 
 ```php
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
 
@@ -65,7 +82,7 @@ class Complex
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         return $this->real === $other->real
@@ -78,7 +95,7 @@ class Complex
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         // Both components must be within tolerance
@@ -94,11 +111,13 @@ $z3 = new Complex(3.00000001, 4.00000001);
 var_dump($z1->equal($z2));        // true (exact match)
 var_dump($z1->equal($z3));        // false (not exact)
 var_dump($z1->approxEqual($z3));  // true (within default tolerance)
+$z1->equal("not a complex");      // throws IncomparableTypesException
 ```
 
 ### Custom Tolerance for Scientific Measurements
 
 ```php
+use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
 
@@ -116,7 +135,7 @@ class Measurement
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         return $this->value === $other->value
@@ -129,7 +148,7 @@ class Measurement
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         // Different units are never equal
@@ -153,7 +172,8 @@ var_dump($m1->approxEqual($m2));  // true (within custom tolerance)
 
 ApproxEquatable extends Equatable and adds approximate equality for types with floating-point components.
 
-Use this for types without natural ordering (e.g., Complex numbers). For types with ordering, use **ApproxComparable** instead.
+Use this for types without natural ordering (e.g., Complex numbers). For types with ordering, use **ApproxComparable**
+instead.
 
 See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
 
@@ -168,10 +188,14 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 ## Best Practices
 
 1. **Type Safety**: Always check the type of `$other` before comparing
-2. **No Exceptions**: `approxEqual()` should never throw exceptions - return `false` for incompatible types
-3. **Use Floats::approxEqual()**: Leverage the tested tolerance logic in `Floats::approxEqual()` for component comparisons
+2. **Throw for Incompatible Types**: `approxEqual()` should throw `IncomparableTypesException` for incompatible types,
+   matching `equal()`'s contract. Return `false` only for a compatible type that simply isn't within tolerance (e.g.
+   same class, different unit).
+3. **Use Floats::approxEqual()**: Leverage the tested tolerance logic in `Floats::approxEqual()` for component
+   comparisons
 4. **Combined Tolerance**: Use both relative and absolute tolerance for robust comparison across different scales
-5. **Default Tolerances**: Provide sensible defaults (typically `Floats::DEFAULT_RELATIVE_TOLERANCE` and `Floats::DEFAULT_ABSOLUTE_TOLERANCE`)
+5. **Default Tolerances**: Provide sensible defaults (typically `Floats::DEFAULT_RELATIVE_TOLERANCE` and
+   `Floats::DEFAULT_ABSOLUTE_TOLERANCE`)
 6. **Consistency**: Ensure approximate equality is reflexive, symmetric, and as transitive as floating-point allows
 7. **Document Precision**: If your type uses custom default tolerances, document why
 8. **Component-Wise**: For composite types, check each component separately with the same tolerances

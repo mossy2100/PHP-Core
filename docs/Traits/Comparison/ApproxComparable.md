@@ -1,22 +1,28 @@
 # ApproxComparable
 
-Trait providing complete comparison operations with both exact and approximate equality for objects with natural ordering and floating-point precision concerns.
+Trait providing complete comparison operations with both exact and approximate equality for objects with natural
+ordering and floating-point precision concerns.
 
 ---
 
 ## Overview
 
-The `ApproxComparable` trait combines `Comparable` and `ApproxEquatable` to provide a complete set of comparison operations including approximate equality. This is ideal for types with natural ordering that contain floating-point values (e.g., Rational numbers).
+The `ApproxComparable` trait combines `Comparable` and `ApproxEquatable` to provide a complete set of comparison
+operations including approximate equality. This is ideal for types with natural ordering that contain floating-point
+values (e.g., Rational numbers).
 
-The trait provides:
-- `compare()` - Abstract method for exact ordering comparison (you implement this)
-- `approxEqual()` - Abstract method for approximate equality (you implement this)
-- `approxCompare()` - Approximate ordering comparison with tolerance (provided)
-- `equal()` - Exact equality (provided via Comparable)
-- `lessThan()` - Check if less than (provided by Comparable)
-- `lessThanOrEqual()` - Check if less than or equal to (provided by Comparable)
-- `greaterThan()` - Check if greater than (provided by Comparable)
-- `greaterThanOrEqual()` - Check if greater than or equal to (provided by Comparable)
+The trait provides the following methods:
+
+| Name                   | Description                                    | Implementation            |
+| ---------------------- | ---------------------------------------------- | ------------------------- |
+| `compare()`            | Exact ordering comparison                      | Todo                      |
+| `approxEqual()`        | Approximate equality                           | Todo                      |
+| `approxCompare()`      | Approximate ordering comparison with tolerance | Provided                  |
+| `equal()`              | Exact equality                                 | Provided (via Comparable) |
+| `lessThan()`           | Check if less than                             | Provided (via Comparable) |
+| `lessThanOrEqual()`    | Check if less than or equal to                 | Provided (via Comparable) |
+| `greaterThan()`        | Check if greater than                          | Provided (via Comparable) |
+| `greaterThanOrEqual()` | Check if greater than or equal to              | Provided (via Comparable) |
 
 ---
 
@@ -56,21 +62,26 @@ public function approxCompare(
 ): int
 ```
 
-Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances, otherwise performs exact comparison.
+Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances, otherwise
+performs exact comparison.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 - `$relTol` (float) - Relative tolerance (default: 1e-9)
 - `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16)
 
 **Returns:**
+
 - `int` - Exactly `-1`, `0`, or `1`
 
 **Behavior:**
+
 - If `approxEqual()` returns `true`, returns `0`
 - Otherwise, returns result of exact `compare()`
 
 **Use Cases:**
+
 - Sorting with approximate equality "buckets"
 - Implementing approximate ordering algorithms
 - Range queries with tolerance
@@ -117,7 +128,7 @@ class Score
         float $absTol = PHP_FLOAT_EPSILON
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         return Floats::approxEqual($this->value, $other->value, $relTol, $absTol);
@@ -132,7 +143,7 @@ $scores = [
 ];
 
 // Sort with approximate comparison
-usort($scores, fn($a, $b) => $a->approxCompare($b, 0.01));
+usort($scores, fn ($a, $b) => $a->approxCompare($b, 0.01));
 // Scores within 1% are considered equal and maintain relative order
 ```
 
@@ -174,7 +185,7 @@ class Vector2D
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            return false;
+            throw new IncomparableTypesException($this, $other);
         }
 
         // Both components must be within tolerance
@@ -197,7 +208,8 @@ var_dump($v1->approxCompare($v2)); // 0 (approximately equal)
 
 ## Relationship with Other Traits
 
-ApproxComparable combines Comparable and ApproxEquatable, providing the complete comparison suite for ordered types with floating-point components.
+ApproxComparable combines Comparable and ApproxEquatable, providing the complete comparison suite for ordered types with
+floating-point components.
 
 See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
 
@@ -215,7 +227,8 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 2. **Consistent Semantics**: Ensure approximate equality aligns with your ordering semantics
 3. **Don't Override approxCompare()**: Let the trait provide it based on `approxEqual()` and `compare()`
 4. **Document Precision**: Clearly document when to use exact vs approximate comparison
-5. **Type Safety**: Throw `IncomparableTypesException` in `compare()` for incompatible types, return `false` in `approxEqual()`
+5. **Type Safety**: Convert or cast `$other` to the calling object's type first where a sensible conversion exists, and
+   throw `IncomparableTypesException` in both `compare()` and `approxEqual()` only for types that remain incompatible
 6. **Use Floats Utilities**: Leverage `Floats::approxEqual()` and `Floats::compare()` for float comparisons
 7. **Sensible Defaults**: Choose default tolerances appropriate for your type's typical use cases
 8. **Test Thoroughly**: Test edge cases like zero, very large values, and very small values
@@ -225,21 +238,25 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 ## When to Use Each Method
 
 ### Use `equal()` when:
+
 - You need exact equality
 - Comparing integer-only types
 - Working with canonical forms (e.g., reduced fractions)
 
 ### Use `approxEqual()` when:
+
 - Comparing floating-point results
 - Dealing with accumulated rounding errors
 - Checking if values are "close enough" for practical purposes
 
 ### Use `compare()` when:
+
 - Sorting with strict ordering
 - Finding exact min/max
 - Binary search with exact matching
 
 ### Use `approxCompare()` when:
+
 - Sorting with tolerance "buckets"
 - Finding approximate min/max
 - Range queries with tolerance
@@ -274,7 +291,7 @@ public function approxEqual(
     float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
 ): bool {
     if (!$other instanceof self) {
-        return false;
+        throw new IncomparableTypesException($this, $other);
     }
 
     return Floats::approxEqual(
@@ -295,7 +312,7 @@ public function approxEqual(
     float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
 ): bool {
     if (!$other instanceof self) {
-        return false;
+        throw new IncomparableTypesException($this, $other);
     }
 
     // All components must be within tolerance

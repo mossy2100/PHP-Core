@@ -32,7 +32,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithScalarTypes(): void
     {
         $exception = new IncomparableTypesException('hello', 42);
-        $this->assertSame('Cannot compare string with int.', $exception->getMessage());
+        $this->assertSame("Can't compare string with int.", $exception->getMessage());
     }
 
     /**
@@ -41,7 +41,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithFloatAndBool(): void
     {
         $exception = new IncomparableTypesException(3.14, true);
-        $this->assertSame('Cannot compare float with bool.', $exception->getMessage());
+        $this->assertSame("Can't compare float with bool.", $exception->getMessage());
     }
 
     /**
@@ -50,7 +50,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithNull(): void
     {
         $exception = new IncomparableTypesException(null, 'test');
-        $this->assertSame('Cannot compare null with string.', $exception->getMessage());
+        $this->assertSame("Can't compare null with string.", $exception->getMessage());
     }
 
     /**
@@ -59,7 +59,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithArray(): void
     {
         $exception = new IncomparableTypesException([1, 2, 3], 'test');
-        $this->assertSame('Cannot compare array with string.', $exception->getMessage());
+        $this->assertSame("Can't compare array with string.", $exception->getMessage());
     }
 
     /**
@@ -68,7 +68,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithStdClass(): void
     {
         $exception = new IncomparableTypesException(new stdClass(), 42);
-        $this->assertSame('Cannot compare stdClass with int.', $exception->getMessage());
+        $this->assertSame("Can't compare stdClass with int.", $exception->getMessage());
     }
 
     /**
@@ -77,7 +77,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithNamedClass(): void
     {
         $exception = new IncomparableTypesException(new DateTime(), 'test');
-        $this->assertSame('Cannot compare DateTime with string.', $exception->getMessage());
+        $this->assertSame("Can't compare DateTime with string.", $exception->getMessage());
     }
 
     /**
@@ -86,7 +86,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithTwoDifferentObjects(): void
     {
         $exception = new IncomparableTypesException(new DateTime(), new stdClass());
-        $this->assertSame('Cannot compare DateTime with stdClass.', $exception->getMessage());
+        $this->assertSame("Can't compare DateTime with stdClass.", $exception->getMessage());
     }
 
     /**
@@ -95,7 +95,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testMessageWithSameTypes(): void
     {
         $exception = new IncomparableTypesException(new DateTime(), new DateTime());
-        $this->assertSame('Cannot compare DateTime with DateTime.', $exception->getMessage());
+        $this->assertSame("Can't compare DateTime with DateTime.", $exception->getMessage());
     }
 
     /**
@@ -104,7 +104,7 @@ final class IncomparableTypesExceptionTest extends TestCase
     public function testCanBeThrown(): void
     {
         $this->expectException(IncomparableTypesException::class);
-        $this->expectExceptionMessage('Cannot compare string with int.');
+        $this->expectExceptionMessage("Can't compare string with int.");
 
         throw new IncomparableTypesException('hello', 42);
     }

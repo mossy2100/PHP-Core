@@ -6,7 +6,8 @@ Static utility class for detecting runtime environment characteristics.
 
 ## Overview
 
-The `Environment` class provides methods for querying properties of the runtime environment, such as whether the system is 64-bit. This is a static utility class and cannot be instantiated.
+The `Environment` class provides methods for querying properties of the runtime environment, such as whether the system
+is 64-bit. This is a static utility class and cannot be instantiated.
 
 ---
 
@@ -21,6 +22,7 @@ public static function is64Bit(): bool
 Check if the system is 64-bit.
 
 **Returns:**
+
 - `bool` - True if the system has 64-bit integers, false otherwise
 
 **Examples:**
@@ -39,6 +41,7 @@ if (Environment::is64Bit()) {
 ```
 
 **Use Cases:**
+
 - Conditional logic based on platform architecture
 - Checking system capabilities before performing bit-level operations
 - Displaying system information
@@ -52,9 +55,11 @@ public static function require64Bit(): void
 Require that the system is 64-bit. Throws an exception if the current system does not use 64-bit integers.
 
 **Returns:**
+
 - `void`
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
@@ -68,6 +73,7 @@ Environment::require64Bit();  // throws RuntimeException
 ```
 
 **Use Cases:**
+
 - Guard clause at the start of methods that require 64-bit operations
 - Validating environment before performing IEEE-754 bit manipulation
 - Early failure with a clear error message on unsupported systems

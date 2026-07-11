@@ -6,17 +6,23 @@ Trait providing comparison operations for objects with natural ordering.
 
 ## Overview
 
-The `Comparable` trait provides a complete set of comparison methods based on a single `compare()` method that you implement. It uses the `Equatable` trait and adds ordering methods.
+The `Comparable` trait provides a complete set of comparison methods based on a single `compare()` method that you
+implement. It uses the `Equatable` trait and adds ordering methods.
 
-The trait follows the **Template Method Pattern** - you implement the `compare()` method, and all other methods are automatically provided.
+The trait follows the **Template Method Pattern** - you implement the `compare()` method, and all other methods are
+automatically provided.
 
-The trait provides:
-- `compare()` - Abstract method for ordering comparison (you implement this)
-- `equal()` - Check equality (provided, delegates to `compare()`)
-- `lessThan()` - Check if less than (provided)
-- `lessThanOrEqual()` - Check if less than or equal to (provided)
-- `greaterThan()` - Check if greater than (provided)
-- `greaterThanOrEqual()` - Check if greater than or equal to (provided)
+The trait provides the following methods:
+
+| Name                   | Description                                         | Implementation                                             |
+| ---------------------- | --------------------------------------------------- | ---------------------------------------------------------- |
+| `compare()`            | Ordering comparison                                 | Todo                                                       |
+| `equal()`              | Check equality                                      | Provided (delegates to `compare()`)                        |
+| `identical()`          | Stricter than `equal()`, requires the same type too | Provided (via Equatable; see [Equatable.md](Equatable.md)) |
+| `lessThan()`           | Check if less than                                  | Provided                                                   |
+| `lessThanOrEqual()`    | Check if less than or equal to                      | Provided                                                   |
+| `greaterThan()`        | Check if greater than                               | Provided                                                   |
+| `greaterThanOrEqual()` | Check if greater than or equal to                   | Provided                                                   |
 
 ---
 
@@ -29,19 +35,26 @@ abstract public function compare(mixed $other): int
 ```
 
 **You must implement this method.** It should compare this object with another and return:
+
 - `-1` if this object is less than `$other`
 - `0` if this object equals `$other`
 - `1` if this object is greater than `$other`
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `int` - Exactly `-1`, `0`, or `1`
 
 **Implementation Guidelines:**
-- Must return **exactly** -1, 0, or 1 (not just negative/zero/positive). The convenience methods use strict equality checks.
-- Should throw `IncomparableTypesException` for incompatible types (this is expected behavior).
+
+- Must return **exactly** -1, 0, or 1 (not just negative/zero/positive). The convenience methods use strict equality
+  checks.
+- Type juggling is encouraged: convert or cast `$other` to the calling object's type where a sensible conversion exists
+  (e.g. via a `toX()` method), so that comparable-but-differently-typed values can be ordered.
+- Should throw `IncomparableTypesException` only once no such conversion is possible or appropriate.
 
 ---
 
@@ -56,15 +69,23 @@ public function equal(mixed $other): bool
 Check if this object equals another. Provided by the trait - delegates to `compare()`.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `bool` - `true` if equal, `false` otherwise
 
 **Behavior:**
-- Calls `compare()` within a try/catch block
-- Returns `false` gracefully if `compare()` throws `IncomparableTypesException` for incompatible types
+
 - Returns `true` only if `compare()` returns `0`
+- Propagates `IncomparableTypesException` from `compare()` for incompatible types (does not catch it) — this matches the
+  `Equatable` trait's contract that `equal()` throws for incompatible types; use `identical()` if you need a version
+  that never throws
+
+**Throws:**
+
+- `IncomparableTypesException` - If `$other` is not a compatible type
 
 ### lessThan()
 
@@ -75,12 +96,15 @@ public function lessThan(mixed $other): bool
 Check if this object is less than another.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `bool` - `true` if this < other, `false` otherwise
 
 **Throws:**
+
 - `IncomparableTypesException` - If `$other` is not a compatible type
 
 ### lessThanOrEqual()
@@ -92,12 +116,15 @@ public function lessThanOrEqual(mixed $other): bool
 Check if this object is less than or equal to another.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `bool` - `true` if this <= other, `false` otherwise
 
 **Throws:**
+
 - `IncomparableTypesException` - If `$other` is not a compatible type
 
 ### greaterThan()
@@ -109,12 +136,15 @@ public function greaterThan(mixed $other): bool
 Check if this object is greater than another.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `bool` - `true` if this > other, `false` otherwise
 
 **Throws:**
+
 - `IncomparableTypesException` - If `$other` is not a compatible type
 
 ### greaterThanOrEqual()
@@ -126,12 +156,15 @@ public function greaterThanOrEqual(mixed $other): bool
 Check if this object is greater than or equal to another.
 
 **Parameters:**
+
 - `$other` (mixed) - The value to compare with
 
 **Returns:**
+
 - `bool` - `true` if this >= other, `false` otherwise
 
 **Throws:**
+
 - `IncomparableTypesException` - If `$other` is not a compatible type
 
 ---
@@ -282,13 +315,17 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ## Best Practices
 
-1. **Return Exactly -1, 0, or 1**: Use `Numbers::sign()` or explicit conditionals to normalize the spaceship operator result
-2. **Type Checking**: Throw `IncomparableTypesException` in `compare()` for incompatible types (don't try to handle them)
+1. **Return Exactly -1, 0, or 1**: Use `Numbers::sign()` or explicit conditionals to normalize the spaceship operator
+   result
+2. **Type Checking**: Convert or cast `$other` to the calling object's type first where a sensible conversion exists,
+   and throw `IncomparableTypesException` in `compare()` only for types that remain incompatible
 3. **Epsilon for Floats**: Use epsilon tolerance when comparing floating-point values via `Floats::compare()`
 4. **Consistency**: Ensure `compare()` is consistent with your type's equality semantics
 5. **Transitivity**: If A < B and B < C, then A < C must be true
-6. **Don't Override equal()**: Unless you have a very specific reason, let the trait provide `equal()` based on `compare()`
-7. **Use Trait Composition**: The Comparable trait already includes Equatable via trait composition - don't separately use Equatable
+6. **Don't Override equal()**: Unless you have a very specific reason, let the trait provide `equal()` based on
+   `compare()`
+7. **Use Trait Composition**: The Comparable trait already includes Equatable via trait composition - don't separately
+   use Equatable
 
 ---
 

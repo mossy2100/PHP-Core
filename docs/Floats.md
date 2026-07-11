@@ -6,7 +6,8 @@ Static utility class for working with floating-point numbers in PHP.
 
 ## Overview
 
-The `Floats` class provides tools for comparison, conversion, navigation, random generation, and handling of IEEE-754 special values. This is a static utility class and cannot be instantiated.
+The `Floats` class provides tools for comparison, conversion, navigation, random generation, and handling of IEEE-754
+special values. This is a static utility class and cannot be instantiated.
 
 ### Comparison Issues
 
@@ -22,31 +23,40 @@ The `approxEqual()` method provides reliable approximate comparison with configu
 
 The IEEE-754 standard defines several special values with unique properties:
 
-- **-0.0 and +0.0**: Distinct values that compare as equal (`-0.0 === 0.0` returns `true`), but have different binary representations and can produce different results in certain operations (e.g., `1.0 / -0.0` returns `-INF`)
+- **-0.0 and +0.0**: Distinct values that compare as equal (`-0.0 === 0.0` returns `true`), but have different binary
+  representations and can produce different results in certain operations (e.g., `1.0 / -0.0` returns `-INF`)
 - **INF and -INF**: Positive and negative infinity, representing values too large to represent
 - **NAN**: 'Not a Number', the result of undefined operations (e.g., `0.0 / 0.0`, `sqrt(-1)`)
 
-Several methods are provided to facilitate working with these values: `isNegativeZero()`, `isPositiveZero()`, `isSpecial()`, and `normalizeZero()`.
+Several methods are provided to facilitate working with these values: `isNegativeZero()`, `isPositiveZero()`,
+`isSpecial()`, and `normalizeZero()`.
 
 ### Floats and Integers
 
-Converting floats to integers can lose precision. The `tryConvertToInt()` method provides safe, lossless conversion when possible, returning `null` if conversion would lose precision.
+Converting floats to integers can lose precision. The `tryConvertToInt()` method provides safe, lossless conversion when
+possible, returning `null` if conversion would lose precision.
 
-Some floats can represent integers exactly. The `isExactInt()` method returns `true` if the value represents one (and only one) integer exactly.
+Some floats can represent integers exactly. The `isExactInt()` method returns `true` if the value represents one (and
+only one) integer exactly.
 
 ### Navigating the Float Space
 
-The `next()` and `previous()` methods allow traversal of the IEEE-754 number line, useful for testing edge cases and understanding float precision.
+The `next()` and `previous()` methods allow traversal of the IEEE-754 number line, useful for testing edge cases and
+understanding float precision.
 
 ### Random Float Generation
 
 Two methods provide random floats for different use cases:
-- `rand()` generates random floats within a specified range (or the full float space by default) using IEEE-754 component assembly
-- `randUniform()` generates uniformly distributed values within specific bounds using linear interpolation with automatic ULP-based step calculation
+
+- `rand()` generates random floats within a specified range (or the full float space by default) using IEEE-754
+  component assembly
+- `randUniform()` generates uniformly distributed values within specific bounds using linear interpolation with
+  automatic ULP-based step calculation
 
 ### IEEE-754 Component Access
 
 Two methods provide direct access to IEEE-754 double-precision components:
+
 - `disassemble()` extracts sign, exponent, and fraction from a float
 - `assemble()` constructs a float from sign, exponent, and fraction components
 
@@ -76,7 +86,8 @@ The default absolute tolerance used by `approxEqual()` and `approxCompare()`.
 public const int MAX_EXACT_INT = 1 << 53;  // 9007199254740992
 ```
 
-Maximum integer that can be exactly represented as a float (2<sup>53</sup>). Beyond this value, not all consecutive integers are representable in double-precision floating-point format.
+Maximum integer that can be exactly represented as a float (2<sup>53</sup>). Beyond this value, not all consecutive
+integers are representable in double-precision floating-point format.
 
 ### TAU
 
@@ -84,7 +95,9 @@ Maximum integer that can be exactly represented as a float (2<sup>53</sup>). Bey
 public const float TAU = 2 * M_PI;
 ```
 
-The circle constant τ (tau), equal to 2π ≈ 6.283185307179586, which is the number of radians in one turn. Apart from circles and angles, TAU appears throughout mathematics in areas such as complex analysis, Fourier transforms, the normal distribution, and many integral formulas.
+The circle constant τ (tau), equal to 2π ≈ 6.283185307179586, which is the number of radians in one turn. Apart from
+circles and angles, TAU appears throughout mathematics in areas such as complex analysis, Fourier transforms, the normal
+distribution, and many integral formulas.
 
 ---
 
@@ -99,9 +112,11 @@ public static function isNegativeZero(float $value): bool
 Determines if a floating-point number is negative zero (-0.0).
 
 **Parameters:**
+
 - `$value` (float) - The floating-point number to check
 
 **Returns:**
+
 - `bool` - Returns `true` if the value is negative zero (-0.0), `false` otherwise
 
 **Examples:**
@@ -121,9 +136,11 @@ public static function isPositiveZero(float $value): bool
 Determines if a floating-point number is positive zero (+0.0).
 
 **Parameters:**
+
 - `$value` (float) - The floating-point number to check
 
 **Returns:**
+
 - `bool` - Returns `true` if the value is positive zero (+0.0), `false` otherwise
 
 **Examples:**
@@ -140,12 +157,15 @@ Floats::isPositiveZero(1.0);   // false
 public static function isNegative(float $value): bool
 ```
 
-Check if a floating-point number is negative. This method considers -0.0 as negative (unlike the simple comparison `$value < 0`).
+Check if a floating-point number is negative. This method considers -0.0 as negative (unlike the simple comparison
+`$value < 0`).
 
 **Parameters:**
+
 - `$value` (float) - The value to check
 
 **Returns:**
+
 - `bool` - Returns `true` for -0.0, -INF, and negative values; `false` for +0.0, INF, NAN, and positive values
 
 **Examples:**
@@ -170,9 +190,11 @@ public static function isPositive(float $value): bool
 Check if a floating-point number is positive. This method considers +0.0 as positive.
 
 **Parameters:**
+
 - `$value` (float) - The value to check
 
 **Returns:**
+
 - `bool` - Returns `true` for +0.0, INF, and positive values; `false` for -0.0, -INF, NAN, and negative values
 
 **Examples:**
@@ -194,12 +216,15 @@ Floats::isPositive(NAN);    // false
 public static function isSpecial(float $value): bool
 ```
 
-Check if a float is one of the special IEEE-754 values: NAN, -0.0, +INF, or -INF. Note that +0.0 is not considered a special value.
+Check if a float is one of the special IEEE-754 values: NAN, -0.0, +INF, or -INF. Note that +0.0 is not considered a
+special value.
 
 **Parameters:**
+
 - `$value` (float) - The value to check
 
 **Returns:**
+
 - `bool` - Returns `true` if the value is NAN, -0.0, +INF, or -INF; `false` otherwise
 
 **Examples:**
@@ -222,15 +247,19 @@ Floats::isSpecial(-42.5);  // false
 public static function isExactInt(float $value): bool
 ```
 
-Check if a float value is exactly representable as an integer without rounding error. Returns `true` for finite integers within IEEE-754 double's exact integer range (±2<sup>53</sup>).
+Check if a float value is exactly representable as an integer without rounding error. Returns `true` for finite integers
+within IEEE-754 double's exact integer range (±2<sup>53</sup>).
 
 **Parameters:**
+
 - `$value` (float) - The value to check
 
 **Returns:**
+
 - `bool` - Returns `true` if the value represents an exact integer within ±2<sup>53</sup>, `false` otherwise
 
 **Behavior:**
+
 - Checks three conditions: `is_finite($value) && floor($value) === $value && abs($value) <= MAX_EXACT_INT`
 - Returns `true` for whole numbers within the exact range
 - Returns `false` for fractional values
@@ -271,7 +300,9 @@ Floats::isExactInt(NAN);      // false
 
 **Why ±2<sup>53</sup>?**
 
-IEEE-754 doubles use 52 bits for the fraction plus 1 implicit bit, giving 53 bits of precision. This means consecutive integers can be exactly represented up to 2<sup>53</sup>. Beyond this, the gaps between representable floats become larger than 1:
+IEEE-754 doubles use 52 bits for the fraction plus 1 implicit bit, giving 53 bits of precision. This means consecutive
+integers can be exactly represented up to 2<sup>53</sup>. Beyond this, the gaps between representable floats become
+larger than 1:
 
 ```php
 // At 2^53, consecutive integers are exactly representable
@@ -288,7 +319,7 @@ Floats::isExactInt($beyond);  // false (exceeds our boundary)
 Both methods check for exact integer representation, but serve different purposes:
 
 | Method              | Purpose                    | Range                                               | Return |
-|---------------------|----------------------------|-----------------------------------------------------|--------|
+| ------------------- | -------------------------- | --------------------------------------------------- | ------ |
 | `isExactInt()`      | Check exact representation | ±2<sup>53</sup> (float's exact range)               | `bool` |
 | `tryConvertToInt()` | Lossless conversion        | -2<sup>63</sup> to 2<sup>63</sup>-1 (PHP int range) | `?int` |
 
@@ -301,6 +332,7 @@ Floats::tryConvertToInt($value);  // 42 (not null)
 ```
 
 **Use Cases:**
+
 - Validating that a float represents a whole number before operations
 - Optimizing arithmetic by detecting when float → int conversion is safe
 - Determining when to use integer math vs float math
@@ -308,6 +340,7 @@ Floats::tryConvertToInt($value);  // 42 (not null)
 - Calculating error bounds in error tracking systems
 
 **See Also:**
+
 - `isApproxInt()` - Check if a float is approximately an integer
 - `tryConvertToInt()` - Convert float to int losslessly
 - `ulp()` - Calculate the spacing between adjacent floats
@@ -322,14 +355,17 @@ public static function isApproxInt(
 ): bool
 ```
 
-Check if a float value is approximately an integer (within tolerance). Unlike `isExactInt()`, this method allows for small floating-point errors that may accumulate during calculations.
+Check if a float value is approximately an integer (within tolerance). Unlike `isExactInt()`, this method allows for
+small floating-point errors that may accumulate during calculations.
 
 **Parameters:**
+
 - `$value` (float) - The value to check
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`)
 
 **Returns:**
+
 - `bool` - Returns `true` if the value is approximately an integer, `false` otherwise
 
 **Examples:**
@@ -366,11 +402,13 @@ Floats::isApproxInt(NAN);      // false
 ```
 
 **Use Cases:**
+
 - Checking if a logarithm result is an integer power
 - Validating that a calculation result is approximately a whole number
 - Filtering values based on "integrality" with tolerance for floating-point errors
 
 **See Also:**
+
 - `isExactInt()` - For exact integer check without tolerance
 - `approxEqual()` - For comparing two floats with tolerance
 
@@ -389,28 +427,35 @@ public static function approxEqual(
 ): bool
 ```
 
-Check if two floats are approximately equal using combined absolute and relative tolerance. This is the recommended way to compare floating-point numbers for equality, as direct comparison (`===`) can fail due to precision issues.
+Check if two floats are approximately equal using combined absolute and relative tolerance. This is the recommended way
+to compare floating-point numbers for equality, as direct comparison (`===`) can fail due to precision issues.
 
-This method mirrors [Python's `math.isclose()` function](https://docs.python.org/3/library/math.html#math.isclose), which uses the following algorithm:
+This method mirrors [Python's `math.isclose()` function](https://docs.python.org/3/library/math.html#math.isclose),
+which uses the following algorithm:
+
 1. First checks if values are exactly equal (handles identical values efficiently)
 2. Checks absolute tolerance (useful for comparisons near zero)
 3. If exceeded, checks relative tolerance (scales with magnitude)
 
 **Parameters:**
+
 - `$a` (float) - The first float
 - `$b` (float) - The second float
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`, which is ~2.22e-16)
 
 **Returns:**
+
 - `bool` - Returns `true` if the floats are approximately equal, `false` otherwise
 
 **Throws:**
+
 - `DomainException` - If either tolerance is negative
 
 **Examples:**
 
 Basic usage with combined tolerance:
+
 ```php
 // Direct float comparison can fail due to precision issues
 0.1 + 0.2 === 0.3;  // false (!)
@@ -430,6 +475,7 @@ Floats::approxEqual(1.0, 1.1, 1e-6);  // false
 ```
 
 With custom tolerances:
+
 ```php
 // Tighter absolute tolerance
 Floats::approxEqual(1e-20, 2e-20, 1e-9, 0.0);  // false
@@ -442,6 +488,7 @@ Floats::approxEqual(0.001, 0.0011, 0.01, 1e-4);  // true
 ```
 
 Special values:
+
 ```php
 // Handles positive and negative zero
 Floats::approxEqual(0.0, -0.0);  // true
@@ -457,6 +504,7 @@ Floats::approxEqual(NAN, 0.0);    // false
 ```
 
 **Behavior:**
+
 - Handles NAN by returning `false` (NAN is never equal to anything)
 - Handles infinities using exact equality (`INF === INF`, `-INF === -INF`)
 - First checks exact equality (`$a === $b`) as a fast path
@@ -465,22 +513,27 @@ Floats::approxEqual(NAN, 0.0);    // false
 - **Symmetric**: `approxEqual($a, $b)` equals `approxEqual($b, $a)`
 
 **Choosing Tolerances:**
+
 - **Defaults**: Work well for most general-purpose comparisons
-- **Absolute tolerance**: Use `PHP_FLOAT_EPSILON` (default) for values near zero, or custom values for domain-specific precision
+- **Absolute tolerance**: Use `PHP_FLOAT_EPSILON` (default) for values near zero, or custom values for domain-specific
+  precision
 - **Relative tolerance**: Use `1e-9` (default) for tight comparisons, `1e-6` for looser comparisons
 
 If you want to compare values by relative tolerance only, set `$absTol` to zero.\
 If you want to compare values by absolute tolerance only, set `$relTol` to zero.
 
-If in doubt, write tests that reflect expected/typical usage in your application, and adjust tolerances for optimal results.
+If in doubt, write tests that reflect expected/typical usage in your application, and adjust tolerances for optimal
+results.
 
 **Use Cases:**
+
 - Comparing results of floating-point calculations
 - Unit testing numerical code
 - Checking convergence in iterative algorithms
 - Scientific and engineering calculations
 
 **See Also:**
+
 - `approxCompare()` - Three-way comparison with approximate equality
 
 ### approxCompare()
@@ -494,18 +547,22 @@ public static function approxCompare(
 ): int
 ```
 
-Three-way comparison of two floats with approximate equality support. Returns an integer indicating whether the first float is less than, equal to (within tolerance), or greater than the second float.
+Three-way comparison of two floats with approximate equality support. Returns an integer indicating whether the first
+float is less than, equal to (within tolerance), or greater than the second float.
 
 **Parameters:**
+
 - `$a` (float) - The first float
 - `$b` (float) - The second float
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`)
 
 **Returns:**
+
 - `int` - Returns exactly `-1` if `$a < $b`, `0` if approximately equal, `1` if `$a > $b`
 
 **Throws:**
+
 - `DomainException` - If either float is NAN, or either tolerance is negative
 
 **Examples:**
@@ -541,6 +598,7 @@ Floats::approxCompare(NAN, 1.0);      // throws DomainException
 ```
 
 **Behavior:**
+
 - Throws `DomainException` if either argument is NAN (NAN cannot be meaningfully compared)
 - First checks approximate equality using `approxEqual()` with the specified tolerances
 - If approximately equal, returns `0`
@@ -548,6 +606,7 @@ Floats::approxCompare(NAN, 1.0);      // throws DomainException
 - Infinities are handled by `approxEqual()` using exact equality
 
 **Use Cases:**
+
 - Implementing `compare()` methods in custom classes (e.g., `Comparable` trait)
 - Sorting floats with epsilon tolerance
 - Building comparison logic that needs three-way results
@@ -567,6 +626,7 @@ usort($values, function($a, $b) {
 ```
 
 **See Also:**
+
 - `approxEqual()` - Two-way approximate equality check
 
 ---
@@ -579,12 +639,15 @@ usort($values, function($a, $b) {
 public static function normalizeZero(float $value): float
 ```
 
-Normalizes negative zero to positive zero. This can be used to avoid surprising results from certain operations where the distinction between -0.0 and +0.0 matters.
+Normalizes negative zero to positive zero. This can be used to avoid surprising results from certain operations where
+the distinction between -0.0 and +0.0 matters.
 
 **Parameters:**
+
 - `$value` (float) - The floating-point number to normalize
 
 **Returns:**
+
 - `float` - Returns `0.0` if the input is `-0.0`, otherwise returns the value unchanged
 
 **Examples:**
@@ -596,7 +659,8 @@ Floats::normalizeZero(-1.5);  // -1.5
 Floats::normalizeZero(2.5);   // 2.5
 ```
 
-**Use Case:** When you want consistent behavior regardless of whether a zero is positive or negative, especially in comparisons or output formatting.
+**Use Case:** When you want consistent behavior regardless of whether a zero is positive or negative, especially in
+comparisons or output formatting.
 
 ### trunc()
 
@@ -604,12 +668,15 @@ Floats::normalizeZero(2.5);   // 2.5
 public static function trunc(float $value): float
 ```
 
-Truncate a float towards zero (remove the fractional part). This is equivalent to `floor()` for positive numbers and `ceil()` for negative numbers. Unlike casting to int, this method handles values outside PHP's integer range.
+Truncate a float towards zero (remove the fractional part). This is equivalent to `floor()` for positive numbers and
+`ceil()` for negative numbers. Unlike casting to int, this method handles values outside PHP's integer range.
 
 **Parameters:**
+
 - `$value` (float) - The value to truncate
 
 **Returns:**
+
 - `float` - The truncated value (integer part towards zero)
 
 **Examples:**
@@ -642,7 +709,7 @@ Floats::trunc(NAN);     // NAN
 **Comparison with floor():**
 
 | Value | `trunc()` | `floor()` |
-|-------|-----------|-----------|
+| ----- | --------- | --------- |
 | 3.7   | 3.0       | 3.0       |
 | -3.7  | -3.0      | -4.0      |
 | 0.9   | 0.0       | 0.0       |
@@ -658,11 +725,13 @@ Floats::trunc($x) + Floats::frac($x);  // -3.0 + (-0.7) = -3.7
 ```
 
 **Use Cases:**
+
 - Extracting the integer part of a number towards zero
 - Implementing mathematical functions that require truncation semantics
 - Working with values too large for PHP's integer type
 
 **See Also:**
+
 - `frac()` - Get the fractional part (satisfies x = trunc(x) + frac(x))
 - `isExactInt()` - Check if a float represents an exact integer
 
@@ -672,12 +741,15 @@ Floats::trunc($x) + Floats::frac($x);  // -3.0 + (-0.7) = -3.7
 public static function frac(float $value): float
 ```
 
-Return the fractional part of a float. This method satisfies the identity: `x = trunc(x) + frac(x)`. For negative values, the result is also negative.
+Return the fractional part of a float. This method satisfies the identity: `x = trunc(x) + frac(x)`. For negative
+values, the result is also negative.
 
 **Parameters:**
+
 - `$value` (float) - The value to get the fractional part of
 
 **Returns:**
+
 - `float` - The fractional part. Returns `0.0` for ±INF (infinity has no fractional part). Returns `NAN` for NAN input.
 
 **Examples:**
@@ -716,12 +788,14 @@ foreach ($values as $x) {
 ```
 
 **Use Cases:**
+
 - Extracting the decimal portion of a number
 - Implementing modular arithmetic with floats
 - Signal processing and waveform generation
 - Checking if a value has a fractional component
 
 **See Also:**
+
 - `trunc()` - Get the integer part towards zero
 
 ### wrap()
@@ -730,26 +804,30 @@ foreach ($values as $x) {
 public static function wrap(float $value, float $unitsPerTurn = Floats::TAU, bool $signed = true): float
 ```
 
-Wrap a value into a standard range, typically used for normalizing angles or other cyclic quantities. The method reduces the value modulo the period and adjusts it to fit within the specified range.
+Wrap a value into a standard range, typically used for normalizing angles or other cyclic quantities. The method reduces
+the value modulo the period and adjusts it to fit within the specified range.
 
 **Parameters:**
+
 - `$value` (float) - The value to wrap
 - `$unitsPerTurn` (float) - The period/range size (default: `TAU` for radians)
 - `$signed` (bool) - If `true`, use signed range; if `false`, use unsigned range (default: `true`)
 
 **Returns:**
+
 - `float` - The wrapped value within the specified range
 
 **Behavior:**
 
 The range depends on the `$signed` parameter:
 
-| Mode | Range | Lower Bound | Upper Bound |
-|------|-------|-------------|-------------|
-| Signed (`true`) | `(-period/2, period/2]` | Excluded | Included |
-| Unsigned (`false`) | `[0, period)` | Included | Excluded |
+| Mode               | Range                   | Lower Bound | Upper Bound |
+| ------------------ | ----------------------- | ----------- | ----------- |
+| Signed (`true`)    | `(-period/2, period/2]` | Excluded    | Included    |
+| Unsigned (`false`) | `[0, period)`           | Included    | Excluded    |
 
 Note that each range has one boundary excluded and one included:
+
 - **Signed**: The lower bound is excluded, upper bound is included. For degrees: `(-180°, 180°]`
 - **Unsigned**: The lower bound is included, upper bound is excluded. For degrees: `[0°, 360°)`
 
@@ -814,6 +892,7 @@ Floats::wrap(50.0, 24.0, signed: false);   // 2.0
 ```
 
 **Use Cases:**
+
 - Normalizing angles after arithmetic operations
 - Compass bearings and navigation calculations
 - Clock/time arithmetic (hours, minutes)
@@ -822,6 +901,7 @@ Floats::wrap(50.0, 24.0, signed: false);   // 2.0
 - Any domain with wraparound behavior
 
 **See Also:**
+
 - `TAU` - The circle constant τ = 2π, default period for radians
 - `normalizeZero()` - Used internally to handle negative zero
 
@@ -835,15 +915,19 @@ Floats::wrap(50.0, 24.0, signed: false);   // 2.0
 public static function tryConvertToInt(float $f): ?int
 ```
 
-Try to convert a float to an integer losslessly. Returns the equivalent integer if the float represents a whole number, or `null` if conversion would lose precision.
+Try to convert a float to an integer losslessly. Returns the equivalent integer if the float represents a whole number,
+or `null` if conversion would lose precision.
 
 **Parameters:**
+
 - `$f` (float) - The float to convert
 
 **Returns:**
+
 - `?int` - The equivalent integer if the float can be converted losslessly, or `null` otherwise
 
 **Behavior:**
+
 - Returns the integer value if the float equals a whole number (e.g., 5.0 → 5, -10.0 → -10, 0.0 → 0)
 - Returns `null` if the float has a fractional part (e.g., 5.5, 0.1)
 - Returns `null` for non-finite values (NAN, ±INF)
@@ -880,12 +964,14 @@ Floats::tryConvertToInt(NAN);  // null
 ```
 
 **Use Cases:**
+
 - Optimizing methods that accept `int|float` by avoiding expensive conversions when possible
 - Validating that a float represents a whole number
 - Conditional type conversion in generic numeric code
 
-**Precision Limits:**
-On 64-bit systems, floats can exactly represent integers up to 2<sup>53</sup> (9,007,199,254,740,992). Beyond this, not all integers can be represented exactly as floats. Powers of 2 can be represented exactly up to much larger values.
+**Precision Limits:** On 64-bit systems, floats can exactly represent integers up to 2<sup>53</sup>
+(9,007,199,254,740,992). Beyond this, not all integers can be represented exactly as floats. Powers of 2 can be
+represented exactly up to much larger values.
 
 ### toHex()
 
@@ -893,14 +979,19 @@ On 64-bit systems, floats can exactly represent integers up to 2<sup>53</sup> (9
 public static function toHex(float $value): string
 ```
 
-Convert a float to a unique 16-character hexadecimal string representation. Every possible float value produces a unique hex string, making this method ideal for hashing or keying floats in collections.
+Convert a float to a unique 16-character hexadecimal string representation. Every possible float value produces a unique
+hex string, making this method ideal for hashing or keying floats in collections.
 
-**Note:** The method works for NAN, but, be aware, NAN doesn't technically have a unique hex representation; in fact, for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the hex representation of NAN used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
+**Note:** The method works for NAN, but, be aware, NAN doesn't technically have a unique hex representation; in fact,
+for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the hex representation of NAN
+used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
 
 **Parameters:**
+
 - `$value` (float) - The float to convert
 
 **Returns:**
+
 - `string` - A 16-character hexadecimal string representing the binary representation of the float
 
 **Examples:**
@@ -920,7 +1011,9 @@ Floats::toHex($a) !== Floats::toHex($b);  // true
 ```
 
 **Advantages over string conversion:**
-- **Uniqueness**: Unlike casting to string or using `sprintf()`, every distinct float value (including -0.0 vs +0.0) produces a unique hex string
+
+- **Uniqueness**: Unlike casting to string or using `sprintf()`, every distinct float value (including -0.0 vs +0.0)
+  produces a unique hex string
 - **Consistency**: Always produces exactly 16 characters
 - **Precision**: Preserves the exact binary representation of the float
 
@@ -936,7 +1029,8 @@ public static function format(
 ): string
 ```
 
-Format a float as a string with control over precision, notation, and trailing zeros. A richer alternative to `sprintf()` with built-in support for Unicode scientific notation (e.g. `1.50×10³` instead of `1.50e+3`).
+Format a float as a string with control over precision, notation, and trailing zeros. A richer alternative to
+`sprintf()` with built-in support for Unicode scientific notation (e.g. `1.50×10³` instead of `1.50e+3`).
 
 **Parameters:**
 
@@ -944,7 +1038,7 @@ Format a float as a string with control over precision, notation, and trailing z
 - `$specifier` (string) - The format specifier. Default: `'g'`.
 
 | Specifier | Description                                                                    |
-| --------- |--------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------ |
 | `'e'`     | Scientific notation with lowercase `e`.                                        |
 | `'E'`     | Scientific notation with uppercase `E`.                                        |
 | `'f'`     | Fixed-point notation (locale-aware).                                           |
@@ -954,17 +1048,23 @@ Format a float as a string with control over precision, notation, and trailing z
 | `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
 | `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
 
-- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. When `null`, defaults to `6` for `e`/`E`/`f`/`F` (matching `sprintf`) and `7` for `g`/`G`/`h`/`H`. The `g`/`h` default is one higher so that the result has the same precision as `e` (which uses 6 decimal places = 7 significant digits), making `g` genuinely "the shorter of `e` and `f` at matching precision".
+- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. When
+  `null`, defaults to `6` for `e`/`E`/`f`/`F` (matching `sprintf`) and `7` for `g`/`G`/`h`/`H`. The `g`/`h` default is
+  one higher so that the result has the same precision as `e` (which uses 6 decimal places = 7 significant digits),
+  making `g` genuinely "the shorter of `e` and `f` at matching precision".
 - `$trimZeros` (?bool) - Controls trailing zero trimming:
   - `null` (default) — auto: trims when `$precision` is null, preserves when `$precision` is explicit.
   - `true` — always trim trailing zeros (and trailing decimal point).
   - `false` — never trim; preserve all digits.
-- `$ascii` (bool) - If `true`, use ASCII `e` notation. If `false` (default), scientific notation uses `×10` with superscript exponents (e.g. `1.50×10³`).
+- `$ascii` (bool) - If `true`, use ASCII `e` notation. If `false` (default), scientific notation uses `×10` with
+  superscript exponents (e.g. `1.50×10³`).
 
 **Returns:**
+
 - `string` - The formatted value string.
 
 **Throws:**
+
 - `DomainException` - If the specifier is invalid or precision is outside 0–17.
 
 **Examples:**
@@ -1002,18 +1102,23 @@ Floats::format(-0.0);                          // "0"
 public static function rand(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
 ```
 
-Generate a random float in the specified range by constructing IEEE-754 components. This method can return any representable float within the given range except -0.0, which is specifically excluded for two reasons:
+Generate a random float in the specified range by constructing IEEE-754 components. This method can return any
+representable float within the given range except -0.0, which is specifically excluded for two reasons:
+
 - It's usually not a wanted value.
 - To avoid a zero-equivalent value (-0.0 or +0.0) having twice the probability of being returned as any non-zero value.
 
 **Parameters:**
+
 - `$min` (float) - The minimum value (inclusive, default: -PHP_FLOAT_MAX)
 - `$max` (float) - The maximum value (inclusive, default: PHP_FLOAT_MAX)
 
 **Returns:**
+
 - `float` - A random finite float in the range [min, max]
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 - `DomainException` - If min or max are non-finite (NAN, ±INF), or if min > max
 
@@ -1034,6 +1139,7 @@ $f = Floats::rand(5.0, 5.0);  // 5.0
 ```
 
 **Characteristics:**
+
 - Can return **any representable float** in the given range
 - Will not return a special value (NAN, ±INF, or -0.0)
 - Uses IEEE-754 component assembly (sign, exponent, fraction)
@@ -1041,17 +1147,20 @@ $f = Floats::rand(5.0, 5.0);  // 5.0
 - Handles ranges spanning zero correctly
 
 **How it works:**
+
 1. Determines valid sign values based on min/max
 2. Determines valid exponent range based on min/max
 3. Generates random fraction bits
 4. Assembles components and validates result is in range and non-special
 
 **Use Cases:**
+
 - Fuzzing and property-based testing with full float coverage
 - Testing edge cases in floating-point algorithms
 - Generating test data that exercises the full precision of floats
 
 **See Also:**
+
 - `randUniform()` - For uniformly distributed random floats
 
 ### randUniform()
@@ -1060,16 +1169,21 @@ $f = Floats::rand(5.0, 5.0);  // 5.0
 public static function randUniform(float $min, float $max): float
 ```
 
-Generate a uniformly distributed random float in the specified range. The step size is automatically calculated using ULP to ensure that the number of values the function can return for a given range is maximized, and the probability of each possible return value is equal.
+Generate a uniformly distributed random float in the specified range. The step size is automatically calculated using
+ULP to ensure that the number of values the function can return for a given range is maximized, and the probability of
+each possible return value is equal.
 
 **Parameters:**
+
 - `$min` (float) - The minimum value (inclusive)
 - `$max` (float) - The maximum value (inclusive)
 
 **Returns:**
+
 - `float` - A random float in the range [min, max]
 
 **Throws:**
+
 - `DomainException` - If min or max are non-finite (NAN, ±INF), or if min > max
 - `RandomException` - If an appropriate source of randomness is unavailable
 
@@ -1087,6 +1201,7 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 ```
 
 **Characteristics:**
+
 - **Uniform distribution** in the numeric range
 - Uses `random_int()` internally for cryptographic randomness
 - Step size calculated using `ulp()` of the maximum magnitude
@@ -1095,12 +1210,14 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 - Returns exactly min or max when randomly selected
 
 **How it works:**
+
 1. Calculates ULP at the maximum magnitude
 2. Determines number of steps: `round($range / $ulp)`
 3. Generates random integer from 0 to number of steps
 4. Interpolates: `$min + ($randomStep / $numSteps) * $range`
 
 **Use Cases:**
+
 - Monte Carlo simulations requiring uniform distribution
 - Generating test data within specific ranges
 - Random sampling for statistical analysis
@@ -1109,7 +1226,7 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 **Comparison with `rand()`:**
 
 | Feature      | `rand()`                          | `randUniform()`             |
-|--------------|-----------------------------------|-----------------------------|
+| ------------ | --------------------------------- | --------------------------- |
 | Distribution | IEEE-754 density (more near zero) | Uniform                     |
 | Precision    | Any representable float           | ULP-based steps             |
 | Speed        | Slower (rejection loop)           | Faster (direct calculation) |
@@ -1117,6 +1234,7 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 | Duplicates   | Possible                          | Avoided via ULP calculation |
 
 **See Also:**
+
 - `rand()` - For non-uniform distribution with full float coverage
 - `ulp()` - Underlying calculation for step size
 
@@ -1124,7 +1242,8 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 
 ## Bit Operations
 
-These methods work on the IEEE-754 bit representation of a double-width (64-bit) float. They can be used to extract individual components, to construct a float from them, or find adjacent values in the float space.
+These methods work on the IEEE-754 bit representation of a double-width (64-bit) float. They can be used to extract
+individual components, to construct a float from them, or find adjacent values in the float space.
 
 ### floatToBits()
 
@@ -1135,12 +1254,15 @@ public static function floatToBits(float $f): int
 Converts a float to its 64-bit integer representation. This reinterprets the IEEE-754 bit pattern as an integer.
 
 **Parameters:**
+
 - `$f` (float) - The float to convert
 
 **Returns:**
+
 - `int` - The 64-bit integer represented by the same bit pattern
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
@@ -1162,6 +1284,7 @@ $original === $restored;  // true
 ```
 
 **Use Cases:**
+
 - Low-level float manipulation
 - Extracting individual IEEE-754 components (sign, exponent, fraction)
 - Implementing `next()` and `previous()` methods
@@ -1169,6 +1292,7 @@ $original === $restored;  // true
 - Custom serialization of floats
 
 **See Also:**
+
 - `bitsToFloat()` - Convert bits back to float
 - `disassemble()` - Extract individual IEEE-754 components
 
@@ -1178,18 +1302,24 @@ $original === $restored;  // true
 public static function bitsToFloat(int $bits): float
 ```
 
-Converts a 64-bit integer to a float by reinterpreting its bit pattern. This is different from casting an integer to a float, which preserves the numeric value rather than the bit representation.
+Converts a 64-bit integer to a float by reinterpreting its bit pattern. This is different from casting an integer to a
+float, which preserves the numeric value rather than the bit representation.
 
 **Parameters:**
+
 - `$bits` (int) - The 64-bit integer representing the desired bit pattern
 
 **Returns:**
+
 - `float` - The float with the specified bit pattern
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
-**Note:** The IEEE 754 standard supports 2<sup>53</sup> - 2 distinct bit patterns that represent NAN values. While this method can construct floats from any of these bit patterns, PHP normalizes all NAN values to a canonical representation (0x7ff8000000000000) in subsequent operations.
+**Note:** The IEEE 754 standard supports 2<sup>53</sup> - 2 distinct bit patterns that represent NAN values. While this
+method can construct floats from any of these bit patterns, PHP normalizes all NAN values to a canonical representation
+(0x7ff8000000000000) in subsequent operations.
 
 **Examples:**
 
@@ -1207,14 +1337,17 @@ $restored = Floats::bitsToFloat($bits);
 $original === $restored;  // true
 ```
 
-**Note:** Hex literals with the high bit set (e.g. `0x8000000000000000`) overflow to `float` in PHP because integers are signed 64-bit. Use the signed int equivalents or `PHP_INT_MIN` for the sign-bit-only pattern.
+**Note:** Hex literals with the high bit set (e.g. `0x8000000000000000`) overflow to `float` in PHP because integers are
+signed 64-bit. Use the signed int equivalents or `PHP_INT_MIN` for the sign-bit-only pattern.
 
 **Use Cases:**
+
 - Constructing specific float values for testing
 - Implementing `next()` and `previous()` methods
 - Low-level IEEE-754 manipulation
 
 **See Also:**
+
 - `floatToBits()` - Convert float to bits
 - `assemble()` - Construct float from IEEE-754 components
 
@@ -1227,16 +1360,19 @@ public static function disassemble(float $f): array
 Disassemble a float into its IEEE-754 double-precision components.
 
 **Parameters:**
+
 - `$f` (float) - The float to disassemble
 
 **Returns:**
+
 - An associative array containing:
-    - `bits` (int): Complete 64-bit representation
-    - `sign` (int): 0 for positive, 1 for negative
-    - `exponent` (int): 11-bit biased exponent (0-2047, bias is 1023)
-    - `fraction` (int): 52-bit fraction/mantissa
+  - `bits` (int): Complete 64-bit representation
+  - `sign` (int): 0 for positive, 1 for negative
+  - `exponent` (int): 11-bit biased exponent (0-2047, bias is 1023)
+  - `fraction` (int): 52-bit fraction/mantissa
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
@@ -1266,6 +1402,7 @@ $nan = Floats::disassemble(NAN);   // sign = ?, exponent = 2047, fraction > 0
 ```
 
 **Use Cases:**
+
 - Understanding IEEE-754 representation
 - Debugging floating-point issues
 - Implementing custom float manipulation algorithms
@@ -1280,14 +1417,17 @@ public static function assemble(int $sign, int $exponent, int $fraction): float
 Assemble a float from its IEEE-754 double-precision components.
 
 **Parameters:**
+
 - `$sign` (int) - The sign bit (0 = positive, 1 = negative)
 - `$exponent` (int) - The 11-bit biased exponent (0-2047)
 - `$fraction` (int) - The 52-bit fraction/mantissa (0 to 2^52 - 1)
 
 **Returns:**
+
 - `float` - The assembled float
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 - `DomainException` - If sign is not 0 or 1
 - `DomainException` - If exponent is not in range [0, 2047]
@@ -1329,6 +1469,7 @@ $original === $reassembled;  // true
 ```
 
 **Use Cases:**
+
 - Creating specific float bit patterns for testing
 - Implementing custom random float generators
 - Low-level float manipulation
@@ -1339,18 +1480,23 @@ $original === $reassembled;  // true
 public static function next(float $f): float
 ```
 
-Returns the next representable floating-point number after the given value. This performs bit-level manipulation to move to the adjacent float in the IEEE-754 number line.
+Returns the next representable floating-point number after the given value. This performs bit-level manipulation to move
+to the adjacent float in the IEEE-754 number line.
 
 **Parameters:**
+
 - `$f` (float) - The given number
 
 **Returns:**
+
 - `float` - The next floating-point number after the given number
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
+
 - For positive numbers: returns the next larger float
 - For negative numbers: returns a float closer to zero
 - `-0.0` → `+0.0`
@@ -1376,6 +1522,7 @@ $next = Floats::next(PHP_FLOAT_MAX);  // INF
 ```
 
 **Use Cases:**
+
 - Implementing "nextafter" functionality for numerical algorithms
 - Testing floating-point edge cases
 - Exploring the floating-point number space
@@ -1386,18 +1533,23 @@ $next = Floats::next(PHP_FLOAT_MAX);  // INF
 public static function previous(float $f): float
 ```
 
-Returns the previous representable floating-point number before the given value. This performs bit-level manipulation to move to the adjacent float in the IEEE-754 number line.
+Returns the previous representable floating-point number before the given value. This performs bit-level manipulation to
+move to the adjacent float in the IEEE-754 number line.
 
 **Parameters:**
+
 - `$f` (float) - The given number
 
 **Returns:**
+
 - `float` - The previous floating-point number before the given number
 
 **Throws:**
+
 - `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
+
 - For positive numbers: returns a float closer to zero
 - For negative numbers: returns the next smaller (more negative) float
 - `+0.0` → `-0.0`
@@ -1425,6 +1577,7 @@ $prev = Floats::previous(-PHP_FLOAT_MAX);  // -INF
 **Round-trip Property:**
 
 For regular floats (not at boundaries):
+
 ```php
 $f = 42.5;
 Floats::next(Floats::previous($f)) === $f;  // true
@@ -1432,6 +1585,7 @@ Floats::previous(Floats::next($f)) === $f;  // true
 ```
 
 **Use Cases:**
+
 - Implementing interval arithmetic with tight bounds
 - Generating test cases for numerical code
 - Exploring floating-point precision limits
@@ -1442,15 +1596,19 @@ Floats::previous(Floats::next($f)) === $f;  // true
 public static function ulp(float $value): float
 ```
 
-Calculate the Unit in Last Place (ULP) - the spacing between adjacent representable floats at a given magnitude. ULP represents the gap between a float and the next largest representable float value.
+Calculate the Unit in Last Place (ULP) - the spacing between adjacent representable floats at a given magnitude. ULP
+represents the gap between a float and the next largest representable float value.
 
 **Parameters:**
+
 - `$value` (float) - The value to calculate ULP for
 
 **Returns:**
+
 - `float` - The ULP spacing. Returns `NAN` for NAN, `INF` for ±INF
 
 **Behavior:**
+
 - For finite values: returns `next(abs($value)) - abs($value)`
 - Larger magnitude numbers have larger ULP values
 - Uses absolute value, so ULP is the same for positive and negative values of the same magnitude
@@ -1507,6 +1665,7 @@ Floats::ulp(1e12);  // 0.0001220703125
 ```
 
 **Use Cases:**
+
 - Understanding floating-point precision limits
 - Implementing numerical algorithms with appropriate tolerances
 - Calculating rounding error bounds in error analysis
@@ -1515,10 +1674,12 @@ Floats::ulp(1e12);  // 0.0001220703125
 - Used by `randUniform()` to calculate optimal step size
 
 **See Also:**
+
 - `next()` - Get the next representable float
 - `previous()` - Get the previous representable float
 - `randUniform()` - Uses ULP for collision-free random generation
-- [FloatWithError](https://github.com/mossy2100/PHP-Units/blob/main/docs/FloatWithError.md) - Uses ULP for the estimated increase in error resulting from arithmetic operations with floats
+- [FloatWithError](https://github.com/mossy2100/PHP-Units/blob/main/docs/FloatWithError.md) - Uses ULP for the estimated
+  increase in error resulting from arithmetic operations with floats
 
 ---
 

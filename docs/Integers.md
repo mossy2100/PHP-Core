@@ -6,17 +6,20 @@ Static utility class for integer arithmetic with overflow detection and number f
 
 ## Overview
 
-The `Integers` class provides integer arithmetic methods with overflow detection, number theory functions, and subscript/superscript conversion utilities. This is a static utility class and cannot be instantiated.
+The `Integers` class provides integer arithmetic methods with overflow detection, number theory functions, and
+subscript/superscript conversion utilities. This is a static utility class and cannot be instantiated.
 
 ### Overflow Detection
 
-In PHP, when integer arithmetic operations exceed `PHP_INT_MAX` or fall below `PHP_INT_MIN`, the result is silently converted to a float. This can lead to unexpected behavior in calculations that should produce integers.
+In PHP, when integer arithmetic operations exceed `PHP_INT_MAX` or fall below `PHP_INT_MIN`, the result is silently
+converted to a float. This can lead to unexpected behavior in calculations that should produce integers.
 
 ```php
 PHP_INT_MAX + 1;  // Returns a float, not an integer
 ```
 
-The arithmetic methods in this class detect overflow and throw `OverflowException` instead of silently converting to float. This is useful when you need to ensure results remain within the integer range or handle overflow explicitly.
+The arithmetic methods in this class detect overflow and throw `OverflowException` instead of silently converting to
+float. This is useful when you need to ensure results remain within the integer range or handle overflow explicitly.
 
 ---
 
@@ -28,7 +31,8 @@ The arithmetic methods in this class detect overflow and throw `OverflowExceptio
 public const array SUBSCRIPT_CHARACTERS
 ```
 
-Unicode subscript characters for digits 0-9 and minus sign. Maps ASCII characters to their Unicode subscript equivalents.
+Unicode subscript characters for digits 0-9 and minus sign. Maps ASCII characters to their Unicode subscript
+equivalents.
 
 ### SUPERSCRIPT_CHARACTERS
 
@@ -36,7 +40,8 @@ Unicode subscript characters for digits 0-9 and minus sign. Maps ASCII character
 public const array SUPERSCRIPT_CHARACTERS
 ```
 
-Unicode superscript characters for digits 0-9 and minus sign. Maps ASCII characters to their Unicode superscript equivalents.
+Unicode superscript characters for digits 0-9 and minus sign. Maps ASCII characters to their Unicode superscript
+equivalents.
 
 ---
 
@@ -51,13 +56,16 @@ public static function add(int $a, int $b): int
 Add two integers with overflow detection.
 
 **Parameters:**
+
 - `$a` (int) - The first integer
 - `$b` (int) - The second integer
 
 **Returns:**
+
 - `int` - The sum of the two integers
 
 **Throws:**
+
 - `OverflowException` - If the addition results in a value too large to be represented as an integer.
 
 **Examples:**
@@ -77,13 +85,16 @@ public static function sub(int $a, int $b): int
 Subtract one integer from another with overflow detection.
 
 **Parameters:**
+
 - `$a` (int) - The integer to subtract from
 - `$b` (int) - The integer to subtract
 
 **Returns:**
+
 - `int` - The difference (a - b)
 
 **Throws:**
+
 - `OverflowException` - If the subtraction results in a value too large to be represented as an integer.
 
 **Examples:**
@@ -103,13 +114,16 @@ public static function mul(int $a, int $b): int
 Multiply two integers with overflow detection.
 
 **Parameters:**
+
 - `$a` (int) - The first integer
 - `$b` (int) - The second integer
 
 **Returns:**
+
 - `int` - The product
 
 **Throws:**
+
 - `OverflowException` - If the multiplication results in a value too large to be represented as an integer.
 
 **Examples:**
@@ -133,13 +147,16 @@ public static function pow(int $a, int $b): int
 Raise one integer to the power of another, returning an integer result or throwing an exception.
 
 **Parameters:**
+
 - `$a` (int) - The base
 - `$b` (int) - The exponent
 
 **Returns:**
+
 - `int` - The result of raising a to the power of b
 
 **Throws:**
+
 - `DomainException` - If the exponent is negative (except for bases ±1, which return valid integer results).
 - `OverflowException` - If the result is too large to represent as an integer.
 
@@ -155,7 +172,8 @@ Integers::pow(2, -1);   // throws DomainException (negative exponent)
 Integers::pow(10, 100); // throws OverflowException
 ```
 
-**Note:** Negative exponents are not allowed except for bases ±1 (which return valid integer results: 1⁻¹ = 1 and (-1)⁻¹ = -1). A `DomainException` is thrown for other bases with negative exponents.
+**Note:** Negative exponents are not allowed except for bases ±1 (which return valid integer results: 1⁻¹ = 1 and (-1)⁻¹
+= -1). A `DomainException` is thrown for other bases with negative exponents.
 
 ---
 
@@ -167,15 +185,19 @@ Integers::pow(10, 100); // throws OverflowException
 public static function gcd(int ...$nums): int
 ```
 
-Calculate the greatest common divisor (GCD) of two or more integers using Euclid's algorithm. The GCD is the largest positive integer that divides all the given numbers without remainder.
+Calculate the greatest common divisor (GCD) of two or more integers using Euclid's algorithm. The GCD is the largest
+positive integer that divides all the given numbers without remainder.
 
 **Parameters:**
+
 - `...$nums` (int) - One or more integers
 
 **Returns:**
+
 - `int` - The greatest common divisor (always non-negative)
 
 **Throws:**
+
 - `ArgumentCountError` - If no arguments are provided
 - `DomainException` - If any argument equals `PHP_INT_MIN`
 
@@ -191,6 +213,7 @@ Integers::gcd(0, 0);        // 0
 ```
 
 **Behavior:**
+
 - The GCD is always computed using absolute values, so negative inputs are treated as positive
 - The GCD of 0 and any number n is |n|
 - The GCD of 0 and 0 is 0
@@ -209,9 +232,11 @@ public static function toSubscript(int $n): string
 Convert an integer to Unicode subscript characters.
 
 **Parameters:**
+
 - `$n` (int) - The integer to convert
 
 **Returns:**
+
 - `string` - The integer as subscript characters
 
 **Examples:**
@@ -223,6 +248,7 @@ Integers::toSubscript(-42);   // '₋₄₂'
 ```
 
 **Use cases:**
+
 - Chemical formulas, e.g. `H₂SO₄`
 - Variable subscripts, e.g. `x₁ = 123`
 
@@ -235,9 +261,11 @@ public static function toSuperscript(int $n): string
 Convert an integer to Unicode superscript characters.
 
 **Parameters:**
+
 - `$n` (int) - The integer to convert
 
 **Returns:**
+
 - `string` - The integer as superscript characters
 
 **Examples:**
@@ -249,6 +277,7 @@ Integers::toSuperscript(-42);   // '⁻⁴²'
 ```
 
 **Use cases:**
+
 - Exponents, e.g. `x²`, `6.02×10²³`.
 
 ### isSubscript()
@@ -260,9 +289,11 @@ public static function isSubscript(string $s): bool
 Check if a string is a valid subscript integer representation.
 
 **Parameters:**
+
 - `$s` (string) - The string to check
 
 **Returns:**
+
 - `bool` - True if the string matches the pattern for a subscript integer
 
 **Examples:**
@@ -286,9 +317,11 @@ public static function isSuperscript(string $s): bool
 Check if a string is a valid superscript integer representation.
 
 **Parameters:**
+
 - `$s` (string) - The string to check
 
 **Returns:**
+
 - `bool` - True if the string matches the pattern for a superscript integer
 
 **Examples:**
@@ -312,12 +345,15 @@ public static function fromSubscript(string $s): int
 Convert a string of Unicode subscript characters to an integer.
 
 **Parameters:**
+
 - `$s` (string) - The subscript string to convert
 
 **Returns:**
+
 - `int` - The integer value
 
 **Throws:**
+
 - [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid subscript characters
 
 **Examples:**
@@ -332,7 +368,8 @@ Integers::fromSubscript('123');   // throws FormatException
 Integers::fromSubscript('¹²³');   // throws FormatException
 ```
 
-**Note:** Use `isSubscript()` to validate input before calling this method if you need to handle invalid input gracefully.
+**Note:** Use `isSubscript()` to validate input before calling this method if you need to handle invalid input
+gracefully.
 
 ### fromSuperscript()
 
@@ -343,12 +380,15 @@ public static function fromSuperscript(string $s): int
 Convert a string of Unicode superscript characters to an integer.
 
 **Parameters:**
+
 - `$s` (string) - The superscript string to convert
 
 **Returns:**
+
 - `int` - The integer value
 
 **Throws:**
+
 - [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid superscript characters
 
 **Examples:**
@@ -363,7 +403,8 @@ Integers::fromSuperscript('123');   // throws FormatException
 Integers::fromSuperscript('₁₂₃');   // throws FormatException
 ```
 
-**Note:** Use `isSuperscript()` to validate input before calling this method if you need to handle invalid input gracefully.
+**Note:** Use `isSuperscript()` to validate input before calling this method if you need to handle invalid input
+gracefully.
 
 ---
 

@@ -16,7 +16,7 @@ use stdClass;
 #[CoversClass(Numbers::class)]
 final class NumbersTest extends TestCase
 {
-    // region Sign tests
+    #region Sign tests
 
     /**
      * Test sign detection with default behavior (zero for zero).
@@ -203,9 +203,9 @@ final class NumbersTest extends TestCase
         $this->assertIsFloat($result);
     }
 
-    // endregion
+    #endregion
 
-    // region equal tests
+    #region equal tests
 
     /**
      * Test equal with two equal integers.
@@ -308,9 +308,9 @@ final class NumbersTest extends TestCase
         $this->assertFalse(Numbers::equal(NAN, 1.0));
     }
 
-    // endregion
+    #endregion
 
-    // region isNumber() tests
+    #region isNumber() tests
 
     /**
      * Test Numbers::isNumber returns true for integers.
@@ -376,9 +376,9 @@ final class NumbersTest extends TestCase
         $this->assertFalse(Numbers::isNumber(new stdClass()));
     }
 
-    // endregion
+    #endregion
 
-    // region isZero() tests
+    #region isZero() tests
 
     /**
      * Test isZero() with integer zero.
@@ -436,5 +436,5 @@ final class NumbersTest extends TestCase
         $this->assertFalse(Numbers::isZero(NAN));
     }
 
-    // endregion
+    #endregion
 }

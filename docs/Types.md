@@ -6,7 +6,9 @@ Static utility class for type checking, inspection, and trait introspection.
 
 ## Overview
 
-The `Types` class provides utilities for working with PHP's type system, offering enhanced type checking beyond PHP's built-in functions, methods for generating unique string keys from any value, and comprehensive trait introspection. This is a static utility class and cannot be instantiated.
+The `Types` class provides utilities for working with PHP's type system, offering enhanced type checking beyond PHP's
+built-in functions, methods for generating unique string keys from any value, and comprehensive trait introspection.
+This is a static utility class and cannot be instantiated.
 
 ### Key Features
 
@@ -28,9 +30,11 @@ public static function getBasicType(mixed $value): string
 Get the basic type of a value as a canonical string name.
 
 **Parameters:**
+
 - `$value` (mixed) - The value to get the type of
 
 **Returns:**
+
 - `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `object`, `resource`, or `unknown`
 
 **Examples:**
@@ -58,18 +62,23 @@ Types::getBasicType(new stdClass()); // "object"
 public static function getUniqueString(mixed $value): string
 ```
 
-Convert any PHP value into a unique string suitable for use as a key in collections like sets or dictionaries. Every distinct value produces a unique string.
+Convert any PHP value into a unique string suitable for use as a key in collections like sets or dictionaries. Every
+distinct value produces a unique string.
 
 **Parameters:**
+
 - `$value` (mixed) - The value to convert
 
 **Returns:**
+
 - `string` - A unique string representation of the value
 
 **Throws:**
+
 - `UnexpectedValueException` - If the value has an unknown type
 
 **String Format (by type):**
+
 - `null`: `"n"`
 - `bool`: `"b:T"` or `"b:F"`
 - `int`: `"i:{number}"` (e.g., `"i:42"`)
@@ -118,10 +127,12 @@ public static function same(mixed $obj1, mixed $obj2): bool
 Check if two values have the same type using `get_debug_type()` for comparison.
 
 **Parameters:**
+
 - `$obj1` (mixed) - The first value to compare
 - `$obj2` (mixed) - The second value to compare
 
 **Returns:**
+
 - `bool` - True if the types are the same, false otherwise
 
 **Examples:**
@@ -146,16 +157,20 @@ Types::same(new Foo(), new Bar());    // false (different classes)
 public static function usesTrait(object|string $objOrClass, string $trait): bool
 ```
 
-Check if an object or class uses a given trait. This method detects traits used directly, inherited from parent classes, or used by other traits (nested traits).
+Check if an object or class uses a given trait. This method detects traits used directly, inherited from parent classes,
+or used by other traits (nested traits).
 
 **Parameters:**
+
 - `$objOrClass` (object|string) - The object or class name to inspect
 - `$trait` (string) - The fully qualified trait name to check for
 
 **Returns:**
+
 - `bool` - Returns `true` if the object or class uses the trait, `false` otherwise
 
 **Throws:**
+
 - `DomainException` - If the provided class name is invalid
 
 **Examples:**
@@ -181,6 +196,7 @@ Types::usesTrait(stdClass::class, LoggerTrait::class); // false
 ```
 
 Inherited traits:
+
 ```php
 class ParentClass {
     use LoggerTrait;
@@ -200,15 +216,19 @@ Types::usesTrait(ChildClass::class, LoggerTrait::class); // true (inherited)
 public static function getTraits(object|string $objOrClass): array
 ```
 
-Get all traits used by an object, class, interface, or trait, including those inherited from parent classes and other traits.
+Get all traits used by an object, class, interface, or trait, including those inherited from parent classes and other
+traits.
 
 **Parameters:**
+
 - `$objOrClass` (object|string) - The object or class (or interface or trait) to inspect
 
 **Returns:**
+
 - `string[]` - Array of fully qualified trait names
 
 **Throws:**
+
 - `DomainException` - If the provided class name is invalid
 
 **Examples:**
@@ -237,6 +257,7 @@ Types::getTraits(stdClass::class); // []
 ```
 
 Works with interfaces and traits:
+
 ```php
 trait TraitC {
     use TraitA;
@@ -298,7 +319,7 @@ function sortIfComparable(array $items): array
 
     // Check if items can be compared
     if (Types::usesTrait($items[0], Comparable::class)) {
-        usort($items, fn($a, $b) => $a->compare($b));
+        usort($items, fn ($a, $b) => $a->compare($b));
     }
 
     return $items;

@@ -11,16 +11,16 @@ use DomainException;
  */
 final class Numbers
 {
-    // region Constants
+    #region Constants
 
     /**
      * Regex for numbers.
      */
     public const string REGEX = '-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?';
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
@@ -31,9 +31,9 @@ final class Numbers
     {
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if a value is a number, i.e. an integer or a float.
@@ -60,9 +60,9 @@ final class Numbers
         return $value === 0 || $value === 0.0;
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if two numbers are equal.
@@ -96,9 +96,9 @@ final class Numbers
         return $b === Floats::tryConvertToInt($a);
     }
 
-    // endregion
+    #endregion
 
-    // region Sign methods
+    #region Sign methods
 
     /**
      * Get the sign of a number.
@@ -153,5 +153,5 @@ final class Numbers
         return abs($num) * self::sign($signSource, false);
     }
 
-    // endregion
+    #endregion
 }

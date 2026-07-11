@@ -14,7 +14,7 @@ use OverflowException;
  */
 final class Integers
 {
-    // region Constants
+    #region Constants
 
     /**
      * Unicode subscript characters for digits and minus sign.
@@ -54,9 +54,9 @@ final class Integers
         '9' => "\u{2079}",
     ];
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Private constructor to prevent instantiation.
@@ -67,9 +67,9 @@ final class Integers
     {
     }
 
-    // endregion
+    #endregion
 
-    // region Binary arithmetic methods
+    #region Binary arithmetic methods
 
     /**
      * Add two integers with overflow check.
@@ -143,9 +143,9 @@ final class Integers
         return $c;
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Raise one integer to the power, to either produce an integer result or throw an exception.
@@ -180,9 +180,9 @@ final class Integers
         return $c;
     }
 
-    // endregion
+    #endregion
 
-    // region Number theory methods
+    #region Number theory methods
 
     /**
      * Calculate the greatest common divisor of two or more integers.
@@ -230,9 +230,9 @@ final class Integers
         return $result;
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Convert an integer to Unicode subscript characters.
@@ -242,7 +242,7 @@ final class Integers
      */
     public static function toSubscript(int $n): string
     {
-        $s = (string)$n;
+        $s = (string) $n;
         $len = strlen($s);
         $result = '';
         for ($i = 0; $i < $len; $i++) {
@@ -259,7 +259,7 @@ final class Integers
      */
     public static function toSuperscript(int $n): string
     {
-        $s = (string)$n;
+        $s = (string) $n;
         $len = strlen($s);
         $result = '';
         for ($i = 0; $i < $len; $i++) {
@@ -278,7 +278,7 @@ final class Integers
     {
         $minus = self::SUBSCRIPT_CHARACTERS['-'];
         $digits = implode('', array_slice(self::SUBSCRIPT_CHARACTERS, 1));
-        return (bool)preg_match("/^$minus?[$digits]+$/u", $s);
+        return (bool) preg_match("/^$minus?[$digits]+$/u", $s);
     }
 
     /**
@@ -291,7 +291,7 @@ final class Integers
     {
         $minus = self::SUPERSCRIPT_CHARACTERS['-'];
         $digits = implode('', array_slice(self::SUPERSCRIPT_CHARACTERS, 1));
-        return (bool)preg_match("/^$minus?[$digits]+$/u", $s);
+        return (bool) preg_match("/^$minus?[$digits]+$/u", $s);
     }
 
     /**
@@ -319,7 +319,7 @@ final class Integers
             $result .= $reverseMap[$char];
         }
 
-        return (int)$result;
+        return (int) $result;
     }
 
     /**
@@ -347,8 +347,8 @@ final class Integers
             $result .= $reverseMap[$char];
         }
 
-        return (int)$result;
+        return (int) $result;
     }
 
-    // endregion
+    #endregion
 }
