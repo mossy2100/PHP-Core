@@ -122,7 +122,9 @@ final class Stringify
      *
      * @codeCoverageIgnore
      */
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     #endregion
 
@@ -332,7 +334,7 @@ final class Stringify
     {
         // Get the values as strings.
         $values = array_values($arr);
-        $valueStrings = array_map(static fn($value) => self::stringify($value), $values);
+        $valueStrings = array_map(static fn ($value) => self::stringify($value), $values);
 
         // Generate the compact (single-line) format. No trailing comma.
         $compactList = '[' . implode(', ', $valueStrings) . ']';
@@ -350,7 +352,7 @@ final class Stringify
         $nItems = count($arr);
 
         // Check if all items are null or scalar.
-        if (array_all($values, static fn($value) => $value === null || is_scalar($value))) {
+        if (array_all($values, static fn ($value) => $value === null || is_scalar($value))) {
             // If the compact format fits on one line, return it.
             if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
                 return $compactList;
