@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "027743fa174cc04464bb87fc876ef80b",
+    "content-hash": "d8fca52dbe022401543ac78ed9b296a9",
     "packages": [],
     "packages-dev": [
         {
@@ -222,7 +222,7 @@
         },
         {
             "name": "oceanmoon/coding-standard",
-            "version": "2.0.2",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../CodingStandard",
@@ -2113,9 +2113,18 @@
             "time": "2025-12-08T11:19:18+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "oceanmoon/coding-standard",
+            "version": "dev-main",
+            "alias": "2.99.0",
+            "alias_normalized": "2.99.0.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "oceanmoon/coding-standard": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

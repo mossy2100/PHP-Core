@@ -1,4 +1,4 @@
-# Functions
+# Strings
 
 Convenience functions in the `OceanMoon\Core` namespace that work better as plain functions than static methods.
 

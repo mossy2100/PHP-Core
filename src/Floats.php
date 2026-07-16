@@ -9,6 +9,10 @@ use Random\RandomException;
 use RuntimeException;
 use UnexpectedValueException;
 
+use function OceanMoon\Core\Globals\sign;
+
+use const OceanMoon\Core\Globals\M_TAU;
+
 /**
  * Container for useful float-related methods.
  */
@@ -33,11 +37,6 @@ final class Floats
      * Equivalently, multiple integer values will convert to the same float value.
      */
     public const int MAX_EXACT_INT = 1 << 53;
-
-    /**
-     * The circle constant tau τ (tau) = 2π. One full turn in radians.
-     */
-    public const float TAU = 2 * M_PI;
 
     #endregion
 
@@ -272,7 +271,7 @@ final class Floats
         }
 
         // If they are approximately equal, return 0, otherwise use the spaceship operator to get -1 or 1.
-        return self::approxEqual($a, $b, $relTol, $absTol) ? 0 : Numbers::sign($a <=> $b);
+        return self::approxEqual($a, $b, $relTol, $absTol) ? 0 : sign($a <=> $b);
     }
 
     #endregion
@@ -367,7 +366,7 @@ final class Floats
      * @param bool $signed If true (default), wrap to the signed range; otherwise wrap to the unsigned range.
      * @return float The wrapped value.
      */
-    public static function wrap(float $value, float $unitsPerTurn = self::TAU, bool $signed = true): float
+    public static function wrap(float $value, float $unitsPerTurn = M_TAU, bool $signed = true): float
     {
         // Reduce using fmod to avoid large magnitudes.
         // $r will be in the range [0, $unitsPerTurn) if $value is positive, or (-$unitsPerTurn, 0] if negative.
@@ -416,7 +415,7 @@ final class Floats
             // Try to cast the float to an integer. Suppress overflow warning.
             $i = @(int) $f;
 
-            // If overflow occurred (value close to PHP_INT_MAX), return null.
+            // If overflow occurred (can happen for values close to PHP_INT_MAX), return null.
             if ($f > 0 && $i === PHP_INT_MIN) {
                 return null;
             }

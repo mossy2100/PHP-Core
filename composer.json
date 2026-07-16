@@ -1,7 +1,6 @@
 {
     "name": "oceanmoon/core",
     "description": "Core PHP utilities for floats, integers, arrays, types, and string conversion with IEEE-754 support.",
-    "version": "2.0.1",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -38,7 +37,7 @@
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "oceanmoon/coding-standard": "^2.0"
+        "oceanmoon/coding-standard": "dev-main as 2.99.0"
     },
     "repositories": [
         {
@@ -51,7 +50,9 @@
             "OceanMoon\\Core\\": "src/"
         },
         "files": [
-            "src/functions.php"
+            "src/Globals/constants.php",
+            "src/Globals/strings.php",
+            "src/Globals/numbers.php"
         ]
     },
     "autoload-dev": {
@@ -66,6 +67,7 @@
         "analyze": "scripts/analyze",
         "test": "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/coverage --coverage-clover build/logs/clover.xml --do-not-cache-result",
         "coverage": "php scripts/coverage-check.php",
+        "coverage-report": "open build/coverage/index.html",
         "quality": [
             "@fix",
             "@check",

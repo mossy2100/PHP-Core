@@ -11,6 +11,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+use const OceanMoon\Core\Globals\RECURSION;
+
 /**
  * Test class for Arrays utility class.
  */
@@ -732,6 +734,192 @@ final class ArraysTest extends TestCase
             0 => 1,
             2 => 3,
         ], Arrays::removeValue([1, null, 3], null));
+    }
+
+    #endregion
+
+    #region Tests for removeRecursion()
+
+    /**
+     * Test that a simple array without recursion is returned unchanged.
+     */
+    public function testRemoveRecursionSimpleArray(): void
+    {
+        $arr = [
+            'a' => 1,
+            'b' => 2,
+            'c' => [1, 2, 3],
+        ];
+        $this->assertSame($arr, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that an empty array is returned unchanged.
+     */
+    public function testRemoveRecursionEmptyArray(): void
+    {
+        $this->assertSame([], Arrays::removeRecursion([]));
+    }
+
+    /**
+     * Test that a direct self-reference is replaced with the RECURSION marker.
+     */
+    public function testRemoveRecursionDirectReference(): void
+    {
+        $arr = [
+            'foo' => 'bar',
+        ];
+        $arr['self'] = &$arr;
+
+        $result = Arrays::removeRecursion($arr);
+
+        $this->assertSame('bar', $result['foo']);
+        $this->assertSame(RECURSION, $result['self']);
+    }
+
+    /**
+     * Test that indirect (mutual) recursion between two arrays is replaced with the RECURSION
+     * marker.
+     */
+    public function testRemoveRecursionIndirectReference(): void
+    {
+        $arr1 = [
+            'name' => 'array1',
+        ];
+        $arr2 = [
+            'name' => 'array2',
+        ];
+        $arr1['child'] = &$arr2;
+        $arr2['parent'] = &$arr1;
+
+        $result1 = Arrays::removeRecursion($arr1);
+        $this->assertSame('array1', $result1['name']);
+        $child1 = $result1['child'];
+        $this->assertIsArray($child1);
+        $this->assertSame('array2', $child1['name']);
+        $this->assertSame(RECURSION, $child1['parent']);
+
+        $result2 = Arrays::removeRecursion($arr2);
+        $this->assertSame('array2', $result2['name']);
+        $parent2 = $result2['parent'];
+        $this->assertIsArray($parent2);
+        $this->assertSame('array1', $parent2['name']);
+        $this->assertSame(RECURSION, $parent2['child']);
+    }
+
+    /**
+     * Test that recursion nested several levels deep is detected and replaced.
+     */
+    public function testRemoveRecursionNestedReference(): void
+    {
+        $arr = [
+            'level1' => [
+                'level2' => [
+                    'level3' => [],
+                ],
+            ],
+        ];
+        $arr['level1']['level2']['level3']['back'] = &$arr;
+
+        $result = Arrays::removeRecursion($arr);
+
+        $level1 = $result['level1'];
+        $this->assertIsArray($level1);
+        $level2 = $level1['level2'];
+        $this->assertIsArray($level2);
+        $level3 = $level2['level3'];
+        $this->assertIsArray($level3);
+        $this->assertSame(RECURSION, $level3['back']);
+    }
+
+    /**
+     * Test that a shared (but non-circular) reference to a sub-array is not mistaken for
+     * recursion and is left untouched.
+     */
+    public function testRemoveRecursionSubArrayReferenceNotRecursive(): void
+    {
+        $subArray = [
+            'x' => 1,
+            'y' => 2,
+        ];
+        $arr = [
+            'original'  => $subArray,
+            'reference' => &$subArray,
+        ];
+
+        $this->assertSame($arr, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that two unrelated sub-arrays with identical contents are not mistaken for recursion.
+     */
+    public function testRemoveRecursionIdenticalButUnrelatedSubArrays(): void
+    {
+        $arr = [
+            'a' => [1, 2, 3],
+            'b' => [1, 2, 3],
+        ];
+
+        $this->assertSame($arr, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test with an array containing various data types alongside recursion.
+     */
+    public function testRemoveRecursionComplexArray(): void
+    {
+        $arr = [
+            'null'   => null,
+            'bool'   => true,
+            'int'    => 42,
+            'float'  => 3.14,
+            'string' => 'hello',
+            'array'  => [1, 2, 3],
+        ];
+        $arr['self'] = &$arr;
+
+        $result = Arrays::removeRecursion($arr);
+
+        $this->assertNull($result['null']);
+        $this->assertTrue($result['bool']);
+        $this->assertSame(42, $result['int']);
+        $this->assertSame(3.14, $result['float']);
+        $this->assertSame('hello', $result['string']);
+        $this->assertSame([1, 2, 3], $result['array']);
+        $this->assertSame(RECURSION, $result['self']);
+    }
+
+    /**
+     * Test that the result of removeRecursion() is safe to json_encode(), which would otherwise
+     * fail on a genuinely recursive array.
+     */
+    public function testRemoveRecursionResultIsJsonEncodable(): void
+    {
+        $arr = [
+            'foo' => 'bar',
+        ];
+        $arr['self'] = &$arr;
+
+        $result = Arrays::removeRecursion($arr);
+
+        $json = json_encode($result, JSON_THROW_ON_ERROR);
+        $this->assertSame('{"foo":"bar","self":"*RECURSION*"}', $json);
+    }
+
+    /**
+     * Test that removeRecursion() does not modify the original array.
+     */
+    public function testRemoveRecursionDoesNotModifyOriginal(): void
+    {
+        $arr = [
+            'foo' => 'bar',
+        ];
+        $arr['self'] = &$arr;
+
+        Arrays::removeRecursion($arr);
+
+        // The original is still genuinely recursive.
+        $this->assertTrue(Arrays::containsRecursion($arr));
     }
 
     #endregion

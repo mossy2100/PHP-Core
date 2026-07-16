@@ -9,7 +9,8 @@ use InvalidArgumentException;
 use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Stringable;
+
+use const OceanMoon\Core\Globals\RECURSION;
 
 /**
  * Test class for Stringify utility class.
@@ -52,11 +53,11 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyString(): void
     {
-        $this->assertSame("'hello'", Stringify::stringify('hello'));
-        $this->assertSame("''", Stringify::stringify(''));
-        $this->assertSame("'hello\nworld'", Stringify::stringify("hello\nworld"));
-        $this->assertSame("'hello\tworld'", Stringify::stringify("hello\tworld"));
-        $this->assertSame('\'say "hello"\'', Stringify::stringify('say "hello"'));
+        $this->assertSame('"hello"', Stringify::stringify('hello'));
+        $this->assertSame('""', Stringify::stringify(''));
+        $this->assertSame('"hello\nworld"', Stringify::stringify("hello\nworld"));
+        $this->assertSame('"hello\tworld"', Stringify::stringify("hello\tworld"));
+        $this->assertSame('"say \"hello\""', Stringify::stringify('say "hello"'));
     }
 
     /**
@@ -65,16 +66,16 @@ final class StringifyTest extends TestCase
     public function testStringifyStringDirect(): void
     {
         // Basic string.
-        $this->assertSame("'hello'", Stringify::stringifyString('hello'));
+        $this->assertSame('"hello"', Stringify::stringifyString('hello'));
 
-        // Single quotes are escaped.
-        $this->assertSame("'it\\'s'", Stringify::stringifyString("it's"));
+        // Single quotes are not escaped.
+        $this->assertSame('"it\'s"', Stringify::stringifyString("it's"));
 
         // Backslashes are escaped.
-        $this->assertSame("'foo\\\\bar'", Stringify::stringifyString("foo\\bar"));
+        $this->assertSame('"foo\\\\bar"', Stringify::stringifyString("foo\\bar"));
 
-        // Backslash immediately before a single quote.
-        $this->assertSame("'it\\\\\\'s'", Stringify::stringifyString("it\\'s"));
+        // Backslash immediately before a double quote.
+        $this->assertSame('"it\\\\\\"s"', Stringify::stringifyString('it\\"s'));
     }
 
     /**
@@ -92,7 +93,7 @@ final class StringifyTest extends TestCase
         try {
             // 'café' encoded as Latin-1 (0xe9 is é in ISO-8859-1).
             $latin1 = "caf\xe9";
-            $this->assertSame("'café'", Stringify::stringifyString($latin1));
+            $this->assertSame('"café"', Stringify::stringifyString($latin1));
         } finally {
             mb_detect_order($originalOrder);
         }
@@ -113,9 +114,9 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyStringUnicode(): void
     {
-        $this->assertSame("'Ω'", Stringify::stringify('Ω'));
-        $this->assertSame("'café'", Stringify::stringify('café'));
-        $this->assertSame("'日本語'", Stringify::stringify('日本語'));
+        $this->assertSame('"Ω"', Stringify::stringify('Ω'));
+        $this->assertSame('"café"', Stringify::stringify('café'));
+        $this->assertSame('"日本語"', Stringify::stringify('日本語'));
     }
 
     /**
@@ -169,34 +170,34 @@ final class StringifyTest extends TestCase
     /**
      * Test stringifying simple lists without pretty print.
      */
-    public function testStringifyList(): void
+    public function testStringifyListArray(): void
     {
         $this->assertSame('[]', Stringify::stringify([]));
         $this->assertSame('[1, 2, 3]', Stringify::stringify([1, 2, 3]));
-        $this->assertSame("[1, 'hello', true, null]", Stringify::stringify([1, 'hello', true, null]));
+        $this->assertSame('[1, "hello", true, null]', Stringify::stringify([1, 'hello', true, null]));
         $this->assertSame('[1.5, 2.0, 3.14]', Stringify::stringify([1.5, 2.0, 3.14]));
     }
 
     /**
      * Test stringifying dictionaries without pretty print.
      */
-    public function testStringifyDictionary(): void
+    public function testStringifyAssociativeArray(): void
     {
         // Simple dictionary.
-        $this->assertSame("['name' => 'John', 'age' => 30]", Stringify::stringify([
+        $this->assertSame('["name" => "John", "age" => 30]', Stringify::stringify([
             'name' => 'John',
             'age'  => 30,
         ]));
 
         // Non-sequential integer keys.
-        $this->assertSame("[1 => 'a', 3 => 'b', 5 => 'c']", Stringify::stringify([
+        $this->assertSame('[1 => "a", 3 => "b", 5 => "c"]', Stringify::stringify([
             1 => 'a',
             3 => 'b',
             5 => 'c',
         ]));
 
         // Mixed key types.
-        $this->assertSame("['key' => 'value', 0 => 42]", Stringify::stringify([
+        $this->assertSame('["key" => "value", 0 => 42]', Stringify::stringify([
             'key' => 'value',
             0     => 42,
         ]));
@@ -214,7 +215,7 @@ final class StringifyTest extends TestCase
         ]));
 
         // Nested dictionary.
-        $this->assertSame("['user' => ['name' => 'John', 'age' => 30]]", Stringify::stringify([
+        $this->assertSame('["user" => ["name" => "John", "age" => 30]]', Stringify::stringify([
             'user' => [
                 'name' => 'John',
                 'age'  => 30,
@@ -222,7 +223,7 @@ final class StringifyTest extends TestCase
         ]));
 
         // Mixed nesting.
-        $this->assertSame("[1, ['a', 'b'], 3]", Stringify::stringify([
+        $this->assertSame('[1, ["a", "b"], 3]', Stringify::stringify([
             1,
             ['a', 'b'],
             3,
@@ -277,12 +278,12 @@ final class StringifyTest extends TestCase
             'age'  => 30,
         ], true);
 
-        $expected = "[\n    'name' => 'John',\n    'age'  => 30,\n]";
+        $expected = "[\n    \"name\" => \"John\",\n    \"age\"  => 30,\n]";
         $this->assertSame($expected, $result);
     }
 
     /**
-     * Test pretty-printed list of non-scalar items uses one item per line.
+     * Test pretty-printed list uses one item per line when it doesn't wrap.
      */
     public function testStringifyArrayPrettyPrintNonScalarList(): void
     {
@@ -291,10 +292,32 @@ final class StringifyTest extends TestCase
             [3, 4],
         ], true);
 
-        // Should be multiline with nested arrays.
-        $this->assertStringContainsString("\n", $result);
-        $this->assertStringContainsString('[1, 2]', $result);
-        $this->assertStringContainsString('[3, 4]', $result);
+        // Should be single-line.
+        $this->assertSame('[[1, 2], [3, 4]]', $result);
+    }
+
+    /**
+     * Test that a list containing a multiline item (e.g. an associative array) uses one-per-line format, since the
+     * grid format only applies when every item's stringified form is itself single-line.
+     */
+    public function testStringifyArrayPrettyPrintMultilineItem(): void
+    {
+        $result = Stringify::stringify([
+            [
+                'name' => 'John',
+                'age'  => 30,
+            ],
+            42,
+        ], true);
+
+        $expected = "[\n"
+            . "    [\n"
+            . "        \"name\" => \"John\",\n"
+            . "        \"age\"  => 30,\n"
+            . "    ],\n"
+            . "    42,\n"
+            . ']';
+        $this->assertSame($expected, $result);
     }
 
     /**
@@ -313,9 +336,9 @@ final class StringifyTest extends TestCase
             $result = Stringify::stringifyArray($uuids, true);
 
             $expected = "[\n"
-                . "    'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',\n"
-                . "    'd2aee4c5-a7f7-4018-a635-c3f4c317033e',\n"
-                . "    'd266963a-c4e0-4255-a97d-f070e51fcb5e',\n"
+                . "    \"c9e35c00-0f1e-4804-b5fe-6c4c9718db60\",\n"
+                . "    \"d2aee4c5-a7f7-4018-a635-c3f4c317033e\",\n"
+                . "    \"d266963a-c4e0-4255-a97d-f070e51fcb5e\",\n"
                 . ']';
             $this->assertSame($expected, $result);
         } finally {
@@ -333,9 +356,10 @@ final class StringifyTest extends TestCase
         ];
         $array['self'] = &$array;
 
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot stringify arrays containing circular references.');
-        Stringify::stringify($array);
+        $result = Stringify::stringify($array);
+
+        $this->assertStringContainsString(RECURSION, $result);
+        $this->assertStringNotContainsString('"' . RECURSION . '"', $result);
     }
 
     #endregion
@@ -350,7 +374,7 @@ final class StringifyTest extends TestCase
         $resource = fopen('php://memory', 'rb');
         $this->assertIsResource($resource);
 
-        $this->assertMatchesRegularExpression('/^Resource id #\d+ \(stream\)$/', Stringify::stringify($resource));
+        $this->assertMatchesRegularExpression('/^resource #\d+ \(stream\)$/', Stringify::stringify($resource));
 
         fclose($resource);
     }
@@ -365,7 +389,7 @@ final class StringifyTest extends TestCase
         fclose($resource);
 
         $this->assertMatchesRegularExpression(
-            '/^Resource id #\d+ \(closed\)$/',
+            '/^resource #\d+ \(closed\)$/',
             Stringify::stringifyResource($resource)
         );
     }
@@ -430,8 +454,8 @@ final class StringifyTest extends TestCase
         };
 
         $result = Stringify::stringify($obj);
-        $this->assertStringContainsString('@anonymous {', $result);
-        $this->assertStringContainsString("+name => 'John'", $result);
+        $this->assertStringContainsString('class@anonymous', $result);
+        $this->assertStringContainsString('+name => "John"', $result);
         $this->assertStringContainsString('+age => 30', $result);
         $this->assertStringEndsWith('}', $result);
     }
@@ -452,9 +476,9 @@ final class StringifyTest extends TestCase
 
         $result = Stringify::stringify($obj);
 
-        $this->assertStringContainsString("+publicProp => 'public'", $result);
-        $this->assertStringContainsString("#protectedProp => 'protected'", $result);
-        $this->assertStringContainsString("-privateProp => 'private'", $result);
+        $this->assertStringContainsString('+publicProp => "public"', $result);
+        $this->assertStringContainsString('#protectedProp => "protected"', $result);
+        $this->assertStringContainsString('-privateProp => "private"', $result);
     }
 
     /**
@@ -466,7 +490,7 @@ final class StringifyTest extends TestCase
         };
 
         $result = Stringify::stringify($obj);
-        $this->assertStringContainsString('@anonymous {}', $result);
+        $this->assertMatchesRegularExpression('/^class@anonymous #\d+ {}$/', $result);
     }
 
     /**
@@ -482,8 +506,10 @@ final class StringifyTest extends TestCase
 
         $result = Stringify::stringify($obj, true);
 
-        $expected = "@anonymous {\n    +name => 'John',\n    +age  => 30,\n}";
-        $this->assertSame($expected, $result);
+        $this->assertMatchesRegularExpression(
+            '/^class@anonymous #\d+ \{\n\s+\+name\s+=> \"John\",\n\s+\+age\s+=> 30,\n\}$/',
+            $result
+        );
     }
 
     /**
@@ -504,10 +530,90 @@ final class StringifyTest extends TestCase
         ];
 
         $result = Stringify::stringify($array);
-        $this->assertStringContainsString("'object' => @anonymous {", $result);
+        $this->assertStringContainsString('"object" => class@anonymous', $result);
         $this->assertStringContainsString('+items => [1, 2, 3]', $result);
-        $this->assertStringContainsString("+name => 'test'", $result);
-        $this->assertStringContainsString("'numbers' => [4, 5, 6]", $result);
+        $this->assertStringContainsString('+name => "test"', $result);
+        $this->assertStringContainsString('"numbers" => [4, 5, 6]', $result);
+    }
+
+    /**
+     * Test that an object with a direct self-reference is stringified with the RECURSION marker,
+     * instead of recursing forever.
+     */
+    public function testStringifyObjectDirectSelfReference(): void
+    {
+        $obj = new class {
+            public mixed $self = null;
+        };
+        $obj->self = $obj;
+
+        $result = Stringify::stringify($obj);
+
+        $this->assertStringContainsString('+self => ' . RECURSION, $result);
+    }
+
+    /**
+     * Test that mutual (indirect) object-to-object recursion is stringified with the RECURSION
+     * marker, instead of recursing forever. Arrays::removeRecursion() alone can't catch this, since
+     * it only inspects array values, never object properties.
+     */
+    public function testStringifyObjectMutualReference(): void
+    {
+        $a = new class {
+            public mixed $other = null;
+        };
+        $b = new class {
+            public mixed $other = null;
+        };
+        $a->other = $b;
+        $b->other = $a;
+
+        $result = Stringify::stringify($a);
+
+        $this->assertStringContainsString(RECURSION, $result);
+    }
+
+    /**
+     * Test that a cyclic reference reached via a nested array (object -> array -> same object) is
+     * still detected.
+     */
+    public function testStringifyObjectCycleViaArray(): void
+    {
+        $obj = new class {
+            /** @var array<string, mixed> */
+            public array $items = [];
+        };
+        $obj->items = [
+            'self' => $obj,
+        ];
+
+        $result = Stringify::stringify($obj);
+
+        $this->assertStringContainsString(RECURSION, $result);
+    }
+
+    /**
+     * Test that the same object referenced by two sibling (non-cyclic) properties is NOT mistaken
+     * for recursion — it should render in full both times, since it's a shared reference, not a
+     * cycle.
+     */
+    public function testStringifyObjectSharedReferenceNotRecursive(): void
+    {
+        $shared = new class {
+            public int $value = 42;
+        };
+        $obj = new class {
+            public mixed $a = null;
+
+            public mixed $b = null;
+        };
+        $obj->a = $shared;
+        $obj->b = $shared;
+
+        $result = Stringify::stringify($obj);
+
+        $this->assertStringNotContainsString(RECURSION, $result);
+        $this->assertSame(2, substr_count($result, '+value => 42'));
     }
 
     #endregion
@@ -519,7 +625,7 @@ final class StringifyTest extends TestCase
      */
     public function testAbbrevShortString(): void
     {
-        $this->assertSame("'hello'", Stringify::abbrev('hello'));
+        $this->assertSame('"hello"', Stringify::abbrev('hello'));
         $this->assertSame('42', Stringify::abbrev(42));
         $this->assertSame('true', Stringify::abbrev(true));
     }
@@ -533,7 +639,7 @@ final class StringifyTest extends TestCase
         $result = Stringify::abbrev($longString, 20);
 
         $this->assertLessThanOrEqual(20, mb_strlen($result));
-        $this->assertStringEndsWith('...', $result);
+        $this->assertStringEndsWith('…"', $result);
     }
 
     /**
@@ -545,7 +651,7 @@ final class StringifyTest extends TestCase
         $result = Stringify::abbrev($array, 20);
 
         $this->assertLessThanOrEqual(20, mb_strlen($result));
-        $this->assertStringEndsWith('...', $result);
+        $this->assertStringEndsWith('…]', $result);
     }
 
     /**
@@ -554,8 +660,41 @@ final class StringifyTest extends TestCase
     public function testAbbrevMaxLenTooSmall(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid maximum string length: 9. Must be at least 10.');
-        Stringify::abbrev(123, 9);
+        $this->expectExceptionMessage('Invalid maximum string length: 2. Must be at least 3.');
+        Stringify::abbrev(123, 2);
+    }
+
+    /**
+     * Test abbrev with an object whose class name alone is longer than $maxLen: the class name must
+     * never be truncated, so the worst case is "ClassName".
+     */
+    public function testAbbrevObjectNeverTruncatesClassName(): void
+    {
+        $obj = new StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed();
+
+        $result = Stringify::abbrev($obj, 10);
+
+        $this->assertSame(StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed::class, $result);
+    }
+
+    /**
+     * Test abbrev with an object where $maxLen comfortably covers the class name: normal truncation
+     * (based on $maxLen, not the class-name guard) still applies.
+     */
+    public function testAbbrevObjectRegularTruncation(): void
+    {
+        $obj = new class {
+            public int $a = 1;
+
+            public int $b = 2;
+
+            public int $c = 3;
+        };
+
+        $result = Stringify::abbrev($obj, 30);
+
+        $this->assertLessThanOrEqual(30, mb_strlen($result));
+        $this->assertStringEndsWith('…}', $result);
     }
 
     #endregion
@@ -584,7 +723,7 @@ final class StringifyTest extends TestCase
                 'a' => 1,
                 'b' => 2,
             ], true);
-            $expected = "[\n  'a' => 1,\n  'b' => 2,\n]";
+            $expected = "[\n  \"a\" => 1,\n  \"b\" => 2,\n]";
             $this->assertSame($expected, $result);
         } finally {
             Stringify::resetDefaults();
@@ -666,78 +805,6 @@ final class StringifyTest extends TestCase
     }
 
     #endregion
-
-    #region toString() tests
-
-    /**
-     * Test toString with a string passes through as-is.
-     */
-    public function testToStringWithString(): void
-    {
-        $this->assertSame('hello', Stringify::toString('hello'));
-        $this->assertSame('', Stringify::toString(''));
-    }
-
-    /**
-     * Test toString with a Stringable object uses __toString().
-     */
-    public function testToStringWithStringableObject(): void
-    {
-        $obj = new class implements Stringable {
-            public function __toString(): string
-            {
-                return 'stringable object';
-            }
-        };
-
-        $this->assertSame('stringable object', Stringify::toString($obj));
-    }
-
-    /**
-     * Test toString with an integer uses Stringify.
-     */
-    public function testToStringWithInteger(): void
-    {
-        $this->assertSame('42', Stringify::toString(42));
-        $this->assertSame('0', Stringify::toString(0));
-        $this->assertSame('-7', Stringify::toString(-7));
-    }
-
-    /**
-     * Test toString with a float uses Stringify.
-     */
-    public function testToStringWithFloat(): void
-    {
-        $this->assertSame('3.14', Stringify::toString(3.14));
-        $this->assertSame('5.0', Stringify::toString(5.0));
-    }
-
-    /**
-     * Test toString with a boolean uses Stringify.
-     */
-    public function testToStringWithBoolean(): void
-    {
-        $this->assertSame('true', Stringify::toString(true));
-        $this->assertSame('false', Stringify::toString(false));
-    }
-
-    /**
-     * Test toString with null uses Stringify.
-     */
-    public function testToStringWithNull(): void
-    {
-        $this->assertSame('null', Stringify::toString(null));
-    }
-
-    /**
-     * Test toString with an array uses Stringify.
-     */
-    public function testToStringWithArray(): void
-    {
-        $this->assertSame('[1, 2, 3]', Stringify::toString([1, 2, 3]));
-    }
-
-    #endregion
 }
 
 /**
@@ -758,4 +825,12 @@ enum TestBackedEnum: string
     case Alpha = 'a';
 
     case Beta = 'b';
+}
+
+/**
+ * Test fixture with a deliberately long class name, for abbrev()'s class-name-preservation tests.
+ */
+class StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed
+{
+    public int $a = 1;
 }

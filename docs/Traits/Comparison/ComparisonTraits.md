@@ -17,18 +17,37 @@ Comparable   ApproxEquatable
 **Key:**
 
 - `→` indicates trait composition (`use`)
-- ApproxComparable uses both Comparable and ApproxEquatable
+- `ApproxComparable` uses both `Comparable` and `ApproxEquatable`
 
 ---
 
 ## Quick Reference
 
-| Trait                                       | Uses                         | Must Implement               | Provides                                                      | Use When                                       |
-| ------------------------------------------- | ---------------------------- | ---------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
-| **[Equatable](Equatable.md)**               | -                            | `equal()`                    | `identical()`                                                 | Need exact equality only                       |
-| **[Comparable](Comparable.md)**             | Equatable                    | `compare()`                  | `equal()`, `identical()`, `lessThan()`, `greaterThan()`, etc. | Need exact equality + ordering                 |
-| **[ApproxEquatable](ApproxEquatable.md)**   | Equatable                    | `equal()`, `approxEqual()`   | `identical()`                                                 | Need exact + approximate equality, no ordering |
-| **[ApproxComparable](ApproxComparable.md)** | Comparable + ApproxEquatable | `compare()`, `approxEqual()` | All comparison methods + `approxCompare()`                    | Need full comparison suite                     |
+| Trait                                     | Uses                             | Must Implement               | Provides                                       | Use When                                       |
+| ----------------------------------------- | -------------------------------- | ---------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| [`Equatable`](Equatable.md)               | -                                | `equal()`                    | -                                              | Need exact equality only                       |
+| [`Comparable`](Comparable.md)             | `Equatable`                      | `compare()`                  | `equal()`, `lessThan()`, `greaterThan()`, etc. | Need exact equality + ordering                 |
+| [`ApproxEquatable`](ApproxEquatable.md)   | `Equatable`                      | `equal()`, `approxEqual()`   | -                                              | Need exact + approximate equality, no ordering |
+| [`ApproxComparable`](ApproxComparable.md) | `Comparable` + `ApproxEquatable` | `compare()`, `approxEqual()` | All comparison methods + `approxCompare()`     | Need full comparison suite                     |
+
+---
+
+## Type Handling
+
+Every method in every trait here is typed `mixed $other`, never `self`. Two reasons:
+
+1. `self` is invariant across trait composition and inheritance: if a class using one of these traits is subclassed and
+   the subclass overrides a method like `equal()` or `compare()`, `self` in that override would narrow to the subclass -
+   which PHP rejects as an incompatible override of the trait method (bound to the base class).
+2. A handful of types legitimately compare against a related-but-different type (e.g. `Complex` accepting `int` or
+   `float`). There's no type hint for "self or number", so implementations check the type of `$other` themselves.
+
+Because the type hint can't do the work, implementations are expected to check `$other`'s type explicitly (typically
+`instanceof self`) and **throw** (typically `InvalidArgumentException`) for anything that isn't a deliberate, documented
+exception - never silently attempt a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==` in
+modern PHP: implicit type juggling in comparisons is a recurring source of bugs. Widening a comparison method to accept
+a related type should be rare, mathematically justified on a case-by-case basis, and documented at the point of
+implementation - not a general-purpose "convert whatever you're given" policy.
 
 ---
 
@@ -40,17 +59,12 @@ Comparable   ApproxEquatable
 trait Equatable
 {
     abstract public function equal(mixed $other): bool;
-    // Provides: identical()
 }
 ```
 
 **You implement:** `equal()` for exact equality comparison
 
-**You get:** `identical()` -- a stricter counterpart to `equal()`, built entirely on it
-(`Types::same($this, $other) && $this->equal($other)`); no implementation needed. Only behaves differently from
-`equal()` for classes that deliberately widen `equal()` to accept other types.
-
-### Comparable (Extends Equatable)
+### Comparable (Uses Equatable)
 
 ```php
 trait Comparable
@@ -64,12 +78,12 @@ trait Comparable
 
 **You implement:** `compare()` returning -1, 0, or 1
 
-**You get:** `equal()` (based on `compare()`), `identical()` (inherited from Equatable, based on `equal()`),
-`lessThan()`, `greaterThan()`, `lessThanOrEqual()`, `greaterThanOrEqual()`
+**You get:** `equal()` (based on `compare()`), `lessThan()`, `greaterThan()`, `lessThanOrEqual()`,
+`greaterThanOrEqual()`
 
 **Note:** You don't implement `equal()` - the trait provides it based on `compare()`
 
-### ApproxEquatable (Extends Equatable)
+### ApproxEquatable (Uses Equatable)
 
 ```php
 trait ApproxEquatable
@@ -86,9 +100,7 @@ trait ApproxEquatable
 
 **You implement:** `equal()` and `approxEqual()`
 
-**You get:** `identical()` (inherited from Equatable, based on `equal()`)
-
-### ApproxComparable (Extends Both)
+### ApproxComparable (Uses Both)
 
 ```php
 trait ApproxComparable
@@ -102,9 +114,9 @@ trait ApproxComparable
 
 **You implement:** `compare()` and `approxEqual()`
 
-**You get:** All methods from both Comparable and ApproxEquatable, plus `approxCompare()`
+**You get:** All methods from both `Comparable` and `ApproxEquatable`, plus `approxCompare()`
 
-**Note:** You don't implement `equal()` - Comparable provides it via `compare()`
+**Note:** You don't implement `equal()` - `Comparable` provides it via `compare()`
 
 ---
 
@@ -122,7 +134,7 @@ class Color
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Color with ' . get_debug_type($other) . '.');
         }
         return $this->rgb === $other->rgb;
     }
@@ -145,7 +157,7 @@ class Version
     public function compare(mixed $other): int
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Version with ' . get_debug_type($other) . '.');
         }
 
         $result = $this->major <=> $other->major
@@ -171,7 +183,7 @@ class Complex
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Complex with ' . get_debug_type($other) . '.');
         }
         return $this->real === $other->real
             && $this->imag === $other->imag;
@@ -183,7 +195,7 @@ class Complex
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Complex with ' . get_debug_type($other) . '.');
         }
 
         return Floats::approxEqual($this->real, $other->real, $relTol, $absTol)
@@ -204,7 +216,7 @@ class Rational
     public function compare(mixed $other): int
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Rational with ' . get_debug_type($other) . '.');
         }
 
         $left = $this->num * $other->den;
@@ -219,7 +231,7 @@ class Rational
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Rational with ' . get_debug_type($other) . '.');
         }
 
         return Floats::approxEqual(
@@ -238,51 +250,32 @@ class Rational
 
 ## Method Override Rules
 
-You can override any provided method if needed, but this is rarely necessary:
-
-```php
-class CustomComparable
-{
-    use Comparable;
-
-    public function compare(mixed $other): int
-    {
-        // Required implementation
-    }
-
-    // Optional: override equal() if you need custom logic
-    public function equal(mixed $other): bool
-    {
-        // Custom implementation instead of using compare()
-    }
-}
-```
-
-**Best Practice:** Don't override provided methods unless you have a specific reason. The default implementations are
+You can override any provided method if needed, but this is rarely necessary. Don't override provided methods
+(`equal()`, `lessThan()`, `approxCompare()`, etc.) unless you have a specific reason - the default implementations are
 well-tested and consistent.
 
 ---
 
 ## Choosing the Right Trait
 
-**Use Equatable when:**
+**Use `Equatable` when:**
 
 - You only need equality comparison
 - Your type has no natural ordering (e.g., colors, sets)
 
-**Use Comparable when:**
+**Use `Comparable` when:**
 
 - Your type has a natural ordering
 - You need exact comparison
 - Integer or rational number types
 
-**Use ApproxEquatable when:**
+**Use `ApproxEquatable` when:**
 
 - You need both exact and approximate equality
 - Your type contains floating-point values
 - Your type has no natural ordering (e.g., complex numbers, matrices)
 
-**Use ApproxComparable when:**
+**Use `ApproxComparable` when:**
 
 - Your type has a natural ordering
 - You need both exact and approximate comparison

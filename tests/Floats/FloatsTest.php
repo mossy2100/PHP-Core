@@ -9,6 +9,8 @@ use OceanMoon\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+use const OceanMoon\Core\Globals\M_TAU;
+
 /**
  * Test class for Floats utility class - core comparison, transformation, precision, and inspection methods.
  */
@@ -467,14 +469,14 @@ final class FloatsTest extends TestCase
         $this->assertSame(0.0, Floats::wrap(0.0));
         $this->assertSame(M_PI, Floats::wrap(M_PI));
         $this->assertSame(M_PI, Floats::wrap(-M_PI));
-        $this->assertEqualsWithDelta(0.0, Floats::wrap(Floats::TAU), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Floats::wrap(M_TAU), 1e-10);
         $this->assertEqualsWithDelta(-M_PI / 2, Floats::wrap(3 * M_PI / 2), 1e-10);
 
         // Unsigned: range is [0, τ).
         $this->assertSame(0.0, Floats::wrap(0.0, signed: false));
         $this->assertSame(M_PI, Floats::wrap(M_PI, signed: false));
         $this->assertSame(M_PI, Floats::wrap(-M_PI, signed: false));
-        $this->assertEqualsWithDelta(0.0, Floats::wrap(Floats::TAU, signed: false), 1e-10);
+        $this->assertEqualsWithDelta(0.0, Floats::wrap(M_TAU, signed: false), 1e-10);
         $this->assertEqualsWithDelta(3 * M_PI / 2, Floats::wrap(-M_PI / 2, signed: false), 1e-10);
     }
 

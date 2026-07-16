@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Traits\Comparison;
 
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use Override;
 
 /**
@@ -14,37 +13,12 @@ use Override;
  * -1, 0, or 1, and the trait provides all other comparison methods automatically: equal(), lessThan(),
  * lessThanOrEqual(), greaterThan(), and greaterThanOrEqual().
  *
- * The trait uses Equatable via composition.
- *
- * Type safety should be enforced within the compare() implementation. Use Types::same() or `instanceof` to verify
- * type compatibility, or convert/cast $other to the calling object's type where a sensible conversion exists (e.g.
- * via a toX() method); only throw IncomparableTypesException once no such conversion is possible or appropriate.
- *
- * If a type is not sortable, then these methods should in theory all throw IncomparableTypesException even if the
- * argument has the same type as the calling object; however, in that case, just don't use this trait. Just use
- * Equatable or nothing.
- *
- * Example usage:
- * <code>
- * class Score
- * {
- *     use Comparable;
- *
- *     public function __construct(private int $value) {}
- *
- *     #[Override]
- *     public function compare(mixed $other): int
- *     {
- *         if (!Types::same($this, $other)) {
- *             throw new IncomparableTypesException($this, $other);
- *         }
- *         return Numbers::sign($this->value <=> $other->value);
- *     }
- * }
- * </code>
+ * The trait uses Equatable via composition. It should only be used for types that can be ordered.
  *
  * @see Equatable The base equality trait this includes.
  * @see ApproxComparable For types needing approximate comparison with tolerance.
+ *
+ * Full documentation and examples: docs/Traits/Comparison/Comparable.md
  *
  * @codeCoverageIgnore
  * @phpstan-ignore trait.unused
@@ -62,18 +36,16 @@ trait Comparable
      *    1 if this object is greater than the other value
      *
      * Important: Return values must be exactly -1, 0, or 1 because the convenience methods (lessThan, etc.) use
-     * strict equality checks. Use Numbers::sign() to normalize spaceship operator results.
+     * strict equality checks. Use sign() to normalize spaceship operator results.
      *
      * Implementation guidelines:
-     * - Type juggling is encouraged; convert or cast $other to the calling object's type where a sensible
-     *   conversion exists (e.g. via a toX() method) so that comparable-but-differently-typed values can be ordered.
-     * - Should throw IncomparableTypesException only once no such conversion is possible or appropriate.
      * - Must be deterministic (same inputs always produce same result).
      * - Should be transitive (if A < B and B < C, then A < C).
      *
+     * The parameter is typed as mixed rather than self; see Equatable::equal() for why.
+     *
      * @param mixed $other The value to compare with.
      * @return int Exactly -1, 0, or 1 indicating the ordering relationship.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     abstract public function compare(mixed $other): int;
 
@@ -84,9 +56,8 @@ trait Comparable
      *
      * @param mixed $other The value to compare with.
      * @return bool True if the values are equal, false otherwise.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
-    #[Override]
+    #[Override] // Equatable
     public function equal(mixed $other): bool
     {
         return $this->compare($other) === 0;
@@ -97,7 +68,6 @@ trait Comparable
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is less than the other object, false otherwise.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     public function lessThan(mixed $other): bool
     {
@@ -111,7 +81,6 @@ trait Comparable
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is less than or equal to the other object, false otherwise.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     public function lessThanOrEqual(mixed $other): bool
     {
@@ -123,7 +92,6 @@ trait Comparable
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is greater than the other object, false otherwise.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     public function greaterThan(mixed $other): bool
     {
@@ -137,7 +105,6 @@ trait Comparable
      *
      * @param mixed $other The value to compare with.
      * @return bool True if this object is greater than or equal to the other object, false otherwise.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      */
     public function greaterThanOrEqual(mixed $other): bool
     {

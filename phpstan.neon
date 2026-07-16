@@ -2,13 +2,4 @@ parameters:
     paths:
         - src
         - tests
-    ignoreErrors:
-        -
-            identifier: staticMethod.alreadyNarrowedType
-            paths:
-                - tests/*
-        -
-            identifier: staticMethod.impossibleType
-            paths:
-                - tests/*
     treatPhpDocTypesAsCertain: false

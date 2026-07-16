@@ -13,13 +13,6 @@ This trait is designed to be composed with other traits in a hierarchy. It's sep
 follow the Interface Segregation Principle - some types can check equality but don't have a natural ordering (e.g.,
 Complex numbers can be equal but don't have a meaningful less-than/greater-than relationship).
 
-The trait provides the following methods:
-
-| Name          | Description                                         | Implementation                |
-| ------------- | --------------------------------------------------- | ----------------------------- |
-| `equal()`     | Exact equality comparison                           | Todo                          |
-| `identical()` | Stricter than `equal()`, requires the same type too | Provided (built on `equal()`) |
-
 ---
 
 ## Abstract Methods
@@ -34,86 +27,39 @@ abstract public function equal(mixed $other): bool
 
 **Parameters:**
 
-- `$other` (mixed) - The value to compare with (can be any type)
+- `$other` (mixed) - The value to compare with
 
 **Returns:**
 
 - `bool` - `true` if the values are equal, `false` otherwise
 
+**Why `mixed` and not `self`:**
+
+1. `self` is invariant across both trait composition and inheritance: if a class using this trait is subclassed and the
+   subclass overrides `equal()`, `self` in the override would narrow to the subclass, which PHP rejects as an
+   incompatible override of the trait method (bound to the base class).
+2. Some types legitimately need to compare against a related-but-different type (e.g. `Complex` accepting `int` or
+   `float`). There's no type hint for "self or number", so implementations must check the type of `$other` themselves.
+
 **Implementation Guidelines:**
 
-- Should attempt to convert or cast `$other` to the calling object's type where a sensible conversion exists (e.g. via a
-  `toX()` method), so that comparable-but-differently-typed values (e.g. `int` vs `Complex`) can still be compared
-- Should throw `IncomparableTypesException` only once no such conversion is possible or appropriate
-- May use epsilon-based comparison for floating-point types
-- Should be consistent with the object's equality semantics
+- Check the type of `$other` explicitly (typically `instanceof self`) - don't attempt to convert or coerce it.
+- Throw (typically `InvalidArgumentException`) for any type that isn't a deliberate, documented exception to
+  same-type-only comparison. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==`: silent type juggling in
+  comparisons is a source of bugs. Only widen to accept a related type where there's a genuine mathematical
+  justification (e.g. `Complex` and `int`/`float`), and document it.
+- Should be reflexive, symmetric, and transitive.
+- May use epsilon-based comparison for floating-point types (or better, use `ApproxEquatable` alongside this trait).
 
 **Throws:**
 
-- `IncomparableTypesException` - If `$other` is not a compatible type
+- Typically `InvalidArgumentException` for an incompatible type - see Implementation Guidelines above.
 
 ---
 
-## Provided Methods
-
-### identical()
+## Example
 
 ```php
-public function identical(mixed $other): bool
-```
-
-A stricter counterpart to `equal()`, provided automatically — no implementation needed. Returns `true` only if `$other`
-is the exact same type (via `Types::same()`, so a subclass of a non-final class doesn't count) _and_ `equal()` to it.
-
-This only behaves differently from `equal()` for classes that deliberately widen `equal()` to accept other types (e.g.
-accepting a plain `int` alongside instances of the same class). For a class whose `equal()` is already strict (only ever
-accepts instances of the same class), `identical()` will always agree with `equal()` — which is correct, just not
-particularly interesting.
-
-**Parameters:**
-
-- `$other` (mixed) - The value to compare with (can be any type)
-
-**Returns:**
-
-- `bool` - `true` if `$other` is the same type and `equal()` to this object, `false` otherwise
-
-**Example:**
-
-```php
-class Money
-{
-    use Equatable;
-
-    public function __construct(private readonly int $cents) {}
-
-    public function equal(mixed $other): bool
-    {
-        // Also accepts a plain int, treated as a whole-dollar amount.
-        if (is_int($other)) {
-            return $this->cents === $other * 100;
-        }
-        return $other instanceof self && $this->cents === $other->cents;
-    }
-}
-
-$m1 = new Money(500);
-$m2 = new Money(500);
-
-var_dump($m1->equal($m2));      // true
-var_dump($m1->equal(5));        // true -- widened equal()
-var_dump($m1->identical($m2));  // true -- same type, equal
-var_dump($m1->identical(5));    // false -- not the same type, even though equal(5) is true
-```
-
----
-
-## Examples
-
-### Using Equatable for Value Objects
-
-```php
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Traits\Comparison\Equatable;
 
 class Point
@@ -128,7 +74,7 @@ class Point
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Point with ' . get_debug_type($other) . '.');
         }
 
         return $this->x === $other->x
@@ -142,18 +88,18 @@ $p3 = new Point(5.0, 6.0);
 
 var_dump($p1->equal($p2)); // true
 var_dump($p1->equal($p3)); // false
-$p1->equal("string"); // throws IncomparableTypesException
+$p1->equal("string"); // throws InvalidArgumentException
 ```
 
 ---
 
 ## Relationship with Other Traits
 
-Equatable is the base trait in the comparison hierarchy. Other traits extend it:
+`Equatable` is the base trait in the comparison hierarchy. Other traits extend it:
 
-- **Comparable** adds ordering operations
-- **ApproxEquatable** adds approximate equality
-- **ApproxComparable** combines both
+- `Comparable` adds ordering operations
+- `ApproxEquatable` adds approximate equality
+- `ApproxComparable` combines both
 
 See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
 
@@ -163,16 +109,18 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 - `OceanMoon\Collections\Collection` - Base class for type-safe collections.
 - `OceanMoon\Color\Color` - Encapsulates a CSS color.
+- `OceanMoon\Math\Vector` - Encapsulates a vector.
+- `OceanMoon\Math\Matrix` - Encapsulates a matrix (via `ApproxEquatable`).
 
 ---
 
 ## Best Practices
 
-1. **Type Safety**: Always check the type of `$other` before comparing
-2. **Throw for Incompatible Types**: `equal()` should throw `IncomparableTypesException` for types it can't meaningfully
-   compare against. Use `identical()` (provided by this trait) when you need a version that never throws.
-3. **Reflexive**: `x.equal(x)` should always be `true`
-4. **Symmetric**: If `x.equal(y)` is `true`, then `y.equal(x)` must also be `true`
-5. **Transitive**: If `x.equal(y)` and `y.equal(z)` are both `true`, then `x.equal(z)` must be `true`
-6. **Consistent**: Multiple calls to `equal()` with the same arguments should return the same result
-7. **Float Comparison**: For types containing floats, consider epsilon-based comparison to handle precision issues
+1. **Type Safety**: Check the type of `$other` explicitly; don't attempt silent conversion.
+2. **Throw for Incompatible Types**: `equal()` should throw for types it doesn't deliberately support, matching the
+   `===`/`!==` philosophy rather than `==`/`!=`.
+3. **Reflexive**: `x.equal(x)` should always be `true`.
+4. **Symmetric**: If `x.equal(y)` is `true`, then `y.equal(x)` must also be `true`.
+5. **Transitive**: If `x.equal(y)` and `y.equal(z)` are both `true`, then `x.equal(z)` must be `true`.
+6. **Consistent**: Multiple calls to `equal()` with the same arguments should return the same result.
+7. **Float Comparison**: For types containing floats, use `ApproxEquatable` alongside this trait.

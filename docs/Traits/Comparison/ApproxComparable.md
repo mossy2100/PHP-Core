@@ -13,16 +13,16 @@ values (e.g., Rational numbers).
 
 The trait provides the following methods:
 
-| Name                   | Description                                    | Implementation            |
-| ---------------------- | ---------------------------------------------- | ------------------------- |
-| `compare()`            | Exact ordering comparison                      | Todo                      |
-| `approxEqual()`        | Approximate equality                           | Todo                      |
-| `approxCompare()`      | Approximate ordering comparison with tolerance | Provided                  |
-| `equal()`              | Exact equality                                 | Provided (via Comparable) |
-| `lessThan()`           | Check if less than                             | Provided (via Comparable) |
-| `lessThanOrEqual()`    | Check if less than or equal to                 | Provided (via Comparable) |
-| `greaterThan()`        | Check if greater than                          | Provided (via Comparable) |
-| `greaterThanOrEqual()` | Check if greater than or equal to              | Provided (via Comparable) |
+| Name                   | Description                                    | Implementation              |
+| ---------------------- | ---------------------------------------------- | --------------------------- |
+| `compare()`            | Exact ordering comparison                      | Todo                        |
+| `approxEqual()`        | Approximate equality                           | Todo                        |
+| `approxCompare()`      | Approximate ordering comparison with tolerance | Provided                    |
+| `equal()`              | Exact equality                                 | Provided (via `Comparable`) |
+| `lessThan()`           | Check if less than                             | Provided (via `Comparable`) |
+| `lessThanOrEqual()`    | Check if less than or equal to                 | Provided (via `Comparable`) |
+| `greaterThan()`        | Check if greater than                          | Provided (via `Comparable`) |
+| `greaterThanOrEqual()` | Check if greater than or equal to              | Provided (via `Comparable`) |
 
 ---
 
@@ -48,6 +48,10 @@ abstract public function approxEqual(
 
 **You must implement this method.** See [ApproxEquatable.md](ApproxEquatable.md) for full documentation.
 
+Both abstract methods should check the type of `$other` explicitly (typically `instanceof self`) and throw (typically
+`InvalidArgumentException`) for anything that isn't a deliberate, documented exception to same-type-only comparison -
+see [Equatable.md](Equatable.md) for the reasoning.
+
 ---
 
 ## Concrete Methods
@@ -63,120 +67,39 @@ public function approxCompare(
 ```
 
 Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances, otherwise
-performs exact comparison.
-
-**Parameters:**
-
-- `$other` (mixed) - The value to compare with
-- `$relTol` (float) - Relative tolerance (default: 1e-9)
-- `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16)
-
-**Returns:**
-
-- `int` - Exactly `-1`, `0`, or `1`
-
-**Behavior:**
-
-- If `approxEqual()` returns `true`, returns `0`
-- Otherwise, returns result of exact `compare()`
+performs exact comparison. Provided by the trait, built on `approxEqual()` and `compare()`.
 
 **Use Cases:**
 
 - Sorting with approximate equality "buckets"
-- Implementing approximate ordering algorithms
+- Finding approximate min/max
 - Range queries with tolerance
 
 ---
 
-## Examples
-
-### Sorting with Approximate Equality
+## Example
 
 ```php
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
-use OceanMoon\Core\Floats;
-use OceanMoon\Core\Traits\Comparison\ApproxComparable;
-
-class Score
-{
-    use ApproxComparable;
-
-    private const TOLERANCE = 0.01; // 1% tolerance
-
-    public function __construct(
-        private float $value
-    ) {}
-
-    public function compare(mixed $other): int
-    {
-        if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
-        }
-
-        if ($this->value < $other->value) {
-            return -1;
-        }
-        if ($this->value > $other->value) {
-            return 1;
-        }
-        return 0;
-    }
-
-    public function approxEqual(
-        mixed $other,
-        float $relTol = self::TOLERANCE,
-        float $absTol = PHP_FLOAT_EPSILON
-    ): bool {
-        if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
-        }
-
-        return Floats::approxEqual($this->value, $other->value, $relTol, $absTol);
-    }
-}
-
-$scores = [
-    new Score(95.0),
-    new Score(95.5),  // Within 1% of 95.0
-    new Score(90.0),
-    new Score(85.0),
-];
-
-// Sort with approximate comparison
-usort($scores, fn ($a, $b) => $a->approxCompare($b, 0.01));
-// Scores within 1% are considered equal and maintain relative order
-```
-
-### Vector Comparison with Magnitude
-
-```php
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 use OceanMoon\Core\Numbers;
 use OceanMoon\Core\Traits\Comparison\ApproxComparable;
 
-class Vector2D
+class Rational
 {
     use ApproxComparable;
 
-    public function __construct(
-        private float $x,
-        private float $y
-    ) {}
-
-    public function magnitude(): float
-    {
-        return sqrt($this->x ** 2 + $this->y ** 2);
-    }
+    public function __construct(private int $num, private int $den) {}
 
     public function compare(mixed $other): int
     {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Rational with ' . get_debug_type($other) . '.');
         }
 
-        // Compare by magnitude
-        return Numbers::sign($this->magnitude() <=> $other->magnitude());
+        $left = $this->num * $other->den;
+        $right = $other->num * $this->den;
+
+        return Numbers::sign($left <=> $right);
     }
 
     public function approxEqual(
@@ -185,31 +108,27 @@ class Vector2D
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException('Cannot compare Rational with ' . get_debug_type($other) . '.');
         }
 
-        // Both components must be within tolerance
-        return Floats::approxEqual($this->x, $other->x, $relTol, $absTol)
-            && Floats::approxEqual($this->y, $other->y, $relTol, $absTol);
+        return Floats::approxEqual(
+            $this->num / $this->den,
+            $other->num / $other->den,
+            $relTol,
+            $absTol
+        );
     }
+
+    // equal(), lessThan(), greaterThan(), approxCompare(), etc. all provided
 }
-
-$v1 = new Vector2D(3.0, 4.0);  // magnitude: 5.0
-$v2 = new Vector2D(3.00001, 4.00001);
-$v3 = new Vector2D(0.0, 6.0);  // magnitude: 6.0
-
-var_dump($v1->equal($v2));        // false (exact components differ)
-var_dump($v1->approxEqual($v2));  // true (components within tolerance)
-var_dump($v1->lessThan($v3));     // true (5.0 < 6.0 by magnitude)
-var_dump($v1->approxCompare($v2)); // 0 (approximately equal)
 ```
 
 ---
 
 ## Relationship with Other Traits
 
-ApproxComparable combines Comparable and ApproxEquatable, providing the complete comparison suite for ordered types with
-floating-point components.
+`ApproxComparable` combines `Comparable` and `ApproxEquatable`, providing the complete comparison suite for ordered
+types with floating-point components.
 
 See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
 
@@ -218,20 +137,19 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 ## Classes Using ApproxComparable
 
 - `OceanMoon\Math\Rational` - Rational numbers, require approximate equality and less/greater than comparisons.
+- `OceanMoon\Quantities\Quantity` - Physical quantities with unit-aware ordering.
 
 ---
 
 ## Best Practices
 
-1. **Implement Both**: Provide both exact (`compare()`) and approximate (`approxEqual()`) implementations
-2. **Consistent Semantics**: Ensure approximate equality aligns with your ordering semantics
-3. **Don't Override approxCompare()**: Let the trait provide it based on `approxEqual()` and `compare()`
-4. **Document Precision**: Clearly document when to use exact vs approximate comparison
-5. **Type Safety**: Convert or cast `$other` to the calling object's type first where a sensible conversion exists, and
-   throw `IncomparableTypesException` in both `compare()` and `approxEqual()` only for types that remain incompatible
-6. **Use Floats Utilities**: Leverage `Floats::approxEqual()` and `Floats::compare()` for float comparisons
-7. **Sensible Defaults**: Choose default tolerances appropriate for your type's typical use cases
-8. **Test Thoroughly**: Test edge cases like zero, very large values, and very small values
+1. **Implement Both**: Provide both exact (`compare()`) and approximate (`approxEqual()`) implementations.
+2. **Consistent Semantics**: Ensure approximate equality aligns with your ordering semantics.
+3. **Don't Override approxCompare()**: Let the trait provide it based on `approxEqual()` and `compare()`.
+4. **Type Safety**: Check the type of `$other` explicitly in both `compare()` and `approxEqual()` - throw for anything
+   that isn't a deliberate, documented exception to same-type-only comparison.
+5. **Use Floats Utilities**: Leverage `Floats::approxEqual()` and `Floats::compare()` for float comparisons.
+6. **Sensible Defaults**: Choose default tolerances appropriate for your type's typical use cases.
 
 ---
 
@@ -263,70 +181,8 @@ See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage 
 
 ---
 
-## Common Patterns
-
-### Exact Comparison in compare()
-
-```php
-public function compare(mixed $other): int
-{
-    if (!$other instanceof self) {
-        throw new IncomparableTypesException($this, $other);
-    }
-
-    // Use integer arithmetic for exact comparison
-    $left = $this->numerator * $other->denominator;
-    $right = $other->numerator * $this->denominator;
-
-    return Numbers::sign($left <=> $right);
-}
-```
-
-### Float-Based Approximate Equality
-
-```php
-public function approxEqual(
-    mixed $other,
-    float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-    float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-): bool {
-    if (!$other instanceof self) {
-        throw new IncomparableTypesException($this, $other);
-    }
-
-    return Floats::approxEqual(
-        $this->toFloat(),
-        $other->toFloat(),
-        $relTol,
-        $absTol
-    );
-}
-```
-
-### Component-Wise Approximate Equality
-
-```php
-public function approxEqual(
-    mixed $other,
-    float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-    float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-): bool {
-    if (!$other instanceof self) {
-        throw new IncomparableTypesException($this, $other);
-    }
-
-    // All components must be within tolerance
-    return Floats::approxEqual($this->x, $other->x, $relTol, $absTol)
-        && Floats::approxEqual($this->y, $other->y, $relTol, $absTol)
-        && Floats::approxEqual($this->z, $other->z, $relTol, $absTol);
-}
-```
-
----
-
 ## See Also
 
 - [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
 - [Comparable.md](Comparable.md) - Base ordering trait
 - [ApproxEquatable.md](ApproxEquatable.md) - Approximate equality trait
-- [IncomparableTypesException.md](../../Exceptions/IncomparableTypesException.md) - Exception for type mismatches

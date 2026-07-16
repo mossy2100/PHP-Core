@@ -76,12 +76,19 @@ provides `toString()`, a lighter-weight conversion for user-facing output (strin
 
 ---
 
-## Functions
+## Globals
 
-### [Functions](docs/Functions.md)
+### [Constants](docs/Globals/Constants.md)
 
-Convenience functions in the `OceanMoon\Core` namespace, including `write()` and `writeln()` for outputting strings and
-other values.
+Useful constants used by the Core, Math, and other packages, including `M_TAU`.
+
+### [Strings](docs/Globals/Strings.md)
+
+Convenient functions for outputting strings and other values, including `dump_var()`, `write()` and `writeln()`.
+
+### [Numbers](docs/Globals/Numbers.md)
+
+Convenient functions for working with numbers, including `is_number()` , `is_zero()`, `sign()`, and `copy_sign()`.
 
 ---
 
@@ -112,15 +119,16 @@ examples.
 
 ## Exceptions
 
-### [IncomparableTypesException](docs/Exceptions/IncomparableTypesException.md)
-
-Exception thrown when attempting to compare values of incompatible types. Used by the Comparable and ApproxComparable
-traits. Automatically generates descriptive error messages.
-
 ### [FormatException](docs/Exceptions/FormatException.md)
 
 Exception thrown when a string has an invalid format for the desired operation. Extends `DomainException`. Useful for
 parse methods or constructors that accept string arguments.
+
+### [ArithmeticException](docs/Exceptions/ArithmeticException.md)
+
+Exception thrown when an arithmetic operation has no defined result for the given operands, such as division by zero or
+a logarithm of a non-positive number. Extends `DomainException`. Displaces `DivisionByZeroError` for userland arithmetic
+code in value types like `Complex`, `Rational`, `Vector`, and `Matrix`.
 
 ---
 

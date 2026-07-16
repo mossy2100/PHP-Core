@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Traits\Comparison;
 
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 
 /**
@@ -23,37 +22,11 @@ use OceanMoon\Core\Floats;
  * considered equal (within tolerance), and falls back to exact comparison for ordering when they're not approximately
  * equal.
  *
- * Example usage:
- * <code>
- * class Rational
- * {
- *     use ApproxComparable;
- *
- *     public function __construct(private int $num, private int $den) {}
- *
- *     #[Override]
- *     public function compare(mixed $other): int
- *     {
- *         if (!Types::same($this, $other)) {
- *             throw new IncomparableTypesException($this, $other);
- *         }
- *         return Numbers::sign($this->toFloat() <=> $other->toFloat());
- *     }
- *
- *     #[Override]
- *     public function approxEqual(mixed $other, float $relTol = ..., float $absTol = ...): bool
- *     {
- *         if (!Types::same($this, $other)) {
- *             throw new IncomparableTypesException($this, $other);
- *         }
- *         return Floats::approxEqual($this->toFloat(), $other->toFloat(), $relTol, $absTol);
- *     }
- * }
- * </code>
- *
  * @see Comparable The exact comparison trait this includes.
  * @see ApproxEquatable The approximate equality trait this includes.
  * @see Floats::approxEqual() The tolerance algorithm used.
+ *
+ * Full documentation and examples: docs/Traits/Comparison/ApproxComparable.md
  *
  * @codeCoverageIgnore
  * @phpstan-ignore trait.unused
@@ -80,11 +53,12 @@ trait ApproxComparable
      * Return values are exactly -1, 0, or 1 (not just negative/zero/positive) because convenience methods may rely
      * on strict equality checks.
      *
+     * The parameter is typed as mixed rather than self; see Equatable::equal() for why.
+     *
      * @param mixed $other The value to compare with.
      * @param float $relTol The maximum allowed relative difference (default: 1e-9).
      * @param float $absTol The maximum allowed absolute difference (default: PHP_FLOAT_EPSILON).
      * @return int Exactly -1, 0, or 1 indicating the ordering relationship.
-     * @throws IncomparableTypesException If the types are incompatible for comparison.
      * @see approxEqual() The method used to check approximate equality.
      * @see compare() The method used for exact ordering when not approximately equal.
      */

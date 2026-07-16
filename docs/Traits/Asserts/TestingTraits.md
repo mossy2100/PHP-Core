@@ -33,5 +33,4 @@ class MyTest extends TestCase
 ## See Also
 
 - [FloatAssertions.md](FloatAssertions.md) - PHPUnit assertions for float comparison
-- [IncomparableTypesException.md](../../Exceptions/IncomparableTypesException.md) - Exception for type mismatches
 - [Floats.md](../../Floats.md) - Utilities for floating-point comparison
