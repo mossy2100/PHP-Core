@@ -10,6 +10,7 @@ use RuntimeException;
 use UnexpectedValueException;
 
 use function OceanMoon\Core\Globals\sign;
+use function OceanMoon\Core\Globals\to_string;
 
 use const OceanMoon\Core\Globals\M_TAU;
 
@@ -31,12 +32,13 @@ final class Floats
     public const float DEFAULT_ABSOLUTE_TOLERANCE = PHP_FLOAT_EPSILON;
 
     /**
-     * Maximum integer that can be exactly represented as a float (2^53).
+     * Maximum integer that can be safely represented as a float and round-tripped without collision (2^53 - 1).
+     * Beyond this value, multiple consecutive integers can convert to the same float. See isSafeInt() for additional
+     * explanation.
      *
-     * Beyond this value, not all consecutive integers are representable in double-precision floating-point format.
-     * Equivalently, multiple integer values will convert to the same float value.
+     * Equivalent to JavaScript's Number.MAX_SAFE_INTEGER.
      */
-    public const int MAX_EXACT_INT = 1 << 53;
+    public const int MAX_SAFE_INT = 2 ** 53 - 1;
 
     #endregion
 
@@ -129,60 +131,6 @@ final class Floats
     public static function isSpecial(float $value): bool
     {
         return !is_finite($value) || self::isNegativeZero($value);
-    }
-
-    /**
-     * Check if a float value is exactly representable as an integer (no rounding error).
-     *
-     * Returns true for finite integers within IEEE-754 double's exact integer range (±2^53).
-     * Beyond this range, consecutive integers cannot all be exactly represented as floats.
-     *
-     * For example:
-     * - isExactInt(42.0) → true
-     * - isExactInt(42.5) → false (has fractional part)
-     * - isExactInt(9007199254740992.0) → true (exactly 2^53)
-     * - isExactInt(9007199254740993.0) → false (beyond exact range)
-     *
-     * @param float $value The value to check.
-     * @return bool True if the value represents an exact integer, false otherwise.
-     *
-     * @see tryConvertToInt() Attempt lossless conversion to int
-     * @see ulp() Calculate precision at a given magnitude
-     */
-    public static function isExactInt(float $value): bool
-    {
-        return is_finite($value) && floor($value) === $value && abs($value) <= self::MAX_EXACT_INT;
-    }
-
-    /**
-     * Check if a float value is approximately an integer (within tolerance).
-     *
-     * Unlike isExactInt(), this method allows for small floating-point errors
-     * that may accumulate during calculations.
-     *
-     * For example:
-     * - isApproxInt(3.0) → true
-     * - isApproxInt(3.0000000001) → true (within default tolerance)
-     * - isApproxInt(3.5) → false
-     * - isApproxInt(log(1000, 10)) → true (result is approximately 3)
-     *
-     * @param float $value The value to check.
-     * @param float $relTol The maximum allowed relative difference.
-     * @param float $absTol The maximum allowed absolute difference.
-     * @return bool True if the value is approximately an integer, false otherwise.
-     *
-     * @see isExactInt() For exact integer check without tolerance
-     * @see approxEqual() For comparing two floats with tolerance
-     */
-    public static function isApproxInt(
-        float $value,
-        float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
-    ): bool {
-        if (!is_finite($value)) {
-            return false;
-        }
-        return self::approxEqual($value, round($value), $relTol, $absTol);
     }
 
     #endregion
@@ -297,14 +245,14 @@ final class Floats
      * Unlike casting to int, this method handles values outside PHP's integer range.
      *
      * For example:
-     * - trunc(3.7) → 3.0
-     * - trunc(-3.7) → -3.0
-     * - trunc(3.0) → 3.0
-     * - trunc(-0.5) → 0.0
+     * - Floats::trunc(3.7) → 3.0
+     * - Floats::trunc(-3.7) → -3.0
+     * - Floats::trunc(3.0) → 3.0
+     * - Floats::trunc(-0.5) → 0.0
      *
      * Special cases:
-     * - trunc(NAN) returns NAN
-     * - trunc(±INF) returns ±INF
+     * - Floats::trunc(NAN) returns NAN
+     * - Floats::trunc(±INF) returns ±INF
      *
      * @param float $value The value to truncate.
      * @return float The truncated value.
@@ -320,20 +268,20 @@ final class Floats
     /**
      * Return the fractional part of a float.
      *
-     * This method satisfies the identity x = trunc(x) + frac(x), even for non-finite numbers.
+     * This method satisfies the identity x = Floats::trunc(x) + Floats::frac(x), even for non-finite numbers.
      *
      * For result will have the same sign as the input value. For example:
-     * - frac(3.7) → 0.7
-     * - frac(-3.7) → -0.7
+     * - Floats::frac(3.7) → 0.7
+     * - Floats::frac(-3.7) → -0.7
      *
      * Special cases:
-     * - frac(NAN) returns NAN
-     * - frac(±INF) returns 0.0 (infinity has no fractional part)
+     * - Floats::frac(NAN) returns NAN
+     * - Floats::frac(±INF) returns 0.0 (infinity has no fractional part)
      *
      * @param float $value The value to get the fractional part of.
      * @return float The fractional part.
      *
-     * @see trunc() For the integer part towards zero
+     * @see Floats::trunc() For the integer part towards zero
      */
     public static function frac(float $value): float
     {
@@ -396,39 +344,6 @@ final class Floats
     #endregion
 
     #region Conversion methods
-
-    /**
-     * Try to convert a float to an integer losslessly.
-     *
-     * @param float $f The float to convert to an integer.
-     * @return ?int The equivalent integer, or null if conversion would lose precision.
-     */
-    public static function tryConvertToInt(float $f): ?int
-    {
-        // Check the provided value is finite.
-        if (!is_finite($f)) {
-            return null;
-        }
-
-        // Check if the argument is a float that can be converted losslessly to an integer.
-        if ($f >= PHP_INT_MIN && $f <= PHP_INT_MAX) {
-            // Try to cast the float to an integer. Suppress overflow warning.
-            $i = @(int) $f;
-
-            // If overflow occurred (can happen for values close to PHP_INT_MAX), return null.
-            if ($f > 0 && $i === PHP_INT_MIN) {
-                return null;
-            }
-
-            // Cast the integer back to a float and compare with the original float.
-            if ($f === (float) $i) {
-                return $i;
-            }
-        }
-
-        // Argument is a float that cannot be losslessly converted to an integer.
-        return null;
-    }
 
     /**
      * Convert a float to a hexadecimal string.
@@ -555,6 +470,98 @@ final class Floats
 
         // Reassemble the value string.
         return $mantissa . $expSeparator . $exp;
+    }
+
+    #endregion
+
+    #region Integer methods
+
+    /**
+     * Check if the float represents an integral value (not a value of type int), i.e. it has no decimal part.
+     *
+     * @param float $value The value to check.
+     * @return bool True if the value is numerically an integer, false otherwise.
+     */
+    public static function isInt(float $value): bool
+    {
+        return is_finite($value) && floor($value) === $value;
+    }
+
+    /**
+     * Check if a float value is exactly representable as an integer, and safely round-trippable.
+     *
+     * Returns true for finite integers within IEEE-754 double's safe integer range (±(2^53 - 1)).
+     * Beyond this range, consecutive integers cannot all be exactly represented as floats.
+     * Equivalently, multiple consecutive integers will convert to the same float.
+     *
+     * Equivalent to JavaScript's Number.isSafeInteger().
+     *
+     * For example:
+     * - isSafeInt(42.0) → true
+     * - isSafeInt(42.5) → false (has fractional part)
+     * - isSafeInt(9007199254740991.0) → true (2^53 - 1, MAX_SAFE_INT)
+     * - isSafeInt(9007199254740992.0) → false (2^53, exceeds MAX_SAFE_INT even though still exactly representable)
+     *
+     * @param float $value The value to check.
+     * @return bool True if the value represents a safe integer, false otherwise.
+     *
+     * @see toInt() Attempt lossless conversion to int
+     * @see ulp() Calculate precision at a given magnitude
+     */
+    public static function isSafeInt(float $value): bool
+    {
+        return self::isInt($value) && abs($value) <= self::MAX_SAFE_INT;
+    }
+
+    /**
+     * Check if a float value is approximately an integral value (within tolerance).
+     *
+     * Unlike isInt(), this method allows for small floating-point errors that may accumulate during calculations.
+     *
+     * For example:
+     * - isApproxInt(3.0) → true
+     * - isApproxInt(3.0000000001) → true (within default tolerance)
+     * - isApproxInt(3.5) → false
+     * - isApproxInt(log(1000, 10)) → true (result is approximately 3)
+     *
+     * @param float $value The value to check.
+     * @param float $relTol The maximum allowed relative difference.
+     * @param float $absTol The maximum allowed absolute difference.
+     * @return bool True if the value is approximately an integer, false otherwise.
+     *
+     * @see isInt() For exact integer check without tolerance
+     * @see approxEqual() For comparing two floats with tolerance
+     */
+    public static function isApproxInt(
+        float $value,
+        float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+    ): bool {
+        // Non-finite values are never approximately an integer.
+        if (!is_finite($value)) {
+            return false;
+        }
+
+        return self::approxEqual($value, round($value), $relTol, $absTol);
+    }
+
+    /**
+     * Convert a float to an integer losslessly.
+     *
+     * @param float $f The float to convert to an integer.
+     * @return int The equivalent integer.
+     * @throws DomainException If the float cannot be converted to an int losslessly.
+     */
+    public static function toInt(float $f): int
+    {
+        // Because PHP_INT_MIN is a power of 2, it can be represented as a float exactly, whereas PHP_INT_MAX cannot.
+        $limit = (float) PHP_INT_MIN;
+        if (self::isInt($f) && $f >= $limit && $f < -$limit) {
+            return (int) $f;
+        }
+
+        // Use to_string() rather than string interpolation to avoid warning triggered by NAN/±INF.
+        throw new DomainException('Cannot convert float ' . to_string($f) . ' to an int losslessly.');
     }
 
     #endregion
@@ -701,7 +708,7 @@ final class Floats
 
     #endregion
 
-    #region Bit operations
+    #region Bit methods
 
     /**
      * Converts a float to its 64-bit integer representation.

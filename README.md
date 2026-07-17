@@ -46,10 +46,6 @@ composer require oceanmoon/core
 
 ## Classes
 
-### [Numbers](docs/Numbers.md)
-
-General number-related utility methods including sign operations.
-
 ### [Floats](docs/Floats.md)
 
 Float-specific utilities for handling IEEE-754 special values (-0.0, ±INF, NAN), approximate comparison, float space
@@ -71,8 +67,8 @@ unique string keys.
 
 ### [Stringify](docs/Stringify.md)
 
-Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. Also
-provides `toString()`, a lighter-weight conversion for user-facing output (strings pass through unquoted).
+Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. This class
+serves as the basis of the `dump_var()` function.
 
 ---
 

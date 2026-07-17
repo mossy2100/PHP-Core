@@ -235,7 +235,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test trunc() with positive values.
+     * Test Floats::trunc() with positive values.
      */
     public function testTruncPositive(): void
     {
@@ -247,7 +247,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test trunc() with negative values.
+     * Test Floats::trunc() with negative values.
      */
     public function testTruncNegative(): void
     {
@@ -259,7 +259,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test trunc() with zero values.
+     * Test Floats::trunc() with zero values.
      */
     public function testTruncZero(): void
     {
@@ -270,7 +270,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test trunc() with non-finite values.
+     * Test Floats::trunc() with non-finite values.
      */
     public function testTruncNonFinite(): void
     {
@@ -280,11 +280,11 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test trunc() differs from floor() for negative values.
+     * Test Floats::trunc() differs from floor() for negative values.
      */
     public function testTruncDiffersFromFloor(): void
     {
-        // floor() rounds toward -INF, trunc() rounds toward zero
+        // floor() rounds toward -INF, Floats::trunc() rounds toward zero
         $this->assertSame(-3.0, Floats::trunc(-3.7));
         $this->assertSame(-4.0, floor(-3.7));
 
@@ -292,8 +292,12 @@ final class FloatsTest extends TestCase
         $this->assertSame(-4.0, floor(-3.2));
     }
 
+    #endregion
+
+    #region Floats::frac() tests.
+
     /**
-     * Test frac() with positive values.
+     * Test Floats::frac() with positive values.
      */
     public function testFracPositive(): void
     {
@@ -305,7 +309,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test frac() with negative values.
+     * Test Floats::frac() with negative values.
      */
     public function testFracNegative(): void
     {
@@ -317,7 +321,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test frac() with zero values.
+     * Test Floats::frac() with zero values.
      */
     public function testFracZero(): void
     {
@@ -326,7 +330,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test frac() with non-finite values.
+     * Test Floats::frac() with non-finite values.
      */
     public function testFracNonFinite(): void
     {
@@ -338,7 +342,7 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test frac() satisfies the identity x = trunc(x) + frac(x).
+     * Test Floats::frac() satisfies the identity x = Floats::trunc(x) + Floats::frac(x).
      */
     public function testFracIdentity(): void
     {
@@ -349,7 +353,7 @@ final class FloatsTest extends TestCase
                 $value,
                 Floats::trunc($value) + Floats::frac($value),
                 1e-10,
-                "Identity x = trunc(x) + frac(x) failed for x = $value"
+                "Identity x = Floats::trunc(x) + Floats::frac(x) failed for x = $value"
             );
         }
     }
@@ -558,96 +562,127 @@ final class FloatsTest extends TestCase
     }
 
     /**
-     * Test tryConvertToInt with floats that equal whole numbers.
+     * Test toInt with floats that equal whole numbers.
      */
-    public function testTryConvertToIntWithWholeNumbers(): void
+    public function testToIntWithWholeNumbers(): void
     {
-        $this->assertSame(5, Floats::tryConvertToInt(5.0));
-        $this->assertSame(-10, Floats::tryConvertToInt(-10.0));
-        $this->assertSame(0, Floats::tryConvertToInt(0.0));
-        $this->assertSame(1000000, Floats::tryConvertToInt(1000000.0));
+        $this->assertSame(5, Floats::toInt(5.0));
+        $this->assertSame(-10, Floats::toInt(-10.0));
+        $this->assertSame(0, Floats::toInt(0.0));
+        $this->assertSame(1000000, Floats::toInt(1000000.0));
     }
 
     /**
-     * Test tryConvertToInt with floats that have fractional parts.
+     * Test toInt with floats that have fractional parts throws.
      */
-    public function testTryConvertToIntWithFractionalNumbers(): void
+    public function testToIntWithFractionalNumbersThrows(): void
     {
-        $this->assertNull(Floats::tryConvertToInt(5.5));
-        $this->assertNull(Floats::tryConvertToInt(1.001));
-        $this->assertNull(Floats::tryConvertToInt(-3.14));
+        foreach ([5.5, 1.001, -3.14] as $float) {
+            try {
+                Floats::toInt($float);
+                $this->fail("Expected DomainException for $float");
+            } catch (DomainException) {
+                $this->addToAssertionCount(1);
+            }
+        }
     }
 
     /**
-     * Test tryConvertToInt with edge case floats.
+     * Test toInt with edge case floats.
      */
-    public function testTryConvertToIntEdgeCases(): void
+    public function testToIntEdgeCases(): void
     {
-        // Very small positive number (not zero)
-        $this->assertNull(Floats::tryConvertToInt(0.1));
+        // Very small positive number (not zero) - throws.
+        try {
+            Floats::toInt(0.1);
+            $this->fail('Expected DomainException for 0.1');
+        } catch (DomainException) {
+            $this->addToAssertionCount(1);
+        }
 
-        // Very small negative number (not zero)
-        $this->assertNull(Floats::tryConvertToInt(-0.1));
+        // Very small negative number (not zero) - throws.
+        try {
+            Floats::toInt(-0.1);
+            $this->fail('Expected DomainException for -0.1');
+        } catch (DomainException) {
+            $this->addToAssertionCount(1);
+        }
 
-        // Negative zero
-        $this->assertSame(0, Floats::tryConvertToInt(-0.0));
+        // Negative zero converts to int 0.
+        $this->assertSame(0, Floats::toInt(-0.0));
     }
 
     /**
-     * Test tryConvertToInt with large integers that can be exactly represented as floats.
+     * Test toInt with large integers that can be exactly represented as floats.
      */
-    public function testTryConvertToIntWithLargeIntegers(): void
+    public function testToIntWithLargeIntegers(): void
     {
         // Use powers of 2 up to 2^53, which can be exactly represented as floats
-        $this->assertSame(1 << 50, Floats::tryConvertToInt((float) (1 << 50)));
+        $this->assertSame(1 << 50, Floats::toInt((float) (1 << 50)));
 
         // Negative large integer
-        $this->assertSame(-(1 << 50), Floats::tryConvertToInt((float) (-(1 << 50))));
+        $this->assertSame(-(1 << 50), Floats::toInt((float) (-(1 << 50))));
 
         // PHP_INT_MIN is -2^63, which is a power of 2 and CAN be exactly represented as a float
-        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float) PHP_INT_MIN));
+        $this->assertSame(PHP_INT_MIN, Floats::toInt((float) PHP_INT_MIN));
 
         // Note: PHP_INT_MAX (2^63 - 1) cannot be exactly represented as a float
         // because it has many bits set and exceeds the 53-bit mantissa precision
     }
 
     /**
-     * Test tryConvertToInt with floats that lose precision when cast to int.
+     * Test toInt with a float that loses precision when cast to int.
      */
-    public function testTryConvertToIntOutOfRange(): void
+    public function testToIntOutOfRange(): void
     {
-        // Float larger than PHP_INT_MAX (loses precision)
+        // Float larger than PHP_INT_MAX (loses precision). Verify it doesn't crash: either succeeds (return type
+        // already guarantees int), or throws DomainException.
         $f = (float) PHP_INT_MAX * 2;
-        // Verify it doesn't crash and returns int or null
-        /** @var null|int $result */
-        $result = Floats::tryConvertToInt($f);
-        $this->assertTrue($result === null || is_int($result));
+        try {
+            Floats::toInt($f);
+            $this->addToAssertionCount(1);
+        } catch (DomainException) {
+            $this->addToAssertionCount(1);
+        }
     }
 
     /**
-     * Test tryConvertToInt with PHP_INT_MAX and PHP_INT_MIN boundary values.
+     * Test toInt with PHP_INT_MIN and the largest representable boundary value.
      */
-    public function testTryConvertToIntWithIntBoundaries(): void
+    public function testToIntWithIntBoundaries(): void
     {
-        // (float)PHP_INT_MAX rounds up to 2^63, which overflows int.
-        // This must return null without triggering a PHP warning.
-        $this->assertNull(Floats::tryConvertToInt((float) PHP_INT_MAX));
-
         // PHP_INT_MIN is -2^63, exactly representable as a float.
-        $this->assertSame(PHP_INT_MIN, Floats::tryConvertToInt((float) PHP_INT_MIN));
+        $this->assertSame(PHP_INT_MIN, Floats::toInt((float) PHP_INT_MIN));
 
         // Largest float that fits in an int: 2^63 - 1024 = 9223372036854774784.
         $largest = 9223372036854774784.0;
-        $this->assertSame(9223372036854774784, Floats::tryConvertToInt($largest));
-
-        // One float step above that is 2^63, which should fail.
-        $this->assertNull(Floats::tryConvertToInt($largest + 1024.0));
+        $this->assertSame(9223372036854774784, Floats::toInt($largest));
     }
 
     /**
-     * Test tryConvertToInt with various representable integers.
+     * Test toInt with (float) PHP_INT_MAX throws, since it rounds up to 2^63 which overflows int. Must throw
+     * without triggering a PHP warning.
      */
-    public function testTryConvertToIntWithVariousIntegers(): void
+    public function testToIntWithPhpIntMaxThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        Floats::toInt((float) PHP_INT_MAX);
+    }
+
+    /**
+     * Test toInt with the float one step above the largest representable int-as-float value (2^63) throws.
+     */
+    public function testToIntJustAboveLargestRepresentableThrows(): void
+    {
+        $largest = 9223372036854774784.0;
+        $this->expectException(DomainException::class);
+        Floats::toInt($largest + 1024.0);
+    }
+
+    /**
+     * Test toInt with various representable integers.
+     */
+    public function testToIntWithVariousIntegers(): void
     {
         $testCases = [
             [1.0, 1],
@@ -661,140 +696,227 @@ final class FloatsTest extends TestCase
         ];
 
         foreach ($testCases as [$float, $expectedInt]) {
-            $this->assertSame($expectedInt, Floats::tryConvertToInt($float), "Wrong conversion for $float");
+            $this->assertSame($expectedInt, Floats::toInt($float), "Wrong conversion for $float");
         }
     }
 
     /**
-     * Test tryConvertToInt with various non-convertible floats.
+     * Test toInt with various non-convertible floats throws for each.
      */
-    public function testTryConvertToIntWithNonConvertibleFloats(): void
+    public function testToIntWithNonConvertibleFloatsThrows(): void
     {
         $testCases = [0.1, 0.5, 0.999, 1.1, -0.5, -1.5, 3.14159, -2.71828];
 
         foreach ($testCases as $float) {
-            $this->assertNull(Floats::tryConvertToInt($float), "Should return null for $float");
+            try {
+                Floats::toInt($float);
+                $this->fail("Expected DomainException for $float");
+            } catch (DomainException) {
+                $this->addToAssertionCount(1);
+            }
         }
     }
 
     /**
-     * Test tryConvertToInt with non-finite floats.
+     * Test toInt with non-finite floats throws for each.
      */
-    public function testTryConvertToIntWithNonFiniteFloats(): void
+    public function testToIntWithNonFiniteFloatsThrows(): void
     {
-        $this->assertNull(Floats::tryConvertToInt(NAN));
-        $this->assertNull(Floats::tryConvertToInt(INF));
-        $this->assertNull(Floats::tryConvertToInt(-INF));
+        foreach ([NAN, INF, -INF] as $float) {
+            try {
+                Floats::toInt($float);
+                $this->fail("Expected DomainException for $float");
+            } catch (DomainException) {
+                $this->addToAssertionCount(1);
+            }
+        }
     }
 
     #endregion
 
-    #region Precision method tests
+    #region Integer method tests
 
     /**
-     * Test isExactInt with whole number floats.
+     * Test isInt with whole number floats.
      */
-    public function testIsExactIntWithWholeNumbers(): void
+    public function testIsIntWithWholeNumbers(): void
     {
-        $this->assertTrue(Floats::isExactInt(0.0));
-        $this->assertTrue(Floats::isExactInt(1.0));
-        $this->assertTrue(Floats::isExactInt(-1.0));
-        $this->assertTrue(Floats::isExactInt(42.0));
-        $this->assertTrue(Floats::isExactInt(-99.0));
-        $this->assertTrue(Floats::isExactInt(1000000.0));
+        $this->assertTrue(Floats::isInt(0.0));
+        $this->assertTrue(Floats::isInt(1.0));
+        $this->assertTrue(Floats::isInt(-1.0));
+        $this->assertTrue(Floats::isInt(42.0));
+        $this->assertTrue(Floats::isInt(1e20));
     }
 
     /**
-     * Test isExactInt with fractional floats.
+     * Test isInt with actual int arguments (not just whole-number floats). Regression test: the parameter was
+     * previously untyped, so a plain int slipped through unconverted and floor($value) === $value failed (float
+     * !== int under strict comparison), wrongly returning false.
      */
-    public function testIsExactIntWithFractionalNumbers(): void
+    public function testIsIntWithActualIntegers(): void
     {
-        $this->assertFalse(Floats::isExactInt(0.5));
-        $this->assertFalse(Floats::isExactInt(1.1));
-        $this->assertFalse(Floats::isExactInt(-3.14));
-        $this->assertFalse(Floats::isExactInt(0.001));
-        $this->assertFalse(Floats::isExactInt(99.999));
+        $this->assertTrue(Floats::isInt(0));
+        $this->assertTrue(Floats::isInt(1));
+        $this->assertTrue(Floats::isInt(-1));
+        $this->assertTrue(Floats::isInt(42));
+        $this->assertTrue(Floats::isInt(PHP_INT_MAX));
+        $this->assertTrue(Floats::isInt(PHP_INT_MIN));
     }
 
     /**
-     * Test isExactInt with negative zero.
+     * Test isInt with fractional floats.
      */
-    public function testIsExactIntWithNegativeZero(): void
+    public function testIsIntWithFractionalNumbers(): void
     {
-        $this->assertTrue(Floats::isExactInt(-0.0));
+        $this->assertFalse(Floats::isInt(0.5));
+        $this->assertFalse(Floats::isInt(1.1));
+        $this->assertFalse(Floats::isInt(-3.14));
     }
 
     /**
-     * Test isExactInt at the boundary of exact representation (2^53).
+     * Test isInt with negative zero.
      */
-    public function testIsExactIntAtExactBoundary(): void
+    public function testIsIntWithNegativeZero(): void
     {
-        // 2^53 is the largest consecutive integer exactly representable
-        $boundary = 1 << 53; // 9007199254740992
-        $this->assertTrue(Floats::isExactInt((float) $boundary));
-        $this->assertTrue(Floats::isExactInt((float) -$boundary));
+        $this->assertTrue(Floats::isInt(-0.0));
     }
 
     /**
-     * Test isExactInt beyond exact representation boundary.
+     * Test isInt with non-finite values.
      */
-    public function testIsExactIntBeyondBoundary(): void
+    public function testIsIntWithNonFinite(): void
     {
-        // 2^54 is beyond our ±2^53 range
-        $this->assertFalse(Floats::isExactInt((float) (1 << 54)));
-        $this->assertFalse(Floats::isExactInt((float) (-(1 << 54))));
+        $this->assertFalse(Floats::isInt(INF));
+        $this->assertFalse(Floats::isInt(-INF));
+        $this->assertFalse(Floats::isInt(NAN));
+    }
+
+    /**
+     * Test isInt has no numeric upper bound, unlike isSafeInt() - 1e20 is well beyond MAX_SAFE_INT but is still
+     * numerically a whole number.
+     */
+    public function testIsIntHasNoUpperBound(): void
+    {
+        $this->assertTrue(Floats::isInt(1e20));
+        $this->assertFalse(Floats::isSafeInt(1e20));
+    }
+
+    /**
+     * Test isSafeInt with whole number floats.
+     */
+    public function testIsSafeIntWithWholeNumbers(): void
+    {
+        $this->assertTrue(Floats::isSafeInt(0.0));
+        $this->assertTrue(Floats::isSafeInt(1.0));
+        $this->assertTrue(Floats::isSafeInt(-1.0));
+        $this->assertTrue(Floats::isSafeInt(42.0));
+        $this->assertTrue(Floats::isSafeInt(-99.0));
+        $this->assertTrue(Floats::isSafeInt(1000000.0));
+    }
+
+    /**
+     * Test isSafeInt with fractional floats.
+     */
+    public function testIsSafeIntWithFractionalNumbers(): void
+    {
+        $this->assertFalse(Floats::isSafeInt(0.5));
+        $this->assertFalse(Floats::isSafeInt(1.1));
+        $this->assertFalse(Floats::isSafeInt(-3.14));
+        $this->assertFalse(Floats::isSafeInt(0.001));
+        $this->assertFalse(Floats::isSafeInt(99.999));
+    }
+
+    /**
+     * Test isSafeInt with negative zero.
+     */
+    public function testIsSafeIntWithNegativeZero(): void
+    {
+        $this->assertTrue(Floats::isSafeInt(-0.0));
+    }
+
+    /**
+     * Test isSafeInt at the boundary of the safe-integer range (2^53 - 1), matching JavaScript's
+     * Number.isSafeInteger() semantics: 2^53 itself is excluded, even though it's still exactly representable, since
+     * 2^53 + 1 would round down to 2^53 and collide with it.
+     */
+    public function testIsSafeIntAtSafeBoundary(): void
+    {
+        $maxSafe = (1 << 53) - 1; // 9007199254740991
+        $this->assertTrue(Floats::isSafeInt((float) $maxSafe));
+        $this->assertTrue(Floats::isSafeInt((float) -$maxSafe));
+
+        // 2^53 is exactly representable but is one past the safe boundary.
+        $unsafe = 1 << 53; // 9007199254740992
+        $this->assertFalse(Floats::isSafeInt((float) $unsafe));
+        $this->assertFalse(Floats::isSafeInt((float) -$unsafe));
+    }
+
+    /**
+     * Test isSafeInt beyond the safe-integer boundary.
+     */
+    public function testIsSafeIntBeyondBoundary(): void
+    {
+        // 2^54 is beyond the safe range
+        $this->assertFalse(Floats::isSafeInt((float) (1 << 54)));
+        $this->assertFalse(Floats::isSafeInt((float) (-(1 << 54))));
 
         // Very large values are beyond the range
-        $this->assertFalse(Floats::isExactInt((float) PHP_INT_MAX));
-        $this->assertFalse(Floats::isExactInt(1e20));
+        $this->assertFalse(Floats::isSafeInt((float) PHP_INT_MAX));
+        $this->assertFalse(Floats::isSafeInt(1e20));
     }
 
     /**
-     * Test isExactInt with large integers within exact range.
+     * Test isSafeInt with large integers within the safe range.
      */
-    public function testIsExactIntWithLargeIntegers(): void
+    public function testIsSafeIntWithLargeIntegers(): void
     {
-        // Powers of 2 up to 2^53
-        $this->assertTrue(Floats::isExactInt((float) (1 << 40)));
-        $this->assertTrue(Floats::isExactInt((float) (1 << 50)));
-        $this->assertTrue(Floats::isExactInt((float) (1 << 52)));
+        // Powers of 2 well below 2^53 - 1
+        $this->assertTrue(Floats::isSafeInt((float) (1 << 40)));
+        $this->assertTrue(Floats::isSafeInt((float) (1 << 50)));
+        $this->assertTrue(Floats::isSafeInt((float) (1 << 52)));
     }
 
     /**
-     * Test isExactInt with non-finite values.
+     * Test isSafeInt with non-finite values.
      */
-    public function testIsExactIntWithNonFinite(): void
+    public function testIsSafeIntWithNonFinite(): void
     {
-        $this->assertFalse(Floats::isExactInt(INF));
-        $this->assertFalse(Floats::isExactInt(-INF));
-        $this->assertFalse(Floats::isExactInt(NAN));
+        $this->assertFalse(Floats::isSafeInt(INF));
+        $this->assertFalse(Floats::isSafeInt(-INF));
+        $this->assertFalse(Floats::isSafeInt(NAN));
     }
 
     /**
-     * Test isExactInt vs tryConvertToInt relationship.
+     * Test isSafeInt vs toInt relationship.
      */
-    public function testIsExactIntVsTryConvertToIntRelationship(): void
+    public function testIsSafeIntVsToIntRelationship(): void
     {
-        // isExactInt checks for exact integer representation within ±2^53
-        // tryConvertToInt checks for lossless conversion to PHP int (±2^63-1)
+        // isSafeInt checks for safe integer representation within ±(2^53 - 1)
+        // toInt checks for lossless conversion to PHP int (±(2^63 - 1)), throwing on failure
 
-        // Both should agree for small integers
+        // Both should agree for small integers, well within both ranges.
         $testValues = [0.0, 1.0, -1.0, 42.0, -99.0, 1000.0];
         foreach ($testValues as $value) {
-            $isExact = Floats::isExactInt($value);
-            $canConvert = Floats::tryConvertToInt($value) !== null;
-            $this->assertSame($isExact, $canConvert, "Mismatch for $value");
+            $isSafe = Floats::isSafeInt($value);
+            try {
+                Floats::toInt($value);
+                $canConvert = true;
+            } catch (DomainException) {
+                $canConvert = false;
+            }
+            $this->assertSame($isSafe, $canConvert, "Mismatch for $value");
         }
 
-        // Fractional values fail both
-        $this->assertFalse(Floats::isExactInt(1.5));
-        $this->assertNull(Floats::tryConvertToInt(1.5));
+        // Fractional values fail both.
+        $this->assertFalse(Floats::isSafeInt(1.5));
+        $this->expectException(DomainException::class);
+        Floats::toInt(1.5);
     }
 
     /**
-     * Test isExactInt comprehensive coverage.
+     * Test isSafeInt comprehensive coverage.
      */
-    public function testIsExactIntComprehensive(): void
+    public function testIsSafeIntComprehensive(): void
     {
         // Test various integer values within range
         $testValues = [
@@ -804,7 +926,8 @@ final class FloatsTest extends TestCase
             [100.0, true],
             [-100.0, true],
             [(float) (1 << 52), true],
-            [(float) (1 << 53), true],
+            [(float) ((1 << 53) - 1), true],
+            [(float) (1 << 53), false],
             [(float) (1 << 54), false],
             [0.5, false],
             [1.1, false],
@@ -812,11 +935,11 @@ final class FloatsTest extends TestCase
         ];
 
         foreach ($testValues as [$value, $expected]) {
-            $result = Floats::isExactInt($value);
+            $result = Floats::isSafeInt($value);
             $this->assertSame(
                 $expected,
                 $result,
-                sprintf('isExactInt(%s) should be %s', $value, $expected ? 'true' : 'false')
+                sprintf('isSafeInt(%s) should be %s', $value, $expected ? 'true' : 'false')
             );
         }
     }

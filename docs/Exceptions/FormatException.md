@@ -59,10 +59,10 @@ try {
 
 Throw this exception when:
 
-- A string argument doesn't match an expected pattern or format
-- Parsing a string fails due to invalid syntax
-- A string representation of a value cannot be converted to the target type
-- User input doesn't conform to a required format
+- A string argument doesn't match an expected pattern or format.
+- Parsing a string fails due to invalid syntax.
+- A string representation of a value cannot be converted to the target type.
+- User input doesn't conform to a required format.
 
 ---
 
@@ -70,9 +70,9 @@ Throw this exception when:
 
 Use other exceptions when:
 
-- The value is the wrong type entirely (use `InvalidArgumentException`)
-- The value is valid but outside an acceptable range (use `DomainException`)
-- The value would cause an overflow or underflow (use `OverflowException` or `UnderflowException`)
+- The value is the wrong type entirely (use `InvalidArgumentException`).
+- The value is valid but outside an acceptable range (use `DomainException`).
+- The value would cause an overflow or underflow (use `OverflowException` or `UnderflowException`).
 
 ---
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OceanMoon\Core\Tests\Globals;
 
 use ArgumentCountError;
+use DateTime;
 use Error;
 use PHPUnit\Framework\TestCase;
 use Stringable;
@@ -150,6 +151,17 @@ final class StringsTest extends TestCase
     }
 
     /**
+     * Test to_string() with non-finite floats (NAN, INF, -INF). Casting these directly emits a "coerced to string"
+     * warning (PHP 8.5+), which to_string() must absorb internally rather than let escape as an error.
+     */
+    public function testToStringWithNonFiniteFloats(): void
+    {
+        $this->assertSame('NAN', to_string(NAN));
+        $this->assertSame('INF', to_string(INF));
+        $this->assertSame('-INF', to_string(-INF));
+    }
+
+    /**
      * Test to_string() with null uses PHP's raw (string) cast, giving an empty string.
      */
     public function testToStringWithNull(): void
@@ -204,6 +216,17 @@ final class StringsTest extends TestCase
     public function testToStringWithEnum(): void
     {
         $this->assertSame('OceanMoon\Core\Tests\Globals\Suit::Hearts', to_string(Suit::Hearts));
+    }
+
+    /**
+     * Test to_string() with a DateTime formats it as an ISO 8601 (ATOM) string, since DateTime doesn't
+     * implement Stringable and the default (string) cast would otherwise throw.
+     */
+    public function testToStringWithDateTime(): void
+    {
+        $dateTime = new DateTime('2026-07-17T12:34:56+00:00');
+
+        $this->assertSame('2026-07-17T12:34:56+00:00', to_string($dateTime));
     }
 
     /**

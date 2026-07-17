@@ -7,26 +7,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [Unreleased]
+## [3.0.0] - 2026-07-17
 
 ### Added
 
-- **`ArithmeticException`** (`OceanMoon\Core\Exceptions\ArithmeticException`, extends `DomainException`) — thrown
-  when an arithmetic operation has no defined result for its operands (division by zero, logarithm of a non-positive
-  number or with base 0 or 1, etc.). Displaces `DivisionByZeroError` for this kind of failure in userland value
-  types: `Error` types are reserved for engine-emitted conditions, not something userland code should throw. Not to
-  be confused with PHP's own `ArithmeticError`, which is a genuinely different, engine-level thing.
-- **`OceanMoon\Core\Globals` namespace** — new home for free functions and constants shared across the package
-  family, split into `src/Globals/constants.php`, `src/Globals/strings.php`, and `src/Globals/numbers.php`:
+- **`ArithmeticException`** (`OceanMoon\Core\Exceptions\ArithmeticException`, extends `DomainException`) — thrown when
+  an arithmetic operation has no defined result for its operands (division by zero, logarithm of a non-positive number
+  or with base 0 or 1, etc.). Displaces `DivisionByZeroError` for this kind of failure in userland value types: `Error`
+  types are reserved for engine-emitted conditions, not something userland code should throw. Not to be confused with
+  PHP's own `ArithmeticError`, which is a genuinely different, engine-level thing.
+- **`OceanMoon\Core\Globals` namespace** — new home for free functions and constants shared across the package family,
+  split into `src/Globals/constants.php`, `src/Globals/strings.php`, and `src/Globals/numbers.php`:
   - `is_number()`, `is_zero()`, `sign()`, `copy_sign()` — see Removed (`Numbers` class) below.
   - `println()`, `dump_var()`, `to_string()`, `write()`, `writeln()` — see Removed (`Strings`/`functions.php`) below.
   - `M_TAU`, `RECURSION`, `NUMBER_REGEX` constants.
-- **`Arrays::removeRecursion()`** — returns a copy of an array with any circular (self-referencing) sub-arrays
-  replaced by the `RECURSION` marker, so the result can be safely inspected, iterated, or serialized without
-  triggering infinite recursion. Detects cycles by parsing `print_r()`'s own recursion-detection output (which
-  preserves the position of each recursive reference) rather than reimplementing cycle detection from scratch —
-  `===` compares arrays by value, not reference identity, so there's no other built-in way to identify "is this the
-  same array instance as an ancestor?".
+- **`Arrays::removeRecursion()`** — returns a copy of an array with any circular (self-referencing) sub-arrays replaced
+  by the `RECURSION` marker, so the result can be safely inspected, iterated, or serialized without triggering infinite
+  recursion. Detects cycles by parsing `print_r()`'s own recursion-detection output (which preserves the position of
+  each recursive reference) rather than reimplementing cycle detection from scratch — `===` compares arrays by value,
+  not reference identity, so there's no other built-in way to identify "is this the same array instance as an
+  ancestor?".
 - **`Stringify::stringifyBool()`, `stringifyInt()`, `stringifyEnum()`, `stringifyObject()`, `stringifyResource()`** —
   promoted to public, individually-usable methods (previously internal to the `stringify()` dispatcher).
 - **Object stringification now shows UML visibility markers** (`+` public, `#` protected, `-` private) for each
@@ -35,18 +35,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **Comparison traits (`Equatable`, `Comparable`, `ApproxEquatable`, `ApproxComparable`) type policy finalized**: every
-  method is typed `mixed $other`, never `self` — `self` is invariant across both trait composition and inheritance,
-  so a subclass overriding e.g. `equal()` would narrow the type and PHP would reject it as an incompatible override.
+  method is typed `mixed $other`, never `self` — `self` is invariant across both trait composition and inheritance, so a
+  subclass overriding e.g. `equal()` would narrow the type and PHP would reject it as an incompatible override.
   Implementations must check `$other`'s type explicitly (typically `instanceof self`) and **throw** — typically
-  `InvalidArgumentException` — for anything that isn't a deliberate, documented exception to same-type-only
-  comparison, rather than attempting a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==`:
-  implicit type juggling in comparisons is a recurring source of bugs. Widening to accept a related type (e.g.
-  `Complex` accepting `int`/`float`) should be rare and mathematically justified on a case-by-case basis, not a
-  general "convert whatever you're given" policy.
-- **`Stringify::abbrev()`**: default `$maxLen` changed from 30 to 32; now throws `DomainException` for
-  `$maxLen < 3` (previously unvalidated).
-- **`Stringify::stringifyArray()`/`stringifyObject()`**: circular references are now detected and replaced via the
-  new `Arrays::removeRecursion()` (see Added) instead of requiring callers to track cleanliness themselves.
+  `InvalidArgumentException` — for anything that isn't a deliberate, documented exception to same-type-only comparison,
+  rather than attempting a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==`: implicit type
+  juggling in comparisons is a recurring source of bugs. Widening to accept a related type (e.g. `Complex` accepting
+  `int`/`float`) should be rare and mathematically justified on a case-by-case basis, not a general "convert whatever
+  you're given" policy.
+- **`Stringify::abbrev()`**: default `$maxLen` changed from 30 to 32; now throws `DomainException` for `$maxLen < 3`
+  (previously unvalidated).
+- **`Stringify::stringifyArray()`/`stringifyObject()`**: circular references are now detected and replaced via the new
+  `Arrays::removeRecursion()` (see Added) instead of requiring callers to track cleanliness themselves.
 - Internal renames for clarity: `stringifyList()` → `stringifyListArray()`, `stringifyDictionary()` →
   `stringifyAssociativeArray()`.
 - **`Floats::TAU`** removed; use the `OceanMoon\Core\Globals\M_TAU` constant directly.
@@ -58,15 +58,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Removed
 
-- **`Numbers` class** (`src/Numbers.php`) — replaced by plain functions in `OceanMoon\Core\Globals` (see Added).
-  This class was already effectively unusable before removal: it declared `namespace OceanMoon\Core\Globals`
-  internally, but lived at `src/Numbers.php`, which PSR-4 maps to `OceanMoon\Core\Numbers` — the only FQCN any
-  caller actually imported. Every real call site was hitting a fatal "Class not found" as soon as autoloader
-  caches were regenerated; the bug had gone unnoticed because it hadn't been.
+- **`Numbers` class** (`src/Numbers.php`) — replaced by plain functions in `OceanMoon\Core\Globals` (see Added). This
+  class was already effectively unusable before removal: it declared `namespace OceanMoon\Core\Globals` internally, but
+  lived at `src/Numbers.php`, which PSR-4 maps to `OceanMoon\Core\Numbers` — the only FQCN any caller actually imported.
+  Every real call site was hitting a fatal "Class not found" as soon as autoloader caches were regenerated; the bug had
+  gone unnoticed because it hadn't been.
 - **`Numbers::REGEX`** — moved to `OceanMoon\Core\Globals\NUMBER_REGEX`.
-- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** — superseded by
-  `OceanMoon\Core\Globals` functions (see Added). `Stringify::toString()` (added earlier in this cycle) is also
-  removed in favor of the global `to_string()` function.
+- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** — superseded by `OceanMoon\Core\Globals` functions
+  (see Added). `Stringify::toString()` (added earlier in this cycle) is also removed in favor of the global
+  `to_string()` function.
 - **`Equatable::identical()`** — added earlier in this Unreleased cycle, now removed: doesn't fit the finalized
   type-handling policy (see Changed) and added a second, easily-confused comparison entry point (`identical()` vs
   `equal()`) without enough distinct value to justify keeping both.
@@ -82,40 +82,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **`Floats::frac()`** — Docblock corrected: the identity `x = trunc(x) + frac(x)` is described as holding "even for
   non-finite numbers" (previously said "even for infinities", which didn't mention `NAN`).
-- **`Equatable`'s own docblock contradicted its real-world usage**: it said implementations should "return false
-  (not throw)" for incomparable types, while every actual implementation across the package family throws. Corrected
-  to document the throwing contract.
+- **`Equatable`'s own docblock contradicted its real-world usage**: it said implementations should "return false (not
+  throw)" for incomparable types, while every actual implementation across the package family throws. Corrected to
+  document the throwing contract.
 
 ### Documentation
 
 - Rewrote `Equatable.md`, `Comparable.md`, `ApproxEquatable.md`, `ApproxComparable.md`, and `ComparisonTraits.md` for
   the finalized `mixed`-not-`self`, strict-throw type policy; removed all `identical()`/`IncomparableTypesException`
-  references (including the now-broken external link some of these files carried to a different, older repo).
-  Trimmed the inline `<code>` usage examples from the trait `.php` docblocks in favor of the `.md` files, which
-  already covered the same ground — the `.php` docblocks now carry only the contract information relevant while
-  actually implementing the abstract methods (parameter/return meaning, the `mixed`-not-`self` rationale), with a
-  plain-text pointer to the corresponding `.md` file for full examples.
+  references (including the now-broken external link some of these files carried to a different, older repo). Trimmed
+  the inline `<code>` usage examples from the trait `.php` docblocks in favor of the `.md` files, which already covered
+  the same ground — the `.php` docblocks now carry only the contract information relevant while actually implementing
+  the abstract methods (parameter/return meaning, the `mixed`-not-`self` rationale), with a plain-text pointer to the
+  corresponding `.md` file for full examples.
 - New `docs/Exceptions/ArithmeticException.md`, `docs/Globals/Numbers.md`, `docs/Globals/Strings.md`,
   `docs/Globals/Constants.md`.
-- Updated `Stringify.md`: added a `toString()`-replacement section for `to_string()`, updated the
-  `stringifyResource()` example, and reorganized method sections to match the source file's new grouping (Main
-  Stringification Methods / Type-Specific Stringification Methods).
-- `README.md`: "Functions" section replaced with "Globals" (Constants / Strings / Numbers); Exceptions section
-  updated for `ArithmeticException`, removed `IncomparableTypesException`.
+- Updated `Stringify.md`: added a `toString()`-replacement section for `to_string()`, updated the `stringifyResource()`
+  example, and reorganized method sections to match the source file's new grouping (Main Stringification Methods /
+  Type-Specific Stringification Methods).
+- `README.md`: "Functions" section replaced with "Globals" (Constants / Strings / Numbers); Exceptions section updated
+  for `ArithmeticException`, removed `IncomparableTypesException`.
 - All markdown files rewrapped to a consistent 120-character line width.
 
 ### Tests
 
 - `tests/Globals/NumbersTest.php` — full coverage for all four functions (`is_number()`, `is_zero()`, `sign()`,
-  `copy_sign()`; 21 tests), using inline `// @phpstan-ignore function.alreadyNarrowedType` /
-  `function.impossibleType` comments (matching the convention already used in `Integers.php`) in place of the
-  blanket `ignoreErrors` block previously in `phpstan.neon`.
+  `copy_sign()`; 21 tests), using inline `// @phpstan-ignore function.alreadyNarrowedType` / `function.impossibleType`
+  comments (matching the convention already used in `Integers.php`) in place of the blanket `ignoreErrors` block
+  previously in `phpstan.neon`.
 - New `Stringify` test (`testStringifyArrayPrettyPrintMultilineItem`) exercising the multiline-fallback branch in
   `stringifyListArray()`'s pretty-print formatting — a list containing a nested associative array (which always
   pretty-prints multiline) alongside a scalar.
-- Fixed `testStringifyObjectPrettyPrint`: a stale regex used `+` as a quantifier ("4-or-more spaces") where the
-  actual output has a literal `+` character (the UML visibility marker for public properties) — the test's own bug,
-  not `Stringify`'s; the sibling `testStringifyComplexNesting` already correctly asserted the `+` marker.
+- Fixed `testStringifyObjectPrettyPrint`: a stale regex used `+` as a quantifier ("4-or-more spaces") where the actual
+  output has a literal `+` character (the UML visibility marker for public properties) — the test's own bug, not
+  `Stringify`'s; the sibling `testStringifyComplexNesting` already correctly asserted the `+` marker.
 - New `tests/ArraysTest.php` coverage for `removeRecursion()`.
 - Updated exception-message assertions across the test suite for the removal of `IncomparableTypesException`.
 

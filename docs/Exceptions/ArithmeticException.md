@@ -66,11 +66,11 @@ try {
 
 Throw this exception when:
 
-- Dividing by zero (or an operation that reduces to it, e.g. taking the reciprocal of zero)
-- Computing a logarithm of a non-positive number, or with a base of 0 or 1
-- Inverting a singular matrix (zero determinant)
+- Dividing by zero (or an operation that reduces to it, e.g. taking the reciprocal of zero).
+- Computing a logarithm of a non-positive number, or with a base of 0 or 1.
+- Inverting a singular matrix (zero determinant).
 - Any other operation that is mathematically undefined for the given operands, where the type has no `NAN`/`INF`-style
-  sentinel to return instead
+  sentinel to return instead.
 
 ---
 
@@ -78,11 +78,11 @@ Throw this exception when:
 
 Use other exceptions when:
 
-- The argument is the wrong type entirely (use `InvalidArgumentException`)
+- The argument is the wrong type entirely (use `InvalidArgumentException`).
 - The value is out of the valid domain but the operation itself is well-defined for other operands of the same shape
-  (e.g. negative dimensions, wrong shape for construction - use `DomainException` directly)
+  (e.g. negative dimensions, wrong shape for construction - use `DomainException` directly).
 - A native PHP division (`/`) or `intdiv()` on already-validated operands would throw `DivisionByZeroError` - guard
-  against zero explicitly and throw `ArithmeticException` instead, rather than letting the native error propagate
+  against zero explicitly and throw `ArithmeticException` instead, rather than letting the native error propagate.
 
 ---
 

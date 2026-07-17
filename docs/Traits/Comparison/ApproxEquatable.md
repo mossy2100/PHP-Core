@@ -46,13 +46,13 @@ for floating-point values.
 **Implementation Guidelines:**
 
 - Check the type of `$other` explicitly (typically `instanceof self`) - don't attempt to convert or coerce it, matching
-  `equal()`'s contract (see [Equatable.md](Equatable.md))
+  `equal()`'s contract (see [Equatable.md](Equatable.md)).
 - Throw (typically `InvalidArgumentException`) for any type that isn't a deliberate, documented exception to
-  same-type-only comparison
-- Use combined relative and absolute tolerance: `|a - b| ≤ max(relTol * max(|a|, |b|), absTol)`
-- Relative tolerance matters for large values
-- Absolute tolerance matters for values near zero
-- Use `Floats::approxEqual()` for float comparisons
+  same-type-only comparison.
+- Use combined relative and absolute tolerance: `|a - b| ≤ max(relTol * max(|a|, |b|), absTol)`.
+- Relative tolerance matters for large values.
+- Absolute tolerance matters for values near zero.
+- Use `Floats::approxEqual()` for float comparisons.
 
 ---
 

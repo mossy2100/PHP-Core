@@ -12,6 +12,8 @@ namespace OceanMoon\Core\Globals;
 use DomainException;
 use OceanMoon\Core\Floats;
 
+#region Inspection functions
+
 /**
  * Check if a value is a number, i.e. an integer or a float.
  *
@@ -37,6 +39,10 @@ function is_zero(int|float $value): bool
     // Note that -0.0 compares as exactly equal to 0.0.
     return $value === 0 || $value === 0.0;
 }
+
+#endregion
+
+#region Sign functions
 
 /**
  * Get the sign of a number.
@@ -90,3 +96,5 @@ function copy_sign(int|float $num, int|float $signSource): int|float
 
     return abs($num) * sign($signSource, false);
 }
+
+#endregion

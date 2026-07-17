@@ -1,20 +1,23 @@
 # Strings
 
-Convenience functions in the `OceanMoon\Core` namespace that work better as plain functions than static methods.
+Convenient functions for converting values to strings and printing or inspecting values.
 
 ---
 
 ## Overview
 
-The `functions.php` file provides a small set of utility functions that are more natural to call as plain functions than
-as static class methods. These are namespaced under `OceanMoon\Core`.
+`src/Globals/strings.php` provides a small set of functions — namespaced under `OceanMoon\Core\Globals` — for
+converting values to strings and printing them, mostly for debugging purposes. They provide a more useful output than
+PHP's own `var_dump()`, `print_r()`, `var_export()`, or a plain `(string)` cast, none of which handle every PHP type
+gracefully (arrays and non-`Stringable` objects can't be cast to string at all; `var_dump()`/`print_r()` are verbose
+and don't distinguish types as clearly).
 
 ---
 
 ## Autoloading
 
-Since these are functions rather than classes, PSR-4 autoloading won't discover them automatically. The Core package's
-`composer.json` includes a `files` autoload entry:
+Since these are functions rather than classes, PSR-4 autoloading won't discover them automatically. The Core
+package's `composer.json` includes a `files` autoload entry covering all of `src/Globals/`:
 
 ```json
 "autoload": {
@@ -22,78 +25,159 @@ Since these are functions rather than classes, PSR-4 autoloading won't discover 
         "OceanMoon\\Core\\": "src/"
     },
     "files": [
-        "src/functions.php"
+        "src/Globals/constants.php",
+        "src/Globals/strings.php",
+        "src/Globals/numbers.php"
     ]
 }
 ```
 
-This means the functions are loaded automatically in any project that requires `oceanmoon/core`. To use them, add a
-`use function` import:
+This means the functions are loaded automatically in any project that requires `oceanmoon/core`. To use them without
+qualifying the namespace every time, add a `use function` import:
 
 ```php
-use function OceanMoon\Core\write;
-use function OceanMoon\Core\writeln;
+use function OceanMoon\Core\Globals\write;
+use function OceanMoon\Core\Globals\writeln;
 ```
 
 ---
 
 ## Functions
 
+### println()
+
+```php
+function println(mixed $value = ''): void
+```
+
+Print a value followed by a newline. If the value is not a string, it's converted automatically by PHP — which can
+produce a notice or warning for some values (arrays, closures, objects that aren't `Stringable`). The name mimics
+Java, Scala, Swift, Rust, Go, Julia, etc., and aligns with PHP's `print()` construct.
+
+Provided for completeness, but `writeln()` is generally the better choice — it never warns or throws, regardless of
+the value's type.
+
+**Parameters:**
+
+- `$value` (mixed, optional) - The value to print. Defaults to `''`.
+
+**Example:**
+
+```php
+use function OceanMoon\Core\Globals\println;
+
+println('Hello, world!');  // Outputs: Hello, world!\n
+```
+
+### dump_var()
+
+```php
+function dump_var(mixed $value, bool $prettyPrint = false): void
+```
+
+Print a stringified value, using `Stringify::stringify()`. An alternative to `var_dump()`, `var_export()`, and
+`print_r()`: the value's type is apparent without being given explicitly, output is concise, it never errors, and it
+handles circular references.
+
+**Parameters:**
+
+- `$value` (mixed) - The value to print.
+- `$prettyPrint` (bool) - Whether to format the output with newlines. Defaults to `false`.
+
+**Example:**
+
+```php
+use function OceanMoon\Core\Globals\dump_var;
+
+dump_var(['name' => 'John', 'age' => 30]);
+// Outputs: ["name" => "John", "age" => 30]
+```
+
+### to_string()
+
+```php
+function to_string(mixed $value): string
+```
+
+Convert any value to a string, without errors or warnings.
+
+**Behavior:**
+
+1. Tries PHP's default `(string)` cast first, for any value except an array (casting an array to string only emits a
+   warning rather than throwing, so it can't be caught here and is skipped up front).
+2. If the value is a `DateTimeInterface` and the cast above didn't apply or failed (`DateTime`/`DateTimeImmutable`
+   don't implement `Stringable`, so casting them throws), formats it as ISO 8601 via
+   `DateTimeInterface::format(DateTimeInterface::ATOM)`.
+3. Otherwise, falls back to `Stringify::stringify()` — this handles arrays, non-`Stringable` objects, resources, and
+   anything else the cast above couldn't.
+
+**Parameters:**
+
+- `$value` (mixed) - The value to convert.
+
+**Returns:**
+
+- `string` - The value as a string.
+
+**Examples:**
+
+```php
+use function OceanMoon\Core\Globals\to_string;
+
+to_string('hello');                          // 'hello'
+to_string(42);                                // '42'
+to_string(true);                              // '1'
+to_string(null);                              // ''
+to_string(new DateTime('2026-07-17T12:00:00+00:00'));  // '2026-07-17T12:00:00+00:00'
+to_string([1, 2, 3]);                         // '[1, 2, 3]' (via Stringify)
+```
+
 ### write()
 
 ```php
-function write(mixed $value = ''): void
+function write(mixed $value): void
 ```
 
-Write a value to stdout, with no trailing newline. Strings are output as-is, `Stringable` objects use `__toString()`,
-and all other types go through `Stringify::stringify()` -- see `Stringify::toString()`, which this delegates to.
+Print a value converted to a string using `to_string()`, with no trailing newline. Unlike `echo`/`print`, never
+throws or warns regardless of the value's type.
 
 **Parameters:**
 
 - `$value` (mixed) - The value to print.
 
-**Examples:**
+**Example:**
 
 ```php
-use function OceanMoon\Core\write;
+use function OceanMoon\Core\Globals\write;
 
 write('Hello, world!');  // Outputs: Hello, world!
-write(42);               // Outputs: 42
-write(true);             // Outputs: true
-write(null);             // Outputs: null
 ```
 
 ### writeln()
 
 ```php
-function writeln(mixed $value = ''): void
+function writeln(mixed $value): void
 ```
 
-Write a value to stdout followed by a newline. Behaves exactly like `write()`, but appends `PHP_EOL` afterwards.
+Like `write()`, but appends `PHP_EOL` afterwards.
 
 **Parameters:**
 
 - `$value` (mixed) - The value to print.
 
-**Examples:**
+**Example:**
 
 ```php
-use function OceanMoon\Core\writeln;
+use function OceanMoon\Core\Globals\writeln;
 
 writeln('Hello, world!');  // Outputs: Hello, world!\n
-writeln(42);                // Outputs: 42\n
-writeln(true);              // Outputs: true\n
-writeln(null);              // Outputs: null\n
 ```
-
-**Notes:**
-
-- Uses `PHP_EOL` for the newline, so the line ending is platform-appropriate.
 
 ---
 
 ## See Also
 
-- **[Numbers](Numbers.md)** - General number-related utility methods, including `isNumber()`
-- **[Types](Types.md)** - Static utility class for type checking and inspection
-- **[Stringify](Stringify.md)** - Value-to-string conversion used by `write()` and `writeln()` (via `toString()`)
+- **[Numbers](Numbers.md)** - Number-related functions, including `is_number()`
+- **[Constants](Constants.md)** - Shared constants, including `RECURSION`
+- **[Stringify](../Stringify.md)** - Value-to-string conversion used internally by `dump_var()`, `to_string()`, and
+  `write()`/`writeln()`
