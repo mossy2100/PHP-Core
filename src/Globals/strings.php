@@ -26,11 +26,10 @@ use Throwable;
  * Provided here for completeness, but writeln() is generally better.
  *
  * @param mixed $value [optional] The value to print.
- * @return int Always returns 1.
  */
-function println(mixed $value = ''): int
+function println(mixed $value = ''): void
 {
-    return print $value . PHP_EOL; // @phpstan-ignore binaryOp.invalid
+    print($value . PHP_EOL); // @phpstan-ignore binaryOp.invalid
 }
 
 /**
@@ -45,12 +44,17 @@ function println(mixed $value = ''): int
  * @param mixed $value The value to print.
  * @param bool $prettyPrint Whether to format the output with newlines.
  * @param $return If a value should be returned or printed.
- * @return int|string Either 1 if printed, or a string representing the value.
+ * @return ?string Either null if printed, or a string representing the value.
  */
-function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): int|string
+function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): ?string
 {
     $result = Stringify::stringify($value, $prettyPrint);
-    return $return ? $result : println($result);
+    if ($return) {
+        return $result;
+    }
+
+    println($result);
+    return null;
 }
 
 /**
@@ -107,7 +111,7 @@ function to_string(mixed $value): string
  */
 function write(mixed $value): void
 {
-    print to_string($value);
+    print(to_string($value));
 }
 
 /**

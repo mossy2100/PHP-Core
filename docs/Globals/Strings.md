@@ -72,7 +72,7 @@ println('Hello, world!');  // Outputs: Hello, world!\n
 ### inspect()
 
 ```php
-function inspect(mixed $value, bool $prettyPrint = false): void
+function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): ?string
 ```
 
 Print a stringified value, using `Stringify::stringify()`. An alternative to `var_dump()`, `var_export()`, and
@@ -83,6 +83,11 @@ handles circular references.
 
 - `$value` (mixed) - The value to print.
 - `$prettyPrint` (bool) - Whether to format the output with newlines. Defaults to `false`.
+- `$return` (bool) - If `true`, return the stringified value instead of printing it. Defaults to `false`.
+
+**Returns:**
+
+- `?string` - `null` if the value was printed, or the stringified value if `$return` is `true`.
 
 **Example:**
 
@@ -91,6 +96,9 @@ use function OceanMoon\Core\Globals\inspect;
 
 inspect(['name' => 'John', 'age' => 30]);
 // Outputs: ["name" => "John", "age" => 30]
+
+$s = inspect(['name' => 'John', 'age' => 30], return: true);
+// $s === '["name" => "John", "age" => 30]'
 ```
 
 ### to_string()
@@ -131,6 +139,34 @@ to_string(null);                              // ''
 to_string(new DateTime('2026-07-17T12:00:00+00:00'));  // '2026-07-17T12:00:00+00:00'
 to_string([1, 2, 3]);                         // '[1, 2, 3]' (via Stringify)
 to_string(NAN);                               // 'NAN' (via Stringify; a direct cast would emit a warning)
+```
+
+### ex()
+
+```php
+function ex(mixed $value): string
+```
+
+Get a short, abbreviated string representation of a value, using `Stringify::abbrev()`. Intended for building
+exception messages that report the invalid value without risking an overly long message for large arrays, strings, or
+objects.
+
+The max length is hard-coded to 32 (`Stringify::abbrev()`'s own default) rather than exposed as a parameter.
+
+**Parameters:**
+
+- `$value` (mixed) - The value to convert to a string.
+
+**Returns:**
+
+- `string` - The abbreviated string representation of the value.
+
+**Example:**
+
+```php
+use function OceanMoon\Core\Globals\ex;
+
+throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
 ```
 
 ### write()
@@ -180,5 +216,5 @@ writeln('Hello, world!');  // Outputs: Hello, world!\n
 
 - **[Numbers](Numbers.md)** - Number-related functions, including `is_number()`
 - **[Constants](Constants.md)** - Shared constants, including `RECURSION`
-- **[Stringify](../Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `to_string()`, and
-  `write()`/`writeln()`
+- **[Stringify](../Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, `to_string()`,
+  and `write()`/`writeln()`

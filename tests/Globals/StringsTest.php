@@ -402,6 +402,36 @@ final class StringsTest extends TestCase
         inspect(); // @phpstan-ignore arguments.count
     }
 
+    /**
+     * Test inspect() with $return false (the default) prints and returns null.
+     */
+    public function testInspectWithReturnFalseReturnsNull(): void
+    {
+        $this->expectOutputString('[1, 2, 3]' . PHP_EOL);
+        $this->assertNull(inspect([1, 2, 3]));
+    }
+
+    /**
+     * Test inspect() with $return true returns the stringified value instead of printing it.
+     */
+    public function testInspectWithReturnTrueReturnsString(): void
+    {
+        $this->expectOutputString('');
+        $this->assertSame('[1, 2, 3]', inspect([1, 2, 3], return: true));
+    }
+
+    /**
+     * Test inspect() with $return true and pretty printing enabled.
+     */
+    public function testInspectWithReturnTrueAndPrettyPrint(): void
+    {
+        $this->expectOutputString('');
+        $this->assertSame(
+            "[\n    \"a\" => 1,\n    \"b\" => 2,\n]",
+            inspect(['a' => 1, 'b' => 2], prettyPrint: true, return: true)
+        );
+    }
+
     #endregion
 
     #region ex() tests
@@ -451,13 +481,13 @@ final class StringsTest extends TestCase
     {
         $values = [
             'short string' => 'hello',
-            'long string' => str_repeat('x', 50),
-            'int' => 42,
-            'float' => 3.14,
-            'bool' => false,
-            'null' => null,
-            'array' => range(1, 20),
-            'object' => new Foo(),
+            'long string'  => str_repeat('x', 50),
+            'int'          => 42,
+            'float'        => 3.14,
+            'bool'         => false,
+            'null'         => null,
+            'array'        => range(1, 20),
+            'object'       => new Foo(),
         ];
 
         foreach ($values as $value) {

@@ -16,9 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- **`println()`** now returns `int` (always `1`, matching PHP's own `print` construct) instead of `void`.
 - **`dump_var()`** renamed to **`inspect()`**; gained a `bool $return = false` parameter to return the stringified
-  value instead of printing it.
+  value instead of printing it (returns `?string`: the value when `$return` is `true`, `null` otherwise).
 - Exception messages reworded throughout the package to consistently report the invalid value/type (via the new
   `ex()` helper) and the expected constraint, instead of a fixed generic string:
   - `Arrays::quoteValues()`/`toSerialList()`: `'Invalid array value type: {type}. Must be string.'`.
