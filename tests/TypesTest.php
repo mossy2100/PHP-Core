@@ -543,7 +543,7 @@ final class TypesTest extends TestCase
     {
         // Test that passing a non-existent class name throws DomainException.
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid class name: 'NonExistentClass'.");
+        $this->expectExceptionMessage('Invalid class name: NonExistentClass. Must be a class, interface, or trait.');
         Types::usesTrait('NonExistentClass', TestTrait::class);
     }
 
@@ -611,7 +611,9 @@ final class TypesTest extends TestCase
     public function testGetTraitsThrowsExceptionForNonExistentClass(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid class name: 'NonExistentClassName'.");
+        $this->expectExceptionMessage(
+            'Invalid class name: NonExistentClassName. Must be a class, interface, or trait.'
+        );
         Types::getTraits('NonExistentClassName');
     }
 }

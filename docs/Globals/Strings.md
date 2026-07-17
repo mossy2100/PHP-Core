@@ -6,18 +6,18 @@ Convenient functions for converting values to strings and printing or inspecting
 
 ## Overview
 
-`src/Globals/strings.php` provides a small set of functions — namespaced under `OceanMoon\Core\Globals` — for
-converting values to strings and printing them, mostly for debugging purposes. They provide a more useful output than
-PHP's own `var_dump()`, `print_r()`, `var_export()`, or a plain `(string)` cast, none of which handle every PHP type
-gracefully (arrays and non-`Stringable` objects can't be cast to string at all; `var_dump()`/`print_r()` are verbose
-and don't distinguish types as clearly).
+`src/Globals/strings.php` provides a small set of functions — namespaced under `OceanMoon\Core\Globals` — for converting
+values to strings and printing them, mostly for debugging purposes. They provide a more useful output than PHP's own
+`var_dump()`, `print_r()`, `var_export()`, or a plain `(string)` cast, none of which handle every PHP type gracefully
+(arrays and non-`Stringable` objects can't be cast to string at all; `var_dump()`/`print_r()` are verbose and don't
+distinguish types as clearly).
 
 ---
 
 ## Autoloading
 
-Since these are functions rather than classes, PSR-4 autoloading won't discover them automatically. The Core
-package's `composer.json` includes a `files` autoload entry covering all of `src/Globals/`:
+Since these are functions rather than classes, PSR-4 autoloading won't discover them automatically. The Core package's
+`composer.json` includes a `files` autoload entry covering all of `src/Globals/`:
 
 ```json
 "autoload": {
@@ -51,11 +51,11 @@ function println(mixed $value = ''): void
 ```
 
 Print a value followed by a newline. If the value is not a string, it's converted automatically by PHP — which can
-produce a notice or warning for some values (arrays, closures, objects that aren't `Stringable`). The name mimics
-Java, Scala, Swift, Rust, Go, Julia, etc., and aligns with PHP's `print()` construct.
+produce a notice or warning for some values (arrays, closures, objects that aren't `Stringable`). The name mimics Java,
+Scala, Swift, Rust, Go, Julia, etc., and aligns with PHP's `print()` construct.
 
-Provided for completeness, but `writeln()` is generally the better choice — it never warns or throws, regardless of
-the value's type.
+Provided for completeness, but `writeln()` is generally the better choice — it never warns or throws, regardless of the
+value's type.
 
 **Parameters:**
 
@@ -69,10 +69,10 @@ use function OceanMoon\Core\Globals\println;
 println('Hello, world!');  // Outputs: Hello, world!\n
 ```
 
-### dump_var()
+### inspect()
 
 ```php
-function dump_var(mixed $value, bool $prettyPrint = false): void
+function inspect(mixed $value, bool $prettyPrint = false): void
 ```
 
 Print a stringified value, using `Stringify::stringify()`. An alternative to `var_dump()`, `var_export()`, and
@@ -87,9 +87,9 @@ handles circular references.
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\dump_var;
+use function OceanMoon\Core\Globals\inspect;
 
-dump_var(['name' => 'John', 'age' => 30]);
+inspect(['name' => 'John', 'age' => 30]);
 // Outputs: ["name" => "John", "age" => 30]
 ```
 
@@ -103,11 +103,11 @@ Convert any value to a string, without errors or warnings.
 
 **Behavior:**
 
-1. Tries PHP's default `(string)` cast first, for any value except an array (casting an array to string only emits a
-   warning rather than throwing, so it can't be caught here and is skipped up front).
-2. If the value is a `DateTimeInterface` and the cast above didn't apply or failed (`DateTime`/`DateTimeImmutable`
-   don't implement `Stringable`, so casting them throws), formats it as ISO 8601 via
-   `DateTimeInterface::format(DateTimeInterface::ATOM)`.
+1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases which would
+   otherwise just emit a warning (arrays) or a coercion warning (`NAN`) are caught here rather than escaping.
+2. If the cast failed and the value is a `DateTimeInterface`, formats it as ISO 8601 via
+   `DateTimeInterface::format(DateTimeInterface::ATOM)` (`DateTime`/`DateTimeImmutable` don't implement `Stringable`, so
+   the cast above always throws for them).
 3. Otherwise, falls back to `Stringify::stringify()` — this handles arrays, non-`Stringable` objects, resources, and
    anything else the cast above couldn't.
 
@@ -130,6 +130,7 @@ to_string(true);                              // '1'
 to_string(null);                              // ''
 to_string(new DateTime('2026-07-17T12:00:00+00:00'));  // '2026-07-17T12:00:00+00:00'
 to_string([1, 2, 3]);                         // '[1, 2, 3]' (via Stringify)
+to_string(NAN);                               // 'NAN' (via Stringify; a direct cast would emit a warning)
 ```
 
 ### write()
@@ -138,8 +139,8 @@ to_string([1, 2, 3]);                         // '[1, 2, 3]' (via Stringify)
 function write(mixed $value): void
 ```
 
-Print a value converted to a string using `to_string()`, with no trailing newline. Unlike `echo`/`print`, never
-throws or warns regardless of the value's type.
+Print a value converted to a string using `to_string()`, with no trailing newline. Unlike `echo`/`print`, never throws
+or warns regardless of the value's type.
 
 **Parameters:**
 
@@ -179,5 +180,5 @@ writeln('Hello, world!');  // Outputs: Hello, world!\n
 
 - **[Numbers](Numbers.md)** - Number-related functions, including `is_number()`
 - **[Constants](Constants.md)** - Shared constants, including `RECURSION`
-- **[Stringify](../Stringify.md)** - Value-to-string conversion used internally by `dump_var()`, `to_string()`, and
+- **[Stringify](../Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `to_string()`, and
   `write()`/`writeln()`

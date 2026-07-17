@@ -105,7 +105,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandUniformWithMinGreaterThanMaxThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min must be less than or equal to max');
+        $this->expectExceptionMessage('Invalid range: [20.0, 10.0]. Minimum must not exceed maximum.');
         Floats::randUniform(20.0, 10.0);
     }
 
@@ -115,7 +115,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandUniformWithNanMinThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid minimum: NAN. Must be finite.');
         Floats::randUniform(NAN, 10.0);
     }
 
@@ -125,7 +125,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandUniformWithNanMaxThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid maximum: NAN. Must be finite.');
         Floats::randUniform(0.0, NAN);
     }
 
@@ -135,7 +135,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandUniformWithInfMinThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid minimum: INF. Must be finite.');
         Floats::randUniform(INF, 10.0);
     }
 
@@ -145,7 +145,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandUniformWithNegativeInfMaxThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid maximum: -INF. Must be finite.');
         Floats::randUniform(0.0, -INF);
     }
 
@@ -277,7 +277,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandWithRangeWithMinGreaterThanMaxThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min must be less than or equal to max');
+        $this->expectExceptionMessage('Invalid range: [20.0, 10.0]. Minimum must not exceed maximum.');
         Floats::rand(20.0, 10.0);
     }
 
@@ -287,7 +287,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandWithRangeWithNanThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid minimum: NAN. Must be finite.');
         Floats::rand(NAN, 10.0);
     }
 
@@ -297,7 +297,7 @@ final class FloatsRandomTest extends TestCase
     public function testRandWithRangeWithInfThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Min and max must be finite');
+        $this->expectExceptionMessage('Invalid maximum: INF. Must be finite.');
         Floats::rand(0.0, INF);
     }
 

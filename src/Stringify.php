@@ -198,7 +198,7 @@ final class Stringify
 
             default:
                 // @codeCoverageIgnoreStart
-                throw new UnexpectedValueException('Unknown type.');
+                throw new UnexpectedValueException('Value has unknown type.');
                 // @codeCoverageIgnoreEnd
         }
     }
@@ -295,14 +295,13 @@ final class Stringify
      */
     public static function stringifyFloat(float $value): string
     {
-        // Convert the float to a string. This will also work for ±INF and NAN.
-        // The @ suppresses PHP 8.5's warning when casting NAN to string.
-        $s = @(string) $value;
-
-        // Handle non-finite values. "INF", "-INF", or "NAN" are already distinct from integers.
+        // Handle non-finite values. Avoids warning thrown when casting NAN to string.
         if (!is_finite($value)) {
-            return $s;
+            return var_export($value, true);
         }
+
+        // Cast float to a string.
+        $s = (string) $value;
 
         // If the string representation of the float value has no decimal point or exponent (i.e. nothing to distinguish
         // it from an integer), append a decimal point.
@@ -523,7 +522,7 @@ final class Stringify
         // So, check the debug type.
         $type = get_debug_type($value);
         if (!str_starts_with($type, 'resource (')) {
-            throw new InvalidArgumentException('Value is not a resource.');
+            throw new InvalidArgumentException("Invalid type: $type. Must be a resource.");
         }
 
         /** @var resource $value */

@@ -214,7 +214,7 @@ final class IntegersTest extends TestCase
     {
         // Test positive overflow.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage('Overflow in exponentiation.');
+        $this->expectExceptionMessage('Overflow in integer exponentiation.');
         Integers::pow(PHP_INT_MAX, 2);
     }
 
@@ -225,7 +225,7 @@ final class IntegersTest extends TestCase
     {
         // Test overflow with large exponent.
         $this->expectException(OverflowException::class);
-        $this->expectExceptionMessage('Overflow in exponentiation.');
+        $this->expectExceptionMessage('Overflow in integer exponentiation.');
         Integers::pow(10, 100);
     }
 

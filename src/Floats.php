@@ -9,8 +9,8 @@ use Random\RandomException;
 use RuntimeException;
 use UnexpectedValueException;
 
+use function OceanMoon\Core\Globals\ex;
 use function OceanMoon\Core\Globals\sign;
-use function OceanMoon\Core\Globals\to_string;
 
 use const OceanMoon\Core\Globals\M_TAU;
 
@@ -162,10 +162,7 @@ final class Floats
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
         float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
     ): bool {
-        // Check tolerances are valid.
-        if ($relTol < 0 || $absTol < 0) {
-            throw new DomainException('Cannot use negative tolerances.');
-        }
+        self::validateTolerances($relTol, $absTol);
 
         // Handle NAN. NAN != anything, even itself.
         if (is_nan($a) || is_nan($b)) {
@@ -213,6 +210,8 @@ final class Floats
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
         float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
     ): int {
+        self::validateTolerances($relTol, $absTol);
+
         // NAN doesn't compare as equal, less than, or greater than anything, including itself.
         if (is_nan($a) || is_nan($b)) {
             throw new DomainException('Cannot compare NAN with any other value, even itself.');
@@ -560,8 +559,8 @@ final class Floats
             return (int) $f;
         }
 
-        // Use to_string() rather than string interpolation to avoid warning triggered by NAN/±INF.
-        throw new DomainException('Cannot convert float ' . to_string($f) . ' to an int losslessly.');
+        // Use ex() rather than string interpolation to avoid warning triggered by NAN/±INF.
+        throw new DomainException('Cannot convert float ' . ex($f) . ' to an int losslessly.');
     }
 
     #endregion
@@ -596,11 +595,16 @@ final class Floats
     public static function rand(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
     {
         // Validate parameters.
-        if (!is_finite($min) || !is_finite($max)) {
-            throw new DomainException('Min and max must be finite.');
+        if (!is_finite($min)) {
+            throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
+        }
+        if (!is_finite($max)) {
+            throw new DomainException('Invalid maximum: ' . ex($max) . '. Must be finite.');
         }
         if ($min > $max) {
-            throw new DomainException('Min must be less than or equal to max.');
+            throw new DomainException(
+                'Invalid range: [' . ex($min) . ', ' . ex($max) . ']. Minimum must not exceed maximum.'
+            );
         }
 
         // Accept negative zero arguments but normalize to positive zero.
@@ -681,11 +685,16 @@ final class Floats
     public static function randUniform(float $min, float $max): float
     {
         // Validate parameters.
-        if (!is_finite($min) || !is_finite($max)) {
-            throw new DomainException('Min and max must be finite.');
+        if (!is_finite($min)) {
+            throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
+        }
+        if (!is_finite($max)) {
+            throw new DomainException('Invalid maximum: ' . ex($max) . '. Must be finite.');
         }
         if ($min > $max) {
-            throw new DomainException('Min must be less than or equal to max.');
+            throw new DomainException(
+                'Invalid range: [' . ex($min) . ', ' . ex($max) . ']. Minimum must not exceed maximum.'
+            );
         }
 
         // If min and max are the same, there's only one possible value.
@@ -920,6 +929,32 @@ final class Floats
         // Handle ordinary values.
         $abs = abs($value);
         return self::next($abs) - $abs;
+    }
+
+    #endregion
+
+    #region Helper methods
+
+    /**
+     * Check tolerances are valid.
+     *
+     * @param float $relTol The relative tolerance.
+     * @param float $absTol The absolute tolerance.
+     */
+    private static function validateTolerances(
+        float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+    ): void {
+        if (!is_finite($relTol) || $relTol < 0) {
+            throw new DomainException(
+                'Invalid relative tolerance: ' . ex($relTol) . '. Must be finite and non-negative.'
+            );
+        }
+        if (!is_finite($absTol) || $absTol < 0) {
+            throw new DomainException(
+                'Invalid absolute tolerance: ' . ex($absTol) . '. Must be finite and non-negative.'
+            );
+        }
     }
 
     #endregion

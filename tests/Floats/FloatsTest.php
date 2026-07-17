@@ -52,8 +52,18 @@ final class FloatsTest extends TestCase
     public function testApproxEqualWithNegativeTolerancesThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot use negative tolerances');
+        $this->expectExceptionMessage('Invalid relative tolerance: -0.1. Must be finite and non-negative.');
         Floats::approxEqual(1.0, 1.0, -0.1, 0.0);
+    }
+
+    /**
+     * Test approxEqual with a negative absolute tolerance throws DomainException.
+     */
+    public function testApproxEqualWithNegativeAbsoluteToleranceThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid absolute tolerance: -1.0. Must be finite and non-negative.');
+        Floats::approxEqual(1.0, 1.0, 0.0, -1.0);
     }
 
     /**
@@ -181,7 +191,7 @@ final class FloatsTest extends TestCase
     public function testApproxCompareWithNegativeToleranceThrows(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot use negative tolerances');
+        $this->expectExceptionMessage('Invalid relative tolerance: -0.1. Must be finite and non-negative.');
         Floats::approxCompare(1.0, 1.0, -0.1, 0.0);
     }
 

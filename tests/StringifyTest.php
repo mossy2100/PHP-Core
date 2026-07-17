@@ -400,7 +400,7 @@ final class StringifyTest extends TestCase
     public function testStringifyResourceWithNonResource(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Value is not a resource.');
+        $this->expectExceptionMessage('Invalid type: string. Must be a resource.');
         Stringify::stringifyResource('not a resource');
     }
 

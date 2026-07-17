@@ -68,7 +68,7 @@ unique string keys.
 ### [Stringify](docs/Stringify.md)
 
 Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. This class
-serves as the basis of the `dump_var()` function.
+serves as the basis of the `inspect()` function.
 
 ---
 
@@ -80,7 +80,7 @@ Useful constants used by the Core, Math, and other packages, including `M_TAU`.
 
 ### [Strings](docs/Globals/Strings.md)
 
-Convenient functions for outputting strings and other values, including `dump_var()`, `write()` and `writeln()`.
+Convenient functions for outputting strings and other values, including `inspect()`, `write()` and `writeln()`.
 
 ### [Numbers](docs/Globals/Numbers.md)
 

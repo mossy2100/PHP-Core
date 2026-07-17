@@ -173,7 +173,7 @@ final class Integers
 
         // Check for overflow.
         if (is_float($c)) {
-            throw new OverflowException('Overflow in exponentiation.');
+            throw new OverflowException('Overflow in integer exponentiation.');
         }
 
         // Return the result.
@@ -194,37 +194,32 @@ final class Integers
      */
     public static function gcd(int ...$nums): int
     {
-        // Check we have the right number of arguments.
+        // At least one integer is required.
         if (count($nums) === 0) {
             throw new ArgumentCountError('At least one integer is required.');
         }
 
-        // Check none of the values equal PHP_INT_MIN because otherwise abs() will not work properly.
-        $err = 'Cannot compute GCD with PHP_INT_MIN (' . PHP_INT_MIN . ').';
-        if ($nums[0] === PHP_INT_MIN) {
+        // Initialise result to the absolute value of the first number.
+        // Check first for PHP_INT_MIN. abs() is undefined for PHP_INT_MIN since its positive counterpart overflows.
+        $result = array_shift($nums);
+        $err = 'Cannot compute GCD with PHP_INT_MIN.';
+        if ($result === PHP_INT_MIN) {
             throw new DomainException($err);
         }
+        $result = abs($result);
 
-        // Initialise to the first number.
-        $result = abs($nums[0]);
-
-        // Calculate the GCD using Euclid's algorithm.
-        for ($i = 1, $n = count($nums); $i < $n; $i++) {
-            // Check integer is in the valid range.
-            if ($nums[$i] === PHP_INT_MIN) {
+        // Calculate the GCD iteratively using Euclid's algorithm.
+        foreach ($nums as $num) {
+            if ($num === PHP_INT_MIN) {
                 throw new DomainException($err);
             }
 
-            $a = $result;
-            $b = abs($nums[$i]);
-
+            $b = abs($num);
             while ($b !== 0) {
                 $temp = $b;
-                $b = $a % $b;
-                $a = $temp;
+                $b = $result % $b;
+                $result = $temp;
             }
-
-            $result = $a;
         }
 
         return $result;
@@ -314,7 +309,7 @@ final class Integers
         $chars = mb_str_split($s);
         foreach ($chars as $char) {
             if (!isset($reverseMap[$char])) {
-                throw new FormatException("Invalid subscript character: '$char'.");
+                throw new FormatException("Invalid subscript character: $char.");
             }
             $result .= $reverseMap[$char];
         }
@@ -342,7 +337,7 @@ final class Integers
         $chars = mb_str_split($s);
         foreach ($chars as $char) {
             if (!isset($reverseMap[$char])) {
-                throw new FormatException("Invalid superscript character: '$char'.");
+                throw new FormatException("Invalid superscript character: $char.");
             }
             $result .= $reverseMap[$char];
         }

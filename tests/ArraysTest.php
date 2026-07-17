@@ -348,7 +348,7 @@ final class ArraysTest extends TestCase
         $input = ['foo', 123, 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: int. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -361,7 +361,7 @@ final class ArraysTest extends TestCase
         $input = ['foo', 3.14, 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: float. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -374,7 +374,7 @@ final class ArraysTest extends TestCase
         $input = ['foo', true, 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: bool. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -387,7 +387,7 @@ final class ArraysTest extends TestCase
         $input = ['foo', null, 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: null. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -404,7 +404,7 @@ final class ArraysTest extends TestCase
         ];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: array. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -417,7 +417,7 @@ final class ArraysTest extends TestCase
         $input = ['foo', new stdClass(), 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: stdClass. Must be string.');
 
         Arrays::quoteValues($input); // @phpstan-ignore argument.type
     }
@@ -644,7 +644,7 @@ final class ArraysTest extends TestCase
     public function testToSerialListThrowsExceptionForNonStrings(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot process non-string array values.');
+        $this->expectExceptionMessage('Invalid array value type: int. Must be string.');
 
         Arrays::toSerialList(['foo', 42, 'bar']); // @phpstan-ignore argument.type
     }

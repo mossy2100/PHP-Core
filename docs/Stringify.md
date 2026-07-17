@@ -24,8 +24,8 @@ utility class and cannot be instantiated.
 - **UML-style visibility notation**: Objects use `ClassName {...}` with visibility symbols (`+` public, `#` protected,
   `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
-- **Resource formatting**: Resources show both the id (via PHP's own resource-to-string conversion) and the resource
-  type from `get_debug_type()`, e.g. `Resource id #5 (stream)`.
+- **Resource formatting**: Resources show both the id (via `get_resource_id()`) and the resource type from
+  `get_debug_type()`, e.g. `resource #5 (stream)`.
 - **Simple string conversion**: `toString()` provides a lightweight alternative to `stringify()` for user-facing output,
   where strings should pass through unquoted and `Stringable` objects should use their own `__toString()`.
 
@@ -462,9 +462,9 @@ Stringify::stringifyObject($anon);  // '@anonymous {+x => 1}'
 public static function stringifyResource(mixed $value): string
 ```
 
-Stringify a resource. Combines the result of casting the resource to a string (PHP's own `Resource id #N` format) with
-the resource type from `get_debug_type()`. Works for both open and closed resources -- `is_resource()` returns `false`
-for a closed resource, so the type is checked via `get_debug_type()` instead.
+Stringify a resource. Combines the resource id (via `get_resource_id()`) with the resource type from
+`get_debug_type()`. Works for both open and closed resources -- `is_resource()` returns `false` for a closed resource,
+so the type is checked via `get_debug_type()` instead.
 
 **Parameters:**
 
@@ -472,7 +472,7 @@ for a closed resource, so the type is checked via `get_debug_type()` instead.
 
 **Returns:**
 
-- `string` - The string representation of the resource, e.g. `'Resource id #5 (stream)'`.
+- `string` - The string representation of the resource, e.g. `'resource #5 (stream)'`.
 
 **Throws:**
 
@@ -482,10 +482,10 @@ for a closed resource, so the type is checked via `get_debug_type()` instead.
 
 ```php
 $file = fopen('php://memory', 'r');
-Stringify::stringifyResource($file);  // 'Resource id #5 (stream)'
+Stringify::stringifyResource($file);  // 'resource #5 (stream)'
 
 fclose($file);
-Stringify::stringifyResource($file);  // 'Resource id #5 (closed)'
+Stringify::stringifyResource($file);  // 'resource #5 (closed)'
 ```
 
 ---

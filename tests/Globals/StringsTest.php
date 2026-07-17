@@ -7,10 +7,12 @@ namespace OceanMoon\Core\Tests\Globals;
 use ArgumentCountError;
 use DateTime;
 use Error;
+use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\TestCase;
 use Stringable;
 
-use function OceanMoon\Core\Globals\dump_var;
+use function OceanMoon\Core\Globals\ex;
+use function OceanMoon\Core\Globals\inspect;
 use function OceanMoon\Core\Globals\println;
 use function OceanMoon\Core\Globals\to_string;
 use function OceanMoon\Core\Globals\write;
@@ -342,32 +344,32 @@ final class StringsTest extends TestCase
 
     #endregion
 
-    #region dump_var() tests
+    #region inspect() tests
 
     /**
-     * Test dump_var() prints the value via Stringify::stringify(), without pretty printing by
+     * Test inspect() prints the value via Stringify::stringify(), without pretty printing by
      * default.
      */
     public function testDumpVarWithArray(): void
     {
         $this->expectOutputString('[1, 2, 3]' . PHP_EOL);
-        dump_var([1, 2, 3]);
+        inspect([1, 2, 3]);
     }
 
     /**
-     * Test dump_var() with pretty printing enabled.
+     * Test inspect() with pretty printing enabled.
      */
     public function testDumpVarWithArrayPrettyPrint(): void
     {
         $this->expectOutputString("[\n    \"a\" => 1,\n    \"b\" => 2,\n]" . PHP_EOL);
-        dump_var([
+        inspect([
             'a' => 1,
             'b' => 2,
         ], true);
     }
 
     /**
-     * Test dump_var() handles a circular reference instead of erroring.
+     * Test inspect() handles a circular reference instead of erroring.
      */
     public function testDumpVarHandlesRecursion(): void
     {
@@ -377,27 +379,90 @@ final class StringsTest extends TestCase
         $arr['self'] = &$arr;
 
         $this->expectOutputString('["x" => 1, "self" => ' . RECURSION . ']' . PHP_EOL);
-        dump_var($arr);
+        inspect($arr);
     }
 
     /**
-     * Test dump_var() with an object shows the class name and properties.
+     * Test inspect() with an object shows the class name and properties.
      */
     public function testDumpVarWithObject(): void
     {
         $this->expectOutputRegex(
             '/^OceanMoon\\\\Core\\\\Tests\\\\Globals\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}' . PHP_EOL . '$/'
         );
-        dump_var(new Foo());
+        inspect(new Foo());
     }
 
     /**
-     * Test dump_var() with no argument throws.
+     * Test inspect() with no argument throws.
      */
     public function testDumpVarWithNoArgumentThrows(): void
     {
         $this->expectException(ArgumentCountError::class);
-        dump_var(); // @phpstan-ignore arguments.count
+        inspect(); // @phpstan-ignore arguments.count
+    }
+
+    #endregion
+
+    #region ex() tests
+
+    /**
+     * Test ex() with short values matches Stringify::abbrev(), unmodified.
+     */
+    public function testExWithShortValue(): void
+    {
+        $this->assertSame('"hello"', ex('hello'));
+        $this->assertSame('42', ex(42));
+        $this->assertSame('true', ex(true));
+    }
+
+    /**
+     * Test ex() truncates long strings, matching Stringify::abbrev() at its default max length.
+     */
+    public function testExWithLongString(): void
+    {
+        $longString = str_repeat('a', 100);
+
+        $result = ex($longString);
+
+        $this->assertSame(Stringify::abbrev($longString), $result);
+        $this->assertLessThanOrEqual(32, mb_strlen($result));
+        $this->assertStringEndsWith('…"', $result);
+    }
+
+    /**
+     * Test ex() truncates long arrays, matching Stringify::abbrev() at its default max length.
+     */
+    public function testExWithLongArray(): void
+    {
+        $array = range(1, 20);
+
+        $result = ex($array);
+
+        $this->assertSame(Stringify::abbrev($array), $result);
+        $this->assertLessThanOrEqual(32, mb_strlen($result));
+        $this->assertStringEndsWith('…]', $result);
+    }
+
+    /**
+     * Test ex() always delegates to Stringify::abbrev() with its default max length, for a range of value types.
+     */
+    public function testExDelegatesToStringifyAbbrev(): void
+    {
+        $values = [
+            'short string' => 'hello',
+            'long string' => str_repeat('x', 50),
+            'int' => 42,
+            'float' => 3.14,
+            'bool' => false,
+            'null' => null,
+            'array' => range(1, 20),
+            'object' => new Foo(),
+        ];
+
+        foreach ($values as $value) {
+            $this->assertSame(Stringify::abbrev($value), ex($value));
+        }
     }
 
     #endregion

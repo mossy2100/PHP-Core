@@ -7,6 +7,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **`OceanMoon\Core\Globals\ex()`** — returns a short, abbreviated string representation of a value (wraps
+  `Stringify::abbrev()`), for building consistent, informative exception messages.
+
+### Changed
+
+- **`println()`** now returns `int` (always `1`, matching PHP's own `print` construct) instead of `void`.
+- **`dump_var()`** renamed to **`inspect()`**; gained a `bool $return = false` parameter to return the stringified
+  value instead of printing it.
+- Exception messages reworded throughout the package to consistently report the invalid value/type (via the new
+  `ex()` helper) and the expected constraint, instead of a fixed generic string:
+  - `Arrays::quoteValues()`/`toSerialList()`: `'Invalid array value type: {type}. Must be string.'`.
+  - `Floats::approxEqual()`/`approxCompare()`: tolerance validation extracted into a shared, private
+    `validateTolerances()` helper; also now rejects non-finite tolerances, not just negative ones. Messages are now
+    `'Invalid relative/absolute tolerance: {value}. Must be finite and non-negative.'`.
+  - `Floats::rand()`/`randUniform()`: separate `'Invalid minimum: ...'`/`'Invalid maximum: ...'`/`'Invalid range:
+    [...]'` messages replace the previous combined `'Min and max must be finite.'`/`'Min must be less than or equal
+    to max.'`.
+  - `Integers::pow()`: `'Overflow in integer exponentiation.'`, consistent with the other arithmetic overflow
+    messages.
+  - `Integers::gcd()`: the `PHP_INT_MIN` message no longer echoes the constant's value back.
+  - `Integers::fromSubscript()`/`fromSuperscript()`: the invalid character is no longer wrapped in quotes.
+  - `Stringify::stringifyResource()`: `'Invalid type: {type}. Must be a resource.'`.
+  - `Types::usesTrait()`/`getTraits()`: `'Invalid class name: {name}. Must be a class, interface, or trait.'`
+    (previously quoted the name and didn't state the constraint).
+- **`Stringify::stringifyFloat()`**: non-finite values are now stringified via `var_export()` instead of a
+  warning-suppressed cast; output is unchanged (`'NAN'`, `'INF'`, `'-INF'`).
+
 ## [3.0.0] - 2026-07-17
 
 ### Added
@@ -48,26 +79,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Internal renames for clarity: `stringifyList()` → `stringifyListArray()`, `stringifyDictionary()` →
   `stringifyAssociativeArray()`.
 - **`Floats::TAU`** removed; use the `OceanMoon\Core\Globals\M_TAU` constant directly.
-- **`Stringify::stringifyResource()`** — Now combines PHP's own resource-to-string cast (`Resource id #N`) with the
-  resource type from `get_debug_type()`, e.g. `'Resource id #5 (stream)'`, instead of just `'resource (stream)'`.
+- **`Stringify::stringifyResource()`** — Now combines the resource id (via `get_resource_id()`) with the resource type
+  from `get_debug_type()`, e.g. `'resource #5 (stream)'`, instead of just `'resource (stream)'`.
 - **Region comments** — Switched from `// region` / `// endregion` to `#region` / `#endregion` (VS Code-compatible)
   throughout the package.
 - Cast spacing normalized to PSR-12 style throughout (e.g. `(int)$x` → `(int) $x`).
 
 ### Removed
 
-- **`Numbers` class** (`src/Numbers.php`) — replaced by plain functions in `OceanMoon\Core\Globals` (see Added). This
-  class was already effectively unusable before removal: it declared `namespace OceanMoon\Core\Globals` internally, but
-  lived at `src/Numbers.php`, which PSR-4 maps to `OceanMoon\Core\Numbers` — the only FQCN any caller actually imported.
-  Every real call site was hitting a fatal "Class not found" as soon as autoloader caches were regenerated; the bug had
-  gone unnoticed because it hadn't been.
+- **`Numbers` class** (`src/Numbers.php`) — replaced by plain functions in `Globals/numbers.php` (see Added).
 - **`Numbers::REGEX`** — moved to `OceanMoon\Core\Globals\NUMBER_REGEX`.
-- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** — superseded by `OceanMoon\Core\Globals` functions
-  (see Added). `Stringify::toString()` (added earlier in this cycle) is also removed in favor of the global
-  `to_string()` function.
-- **`Equatable::identical()`** — added earlier in this Unreleased cycle, now removed: doesn't fit the finalized
-  type-handling policy (see Changed) and added a second, easily-confused comparison entry point (`identical()` vs
-  `equal()`) without enough distinct value to justify keeping both.
+- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** — superseded by plain functions in
+  `Globals/strings.php` (see Added).
 - **`IncomparableTypesException`** — removed. Comparison methods now throw plain `InvalidArgumentException` for
   incompatible types instead, consistent with the rest of the package's exception conventions (see
   `docs/guidelines/EXCEPTIONS.md`); a dedicated exception type for this one case stopped earning its keep once the
@@ -95,9 +118,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   corresponding `.md` file for full examples.
 - New `docs/Exceptions/ArithmeticException.md`, `docs/Globals/Numbers.md`, `docs/Globals/Strings.md`,
   `docs/Globals/Constants.md`.
-- Updated `Stringify.md`: added a `toString()`-replacement section for `to_string()`, updated the `stringifyResource()`
-  example, and reorganized method sections to match the source file's new grouping (Main Stringification Methods /
-  Type-Specific Stringification Methods).
+- Updated `Stringify.md`: added a section documenting `to_string()`, updated the `stringifyResource()` example, and
+  reorganized method sections to match the source file's new grouping (Main Stringification Methods / Type-Specific
+  Stringification Methods).
 - `README.md`: "Functions" section replaced with "Globals" (Constants / Strings / Numbers); Exceptions section updated
   for `ArithmeticException`, removed `IncomparableTypesException`.
 - All markdown files rewrapped to a consistent 120-character line width.

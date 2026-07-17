@@ -72,7 +72,9 @@ final class Arrays
         $quoteFn = static function ($value) use ($quoteChar) {
             // Type check.
             if (!is_string($value)) {
-                throw new InvalidArgumentException('Cannot process non-string array values.');
+                throw new InvalidArgumentException(
+                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.'
+                );
             }
 
             // Wrap the value in quotes.
@@ -102,7 +104,9 @@ final class Arrays
         // Ensure all the array values are strings.
         foreach ($arr as $value) {
             if (!is_string($value)) {
-                throw new InvalidArgumentException('Cannot process non-string array values.');
+                throw new InvalidArgumentException(
+                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.'
+                );
             }
         }
 
@@ -193,7 +197,7 @@ final class Arrays
      * question for the whole array; it doesn't say where the recursive reference is, so it isn't
      * enough on its own to know which value to replace. Array `===` compares by value, not by
      * reference identity, so there's no built-in way to ask "is this the same array instance as an
-     * ancestor?" either. print_r() (like var_dump()) performs the same underlying cycle detection
+     * ancestor?" either. print_r() (like inspect()) performs the same underlying cycle detection
      * internally (implemented in C, with access to the engine's reference-counted array
      * structures), but — usefully here — its text output preserves the position of each recursive
      * reference within the printed structure. This method detects recursion by parsing that

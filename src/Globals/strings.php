@@ -26,10 +26,11 @@ use Throwable;
  * Provided here for completeness, but writeln() is generally better.
  *
  * @param mixed $value [optional] The value to print.
+ * @return int Always returns 1.
  */
-function println(mixed $value = ''): void
+function println(mixed $value = ''): int
 {
-    print $value . PHP_EOL; // @phpstan-ignore binaryOp.invalid
+    return print $value . PHP_EOL; // @phpstan-ignore binaryOp.invalid
 }
 
 /**
@@ -43,10 +44,27 @@ function println(mixed $value = ''): void
  *
  * @param mixed $value The value to print.
  * @param bool $prettyPrint Whether to format the output with newlines.
+ * @param $return If a value should be returned or printed.
+ * @return int|string Either 1 if printed, or a string representing the value.
  */
-function dump_var(mixed $value, bool $prettyPrint = false): void
+function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): int|string
 {
-    println(Stringify::stringify($value, $prettyPrint));
+    $result = Stringify::stringify($value, $prettyPrint);
+    return $return ? $result : println($result);
+}
+
+/**
+ * Gets a short string representation of a value suitable for an exception message.
+ *
+ * The max length is currently hard-coded to 32 (the default value in the wrapped Stringify::abbrev() method), which is
+ * probably ok for now.
+ *
+ * @param mixed $value The value to convert to a string.
+ * @return string The string representation of the value.
+ */
+function ex(mixed $value): string
+{
+    return Stringify::abbrev($value);
 }
 
 /**
@@ -62,13 +80,9 @@ function dump_var(mixed $value, bool $prettyPrint = false): void
 function to_string(mixed $value): string
 {
     // Temporarily convert warnings to exceptions, so we can catch cases where the default cast to string would
-    // otherwise just emit a warning (e.g. arrays) or a coercion warning (e.g. NAN) rather than throwing.
-    // Scoped to just the cast attempt via try/finally: if this stayed active during the Stringify::stringify()
-    // fallback below, a warning from that call would become an uncaught exception, since there's no surrounding
-    // catch to handle it there.
-    set_error_handler(static function (int $severity, string $message): never {
-        throw new ErrorException($message, 0, $severity);
-    });
+    // otherwise just emit a warning (e.g. arrays, NAN) rather than throwing.
+    set_error_handler(static fn () => throw new ErrorException());
+
     try {
         return (string) $value; // @phpstan-ignore cast.string
     } catch (Throwable) {
@@ -77,7 +91,7 @@ function to_string(mixed $value): string
         restore_error_handler();
     }
 
-    // Special handling for datetimes, which don't have a default string conversion.
+    // Special handling for datetimes.
     if ($value instanceof DateTimeInterface) {
         return $value->format(DateTimeInterface::ATOM);
     }
