@@ -29,8 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   ancestor?".
 - **`Stringify::stringifyBool()`, `stringifyInt()`, `stringifyEnum()`, `stringifyObject()`, `stringifyResource()`** —
   promoted to public, individually-usable methods (previously internal to the `stringify()` dispatcher).
-- **Object stringification now shows UML visibility markers** (`+` public, `#` protected, `-` private) for each
-  property.
 
 ### Changed
 
