@@ -29,7 +29,7 @@ use Throwable;
  */
 function println(mixed $value = ''): void
 {
-    print($value . PHP_EOL); // @phpstan-ignore binaryOp.invalid
+    print $value . PHP_EOL; // @phpstan-ignore binaryOp.invalid
 }
 
 /**
@@ -111,7 +111,7 @@ function to_string(mixed $value): string
  */
 function write(mixed $value): void
 {
-    print(to_string($value));
+    print to_string($value);
 }
 
 /**

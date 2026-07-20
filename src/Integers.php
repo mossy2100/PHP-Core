@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core;
 
-use ArgumentCountError;
 use DomainException;
+use LengthException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OverflowException;
 
@@ -189,32 +189,25 @@ final class Integers
      *
      * @param int ...$nums The integers to calculate the GCD of.
      * @return int The greatest common divisor.
-     * @throws ArgumentCountError If no arguments are provided.
-     * @throws DomainException If any of the integers equal PHP_INT_MIN.
+     * @throws LengthException If no arguments are provided.
+     * @throws OverflowException If the true result is PHP_INT_MIN's unsigned magnitude (2^63), which doesn't fit in
+     *   an int. This only happens if PHP_INT_MIN is present and every other argument is 0 or also PHP_INT_MIN, since
+     *   any other int's magnitude is at most 2^63 - 1, and would reduce the GCD below 2^63.
      */
     public static function gcd(int ...$nums): int
     {
         // At least one integer is required.
         if (count($nums) === 0) {
-            throw new ArgumentCountError('At least one integer is required.');
+            throw new LengthException('At least one integer is required.');
         }
 
-        // Initialise result to the absolute value of the first number.
-        // Check first for PHP_INT_MIN. abs() is undefined for PHP_INT_MIN since its positive counterpart overflows.
+        // Run Euclid's algorithm on the raw (signed) values, without calling abs() on any intermediate value.
+        // PHP_INT_MIN can't be negated without overflowing (its positive counterpart, 2^63, is out of int range),
+        // but the modulo operator handles it fine: a remainder's magnitude is always smaller than the divisor's, so
+        // it can never itself be PHP_INT_MIN. This means abs() is only ever needed once, on the final result below.
         $result = array_shift($nums);
-        $err = 'Cannot compute GCD with PHP_INT_MIN.';
-        if ($result === PHP_INT_MIN) {
-            throw new DomainException($err);
-        }
-        $result = abs($result);
-
-        // Calculate the GCD iteratively using Euclid's algorithm.
         foreach ($nums as $num) {
-            if ($num === PHP_INT_MIN) {
-                throw new DomainException($err);
-            }
-
-            $b = abs($num);
+            $b = $num;
             while ($b !== 0) {
                 $temp = $b;
                 $b = $result % $b;
@@ -222,7 +215,14 @@ final class Integers
             }
         }
 
-        return $result;
+        // The only way the final result can still be PHP_INT_MIN is if nothing above ever reduced it, i.e. every
+        // other argument was 0 (which leaves a value unchanged, per gcd(a, 0) = a) or PHP_INT_MIN itself. In that
+        // case the true GCD is PHP_INT_MIN's magnitude, 2^63, which doesn't fit in an int.
+        if ($result === PHP_INT_MIN) {
+            throw new OverflowException('Cannot compute GCD. Result (2^63) exceeds the range of an int.');
+        }
+
+        return abs($result);
     }
 
     #endregion

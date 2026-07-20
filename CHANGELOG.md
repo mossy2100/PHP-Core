@@ -29,13 +29,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     to max.'`.
   - `Integers::pow()`: `'Overflow in integer exponentiation.'`, consistent with the other arithmetic overflow
     messages.
-  - `Integers::gcd()`: the `PHP_INT_MIN` message no longer echoes the constant's value back.
   - `Integers::fromSubscript()`/`fromSuperscript()`: the invalid character is no longer wrapped in quotes.
   - `Stringify::stringifyResource()`: `'Invalid type: {type}. Must be a resource.'`.
   - `Types::usesTrait()`/`getTraits()`: `'Invalid class name: {name}. Must be a class, interface, or trait.'`
     (previously quoted the name and didn't state the constraint).
 - **`Stringify::stringifyFloat()`**: non-finite values are now stringified via `var_export()` instead of a
   warning-suppressed cast; output is unchanged (`'NAN'`, `'INF'`, `'-INF'`).
+- **`Integers::gcd()`**:
+  - No-arguments case now throws `LengthException` (`'At least one integer is required.'`) instead of
+    `ArgumentCountError`, consistent with how the rest of the package signals an empty-collection precondition
+    failure (see `docs/guidelines/EXCEPTIONS.md`).
+  - `PHP_INT_MIN` is no longer rejected outright. Euclid's algorithm now runs on the raw signed values (`abs()` is
+    only applied once, to the final result), so `PHP_INT_MIN` combined with any other non-zero, non-`PHP_INT_MIN`
+    value now returns the correct result (e.g. `gcd(PHP_INT_MIN, 8) === 8`) instead of always throwing. Only the
+    genuinely unrepresentable case — every argument is `0` or `PHP_INT_MIN`, so the true result is `PHP_INT_MIN`'s
+    own magnitude (`2^63`) — still throws, now as `OverflowException` rather than `DomainException`, consistent with
+    `Integers::pow()`'s overflow handling.
 
 ## [3.0.0] - 2026-07-17
 

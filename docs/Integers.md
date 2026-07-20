@@ -198,8 +198,11 @@ positive integer that divides all the given numbers without remainder.
 
 **Throws:**
 
-- `ArgumentCountError` - If no arguments are provided
-- `DomainException` - If any argument equals `PHP_INT_MIN`
+- `LengthException` - If no arguments are provided
+- `OverflowException` - If the true result is `PHP_INT_MIN`'s magnitude (`2^63`), which doesn't fit in an `int`. This
+  only happens when `PHP_INT_MIN` is present and every other argument is `0` or also `PHP_INT_MIN` — any other value
+  has a smaller magnitude and would reduce the GCD below `2^63`. `PHP_INT_MIN` combined with anything else always
+  produces a valid, in-range result (see examples below).
 
 **Examples:**
 
@@ -210,6 +213,13 @@ Integers::gcd(12, 18, 24);  // 6
 Integers::gcd(-12, 18);     // 6 (uses absolute values)
 Integers::gcd(0, 5);        // 5
 Integers::gcd(0, 0);        // 0
+
+// PHP_INT_MIN's magnitude (2^63) has only 2 as a prime factor, so combined with another value the result is always
+// a power of two: 2 raised to the lower of 63 and the other value's own power-of-two factor.
+Integers::gcd(PHP_INT_MIN, 5);   // 1 (5 is odd)
+Integers::gcd(PHP_INT_MIN, 6);   // 2 (6 = 2 * 3)
+Integers::gcd(PHP_INT_MIN, 8);   // 8 (8 = 2^3)
+Integers::gcd(PHP_INT_MIN);      // throws OverflowException (nothing reduces PHP_INT_MIN's own magnitude)
 ```
 
 **Behavior:**

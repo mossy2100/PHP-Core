@@ -428,7 +428,10 @@ final class StringsTest extends TestCase
         $this->expectOutputString('');
         $this->assertSame(
             "[\n    \"a\" => 1,\n    \"b\" => 2,\n]",
-            inspect(['a' => 1, 'b' => 2], prettyPrint: true, return: true)
+            inspect([
+                'a' => 1,
+                'b' => 2,
+            ], prettyPrint: true, return: true)
         );
     }
 

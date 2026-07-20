@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Tests;
 
-use ArgumentCountError;
 use DomainException;
+use LengthException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OceanMoon\Core\Integers;
 use OverflowException;
@@ -301,8 +301,8 @@ final class IntegersTest extends TestCase
      */
     public function testGcdNoArguments(): void
     {
-        // Test that calling GCD with no arguments throws ArgumentCountError.
-        $this->expectException(ArgumentCountError::class);
+        // Test that calling GCD with no arguments throws LengthException.
+        $this->expectException(LengthException::class);
         $this->expectExceptionMessage('At least one integer is required.');
         Integers::gcd();
     }
@@ -320,33 +320,66 @@ final class IntegersTest extends TestCase
     }
 
     /**
-     * Test GCD with PHP_INT_MIN as first argument throws RangeException.
+     * Test GCD with PHP_INT_MIN alongside another value computes the correct power-of-two result, rather than just
+     * treating PHP_INT_MIN as an error case. PHP_INT_MIN's magnitude (2^63) has 2 as its only prime factor, so the
+     * result is always a power of two: 2 raised to the lower of 63 and the other value's own power-of-two factor.
      */
-    public function testGcdWithPhpIntMinFirstArgThrows(): void
+    public function testGcdWithPhpIntMinAndOtherValue(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot compute GCD with PHP_INT_MIN');
-        Integers::gcd(PHP_INT_MIN, 5);
+        // 5 is odd (2^0), so the shared power of two is 2^0 = 1.
+        $this->assertSame(1, Integers::gcd(PHP_INT_MIN, 5));
+        $this->assertSame(1, Integers::gcd(5, PHP_INT_MIN));
+
+        // 6 = 2 * 3 (2^1), so the shared power of two is 2^1 = 2.
+        $this->assertSame(2, Integers::gcd(PHP_INT_MIN, 6));
+
+        // 8 = 2^3, so the shared power of two is 2^3 = 8.
+        $this->assertSame(8, Integers::gcd(PHP_INT_MIN, 8));
     }
 
     /**
-     * Test GCD with PHP_INT_MIN as second argument throws RangeException.
+     * Test GCD with PHP_INT_MIN and multiple other values uses the lowest power of two among them.
      */
-    public function testGcdWithPhpIntMinSecondArgThrows(): void
+    public function testGcdWithPhpIntMinAndMultipleOtherValues(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot compute GCD with PHP_INT_MIN');
-        Integers::gcd(5, PHP_INT_MIN);
+        // 8 = 2^3 and 12 = 2^2 * 3, so the lowest shared power of two is 2^2 = 4.
+        $this->assertSame(4, Integers::gcd(PHP_INT_MIN, 8, 12));
+
+        // A second PHP_INT_MIN doesn't change anything: it still leaves 8 = 2^3 as the constraint.
+        $this->assertSame(8, Integers::gcd(PHP_INT_MIN, PHP_INT_MIN, 8));
+
+        // Zero doesn't constrain the result at all (gcd(a, 0) = a), so it's as if it weren't there.
+        $this->assertSame(8, Integers::gcd(PHP_INT_MIN, 0, 8));
     }
 
     /**
-     * Test GCD with PHP_INT_MIN as only argument throws RangeException.
+     * Test GCD throws OverflowException when the true result is PHP_INT_MIN's own magnitude (2^63), which can't be
+     * represented as an int. This only happens when every argument is PHP_INT_MIN or 0, since anything else has a
+     * smaller magnitude and would reduce the result below 2^63.
      */
-    public function testGcdWithPhpIntMinSingleArgThrows(): void
+    public function testGcdWithOnlyPhpIntMinAndZeroesThrows(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot compute GCD with PHP_INT_MIN');
+        $this->expectException(OverflowException::class);
+        $this->expectExceptionMessage('Cannot compute GCD. Result (2^63) exceeds the range of an int.');
         Integers::gcd(PHP_INT_MIN);
+    }
+
+    /**
+     * Test GCD throws OverflowException with PHP_INT_MIN combined with zero, which doesn't constrain the result.
+     */
+    public function testGcdWithPhpIntMinAndZeroThrows(): void
+    {
+        $this->expectException(OverflowException::class);
+        Integers::gcd(PHP_INT_MIN, 0);
+    }
+
+    /**
+     * Test GCD throws OverflowException with two PHP_INT_MIN values and no other constraint.
+     */
+    public function testGcdWithTwoPhpIntMinValuesThrows(): void
+    {
+        $this->expectException(OverflowException::class);
+        Integers::gcd(PHP_INT_MIN, PHP_INT_MIN);
     }
 
     #endregion
