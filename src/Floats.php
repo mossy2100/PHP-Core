@@ -9,11 +9,6 @@ use Random\RandomException;
 use RuntimeException;
 use UnexpectedValueException;
 
-use function OceanMoon\Core\Globals\ex;
-use function OceanMoon\Core\Globals\sign;
-
-use const OceanMoon\Core\Globals\M_TAU;
-
 /**
  * Container for useful float-related methods.
  */

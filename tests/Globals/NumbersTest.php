@@ -8,10 +8,10 @@ use DomainException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function OceanMoon\Core\Globals\copy_sign;
-use function OceanMoon\Core\Globals\is_number;
-use function OceanMoon\Core\Globals\is_zero;
-use function OceanMoon\Core\Globals\sign;
+use function OceanMoon\Core\copy_sign;
+use function OceanMoon\Core\is_number;
+use function OceanMoon\Core\is_zero;
+use function OceanMoon\Core\sign;
 
 /**
  * Test class for Numbers utility class.

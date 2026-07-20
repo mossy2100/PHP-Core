@@ -9,7 +9,7 @@ use OceanMoon\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\Globals\M_TAU;
+use const OceanMoon\Core\M_TAU;
 
 /**
  * Test class for Floats utility class - core comparison, transformation, precision, and inspection methods.

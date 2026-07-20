@@ -11,14 +11,14 @@ use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\TestCase;
 use Stringable;
 
-use function OceanMoon\Core\Globals\ex;
-use function OceanMoon\Core\Globals\inspect;
-use function OceanMoon\Core\Globals\println;
-use function OceanMoon\Core\Globals\to_string;
-use function OceanMoon\Core\Globals\write;
-use function OceanMoon\Core\Globals\writeln;
+use function OceanMoon\Core\ex;
+use function OceanMoon\Core\inspect;
+use function OceanMoon\Core\println;
+use function OceanMoon\Core\to_string;
+use function OceanMoon\Core\write;
+use function OceanMoon\Core\writeln;
 
-use const OceanMoon\Core\Globals\RECURSION;
+use const OceanMoon\Core\RECURSION;
 
 /**
  * Tests the functions in strings.php.

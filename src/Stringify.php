@@ -9,8 +9,6 @@ use InvalidArgumentException;
 use UnexpectedValueException;
 use UnitEnum;
 
-use const OceanMoon\Core\Globals\RECURSION;
-
 /**
  * This class provides a method of formatting any PHP value as a string, with a few differences from the default
  * options of echo(), print(), var_dump(), var_export(), print_r(), json_encode(), and serialize().

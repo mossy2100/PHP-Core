@@ -632,7 +632,7 @@ the value modulo the period and adjusts it to fit within the specified range.
 **Parameters:**
 
 - `$value` (float) - The value to wrap
-- `$unitsPerTurn` (float) - The period/range size (default: `OceanMoon\Core\Globals\M_TAU` for radians)
+- `$unitsPerTurn` (float) - The period/range size (default: `OceanMoon\Core\M_TAU` for radians)
 - `$signed` (bool) - If `true`, use signed range; if `false`, use unsigned range (default: `true`)
 
 **Returns:**
@@ -724,7 +724,7 @@ Floats::wrap(50.0, 24.0, signed: false);   // 2.0
 
 **See Also:**
 
-- `M_TAU` - The circle constant τ = 2π, default period for radians (`OceanMoon\Core\Globals\M_TAU`)
+- `M_TAU` - The circle constant τ = 2π, default period for radians (`OceanMoon\Core\M_TAU`)
 - `normalizeZero()` - Used internally to handle negative zero
 
 ---

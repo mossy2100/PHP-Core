@@ -11,11 +11,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- **`OceanMoon\Core\Globals\ex()`** — returns a short, abbreviated string representation of a value (wraps
+- **`OceanMoon\Core\ex()`** — returns a short, abbreviated string representation of a value (wraps
   `Stringify::abbrev()`), for building consistent, informative exception messages.
 
 ### Changed
 
+- **Everything under `OceanMoon\Core\Globals` moved to `OceanMoon\Core` directly** — the constants in
+  `src/Globals/constants.php` (`M_TAU`, `RECURSION`) and the functions in `src/Globals/numbers.php`/`strings.php`
+  (`is_number()`, `is_zero()`, `sign()`, `copy_sign()`, `println()`, `inspect()`, `to_string()`, `ex()`, `write()`,
+  `writeln()`) are now declared directly in the `OceanMoon\Core` namespace, not the nested `OceanMoon\Core\Globals`
+  sub-namespace. File locations (`src/Globals/*.php`) and the `files` autoload entries are unchanged — only the
+  declared namespace changed, so a `use const OceanMoon\Core\Globals\M_TAU;`/`use function
+  OceanMoon\Core\Globals\ex;`-style import now needs to drop the `Globals\` segment.
 - **`dump_var()`** renamed to **`inspect()`**; gained a `bool $return = false` parameter to return the stringified
   value instead of printing it (returns `?string`: the value when `$return` is `true`, `null` otherwise).
 - Exception messages reworded throughout the package to consistently report the invalid value/type (via the new
@@ -45,6 +52,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     genuinely unrepresentable case — every argument is `0` or `PHP_INT_MIN`, so the true result is `PHP_INT_MIN`'s
     own magnitude (`2^63`) — still throws, now as `OverflowException` rather than `DomainException`, consistent with
     `Integers::pow()`'s overflow handling.
+
+### Removed
+
+- **`NUMBER_REGEX`** removed from `src/Globals/constants.php`. It wasn't a safe drop-in fragment for every consumer's
+  needs — it bakes in its own optional leading sign, which conflicts with callers (like `OceanMoon\Math\Complex::
+  fromString()`) that need to track a sign separately from the numeric magnitude via their own surrounding capture
+  group.
 
 ## [3.0.0] - 2026-07-17
 

@@ -8,11 +8,10 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Globals;
+namespace OceanMoon\Core;
 
 use DateTimeInterface;
 use ErrorException;
-use OceanMoon\Core\Stringify;
 use Throwable;
 
 /**

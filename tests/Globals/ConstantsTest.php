@@ -6,8 +6,8 @@ namespace OceanMoon\Core\Tests\Globals;
 
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\Globals\M_TAU;
-use const OceanMoon\Core\Globals\RECURSION;
+use const OceanMoon\Core\M_TAU;
+use const OceanMoon\Core\RECURSION;
 
 /**
  * Tests the constants in constants.php.

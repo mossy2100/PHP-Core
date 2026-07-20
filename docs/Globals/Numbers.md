@@ -6,9 +6,8 @@ Convenient functions for working with numbers.
 
 ## Overview
 
-`src/Globals/numbers.php` provides functions — namespaced under `OceanMoon\Core\Globals` — for type-checking,
-zero-checking, and sign-related operations on `int`/`float` values, including correct handling of IEEE-754 signed zeros
-(`-0.0` vs `+0.0`).
+`src/Globals/numbers.php` provides functions — namespaced under `OceanMoon\Core` — for type-checking, zero-checking, and
+sign-related operations on `int`/`float` values, including correct handling of IEEE-754 signed zeros (`-0.0` vs `+0.0`).
 
 ---
 
@@ -19,10 +18,10 @@ Since these are functions rather than classes, PSR-4 autoloading won't discover 
 qualifying the namespace every time, add a `use function` import:
 
 ```php
-use function OceanMoon\Core\Globals\is_number;
-use function OceanMoon\Core\Globals\is_zero;
-use function OceanMoon\Core\Globals\sign;
-use function OceanMoon\Core\Globals\copy_sign;
+use function OceanMoon\Core\is_number;
+use function OceanMoon\Core\is_zero;
+use function OceanMoon\Core\sign;
+use function OceanMoon\Core\copy_sign;
 ```
 
 See [Strings.md](Strings.md#autoloading) for the full `files` autoload configuration.
@@ -208,4 +207,4 @@ copy_sign(5, NAN);     // throws DomainException
 - **[Floats](../Floats.md)** - Float-specific utility methods, including `approxEqual()` for approximate comparisons
 - **[Integers](../Integers.md)** - Integer-specific utility methods
 - **[Types](../Types.md)** - General type checking and inspection utilities
-- **[Constants](Constants.md)** - Shared constants, including `NUMBER_REGEX`
+- **[Constants](Constants.md)** - Shared constants, including `M_TAU`

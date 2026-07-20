@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use const OceanMoon\Core\Globals\RECURSION;
+use const OceanMoon\Core\RECURSION;
 
 /**
  * Test class for Arrays utility class.

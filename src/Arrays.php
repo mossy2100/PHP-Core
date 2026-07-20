@@ -8,8 +8,6 @@ use InvalidArgumentException;
 use JsonException;
 use LengthException;
 
-use const OceanMoon\Core\Globals\RECURSION;
-
 /**
  * Container for useful array-related methods.
  */

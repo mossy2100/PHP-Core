@@ -7,10 +7,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Globals;
+namespace OceanMoon\Core;
 
 use DomainException;
-use OceanMoon\Core\Floats;
 
 #region Inspection functions
 

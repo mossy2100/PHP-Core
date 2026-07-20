@@ -6,8 +6,8 @@ Convenient functions for converting values to strings and printing or inspecting
 
 ## Overview
 
-`src/Globals/strings.php` provides a small set of functions — namespaced under `OceanMoon\Core\Globals` — for converting
-values to strings and printing them, mostly for debugging purposes. They provide a more useful output than PHP's own
+`src/Globals/strings.php` provides a small set of functions — namespaced under `OceanMoon\Core` — for converting values
+to strings and printing them, mostly for debugging purposes. They provide a more useful output than PHP's own
 `var_dump()`, `print_r()`, `var_export()`, or a plain `(string)` cast, none of which handle every PHP type gracefully
 (arrays and non-`Stringable` objects can't be cast to string at all; `var_dump()`/`print_r()` are verbose and don't
 distinguish types as clearly).
@@ -36,8 +36,8 @@ This means the functions are loaded automatically in any project that requires `
 qualifying the namespace every time, add a `use function` import:
 
 ```php
-use function OceanMoon\Core\Globals\write;
-use function OceanMoon\Core\Globals\writeln;
+use function OceanMoon\Core\write;
+use function OceanMoon\Core\writeln;
 ```
 
 ---
@@ -64,7 +64,7 @@ value's type.
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\println;
+use function OceanMoon\Core\println;
 
 println('Hello, world!');  // Outputs: Hello, world!\n
 ```
@@ -92,7 +92,7 @@ handles circular references.
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\inspect;
+use function OceanMoon\Core\inspect;
 
 inspect(['name' => 'John', 'age' => 30]);
 // Outputs: ["name" => "John", "age" => 30]
@@ -130,7 +130,7 @@ Convert any value to a string, without errors or warnings.
 **Examples:**
 
 ```php
-use function OceanMoon\Core\Globals\to_string;
+use function OceanMoon\Core\to_string;
 
 to_string('hello');                          // 'hello'
 to_string(42);                                // '42'
@@ -147,9 +147,8 @@ to_string(NAN);                               // 'NAN' (via Stringify; a direct 
 function ex(mixed $value): string
 ```
 
-Get a short, abbreviated string representation of a value, using `Stringify::abbrev()`. Intended for building
-exception messages that report the invalid value without risking an overly long message for large arrays, strings, or
-objects.
+Get a short, abbreviated string representation of a value, using `Stringify::abbrev()`. Intended for building exception
+messages that report the invalid value without risking an overly long message for large arrays, strings, or objects.
 
 The max length is hard-coded to 32 (`Stringify::abbrev()`'s own default) rather than exposed as a parameter.
 
@@ -164,7 +163,7 @@ The max length is hard-coded to 32 (`Stringify::abbrev()`'s own default) rather 
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\ex;
+use function OceanMoon\Core\ex;
 
 throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
 ```
@@ -185,7 +184,7 @@ or warns regardless of the value's type.
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\write;
+use function OceanMoon\Core\write;
 
 write('Hello, world!');  // Outputs: Hello, world!
 ```
@@ -205,7 +204,7 @@ Like `write()`, but appends `PHP_EOL` afterwards.
 **Example:**
 
 ```php
-use function OceanMoon\Core\Globals\writeln;
+use function OceanMoon\Core\writeln;
 
 writeln('Hello, world!');  // Outputs: Hello, world!\n
 ```
