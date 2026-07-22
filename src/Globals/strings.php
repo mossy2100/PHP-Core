@@ -118,7 +118,7 @@ function write(mixed $value): void
  *
  * @param mixed $value The value to print.
  */
-function writeln(mixed $value): void
+function writeln(mixed $value = ''): void
 {
     println(to_string($value));
 }

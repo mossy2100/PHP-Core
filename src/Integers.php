@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core;
 
+use BadMethodCallException;
 use DomainException;
-use LengthException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OverflowException;
 
@@ -189,7 +189,7 @@ final class Integers
      *
      * @param int ...$nums The integers to calculate the GCD of.
      * @return int The greatest common divisor.
-     * @throws LengthException If no arguments are provided.
+     * @throws BadMethodCallException If no arguments are provided.
      * @throws OverflowException If the true result is PHP_INT_MIN's unsigned magnitude (2^63), which doesn't fit in
      *   an int. This only happens if PHP_INT_MIN is present and every other argument is 0 or also PHP_INT_MIN, since
      *   any other int's magnitude is at most 2^63 - 1, and would reduce the GCD below 2^63.
@@ -198,7 +198,7 @@ final class Integers
     {
         // At least one integer is required.
         if (count($nums) === 0) {
-            throw new LengthException('At least one integer is required.');
+            throw new BadMethodCallException('At least one integer is required.');
         }
 
         // Run Euclid's algorithm on the raw (signed) values, without calling abs() on any intermediate value.

@@ -334,12 +334,12 @@ final class StringsTest extends TestCase
     }
 
     /**
-     * Test writeln() with no argument throws.
+     * Test writeln() with no argument prints just a newline.
      */
-    public function testWritelnWithNoArgumentThrows(): void
+    public function testWritelnWithNoArgument(): void
     {
-        $this->expectException(ArgumentCountError::class);
-        writeln(); // @phpstan-ignore arguments.count
+        $this->expectOutputString(PHP_EOL);
+        writeln();
     }
 
     #endregion

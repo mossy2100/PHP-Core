@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Tests;
 
+use BadMethodCallException;
 use DomainException;
-use LengthException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OceanMoon\Core\Integers;
 use OverflowException;
@@ -301,8 +301,8 @@ final class IntegersTest extends TestCase
      */
     public function testGcdNoArguments(): void
     {
-        // Test that calling GCD with no arguments throws LengthException.
-        $this->expectException(LengthException::class);
+        // Test that calling GCD with no arguments throws BadMethodCallException.
+        $this->expectException(BadMethodCallException::class);
         $this->expectExceptionMessage('At least one integer is required.');
         Integers::gcd();
     }

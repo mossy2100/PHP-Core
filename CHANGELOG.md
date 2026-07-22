@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   OceanMoon\Core\Globals\ex;`-style import now needs to drop the `Globals\` segment.
 - **`dump_var()`** renamed to **`inspect()`**; gained a `bool $return = false` parameter to return the stringified
   value instead of printing it (returns `?string`: the value when `$return` is `true`, `null` otherwise).
+- **`writeln()`**: `$value` now defaults to `''`, so calling it with no arguments prints just a newline instead of
+  throwing `ArgumentCountError`.
 - Exception messages reworded throughout the package to consistently report the invalid value/type (via the new
   `ex()` helper) and the expected constraint, instead of a fixed generic string:
   - `Arrays::quoteValues()`/`toSerialList()`: `'Invalid array value type: {type}. Must be string.'`.
@@ -43,9 +45,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **`Stringify::stringifyFloat()`**: non-finite values are now stringified via `var_export()` instead of a
   warning-suppressed cast; output is unchanged (`'NAN'`, `'INF'`, `'-INF'`).
 - **`Integers::gcd()`**:
-  - No-arguments case now throws `LengthException` (`'At least one integer is required.'`) instead of
-    `ArgumentCountError`, consistent with how the rest of the package signals an empty-collection precondition
-    failure (see `docs/guidelines/EXCEPTIONS.md`).
+  - No-arguments case now throws `BadMethodCallException` (`'At least one integer is required.'`) instead of
+    `ArgumentCountError`, consistent with the package's convention for invalid-argument-count errors (see
+    `docs/guidelines/EXCEPTIONS.md`).
   - `PHP_INT_MIN` is no longer rejected outright. Euclid's algorithm now runs on the raw signed values (`abs()` is
     only applied once, to the final result), so `PHP_INT_MIN` combined with any other non-zero, non-`PHP_INT_MIN`
     value now returns the correct result (e.g. `gcd(PHP_INT_MIN, 8) === 8`) instead of always throwing. Only the

@@ -198,7 +198,7 @@ positive integer that divides all the given numbers without remainder.
 
 **Throws:**
 
-- `LengthException` - If no arguments are provided
+- `BadMethodCallException` - If no arguments are provided
 - `OverflowException` - If the true result is `PHP_INT_MIN`'s magnitude (`2^63`), which doesn't fit in an `int`. This
   only happens when `PHP_INT_MIN` is present and every other argument is `0` or also `PHP_INT_MIN` — any other value
   has a smaller magnitude and would reduce the GCD below `2^63`. `PHP_INT_MIN` combined with anything else always
