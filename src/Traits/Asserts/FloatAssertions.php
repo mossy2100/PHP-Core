@@ -15,7 +15,7 @@ use OceanMoon\Core\Floats;
  * this method shows the expected value, actual value, and the difference.
  *
  * Example usage:
- * <code>
+ * ```php
  * class MyTest extends TestCase
  * {
  *     use FloatAssertions;
@@ -26,7 +26,7 @@ use OceanMoon\Core\Floats;
  *         $this->assertApproxEqual(3.14159, $result);
  *     }
  * }
- * </code>
+ * ```
  *
  * @see Floats::approxEqual() For the tolerance algorithm details.
  */
