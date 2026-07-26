@@ -50,9 +50,7 @@
             "OceanMoon\\Core\\": "src/"
         },
         "files": [
-            "src/Globals/constants.php",
-            "src/Globals/strings.php",
-            "src/Globals/numbers.php"
+            "src/globals.php"
         ]
     },
     "autoload-dev": {

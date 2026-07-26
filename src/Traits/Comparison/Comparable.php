@@ -36,7 +36,7 @@ trait Comparable
      *    1 if this object is greater than the other value
      *
      * Important: Return values must be exactly -1, 0, or 1 because the convenience methods (lessThan, etc.) use
-     * strict equality checks. Use sign() to normalize spaceship operator results.
+     * strict equality checks. Use Numbers::sign() to normalize spaceship operator results.
      *
      * Implementation guidelines:
      * - Must be deterministic (same inputs always produce same result).

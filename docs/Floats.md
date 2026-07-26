@@ -1747,5 +1747,5 @@ Floats::ulp(1e12);  // 0.0001220703125
 ## See Also
 
 - **[Integers](Integers.md)** - Integer utility methods
-- **[Numbers](Globals/Numbers.md)** - General number-related functions
-- **[Constants](Globals/Constants.md)** - Shared constants, including `M_TAU`
+- **[Numbers](Numbers.md)** - General number-related utility methods
+- **[Globals](Globals.md)** - Shared constants, including `M_TAU`

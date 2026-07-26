@@ -213,7 +213,7 @@ final class Floats
         }
 
         // If they are approximately equal, return 0, otherwise use the spaceship operator to get -1 or 1.
-        return self::approxEqual($a, $b, $relTol, $absTol) ? 0 : sign($a <=> $b);
+        return self::approxEqual($a, $b, $relTol, $absTol) ? 0 : Numbers::sign($a <=> $b);
     }
 
     #endregion

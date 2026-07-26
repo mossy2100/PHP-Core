@@ -582,8 +582,11 @@ final class Stringify
         $itemIndent = str_repeat(' ', $nSpacesItemIndent);
         $nItems = count($arr);
 
-        // If no values are multiline, use grid format.
-        if (!str_contains($compactList, "\n")) {
+        // Check if all values are simple (nulls or scalars).
+        $allSimple = array_all($arr, static fn ($value) => $value === null || is_scalar($value));
+
+        // If all values are simple, use grid format.
+        if ($allSimple) {
             // If the compact format fits on one line, return it.
             if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
                 return $compactList;

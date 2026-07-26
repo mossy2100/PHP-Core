@@ -56,6 +56,11 @@ navigation (next/previous), random generation, and IEEE-754 component assembly/d
 Integer arithmetic operations with overflow checking (add, subtract, multiply, power), GCD calculation, and Unicode
 subscript/superscript conversion.
 
+### [Numbers](docs/Numbers.md)
+
+Number-related utilities for type checking (distinguishing actual numbers from numeric strings), exact equality that
+correctly handles mixed int/float comparisons, and sign operations with IEEE-754 signed zero support.
+
 ### [Arrays](docs/Arrays.md)
 
 Array utility methods including circular reference detection, value quoting, and first/last element extraction.
@@ -72,19 +77,10 @@ serves as the basis of the `inspect()` function.
 
 ---
 
-## Globals
+## [Globals](docs/Globals.md)
 
-### [Constants](docs/Globals/Constants.md)
-
-Useful constants used by the Core, Math, and other packages, including `M_TAU`.
-
-### [Strings](docs/Globals/Strings.md)
-
-Convenient functions for outputting strings and other values, including `inspect()`, `write()` and `writeln()`.
-
-### [Numbers](docs/Globals/Numbers.md)
-
-Convenient functions for working with numbers, including `is_number()` , `is_zero()`, `sign()`, and `copy_sign()`.
+Namespaced constants (`M_TAU`, `RECURSION`) and functions (`println()`, `inspect()`, `to_string()`, `ex()`) that don't
+belong to a single class.
 
 ---
 

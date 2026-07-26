@@ -16,13 +16,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- **Everything under `OceanMoon\Core\Globals` moved to `OceanMoon\Core` directly** — the constants in
-  `src/Globals/constants.php` (`M_TAU`, `RECURSION`) and the functions in `src/Globals/numbers.php`/`strings.php`
-  (`is_number()`, `is_zero()`, `sign()`, `copy_sign()`, `println()`, `inspect()`, `to_string()`, `ex()`, `write()`,
-  `writeln()`) are now declared directly in the `OceanMoon\Core` namespace, not the nested `OceanMoon\Core\Globals`
-  sub-namespace. File locations (`src/Globals/*.php`) and the `files` autoload entries are unchanged — only the
-  declared namespace changed, so a `use const OceanMoon\Core\Globals\M_TAU;`/`use function
-  OceanMoon\Core\Globals\ex;`-style import now needs to drop the `Globals\` segment.
+- **`Numbers` restored as a class**, reversing the 3.0.0 change that replaced it with plain functions in
+  `Globals/numbers.php`. `isNumber()`, `isZero()`, `sign()`, `copySign()` are back as `Numbers::` static methods, plus
+  a new **`Numbers::equal()`** — exact `int`/`float` equality that never coerces types-as-equal by accident (two
+  floats compare bitwise, so `NAN` never equals anything including itself, and `-0.0` equals `0.0`; a mixed
+  `int`/`float` pair is equal only if the float represents that exact integer losslessly via `Floats::toInt()`, not
+  merely "close enough" — correctly handles values beyond `Floats::MAX_SAFE_INT` that `Floats::isSafeInt()` would
+  wrongly reject, and the `PHP_INT_MIN`/`PHP_INT_MAX` asymmetry, since only `PHP_INT_MIN` casts to `float` exactly).
+  Callers that used the free functions (`Floats::approxCompare()`, `Comparable`'s docblock) now call `Numbers::` for
+  it. `src/Globals/numbers.php` and `tests/Globals/NumbersTest.php` are removed.
+- **`src/Globals/constants.php` and `src/Globals/strings.php` consolidated into a single `src/globals.php`** —
+  `M_TAU`, `RECURSION`, `println()`, `inspect()`, `to_string()`, `ex()`, `write()`, `writeln()` are now declared
+  directly in `OceanMoon\Core` (not the nested `OceanMoon\Core\Globals` sub-namespace) in one file, loaded via one
+  `files` autoload entry, replacing the earlier plan (tried briefly in this Unreleased cycle) of keeping the three
+  separate `Globals/*.php` files and just dropping the `Globals\` namespace segment from each. A `use const
+  OceanMoon\Core\Globals\M_TAU;`/`use function OceanMoon\Core\Globals\ex;`-style import needs to drop the `Globals\`
+  segment either way.
 - **`dump_var()`** renamed to **`inspect()`**; gained a `bool $return = false` parameter to return the stringified
   value instead of printing it (returns `?string`: the value when `$return` is `true`, `null` otherwise).
 - **`writeln()`**: `$value` now defaults to `''`, so calling it with no arguments prints just a newline instead of
@@ -55,12 +64,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     own magnitude (`2^63`) — still throws, now as `OverflowException` rather than `DomainException`, consistent with
     `Integers::pow()`'s overflow handling.
 
+### Fixed
+
+- **`Stringify::stringifyListArray()`'s pretty-print grid format** — eligibility was based on whether the compact
+  form contained a newline, which a list of nested arrays (e.g. `[[1, 2], [3, 4]]`) never does on its own, so it was
+  wrongly collapsed onto one line via grid format instead of printing one array per line. Now checks whether every
+  element is `null` or a scalar directly, matching the format's actual intent.
+
 ### Removed
 
 - **`NUMBER_REGEX`** removed from `src/Globals/constants.php`. It wasn't a safe drop-in fragment for every consumer's
   needs — it bakes in its own optional leading sign, which conflicts with callers (like `OceanMoon\Math\Complex::
   fromString()`) that need to track a sign separately from the numeric magnitude via their own surrounding capture
   group.
+
+### Documentation
+
+- **`docs/Numbers.md` restored**, reversing 3.0.0's removal, and merged with the newer edge-case examples
+  (`equal()`'s `2^60`/`Floats::isSafeInt()` caveat and the `PHP_INT_MIN`/`PHP_INT_MAX` asymmetry) written for the
+  short-lived `Globals/numbers.php` version of the docs.
+- **`docs/Globals/{Constants,Strings,Numbers}.md` replaced by a single `docs/Globals.md`**, matching the source
+  consolidation into `src/globals.php`. Two broken relative links carried over from the old, one-level-deeper
+  `docs/Globals/` location (`../Arrays.md`, `../Stringify.md`) are fixed to `Arrays.md`/`Stringify.md`, and
+  `docs/Floats.md`'s "See Also" links updated to match.
+- **`README.md`**: `Numbers` moved from the `## Globals` section into `## Classes` (next to `Integers`), with its
+  description updated for the restored class's actual methods instead of the removed free functions; the `## Globals`
+  section collapsed from three separate `Constants`/`Strings`/`Numbers` links down to one, pointing at the merged
+  `docs/Globals.md`.
+- **`tests/NumbersTest.php` restored** alongside the class, with its `#region` headers updated to match the current
+  `Method methodName() tests.` convention (previously one region covered both `sign()` and `copySign()`; now split),
+  two new boundary-case tests for `equal()` (the `2^60` and `PHP_INT_MIN`/`PHP_INT_MAX` cases mentioned above), and
+  its `@phpstan-ignore` comments updated from `function.alreadyNarrowedType`/`function.impossibleType` to
+  `staticMethod.alreadyNarrowedType`/`staticMethod.impossibleType`, matching the switch from free-function to
+  static-method calls.
 
 ## [3.0.0] - 2026-07-17
 

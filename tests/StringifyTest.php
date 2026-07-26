@@ -283,9 +283,9 @@ final class StringifyTest extends TestCase
     }
 
     /**
-     * Test pretty-printed list uses one item per line when it doesn't wrap.
+     * Test pretty-printed list of arrays uses one item per line.
      */
-    public function testStringifyArrayPrettyPrintNonScalarList(): void
+    public function testStringifyArrayPrettyPrintListOfArrays(): void
     {
         $result = Stringify::stringify([
             [1, 2],
@@ -293,7 +293,7 @@ final class StringifyTest extends TestCase
         ], true);
 
         // Should be single-line.
-        $this->assertSame('[[1, 2], [3, 4]]', $result);
+        $this->assertSame("[\n    [1, 2],\n    [3, 4],\n]", $result);
     }
 
     /**
