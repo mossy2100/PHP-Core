@@ -283,6 +283,41 @@ With associative arrays:
 Arrays::removeValue(['a' => 1, 'b' => 2, 'c' => 3], 2); // ['a' => 1, 'c' => 3]
 ```
 
+### removeRecursion()
+
+```php
+public static function removeRecursion(array $arr): array
+```
+
+Return a copy of an array with any circular sub-arrays replaced by the `RECURSION` marker (see
+[`RECURSION`](Globals.md#recursion)), so it can be safely printed, serialized, or otherwise traversed without an
+infinite loop. Only genuine reference cycles are replaced; two unrelated sub-arrays that happen to have identical
+contents are left untouched.
+
+**Parameters:**
+
+- `$arr` (array) - The array to clean.
+
+**Returns:**
+
+- `array` - A copy of `$arr` with any circular sub-arrays replaced by the `RECURSION` marker.
+
+**Examples:**
+
+```php
+$arr = ['x' => 1];
+$arr['self'] = &$arr;
+Arrays::removeRecursion($arr); // ['x' => 1, 'self' => '*RECURSION*']
+```
+
+```php
+$arr = [[1, 2], [3, 4]];
+Arrays::removeRecursion($arr); // [[1, 2], [3, 4]] (unchanged; no recursion)
+```
+
+**Note:** Uses `containsRecursion()`'s underlying technique (parsing `print_r()`'s recursion-aware output) to locate
+each recursive reference, rather than reimplementing cycle detection from scratch.
+
 ---
 
 ## See Also

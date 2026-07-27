@@ -73,14 +73,13 @@ unique string keys.
 ### [Stringify](docs/Stringify.md)
 
 Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. This class
-serves as the basis of the `inspect()` function.
+serves as the basis of the `inspect()` and `ex()` functions.
 
 ---
 
 ## [Globals](docs/Globals.md)
 
-Namespaced constants (`M_TAU`, `RECURSION`) and functions (`println()`, `inspect()`, `to_string()`, `ex()`) that don't
-belong to a single class.
+Namespaced constants (`M_TAU`, `RECURSION`) and functions (`println()`, `inspect()`, `to_string()`, `ex()`) that work better as globals than as class members.
 
 ---
 

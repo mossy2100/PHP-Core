@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core;
 
+use Closure;
 use DomainException;
 use UnexpectedValueException;
 use UnitEnum;
@@ -39,6 +40,7 @@ final class Types
      * - string
      * - array
      * - enum
+     * - closure
      * - object
      * - resource
      * - unknown
@@ -57,6 +59,11 @@ final class Types
         // Check for enum.
         if ($value instanceof UnitEnum) {
             return 'enum';
+        }
+
+        // Check for closure.
+        if ($value instanceof Closure) {
+            return 'closure';
         }
 
         // Call gettype() and return the first word, which should be "object", "resource", or "unknown".

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core\Tests;
 
+use Closure;
 use DomainException;
 use InvalidArgumentException;
 use OceanMoon\Core\Stringify;
@@ -53,11 +54,11 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyString(): void
     {
-        $this->assertSame('"hello"', Stringify::stringify('hello'));
-        $this->assertSame('""', Stringify::stringify(''));
-        $this->assertSame('"hello\nworld"', Stringify::stringify("hello\nworld"));
-        $this->assertSame('"hello\tworld"', Stringify::stringify("hello\tworld"));
-        $this->assertSame('"say \"hello\""', Stringify::stringify('say "hello"'));
+        $this->assertSame("'hello'", Stringify::stringify('hello'));
+        $this->assertSame("''", Stringify::stringify(''));
+        $this->assertSame("'hello\nworld'", Stringify::stringify("hello\nworld"));
+        $this->assertSame("'hello\tworld'", Stringify::stringify("hello\tworld"));
+        $this->assertSame("'say \"hello\"'", Stringify::stringify('say "hello"'));
     }
 
     /**
@@ -66,16 +67,16 @@ final class StringifyTest extends TestCase
     public function testStringifyStringDirect(): void
     {
         // Basic string.
-        $this->assertSame('"hello"', Stringify::stringifyString('hello'));
+        $this->assertSame("'hello'", Stringify::stringifyString('hello'));
 
-        // Single quotes are not escaped.
-        $this->assertSame('"it\'s"', Stringify::stringifyString("it's"));
+        // Single quotes are escaped; double quotes are not.
+        $this->assertSame("'it\\'s'", Stringify::stringifyString("it's"));
 
         // Backslashes are escaped.
-        $this->assertSame('"foo\\\\bar"', Stringify::stringifyString("foo\\bar"));
+        $this->assertSame("'foo\\\\bar'", Stringify::stringifyString("foo\\bar"));
 
         // Backslash immediately before a double quote.
-        $this->assertSame('"it\\\\\\"s"', Stringify::stringifyString('it\\"s'));
+        $this->assertSame("'it\\\\\"s'", Stringify::stringifyString('it\\"s'));
     }
 
     /**
@@ -93,7 +94,7 @@ final class StringifyTest extends TestCase
         try {
             // 'café' encoded as Latin-1 (0xe9 is é in ISO-8859-1).
             $latin1 = "caf\xe9";
-            $this->assertSame('"café"', Stringify::stringifyString($latin1));
+            $this->assertSame("'café'", Stringify::stringifyString($latin1));
         } finally {
             mb_detect_order($originalOrder);
         }
@@ -114,9 +115,9 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyStringUnicode(): void
     {
-        $this->assertSame('"Ω"', Stringify::stringify('Ω'));
-        $this->assertSame('"café"', Stringify::stringify('café'));
-        $this->assertSame('"日本語"', Stringify::stringify('日本語'));
+        $this->assertSame("'Ω'", Stringify::stringify('Ω'));
+        $this->assertSame("'café'", Stringify::stringify('café'));
+        $this->assertSame("'日本語'", Stringify::stringify('日本語'));
     }
 
     /**
@@ -174,7 +175,7 @@ final class StringifyTest extends TestCase
     {
         $this->assertSame('[]', Stringify::stringify([]));
         $this->assertSame('[1, 2, 3]', Stringify::stringify([1, 2, 3]));
-        $this->assertSame('[1, "hello", true, null]', Stringify::stringify([1, 'hello', true, null]));
+        $this->assertSame("[1, 'hello', true, null]", Stringify::stringify([1, 'hello', true, null]));
         $this->assertSame('[1.5, 2.0, 3.14]', Stringify::stringify([1.5, 2.0, 3.14]));
     }
 
@@ -184,20 +185,20 @@ final class StringifyTest extends TestCase
     public function testStringifyAssociativeArray(): void
     {
         // Simple dictionary.
-        $this->assertSame('["name" => "John", "age" => 30]', Stringify::stringify([
+        $this->assertSame("['name' => 'John', 'age' => 30]", Stringify::stringify([
             'name' => 'John',
             'age'  => 30,
         ]));
 
         // Non-sequential integer keys.
-        $this->assertSame('[1 => "a", 3 => "b", 5 => "c"]', Stringify::stringify([
+        $this->assertSame("[1 => 'a', 3 => 'b', 5 => 'c']", Stringify::stringify([
             1 => 'a',
             3 => 'b',
             5 => 'c',
         ]));
 
         // Mixed key types.
-        $this->assertSame('["key" => "value", 0 => 42]', Stringify::stringify([
+        $this->assertSame("['key' => 'value', 0 => 42]", Stringify::stringify([
             'key' => 'value',
             0     => 42,
         ]));
@@ -215,7 +216,7 @@ final class StringifyTest extends TestCase
         ]));
 
         // Nested dictionary.
-        $this->assertSame('["user" => ["name" => "John", "age" => 30]]', Stringify::stringify([
+        $this->assertSame("['user' => ['name' => 'John', 'age' => 30]]", Stringify::stringify([
             'user' => [
                 'name' => 'John',
                 'age'  => 30,
@@ -223,7 +224,7 @@ final class StringifyTest extends TestCase
         ]));
 
         // Mixed nesting.
-        $this->assertSame('[1, ["a", "b"], 3]', Stringify::stringify([
+        $this->assertSame("[1, ['a', 'b'], 3]", Stringify::stringify([
             1,
             ['a', 'b'],
             3,
@@ -278,7 +279,7 @@ final class StringifyTest extends TestCase
             'age'  => 30,
         ], true);
 
-        $expected = "[\n    \"name\" => \"John\",\n    \"age\"  => 30,\n]";
+        $expected = "[\n    'name' => 'John',\n    'age'  => 30,\n]";
         $this->assertSame($expected, $result);
     }
 
@@ -312,8 +313,8 @@ final class StringifyTest extends TestCase
 
         $expected = "[\n"
             . "    [\n"
-            . "        \"name\" => \"John\",\n"
-            . "        \"age\"  => 30,\n"
+            . "        'name' => 'John',\n"
+            . "        'age'  => 30,\n"
             . "    ],\n"
             . "    42,\n"
             . ']';
@@ -336,9 +337,9 @@ final class StringifyTest extends TestCase
             $result = Stringify::stringifyArray($uuids, true);
 
             $expected = "[\n"
-                . "    \"c9e35c00-0f1e-4804-b5fe-6c4c9718db60\",\n"
-                . "    \"d2aee4c5-a7f7-4018-a635-c3f4c317033e\",\n"
-                . "    \"d266963a-c4e0-4255-a97d-f070e51fcb5e\",\n"
+                . "    'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',\n"
+                . "    'd2aee4c5-a7f7-4018-a635-c3f4c317033e',\n"
+                . "    'd266963a-c4e0-4255-a97d-f070e51fcb5e',\n"
                 . ']';
             $this->assertSame($expected, $result);
         } finally {
@@ -359,7 +360,7 @@ final class StringifyTest extends TestCase
         $result = Stringify::stringify($array);
 
         $this->assertStringContainsString(RECURSION, $result);
-        $this->assertStringNotContainsString('"' . RECURSION . '"', $result);
+        $this->assertStringNotContainsString("'" . RECURSION . "'", $result);
     }
 
     #endregion
@@ -440,6 +441,105 @@ final class StringifyTest extends TestCase
 
     #endregion
 
+    #region Closures
+
+    /**
+     * Test that stringify() dispatches closures correctly, reading back the original source.
+     */
+    public function testStringifyClosure(): void
+    {
+        $sqr = static fn (float $x): float => $x * $x;
+        $this->assertSame('static fn (float $x): float => $x * $x', Stringify::stringify($sqr));
+    }
+
+    /**
+     * Test stringifyClosure() directly, with a non-static arrow function and no return type.
+     */
+    public function testStringifyClosureArrow(): void
+    {
+        // Deliberately non-static; the test asserts stringifyClosure() omits the "static " prefix.
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
+        $add = fn (int $a, int $b) => $a + $b;
+        $this->assertSame('fn (int $a, int $b) => $a + $b', Stringify::stringifyClosure($add));
+    }
+
+    /**
+     * Test stringifyClosure() with an arrow function whose body contains its own nested brackets (a call within a
+     * call). This exercises findArrowBodyEnd()'s bracket depth-tracking: the inner brackets must be opened and
+     * closed (incrementing and decrementing depth) without being mistaken for the arrow body's own terminator,
+     * which only applies at depth 0.
+     */
+    public function testStringifyClosureArrowWithNestedBrackets(): void
+    {
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
+        $closure = fn ($x) => strlen(trim($x));
+        $this->assertSame('fn ($x) => strlen(trim($x))', Stringify::stringifyClosure($closure));
+    }
+
+    /**
+     * Test stringifyClosure() with a brace-style closure prints the code exactly as written, including its
+     * original whitespace and indentation.
+     */
+    public function testStringifyClosureBraceStyle(): void
+    {
+        // Deliberately brace-style (not arrow) and non-static, to exercise that code path specifically.
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure, SlevomatCodingStandard.Functions.RequireArrowFunction
+        $cube = function (float $x): float {
+            return $x ** 3;
+        };
+
+        $expected = "function (float \$x): float {\n"
+            . "            return \$x ** 3;\n"
+            . '        }';
+        $this->assertSame($expected, Stringify::stringifyClosure($cube));
+    }
+
+    /**
+     * Test stringifyClosure() with a closure embedded as a non-last argument excludes the trailing comma, since
+     * it belongs to the surrounding call, not the closure itself.
+     */
+    public function testStringifyClosureEmbeddedAsNonLastArgument(): void
+    {
+        // Deliberately non-static, matching the other embedded-argument closure tests below.
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
+        $closure = self::first(fn ($x) => $x + 1, 'ignored');
+        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
+    }
+
+    /**
+     * Test stringifyClosure() with a closure embedded as a sole/last argument excludes the trailing closing
+     * parenthesis, since it belongs to the surrounding call, not the closure itself.
+     */
+    public function testStringifyClosureEmbeddedAsLastArgument(): void
+    {
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
+        $closure = self::identity(fn ($x) => $x + 1);
+        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
+    }
+
+    /**
+     * Test stringifyClosure() with a closure embedded as the last value in an array literal excludes the trailing
+     * closing bracket, since it belongs to the surrounding array, not the closure itself.
+     */
+    public function testStringifyClosureEmbeddedAsArrayValue(): void
+    {
+        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
+        $closure = ['ignored', fn ($x) => $x + 1][1];
+        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
+    }
+
+    /**
+     * Test stringifyClosure() returns '' for a closure with no available source, e.g. one wrapping an internal
+     * function (ReflectionFunction::getFileName() returns false for those).
+     */
+    public function testStringifyClosureNoSource(): void
+    {
+        $closure = strlen(...);
+        $this->assertSame('', Stringify::stringifyClosure($closure));
+    }
+
+    #endregion
+
     #region Objects
 
     /**
@@ -455,7 +555,7 @@ final class StringifyTest extends TestCase
 
         $result = Stringify::stringify($obj);
         $this->assertStringContainsString('class@anonymous', $result);
-        $this->assertStringContainsString('+name => "John"', $result);
+        $this->assertStringContainsString("+name => 'John'", $result);
         $this->assertStringContainsString('+age => 30', $result);
         $this->assertStringEndsWith('}', $result);
     }
@@ -476,9 +576,9 @@ final class StringifyTest extends TestCase
 
         $result = Stringify::stringify($obj);
 
-        $this->assertStringContainsString('+publicProp => "public"', $result);
-        $this->assertStringContainsString('#protectedProp => "protected"', $result);
-        $this->assertStringContainsString('-privateProp => "private"', $result);
+        $this->assertStringContainsString("+publicProp => 'public'", $result);
+        $this->assertStringContainsString("#protectedProp => 'protected'", $result);
+        $this->assertStringContainsString("-privateProp => 'private'", $result);
     }
 
     /**
@@ -507,7 +607,7 @@ final class StringifyTest extends TestCase
         $result = Stringify::stringify($obj, true);
 
         $this->assertMatchesRegularExpression(
-            '/^class@anonymous #\d+ \{\n\s+\+name\s+=> \"John\",\n\s+\+age\s+=> 30,\n\}$/',
+            '/^class@anonymous #\d+ \{\n\s+\+name\s+=> \'John\',\n\s+\+age\s+=> 30,\n\}$/',
             $result
         );
     }
@@ -530,10 +630,10 @@ final class StringifyTest extends TestCase
         ];
 
         $result = Stringify::stringify($array);
-        $this->assertStringContainsString('"object" => class@anonymous', $result);
+        $this->assertStringContainsString("'object' => class@anonymous", $result);
         $this->assertStringContainsString('+items => [1, 2, 3]', $result);
-        $this->assertStringContainsString('+name => "test"', $result);
-        $this->assertStringContainsString('"numbers" => [4, 5, 6]', $result);
+        $this->assertStringContainsString("+name => 'test'", $result);
+        $this->assertStringContainsString("'numbers' => [4, 5, 6]", $result);
     }
 
     /**
@@ -625,7 +725,7 @@ final class StringifyTest extends TestCase
      */
     public function testAbbrevShortString(): void
     {
-        $this->assertSame('"hello"', Stringify::abbrev('hello'));
+        $this->assertSame("'hello'", Stringify::abbrev('hello'));
         $this->assertSame('42', Stringify::abbrev(42));
         $this->assertSame('true', Stringify::abbrev(true));
     }
@@ -639,7 +739,7 @@ final class StringifyTest extends TestCase
         $result = Stringify::abbrev($longString, 20);
 
         $this->assertLessThanOrEqual(20, mb_strlen($result));
-        $this->assertStringEndsWith('…"', $result);
+        $this->assertStringEndsWith("…'", $result);
     }
 
     /**
@@ -723,7 +823,7 @@ final class StringifyTest extends TestCase
                 'a' => 1,
                 'b' => 2,
             ], true);
-            $expected = "[\n  \"a\" => 1,\n  \"b\" => 2,\n]";
+            $expected = "[\n  'a' => 1,\n  'b' => 2,\n]";
             $this->assertSame($expected, $result);
         } finally {
             Stringify::resetDefaults();
@@ -802,6 +902,28 @@ final class StringifyTest extends TestCase
 
         $this->assertSame(Stringify::DEFAULT_INDENT, Stringify::getIndent());
         $this->assertSame(Stringify::DEFAULT_MAX_LINE_LENGTH, Stringify::getMaxLineLength());
+    }
+
+    #endregion
+
+    #region Helper methods
+
+    /**
+     * Returns its first argument unchanged. Used to capture a closure while it's still embedded inline as a
+     * non-last call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
+     */
+    private static function first(Closure $a, mixed $b): Closure
+    {
+        return $a;
+    }
+
+    /**
+     * Returns its argument unchanged. Used to capture a closure while it's still embedded inline as a sole/last
+     * call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
+     */
+    private static function identity(Closure $value): Closure
+    {
+        return $value;
     }
 
     #endregion

@@ -12,7 +12,7 @@ utility class and cannot be instantiated.
 
 ### Key Features
 
-- **Single-quoted strings**: Strings are wrapped in single quotes with backslash and single-quote escaping. Unicode
+- **Single-quoted strings**: Strings are wrapped in single quotes, with backslash and single quotes escaped. Unicode
   characters are preserved as-is.
 - **Clearer float representation**: Floats are always made distinguishable from integers by appending `.0` if no decimal
   point or `E` is present in the string (e.g., `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled
@@ -21,15 +21,15 @@ utility class and cannot be instantiated.
   associative arrays show keys with thick arrows (`=>`).
 - **Smart pretty printing**: Scalar lists use single-line, grid, or one-per-line layout depending on length. Associative
   arrays and objects align keys/property names.
-- **UML-style visibility notation**: Objects use `ClassName {...}` with visibility symbols (`+` public, `#` protected,
+- **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#` protected,
   `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
+- **Closure support**: Closures are rendered as their original source code, obtained from the file they were
+  declared in.
 - **Resource formatting**: Resources show both the id (via `get_resource_id()`) and the resource type from
   `get_debug_type()`, e.g. `resource #5 (stream)`.
-- **Simple string conversion**: `toString()` provides a lightweight alternative to `stringify()` for user-facing output,
-  where strings should pass through unquoted and `Stringable` objects should use their own `__toString()`.
 
-The output for scalars, strings, enums, and arrays is parseable PHP code. Object and resource output is not parseable,
+The output for scalars, strings, enums, arrays, and closures is parseable PHP code. Object and resource output is not parseable,
 but is designed for readability.
 
 ---
@@ -166,10 +166,16 @@ Enums:
 Stringify::stringify(Suit::Hearts); // 'App\Enums\Suit::Hearts'
 ```
 
+Closures:
+
+```php
+Stringify::stringify(static fn (float $x): float => $x * $x); // 'static fn (float $x): float => $x * $x'
+```
+
 ### abbrev()
 
 ```php
-public static function abbrev(mixed $value, int $maxLen = 30): string
+public static function abbrev(mixed $value, int $maxLen = 32): string
 ```
 
 Get a short string representation of a value, truncated to a maximum length. Uses multibyte-safe truncation. Useful for
@@ -178,7 +184,7 @@ error messages and logs where space is limited.
 **Parameters:**
 
 - `$value` (mixed) - The value to get the string representation for.
-- `$maxLen` (int) - The maximum length of the result (default: `30`, minimum: `10`).
+- `$maxLen` (int) - The maximum length of the result (default: `32`, minimum: `3`).
 
 **Returns:**
 
@@ -186,50 +192,14 @@ error messages and logs where space is limited.
 
 **Throws:**
 
-- `DomainException` - If the maximum length is less than 10, or if the value cannot be stringified.
+- `DomainException` - If the maximum length is less than 3, or if the value cannot be stringified.
 
 **Examples:**
 
 ```php
-Stringify::abbrev('hello');                           // "'hello'"
-Stringify::abbrev('this is a very long string', 15); // "'this is a v..."
-Stringify::abbrev([1, 2, 3, 4, 5, 6, 7], 15);       // '[1, 2, 3, 4,...'
-```
-
-### toString()
-
-```php
-public static function toString(mixed $value): string
-```
-
-Convert any value to a string, without the code-like quoting/escaping `stringify()` applies. Strings pass through as-is.
-`Stringable` objects use their own `__toString()`. All other types are converted via `stringify()` (without pretty
-printing).
-
-This is a lighter-weight alternative to `stringify()` for user-facing output (e.g. `write()`/`writeln()` in
-[Functions](Functions.md)), where `stringify()`'s code-like representation (quoted strings, etc.) would be unwanted.
-
-**Parameters:**
-
-- `$value` (mixed) - The value to convert.
-
-**Returns:**
-
-- `string` - The string representation.
-
-**Examples:**
-
-```php
-Stringify::toString('hello');       // 'hello' (passed through, not quoted)
-Stringify::toString(42);            // '42'
-Stringify::toString(true);          // 'true'
-Stringify::toString(false);         // 'false'
-Stringify::toString(null);          // 'null'
-Stringify::toString([1, 2, 3]);     // '[1, 2, 3]'
-
-// Stringable objects use __toString().
-$date = new DateTime('2026-03-31');
-Stringify::toString($date);         // '2026-03-31 00:00:00'
+Stringify::abbrev('hello');                          // "'hello'"
+Stringify::abbrev('this is a very long string', 15);  // "'this is a ve…'"
+Stringify::abbrev([1, 2, 3, 4, 5, 6, 7], 15);          // '[1, 2, 3, 4, …]'
 ```
 
 ---
@@ -282,6 +252,10 @@ Non-UTF-8 input is converted to UTF-8. Unicode characters are preserved as-is (n
 
 - `string` - The single-quoted, escaped string representation.
 
+**Throws:**
+
+- `DomainException` - If the string is not UTF-8 and the encoding could not be detected.
+
 **Examples:**
 
 ```php
@@ -304,11 +278,13 @@ public static function stringifyArray(
 Stringify a PHP array as concise, parseable code. Lists (sequential integer keys starting at 0) show values only.
 Associative arrays show keys and values with fat arrows (`=>`).
 
-When pretty printing is enabled, three layout strategies are used for lists of scalars:
+When pretty printing is enabled, three layout strategies are used for lists of "simple" items (viz. nulls and scalars):
 
 1. **Single line** - if the result fits within the configured max line length.
 2. **Grid** - items padded to equal width and arranged in columns.
 3. **One per line** - for lists containing non-scalar values.
+
+Lists of complex items are always one per line when pretty printing.
 
 Associative arrays are always one pair per line with aligned keys when pretty printing.
 
@@ -389,6 +365,45 @@ Stringify::stringifyEnum(Suit::Hearts);  // 'App\Enums\Suit::Hearts'
 
 **Note:** `stringifyObject()` and `stringify()` automatically detect enum instances and delegate to this method.
 
+### stringifyClosure()
+
+```php
+public static function stringifyClosure(Closure $value): string
+```
+
+Get a string representation of a closure by reading back its original source code from the file it was declared in.
+The code is returned exactly as written, including its original whitespace and comments; the surrounding
+assignment/statement (e.g. a trailing `;`) is not included.
+
+**Parameters:**
+
+- `$value` (Closure) - The closure to stringify.
+
+**Returns:**
+
+- `string` - The closure's original source code, or `''` if unavailable (e.g. the closure has no file, such as one
+  created via `Closure::fromCallable()` wrapping an internal function, or the file has changed on disk since the
+  closure was declared).
+
+**Examples:**
+
+```php
+$sqr = static fn (float $x): float => $x * $x;
+Stringify::stringifyClosure($sqr);  // 'static fn (float $x): float => $x * $x'
+
+$cube = function (float $x): float {
+    return $x ** 3;
+};
+Stringify::stringifyClosure($cube);
+// "function (float \$x): float {\n    return \$x ** 3;\n}"
+```
+
+A closure embedded inline (e.g. passed directly as a call argument) is captured without the surrounding code:
+
+```php
+Stringify::stringifyClosure((fn ($x) => $x * 2));  // 'fn ($x) => $x * 2'
+```
+
 ### stringifyObject()
 
 ```php
@@ -428,21 +443,21 @@ class User {
 
 $user = new User();
 Stringify::stringifyObject($user);
-// "User {+name => 'John', #age => 30, -id => 'abc123'}"
+// "User #1 {+name => 'John', #age => 30, -id => 'abc123'}"
 ```
 
 Empty object:
 
 ```php
 $obj = new stdClass();
-Stringify::stringifyObject($obj);  // 'stdClass {}'
+Stringify::stringifyObject($obj);  // 'stdClass #2 {}'
 ```
 
-With pretty printing (property names are aligned):
+With pretty printing, property names are aligned:
 
 ```php
 Stringify::stringifyObject($user, true);
-// User {
+// User #1 {
 //     +name => 'John',
 //     +age  => 30,
 //     -id   => 'abc123',
@@ -453,7 +468,7 @@ Anonymous class:
 
 ```php
 $anon = new class { public int $x = 1; };
-Stringify::stringifyObject($anon);  // '@anonymous {+x => 1}'
+Stringify::stringifyObject($anon);  // 'class@anonymous #3 {+x => 1}'
 ```
 
 ### stringifyResource()
@@ -494,4 +509,4 @@ Stringify::stringifyResource($file);  // 'resource #5 (closed)'
 
 - **[Types](Types.md)** - Type checking and inspection utilities.
 - **[Arrays](Arrays.md)** - Array utility methods including `containsRecursion()`.
-- **[Functions](Functions.md)** - `write()` and `writeln()`, plain functions built on `toString()`.
+- **[Globals](Globals.md)** - `inspect()`, `ex()`, and `to_string()`, plain functions built on `Stringify` methods.

@@ -107,7 +107,7 @@ equality (i.e. `===`) by first converting both to floats can result in false pos
 may convert to the same float. This happens because 64-bit integers have more precision than the 53 bits available in a
 float's mantissa.
 
-The method obviates the need for loose equality using `==` or `!=`, which several coding standards and IDEs complain about. Also, by requiring `int` or `float` parameters only, it eliminates unexpected bugs caused by PHP's behavior of silently converting numeric strings to numbers and comparing them as such.
+The method also avoids the need for loose equality using `==` or `!=`, which several coding standards and IDEs complain about. Furthermore, by requiring `int` or `float` parameters only, it eliminates unexpected bugs caused by PHP's behavior of silently converting numeric strings to numbers and comparing them as such.
 
 **Parameters:**
 

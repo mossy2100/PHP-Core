@@ -13,6 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **`OceanMoon\Core\ex()`** — returns a short, abbreviated string representation of a value (wraps
   `Stringify::abbrev()`), for building consistent, informative exception messages.
+- **`Types::getBasicType()`** now recognizes closures, returning `'closure'` (a new case between `'enum'` and
+  `'object'`).
+- **`Stringify::stringifyClosure()`** — stringifies a closure by reading back its original source code from the file
+  it was declared in (via `ReflectionFunction` plus `token_get_all()` to precisely locate the closure's own token
+  range), returning it exactly as written, whitespace and comments included; the surrounding statement (e.g. a
+  trailing `;`) is excluded. Returns `''` if the source isn't available (e.g. a closure wrapping an internal
+  function). `Stringify::stringify()` now dispatches closures to this method.
 
 ### Changed
 
@@ -63,6 +70,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     genuinely unrepresentable case — every argument is `0` or `PHP_INT_MIN`, so the true result is `PHP_INT_MIN`'s
     own magnitude (`2^63`) — still throws, now as `OverflowException` rather than `DomainException`, consistent with
     `Integers::pow()`'s overflow handling.
+- **`Stringify::stringifyString()`**: strings are now rendered single-quoted (only `\` and `'` are escaped) instead
+  of double-quoted. Control characters like `\n`/`\t` are no longer escaped and are embedded as literal characters —
+  still valid, parseable single-quoted PHP, just multi-line for values containing a real newline.
 
 ### Fixed
 
@@ -70,6 +80,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   form contained a newline, which a list of nested arrays (e.g. `[[1, 2], [3, 4]]`) never does on its own, so it was
   wrongly collapsed onto one line via grid format instead of printing one array per line. Now checks whether every
   element is `null` or a scalar directly, matching the format's actual intent.
+- **`Stringify::abbrev()`**: the closing character appended after truncating a `string` value was still hardcoded to
+  `"`, left over from before `stringifyString()` switched to single-quoted output. Now correctly uses `'`.
 
 ### Removed
 
@@ -97,6 +109,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   its `@phpstan-ignore` comments updated from `function.alreadyNarrowedType`/`function.impossibleType` to
   `staticMethod.alreadyNarrowedType`/`staticMethod.impossibleType`, matching the switch from free-function to
   static-method calls.
+- **`docs/Arrays.md`**: documented `removeRecursion()`, which was missing entirely.
+- **`docs/Stringify.md`**: corrected `abbrev()`'s documented defaults (`$maxLen` default is `32`, not `30`; minimum
+  is `3`, not `10`), added its missing `stringifyString()` `@throws DomainException` documentation, and added a
+  `stringifyClosure()` section plus a "Closure support" mention in Key Features.
+- **`docs/Floats.md`**: added missing `**Throws:** RuntimeException` blocks for `toHex()` and `ulp()` (both require
+  a 64-bit system).
+- Test coverage added for `Types::getBasicType()`'s closure detection and `Stringify::stringifyClosure()` (arrow vs.
+  brace-style syntax, closures embedded inline as call/array arguments, nested-bracket boundary detection, and the
+  no-source fallback).
 
 ## [3.0.0] - 2026-07-17
 

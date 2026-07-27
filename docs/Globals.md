@@ -6,15 +6,14 @@ Shared constants and functions used by Core, Math, and other packages.
 
 ## Overview
 
-`src/globals.php` provides a small set of namespaced constants and functions (`OceanMoon\Core`) that don't belong to a
-single class, but which are more usable as global identifiers. The number of items is deliberately kept small.
+`src/globals.php` provides a small set of namespaced constants and functions (`OceanMoon\Core`) that work better as globals rather than class members. The number of items is deliberately kept small.
 
 ---
 
 ## Autoloading
 
 Since these are namespaced global identifiers rather than class members, PSR-4 autoloading won't discover them
-automatically. The Core package's `composer.json` includes a `files` autoload entry that loads `globals.php`.
+automatically. The Core package's `composer.json` therefore includes a `files` autoload entry that loads `globals.php`.
 
 To use a constant without qualifying the namespace every time, add a `use const` import:
 
@@ -42,13 +41,13 @@ use function OceanMoon\Core\println;
 const M_TAU = 2 * M_PI;
 ```
 
-The circle constant tau τ = 2π. Equal to the number of radians in a full circle. Named to match PHP's own `M_PI`, `M_E`,
-etc.
+The circle constant tau τ = 2π (≈ 6.2831853). Equal to the number of radians in a full circle. Named to match PHP's own naming pattern for mathematical constants, such as `M_PI`, `M_E`, etc.
 
 ```php
 use const OceanMoon\Core\M_TAU;
 
-$fullCircleRadians = M_TAU;  // ≈ 6.283185307179586
+$radius = 10;
+$area = M_TAU * $radius;  // ≈ 62.83185307179586
 ```
 
 ### RECURSION
@@ -82,11 +81,8 @@ function println(mixed $value = ''): void
 ```
 
 Print a value followed by a newline. If the value is not a string, it's converted automatically by PHP — which can
-produce a notice or warning for some values (arrays, closures, objects that aren't `Stringable`). The name mimics Java,
+produce a notice or warning for some values (NAN, arrays, closures, objects that aren't `Stringable`). The name mimics Java,
 Scala, Swift, Rust, Go, Julia, etc., and aligns with PHP's `print()` construct.
-
-Provided for completeness, but `writeln()` is generally the better choice — it never warns or throws, regardless of the
-value's type.
 
 **Parameters:**
 
@@ -106,18 +102,19 @@ println('Hello, world!');  // Outputs: Hello, world!\n
 function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): ?string
 ```
 
-Print a stringified value (see `Stringify::stringify()`). An alternative to `var_dump()`, `var_export()`, `print_r()`,
-or a plain `(string)` cast, with a few advantages:
+Print a stringified value (see [`Stringify::stringify()`](Stringify.md#stringify)). An alternative to `var_dump()`, `var_export()`, `print_r()`,
+or a plain `(string)` cast, with several advantages:
 
 1. Output is concise, yet informative.
-2. The value's type is apparent without necessarily given explicitly.
-3. The function never errors, even with circular references.
+2. The value's type is apparent, even when not given explicitly.
+3. The result is valid PHP code for all types except objects, resources, and compound objects containing values of these types or having recursion (circular references).
+4. The function never errors, even with circular references.
 
 **Parameters:**
 
-- `$value` (mixed) - The value to print.
-- `$prettyPrint` (bool) - Whether to format the output with newlines. Defaults to `false`.
-- `$return` (bool) - If `true`, return the stringified value instead of printing it. Defaults to `false`.
+- `$value` (mixed) - The value to inspect.
+- `$prettyPrint` (bool) - Whether to format the output with additional whitespace for readability. Defaults to `false`.
+- `$return` (bool) - If `true`, returns the stringified value instead of printing it. Defaults to `false`.
 
 **Returns:**
 
@@ -145,13 +142,9 @@ Convert any value to a string, without errors or warnings.
 
 **Behavior:**
 
-1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases which would
-   otherwise just emit a warning (arrays) or a coercion warning (`NAN`) are caught here rather than escaping.
-2. If the cast failed and the value is a `DateTimeInterface`, formats it as ISO 8601 via
-   `DateTimeInterface::format(DateTimeInterface::ATOM)` (`DateTime`/`DateTimeImmutable` don't implement `Stringable`, so
-   the cast above always throws for them).
-3. Otherwise, falls back to `Stringify::stringify()` — this handles arrays, non-`Stringable` objects, resources, and
-   anything else the cast above couldn't.
+1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases that usually emit a warning are caught.
+2. Otherwise, falls back to `Stringify::stringify()` — this handles `NAN`, arrays, non-`Stringable` objects, resources, and
+   anything else the cast couldn't.
 
 **Parameters:**
 
@@ -166,13 +159,17 @@ Convert any value to a string, without errors or warnings.
 ```php
 use function OceanMoon\Core\to_string;
 
-to_string('hello');                          // 'hello'
-to_string(42);                                // '42'
-to_string(true);                              // '1'
-to_string(null);                              // ''
-to_string(new DateTime('2026-07-17T12:00:00+00:00'));  // '2026-07-17T12:00:00+00:00'
-to_string([1, 2, 3]);                         // '[1, 2, 3]' (via Stringify)
-to_string(NAN);                               // 'NAN' (via Stringify; a direct cast would emit a warning)
+to_string('hello');         // 'hello'
+to_string(42);              // '42'
+to_string(true);            // '1'
+to_string(null);            // ''
+to_string([1, 2, 3]);       // '[1, 2, 3]' (via Stringify)
+to_string(NAN);             // 'NAN' (via Stringify; a direct cast would emit a warning)
+
+class CodeMonkey {
+    public $name = 'Shaun';
+}
+to_string(new CodeMonkey);  // 'CodeMonkey #9 {+name => 'Shaun'}' (via Stringify)
 ```
 
 ### ex()
@@ -208,5 +205,4 @@ throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
 
 - **[Numbers](Numbers.md)** - Number-related functions
 - **[Arrays](Arrays.md)** - `removeRecursion()`, which uses the `RECURSION` marker
-- **[Stringify](Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, `to_string()`,
-  and `write()`/`writeln()`
+- **[Stringify](Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, and `to_string()`

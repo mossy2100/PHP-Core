@@ -752,6 +752,10 @@ used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
 
 - `string` - A 16-character hexadecimal string representing the binary representation of the float
 
+**Throws:**
+
+- `RuntimeException` - If the system is not 64-bit
+
 **Examples:**
 
 ```php
@@ -1667,6 +1671,10 @@ represents the gap between a float and the next largest representable float valu
 **Returns:**
 
 - `float` - The ULP spacing. Returns `NAN` for NAN, `INF` for ±INF.
+
+**Throws:**
+
+- `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
 

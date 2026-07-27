@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core;
 
+use Closure;
 use DomainException;
 use InvalidArgumentException;
+use ReflectionFunction;
 use UnexpectedValueException;
 use UnitEnum;
 
@@ -187,6 +189,10 @@ final class Stringify
                 assert($value instanceof UnitEnum);
                 return self::stringifyEnum($value);
 
+            case 'closure':
+                assert($value instanceof Closure);
+                return self::stringifyClosure($value);
+
             case 'object':
                 assert(is_object($value));
                 return self::stringifyObject($value, $prettyPrint, $indentLevel);
@@ -237,7 +243,7 @@ final class Stringify
             }
 
             $result = mb_substr($result, 0, $truncateAt) . '…' . match ($type) {
-                'string' => '"',
+                'string' => "'",
                 'array' => ']',
                 'object' => '}'
             };
@@ -342,10 +348,10 @@ final class Stringify
 
         // Replace special characters with escape codes. The backslash must be escaped first: str_replace() with
         // parallel arrays processes each pattern in order over the whole string, so if it ran later, it would
-        // also catch (and double-escape) the backslashes just inserted by the \n/\r/\t replacements below.
-        $search = ['\\', "\n", "\r", "\t", '"'];
-        $replace = ['\\\\', '\\n', '\\r', '\\t', '\\"'];
-        return '"' . str_replace($search, $replace, $value) . '"';
+        // also catch (and double-escape) the backslashes just inserted by other replacements.
+        $search = ['\\', "'"];
+        $replace = ['\\\\', "\\'"];
+        return "'" . str_replace($search, $replace, $value) . "'";
     }
 
     /**
@@ -398,6 +404,59 @@ final class Stringify
     public static function stringifyEnum(UnitEnum $value): string
     {
         return $value::class . '::' . $value->name;
+    }
+
+    /**
+     * Get a string representation of a closure by reading back its original source code, e.g.
+     * "static fn (float $x): float => $x * $x" for `$sqr = static fn (float $x): float => $x * $x;`.
+     *
+     * Uses ReflectionFunction to locate the file and starting line the closure was declared on, then tokenizes the
+     * source from that point via token_get_all() to precisely find where the closure's own code actually begins and
+     * ends -- unlike a plain text scan, PHP's own tokenizer already resolves whether a `;`/`{`/`}` character is real
+     * syntax or just part of a string literal or comment (both become single opaque tokens), so those never get
+     * mistaken for closure boundaries. See findClosureTokenRange() for how the boundaries themselves are found.
+     * The code is returned exactly as written (including its original whitespace and comments); the surrounding
+     * assignment/statement (e.g. a trailing `;`) is not included.
+     *
+     * Returns '' if the source isn't available (e.g. no file, such as for a closure created via
+     * `Closure::fromCallable()` on a non-Closure callable), isn't readable, or if the closure's boundaries couldn't
+     * be determined from the tokens (e.g. the file has changed on disk since the closure was declared).
+     *
+     * @param Closure $value The closure to stringify.
+     * @return string The closure's original source code, or '' if unavailable.
+     */
+    public static function stringifyClosure(Closure $value): string
+    {
+        $reflection = new ReflectionFunction($value);
+        $filename = $reflection->getFileName();
+
+        if ($filename === false || !is_readable($filename)) {
+            return '';
+        }
+
+        $fileLines = file($filename);
+        if ($fileLines === false) {
+            return ''; // @codeCoverageIgnore
+        }
+
+        // Slice from the closure's start line to EOF. getStartLine() is line-only (no column), and the closure's
+        // true end (found below) could be later than getEndLine() if it's embedded in a longer expression, so
+        // there's no tighter upper bound to slice to.
+        $source = '<?php' . PHP_EOL . implode('', array_slice($fileLines, $reflection->getStartLine() - 1));
+        $tokens = token_get_all($source);
+
+        $range = self::findClosureTokenRange($tokens);
+        if ($range === null) {
+            return ''; // @codeCoverageIgnore
+        }
+        [$startIndex, $endIndex] = $range;
+
+        $code = '';
+        for ($i = $startIndex; $i <= $endIndex; $i++) {
+            $code .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+        }
+
+        return rtrim($code);
     }
 
     /**
@@ -693,6 +752,167 @@ final class Stringify
                 self::stringifyCleanedValue($values[$i], true, $indentLevel + 1) . ",\n";
         }
         return $result . $bracketIndent . ']';
+    }
+
+    /**
+     * Find the token index range (inclusive) of a closure's own source, within a token stream that starts at or
+     * before the closure's declaration (see stringifyClosure()). Locates the first `function`/`fn` keyword
+     * (optionally preceded by `static`) as the start, then determines the end based on which of the two closure
+     * syntaxes it is:
+     * - `function (...) {...}` ends at the matching closing brace for the body, plus a trailing `;` if one
+     *   immediately follows (the closure was a complete statement, e.g. `$f = function () {...};`).
+     * - `fn (...) => expr` has no closing delimiter of its own -- its body is a bare expression -- so it ends at
+     *   the first `;`, `,`, `)`, `]`, or `}` reached while at the same bracket depth the arrow itself was found at
+     *   (tracked via findArrowBodyEnd()). A `;` means the closure was a complete statement and is included; the
+     *   others mean it's embedded inline as an argument or array value (e.g. `array_map(fn ($x) => $x * 2, $arr)`)
+     *   and are excluded, since they belong to the surrounding code, not the closure.
+     *
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens Tokens from token_get_all().
+     * @return array{0: int, 1: int}|null [$startIndex, $endIndex], or null if no closure keyword was found, or its
+     * end couldn't be determined (e.g. unbalanced/truncated source).
+     */
+    private static function findClosureTokenRange(array $tokens): ?array
+    {
+        $count = count($tokens);
+
+        // Find the `function`/`fn` keyword.
+        $keywordIndex = null;
+        for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
+            if (is_array($token) && ($token[0] === T_FUNCTION || $token[0] === T_FN)) {
+                $keywordIndex = $i;
+                break;
+            }
+        }
+        if ($keywordIndex === null) {
+            // Should never happen - a real closure's source always contains one of these.
+            return null; // @codeCoverageIgnore
+        }
+        $isArrow = $tokens[$keywordIndex][0] === T_FN;
+
+        // Include an immediately preceding `static`, if present.
+        $startIndex = $keywordIndex;
+        for ($j = $keywordIndex - 1; $j >= 0; $j--) {
+            if (is_array($tokens[$j]) && $tokens[$j][0] === T_WHITESPACE) {
+                continue;
+            }
+            if (is_array($tokens[$j]) && $tokens[$j][0] === T_STATIC) {
+                $startIndex = $j;
+            }
+            break;
+        }
+
+        // Scan forward past the parameter list (and return type, if any) to find the `{` or `=>` that starts the
+        // body. Only `(`/`)` need tracking here (not `[`/`{`), since nothing else can legally appear between the
+        // keyword and the parameter list, and depth-tracking the parameter list's own parens (including any nested
+        // in default value expressions) is enough to know when it's closed.
+        $depth = 0;
+        $sawParams = false;
+        $bodyStartIndex = null;
+        for ($i = $keywordIndex + 1; $i < $count; $i++) {
+            $text = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+
+            if ($text === '(') {
+                $depth++;
+                continue;
+            }
+            if ($text === ')') {
+                $depth--;
+                if ($depth === 0) {
+                    $sawParams = true;
+                }
+                continue;
+            }
+            if ($depth === 0 && $sawParams) {
+                if ($text === '{') {
+                    $bodyStartIndex = $i;
+                    break;
+                }
+                if (is_array($tokens[$i]) && $tokens[$i][0] === T_DOUBLE_ARROW) {
+                    $bodyStartIndex = $i;
+                    break;
+                }
+            }
+        }
+        if ($bodyStartIndex === null) {
+            // Should never happen - unbalanced/truncated source.
+            return null; // @codeCoverageIgnore
+        }
+
+        $endIndex = $isArrow
+            ? self::findArrowBodyEnd($tokens, $bodyStartIndex)
+            : self::findMatchingBrace($tokens, $bodyStartIndex);
+        if ($endIndex === null) {
+            // Should never happen - unbalanced/truncated source.
+            return null; // @codeCoverageIgnore
+        }
+
+        return [$startIndex, $endIndex];
+    }
+
+    /**
+     * Find the token index of the closing brace matching the `{` at $openIndex, by depth-counting `{`/`}` from
+     * there. Safe against `{`/`}` characters that are actually part of a string literal or comment (rather than
+     * real syntax), since token_get_all() already collapses those into single opaque tokens whose text (quotes,
+     * slashes, etc. included) never equals the bare single-character strings this compares against.
+     *
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens Tokens from token_get_all().
+     * @param int $openIndex Index of the opening `{`.
+     * @return int|null Index of the matching `}`, or null if unbalanced (truncated source).
+     */
+    private static function findMatchingBrace(array $tokens, int $openIndex): ?int
+    {
+        $depth = 0;
+        for ($i = $openIndex; $i < count($tokens); $i++) {
+            $text = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+            if ($text === '{') {
+                $depth++;
+            } elseif ($text === '}') {
+                $depth--;
+                if ($depth === 0) {
+                    return $i;
+                }
+            }
+        }
+
+        // Should never happen - unbalanced/truncated source.
+        return null; // @codeCoverageIgnore
+    }
+
+    /**
+     * Find the token index of the natural end of an arrow function's body, given the index of its `=>`. An arrow
+     * body is a bare expression with no closing delimiter of its own, so its end is the first `;`, `,`, `)`, `]`,
+     * or `}` reached while at the same bracket depth the `=>` itself was found at -- any bracket opened within the
+     * expression (e.g. a nested call `fn ($x) => foo($x, [1, 2])`) is depth-tracked and excluded from consideration
+     * until its own matching close is seen.
+     *
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens Tokens from token_get_all().
+     * @param int $arrowIndex Index of the `=>` token.
+     * @return int|null Index of the last token to include, which will be the token immediately before the terminating
+     * `,`/`)`/`]`/`}`), or null if the expression never terminates (truncated source).
+     */
+    private static function findArrowBodyEnd(array $tokens, int $arrowIndex): ?int
+    {
+        $depth = 0;
+        for ($i = $arrowIndex + 1; $i < count($tokens); $i++) {
+            $text = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+
+            if ($text === '(' || $text === '[' || $text === '{') {
+                $depth++;
+                continue;
+            }
+            if ($text === ')' || $text === ']' || $text === '}') {
+                if ($depth === 0) {
+                    return $i - 1;
+                }
+                $depth--;
+                continue;
+            }
+            if ($depth === 0 && ($text === ';' || $text === ',')) {
+                return $i - 1;
+            }
+        }
+        return null; // @codeCoverageIgnore
     }
 
     #endregion

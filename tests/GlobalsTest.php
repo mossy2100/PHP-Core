@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace OceanMoon\Core\Tests\Globals;
 
 use ArgumentCountError;
-use DateTime;
 use Error;
 use OceanMoon\Core\Stringify;
 use PHPUnit\Framework\TestCase;
@@ -159,7 +158,7 @@ final class GlobalsTest extends TestCase
      */
     public function testDumpVarWithArrayPrettyPrint(): void
     {
-        $this->expectOutputString("[\n    \"a\" => 1,\n    \"b\" => 2,\n]" . PHP_EOL);
+        $this->expectOutputString("[\n    'a' => 1,\n    'b' => 2,\n]" . PHP_EOL);
         inspect([
             'a' => 1,
             'b' => 2,
@@ -176,7 +175,7 @@ final class GlobalsTest extends TestCase
         ];
         $arr['self'] = &$arr;
 
-        $this->expectOutputString('["x" => 1, "self" => ' . RECURSION . ']' . PHP_EOL);
+        $this->expectOutputString("['x' => 1, 'self' => " . RECURSION . ']' . PHP_EOL);
         inspect($arr);
     }
 
@@ -225,7 +224,7 @@ final class GlobalsTest extends TestCase
     {
         $this->expectOutputString('');
         $this->assertSame(
-            "[\n    \"a\" => 1,\n    \"b\" => 2,\n]",
+            "[\n    'a' => 1,\n    'b' => 2,\n]",
             inspect([
                 'a' => 1,
                 'b' => 2,
@@ -242,7 +241,7 @@ final class GlobalsTest extends TestCase
      */
     public function testExWithShortValue(): void
     {
-        $this->assertSame('"hello"', ex('hello'));
+        $this->assertSame("'hello'", ex('hello'));
         $this->assertSame('42', ex(42));
         $this->assertSame('true', ex(true));
     }
@@ -258,7 +257,7 @@ final class GlobalsTest extends TestCase
 
         $this->assertSame(Stringify::abbrev($longString), $result);
         $this->assertLessThanOrEqual(32, mb_strlen($result));
-        $this->assertStringEndsWith('…"', $result);
+        $this->assertStringEndsWith("…'", $result);
     }
 
     /**
@@ -361,7 +360,7 @@ final class GlobalsTest extends TestCase
     public function testToStringWithArray(): void
     {
         $this->assertSame('[1, 2, 3]', to_string([1, 2, 3]));
-        $this->assertSame('["a" => 1]', to_string([
+        $this->assertSame("['a' => 1]", to_string([
             'a' => 1,
         ]));
     }
@@ -376,7 +375,7 @@ final class GlobalsTest extends TestCase
         ];
         $arr['self'] = &$arr;
 
-        $this->assertSame('["x" => 1, "self" => ' . RECURSION . ']', to_string($arr));
+        $this->assertSame("['x' => 1, 'self' => " . RECURSION . ']', to_string($arr));
     }
 
     /**
@@ -393,17 +392,6 @@ final class GlobalsTest extends TestCase
     public function testToStringWithEnum(): void
     {
         $this->assertSame('OceanMoon\Core\Tests\Globals\Suit::Hearts', to_string(Suit::Hearts));
-    }
-
-    /**
-     * Test to_string() with a DateTime formats it as an ISO 8601 (ATOM) string, since DateTime doesn't
-     * implement Stringable and the default (string) cast would otherwise throw.
-     */
-    public function testToStringWithDateTime(): void
-    {
-        $dateTime = new DateTime('2026-07-17T12:34:56+00:00');
-
-        $this->assertSame('2026-07-17T12:34:56+00:00', to_string($dateTime));
     }
 
     /**

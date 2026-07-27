@@ -126,6 +126,18 @@ final class TypesTest extends TestCase
     }
 
     /**
+     * Test getBasicType with closures.
+     */
+    public function testGetBasicTypeClosure(): void
+    {
+        // Test that closures return 'closure'.
+        $this->assertSame('closure', Types::getBasicType(static fn (int $x): int => $x * 2));
+        $this->assertSame('closure', Types::getBasicType(static function (): void {
+        }));
+        $this->assertSame('closure', Types::getBasicType(strlen(...)));
+    }
+
+    /**
      * Test getBasicType with objects.
      */
     public function testGetBasicTypeObject(): void
