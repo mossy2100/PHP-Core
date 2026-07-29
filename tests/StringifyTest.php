@@ -298,8 +298,7 @@ final class StringifyTest extends TestCase
     }
 
     /**
-     * Test that a list containing a multiline item (e.g. an associative array) uses one-per-line format, since the
-     * grid format only applies when every item's stringified form is itself single-line.
+     * Test that a list containing an associative array uses one-per-line format.
      */
     public function testStringifyArrayPrettyPrintMultilineItem(): void
     {
@@ -348,7 +347,7 @@ final class StringifyTest extends TestCase
     }
 
     /**
-     * Test that circular references in arrays throw DomainException.
+     * Test that circular references in arrays.
      */
     public function testStringifyArrayCircularReference(): void
     {
@@ -524,8 +523,11 @@ final class StringifyTest extends TestCase
     public function testStringifyClosureEmbeddedAsArrayValue(): void
     {
         // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $closure = ['ignored', fn ($x) => $x + 1][1];
-        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
+        $closure = [
+            'ignored',
+            static fn ($x) => $x + 1,
+        ][1];
+        $this->assertSame('static fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
     }
 
     /**

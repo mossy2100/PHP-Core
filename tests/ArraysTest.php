@@ -414,7 +414,11 @@ final class ArraysTest extends TestCase
      */
     public function testQuoteValuesThrowsExceptionForObjects(): void
     {
-        $input = ['foo', new stdClass(), 'bar'];
+        $input = [
+            'foo',
+            new stdClass(),
+            'bar',
+        ];
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid array value type: stdClass. Must be string.');

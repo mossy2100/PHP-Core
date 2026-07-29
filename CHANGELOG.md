@@ -82,6 +82,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   element is `null` or a scalar directly, matching the format's actual intent.
 - **`Stringify::abbrev()`**: the closing character appended after truncating a `string` value was still hardcoded to
   `"`, left over from before `stringifyString()` switched to single-quoted output. Now correctly uses `'`.
+- **`Stringify::stringifyListArray()`'s pretty-print grid format**: the items-per-line calculation only guarded
+  against exactly `0`, not negative values (possible when an item's width leaves less than one column's worth of
+  space), so it could still break the grid layout instead of falling back to one item per line. Now guards against
+  any non-positive value.
 
 ### Removed
 

@@ -611,8 +611,8 @@ final class Stringify
     /**
      * Stringify a list (sequential integer keys starting at 0).
      *
-     * Without pretty printing, values are comma-separated on one line.
-     * With pretty printing, uses single-line, grid, or one-per-line format depending on content.
+     * Without pretty printing, values are comma-separated on one line (compact format)
+     * With pretty printing, uses compact, grid, or one-per-line format, depending on content.
      *
      * @param list<mixed> $arr The list to stringify.
      * @param bool $prettyPrint Whether to use pretty printing.
@@ -644,7 +644,7 @@ final class Stringify
         // Check if all values are simple (nulls or scalars).
         $allSimple = array_all($arr, static fn ($value) => $value === null || is_scalar($value));
 
-        // If all values are simple, use grid format.
+        // If all values are simple, use compact or grid format.
         if ($allSimple) {
             // If the compact format fits on one line, return it.
             if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
@@ -662,7 +662,7 @@ final class Stringify
 
             // Calculate the number of items per line.
             $nItemsPerLine = (int) floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
-            if ($nItemsPerLine === 0) {
+            if ($nItemsPerLine <= 0) {
                 $nItemsPerLine = 1;
             }
 

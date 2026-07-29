@@ -935,10 +935,22 @@ final class FloatsTest extends TestCase
             [-1.0, true],
             [100.0, true],
             [-100.0, true],
-            [(float) (1 << 52), true],
-            [(float) ((1 << 53) - 1), true],
-            [(float) (1 << 53), false],
-            [(float) (1 << 54), false],
+            [
+                (float) (1 << 52),
+                true,
+            ],
+            [
+                (float) ((1 << 53) - 1),
+                true,
+            ],
+            [
+                (float) (1 << 53),
+                false,
+            ],
+            [
+                (float) (1 << 54),
+                false,
+            ],
             [0.5, false],
             [1.1, false],
             [1e20, false],
