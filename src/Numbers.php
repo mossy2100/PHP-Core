@@ -39,18 +39,6 @@ final class Numbers
         return is_int($value) || is_float($value);
     }
 
-    /**
-     * Check if a number is zero. Returns true for integer 0 and float ±0.0.
-     *
-     * @param int|float $value
-     * @return bool
-     */
-    public static function isZero(int|float $value): bool
-    {
-        // Note that -0.0 compares as exactly equal to 0.0.
-        return $value === 0 || $value === 0.0;
-    }
-
     #endregion
 
     #region Comparison methods

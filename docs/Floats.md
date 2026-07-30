@@ -313,7 +313,7 @@ Special values:
 
 ```php
 // Handles positive and negative zero
-Floats::approxEqual(0.0, -0.0);  // true
+Floats::approxEqual(0.0, -0.0);   // true
 
 // Infinities use exact equality
 Floats::approxEqual(INF, INF);    // true
@@ -341,7 +341,8 @@ Floats::approxEqual(NAN, 0.0);    // false
   precision.
 - **Relative tolerance**: Use `1e-9` (default) for tight comparisons, `1e-6` for looser comparisons.
 
-If you want to compare values by relative tolerance only, set `$absTol` to zero.\
+If you want to compare values by relative tolerance only, set `$absTol` to zero.
+
 If you want to compare values by absolute tolerance only, set `$relTol` to zero.
 
 If in doubt, write tests that reflect expected/typical usage in your application, and adjust tolerances for optimal
@@ -424,7 +425,7 @@ Floats::approxCompare(NAN, 1.0);      // throws DomainException
 - Throws `DomainException` if either argument is NAN (NAN cannot be meaningfully compared).
 - First checks approximate equality using `approxEqual()` with the specified tolerances.
 - If approximately equal, returns `0`.
-- Otherwise uses spaceship operator (`<=>`) to determine ordering, normalized to exactly -1 or 1 using `sign()`.
+- Otherwise uses spaceship operator (`<=>`) to determine ordering, normalized to exactly -1 or 1 using `Numbers::sign()`.
 - Infinities are handled by `approxEqual()` using exact equality.
 
 **Use Cases:**
@@ -740,9 +741,8 @@ public static function toHex(float $value): string
 Convert a float to a unique 16-character hexadecimal string representation. Every possible float value produces a unique
 hex string, making this method ideal for hashing or keying floats in collections.
 
-**Note:** The method works for NAN, but, be aware, NAN doesn't technically have a unique hex representation; in fact,
-for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the hex representation of NAN
-used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
+**Note:** The method works for NAN, but, be aware, the NAN as defined by IEEE doesn't technically have a unique hex representation; in fact,
+for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the hex representation of NAN used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
 
 **Parameters:**
 

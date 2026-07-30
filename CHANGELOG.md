@@ -24,14 +24,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **`Numbers` restored as a class**, reversing the 3.0.0 change that replaced it with plain functions in
-  `Globals/numbers.php`. `isNumber()`, `isZero()`, `sign()`, `copySign()` are back as `Numbers::` static methods, plus
-  a new **`Numbers::equal()`** — exact `int`/`float` equality that never coerces types-as-equal by accident (two
-  floats compare bitwise, so `NAN` never equals anything including itself, and `-0.0` equals `0.0`; a mixed
-  `int`/`float` pair is equal only if the float represents that exact integer losslessly via `Floats::toInt()`, not
-  merely "close enough" — correctly handles values beyond `Floats::MAX_SAFE_INT` that `Floats::isSafeInt()` would
-  wrongly reject, and the `PHP_INT_MIN`/`PHP_INT_MAX` asymmetry, since only `PHP_INT_MIN` casts to `float` exactly).
-  Callers that used the free functions (`Floats::approxCompare()`, `Comparable`'s docblock) now call `Numbers::` for
-  it. `src/Globals/numbers.php` and `tests/Globals/NumbersTest.php` are removed.
+  `Globals/numbers.php`. `isNumber()`, `sign()`, `copySign()` are back as `Numbers::` static methods, plus a new
+  **`Numbers::equal()`** — exact `int`/`float` equality that never coerces types-as-equal by accident (two floats
+  compare bitwise, so `NAN` never equals anything including itself, and `-0.0` equals `0.0`; a mixed `int`/`float`
+  pair is equal only if the float represents that exact integer losslessly via `Floats::toInt()`, not merely "close
+  enough" — correctly handles values beyond `Floats::MAX_SAFE_INT` that `Floats::isSafeInt()` would wrongly reject,
+  and the `PHP_INT_MIN`/`PHP_INT_MAX` asymmetry, since only `PHP_INT_MIN` casts to `float` exactly). `isZero()` was
+  not restored — `equal($value, 0)` covers it, since `equal()` already treats `-0.0` and `0.0` as equal to integer
+  `0`. Callers that used the free functions (`Floats::approxCompare()`, `Comparable`'s docblock) now call
+  `Numbers::` for it. `src/Globals/numbers.php` and `tests/Globals/NumbersTest.php` are removed.
 - **`src/Globals/constants.php` and `src/Globals/strings.php` consolidated into a single `src/globals.php`** —
   `M_TAU`, `RECURSION`, `println()`, `inspect()`, `to_string()`, `ex()`, `write()`, `writeln()` are now declared
   directly in `OceanMoon\Core` (not the nested `OceanMoon\Core\Globals` sub-namespace) in one file, loaded via one
@@ -55,9 +56,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `Integers::pow()`: `'Overflow in integer exponentiation.'`, consistent with the other arithmetic overflow
     messages.
   - `Integers::fromSubscript()`/`fromSuperscript()`: the invalid character is no longer wrapped in quotes.
-  - `Stringify::stringifyResource()`: `'Invalid type: {type}. Must be a resource.'`.
+  - `Stringify::stringifyResource()`: `'Invalid value type: {type}. Must be a resource.'`.
+  - `Stringify::stringifyString()`: undetectable/unconvertible encoding messages simplified to `'String encoding
+    cannot be detected.'` / `'String cannot be converted to UTF-8.'` (previously repeated "was not UTF-8" in both).
   - `Types::usesTrait()`/`getTraits()`: `'Invalid class name: {name}. Must be a class, interface, or trait.'`
     (previously quoted the name and didn't state the constraint).
+- **`Stringify::setIndent()`** now accepts `0` (previously required `> 0`); the indent must simply be non-negative.
+  Both `setIndent()` and **`Stringify::setMaxLineLength()`** now throw `DomainException` instead of
+  `InvalidArgumentException` for invalid values, consistent with the package's exception conventions (see
+  `docs/guidelines/EXCEPTIONS.md`).
 - **`Stringify::stringifyFloat()`**: non-finite values are now stringified via `var_export()` instead of a
   warning-suppressed cast; output is unchanged (`'NAN'`, `'INF'`, `'-INF'`).
 - **`Integers::gcd()`**:

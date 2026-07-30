@@ -11,9 +11,9 @@ equality comparison, and sign operations. This is a static utility class and can
 
 ### Key Features
 
-- Type checking that distinguishes actual numbers from numeric strings
-- Equality comparison that correctly handles mixed int/float types
-- Sign operations with support for IEEE-754 signed zeros (-0.0 vs +0.0)
+- Type checking that distinguishes actual numbers from numeric strings.
+- Equality comparison that correctly handles mixed int/float types.
+- Sign operations with support for IEEE-754 signed zeros (-0.0 vs +0.0).
 
 ---
 
@@ -61,34 +61,6 @@ Numbers::isNumber(null);      // false
 | `true`   | `false`      | `false`        |
 | `null`   | `false`      | `false`        |
 
-### isZero()
-
-```php
-public static function isZero(int|float $value): bool
-```
-
-Check if a number is zero. Returns `true` for integer `0` and float `±0.0`.
-
-**Parameters:**
-
-- `$value` (int|float) - The number to check.
-
-**Returns:**
-
-- `bool` - `true` if the value is zero, `false` otherwise.
-
-**Examples:**
-
-```php
-Numbers::isZero(0);       // true
-Numbers::isZero(0.0);     // true
-Numbers::isZero(-0.0);    // true
-Numbers::isZero(1);       // false
-Numbers::isZero(0.1);     // false
-Numbers::isZero(INF);     // false
-Numbers::isZero(NAN);     // false
-```
-
 ---
 
 ## Comparison Methods
@@ -130,7 +102,14 @@ Integer comparisons:
 ```php
 Numbers::equal(5, 5);    // true
 Numbers::equal(5, -5);   // false
-Numbers::equal(0, 0);    // true
+```
+
+Zero comparisons:
+
+```php
+Numbers::equal(0, 0);     // true
+Numbers::equal(0.0, 0);   // true
+Numbers::equal(-0.0, 0);  // true
 ```
 
 Float comparisons (exact):
@@ -199,12 +178,12 @@ handled.
 **Parameters:**
 
 - `$value` (int|float) - The number to check
-- `$zeroForZero` (bool) - If `true` (default), return 0 for zero; if `false`, return the sign of the zero (-1 for -0.0,
+- `$zeroForZero` (bool) - If `true` (default), return 0 for any zero value; if `false`, return the sign of the zero (-1 for -0.0,
   1 otherwise)
 
 **Returns:**
 
-- `int` - Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true`
+- `int` - Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true` (default).
 
 **Examples:**
 
@@ -232,9 +211,9 @@ Numbers::sign(-0.0, false);    // -1
 
 **Use Cases:**
 
-- Mathematical algorithms requiring signum function
-- Comparisons where sign matters
-- Working with IEEE-754 operations that distinguish -0.0 from +0.0
+- Mathematical algorithms requiring signum function.
+- Comparisons where sign matters.
+- Working with IEEE-754 operations that distinguish -0.0 from +0.0.
 
 ### copySign()
 
@@ -247,16 +226,16 @@ second parameter.
 
 **Parameters:**
 
-- `$num` (int|float) - The number whose magnitude to use
-- `$signSource` (int|float) - The number whose sign to copy
+- `$num` (int|float) - The number whose magnitude to use.
+- `$signSource` (int|float) - The number whose sign to copy.
 
 **Returns:**
 
-- `int|float` - The magnitude of `$num` with the sign of `$signSource`
+- `int|float` - The magnitude of `$num` with the sign of `$signSource`.
 
 **Throws:**
 
-- `DomainException` - If NAN is passed as either parameter (NAN has no defined sign)
+- `DomainException` - If NAN is passed as either parameter (NAN has no defined sign).
 
 **Examples:**
 
@@ -294,9 +273,9 @@ Numbers::copySign(5, NAN);     // throws DomainException
 
 **Use Cases:**
 
-- Implementing mathematical functions that need to preserve sign relationships
-- Working with algorithms that require specific sign control (e.g., coordinate transformations)
-- Ensuring consistent sign handling across calculations
+- Implementing mathematical functions that need to preserve sign relationships.
+- Working with algorithms that require specific sign control (e.g., coordinate transformations).
+- Ensuring consistent sign handling across calculations.
 
 **Note:** Similar to C's `copysign()` function, but with explicit NAN rejection for clarity.
 
@@ -304,6 +283,6 @@ Numbers::copySign(5, NAN);     // throws DomainException
 
 ## See Also
 
-- **[Floats](Floats.md)** - Float-specific utility methods including `approxEqual()` for approximate comparisons
-- **[Integers](Integers.md)** - Integer-specific utility methods
-- **[Types](Types.md)** - Type checking and comparison utilities
+- **[Floats](Floats.md)** - Float-specific utility methods including `approxEqual()` for approximate comparisons.
+- **[Integers](Integers.md)** - Integer-specific utility methods.
+- **[Types](Types.md)** - Type checking and comparison utilities.

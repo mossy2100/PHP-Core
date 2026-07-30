@@ -17,10 +17,9 @@ utility class and cannot be instantiated.
 - **Clearer float representation**: Floats are always made distinguishable from integers by appending `.0` if no decimal
   point or `E` is present in the string (e.g., `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled
   correctly.
-- **PHP-style array formatting**: Both lists and associative arrays use square brackets (`[...]`). Lists omit keys;
+- **PHP-style array formatting**: Both list arrays and associative arrays use square brackets (`[...]`). List arrays omit keys;
   associative arrays show keys with thick arrows (`=>`).
-- **Smart pretty printing**: Scalar lists use single-line, grid, or one-per-line layout depending on length. Associative
-  arrays and objects align keys/property names.
+- **Smart pretty printing**: Simple list arrays use single-line, grid, or one-per-line layout depending on length. Associative arrays and objects align keys/property names.
 - **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#` protected,
   `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
@@ -36,10 +35,10 @@ but is designed for readability.
 
 ## Constants
 
-| Constant                  | Value | Description                                                                               |
-| ------------------------- | ----- | ----------------------------------------------------------------------------------------- |
-| `DEFAULT_INDENT`          | `4`   | Default number of spaces per indentation level in pretty-printed output.                  |
-| `DEFAULT_MAX_LINE_LENGTH` | `120` | Default maximum line length before pretty-printed lists wrap to grid or multiline format. |
+| Constant                  | Value | Description                                                                                     |
+| ------------------------- | ----- | ----------------------------------------------------------------------------------------------- |
+| `DEFAULT_INDENT`          | `4`   | Default number of spaces per indentation level in pretty-printed output.                        |
+| `DEFAULT_MAX_LINE_LENGTH` | `120` | Default maximum line length before pretty-printed list arrays wrap to grid or multiline format. |
 
 ---
 
@@ -59,7 +58,7 @@ Set or get the number of spaces used for each indentation level in pretty-printe
 
 **Throws:**
 
-- `InvalidArgumentException` - If the indent is not greater than 0.
+- `DomainException` - If the supplied indent is negative.
 
 **Example:**
 
@@ -79,12 +78,11 @@ public static function setMaxLineLength(int $maxLineLength): void
 public static function getMaxLineLength(): int
 ```
 
-Set or get the maximum line length for pretty-printed output. This controls when scalar lists wrap from single-line to
-grid or one-per-line format.
+Set or get the maximum line length for pretty-printed output. This only affects when list arrays wrap from a compact, single-line format to a grid or one-value-per-line format. Other long values (strings, etc.) aren't chopped down to this length.
 
 **Throws:**
 
-- `InvalidArgumentException` - If the max line length is not greater than 0.
+- `DomainException` - If the max line length is not greater than 0.
 
 **Example:**
 
@@ -197,8 +195,8 @@ error messages and logs where space is limited.
 **Examples:**
 
 ```php
-Stringify::abbrev('hello');                          // "'hello'"
-Stringify::abbrev('this is a very long string', 15);  // "'this is a ve…'"
+Stringify::abbrev('hello');                            // "'hello'"
+Stringify::abbrev('this is a very long string', 15);   // "'this is a ve…'"
 Stringify::abbrev([1, 2, 3, 4, 5, 6, 7], 15);          // '[1, 2, 3, 4, …]'
 ```
 
@@ -226,13 +224,13 @@ returned as-is.
 **Examples:**
 
 ```php
-Stringify::stringifyFloat(3.14);    // '3.14'
-Stringify::stringifyFloat(5.0);     // '5.0' (ensures decimal point)
-Stringify::stringifyFloat(1.5e100); // '1.5E+100'
-Stringify::stringifyFloat(-0.0);    // '-0.0'
-Stringify::stringifyFloat(NAN);     // 'NAN'
-Stringify::stringifyFloat(INF);     // 'INF'
-Stringify::stringifyFloat(-INF);    // '-INF'
+Stringify::stringifyFloat(3.14);     // '3.14'
+Stringify::stringifyFloat(5.0);      // '5.0' (ensures decimal point)
+Stringify::stringifyFloat(1.5e100);  // '1.5E+100'
+Stringify::stringifyFloat(-0.0);     // '-0.0'
+Stringify::stringifyFloat(NAN);      // 'NAN'
+Stringify::stringifyFloat(INF);      // 'INF'
+Stringify::stringifyFloat(-INF);     // '-INF'
 ```
 
 ### stringifyString()
@@ -254,7 +252,7 @@ Non-UTF-8 input is converted to UTF-8. Unicode characters are preserved as-is (n
 
 **Throws:**
 
-- `DomainException` - If the string is not UTF-8 and the encoding could not be detected.
+- `DomainException` - If the string is not UTF-8 and the encoding could not be detected or the string could not be converted to UTF-8.
 
 **Examples:**
 
@@ -275,16 +273,16 @@ public static function stringifyArray(
 ): string
 ```
 
-Stringify a PHP array as concise, parseable code. Lists (sequential integer keys starting at 0) show values only.
+Stringify a PHP array as concise, parseable code. List arrays (sequential integer keys starting at 0) show values only.
 Associative arrays show keys and values with fat arrows (`=>`).
 
-When pretty printing is enabled, three layout strategies are used for lists of "simple" items (viz. nulls and scalars):
+When pretty printing is enabled, three layout strategies are used for list arrays of "simple" items (i.e. nulls and scalars):
 
 1. **Single line** - if the result fits within the configured max line length.
 2. **Grid** - items padded to equal width and arranged in columns.
-3. **One per line** - for lists containing non-scalar values.
+3. **One per line** - for list arrays containing non-scalar values.
 
-Lists of complex items are always one per line when pretty printing.
+List arrays of complex items are always one value per line when pretty printing.
 
 Associative arrays are always one pair per line with aligned keys when pretty printing.
 
@@ -300,13 +298,9 @@ The max line length is controlled by `setMaxLineLength()` (default: `120`).
 
 - `string` - The string representation of the array.
 
-**Throws:**
-
-- `DomainException` - If the array contains circular references.
-
 **Examples:**
 
-Lists:
+List arrays:
 
 ```php
 Stringify::stringifyArray([1, 2, 3]);           // '[1, 2, 3]'

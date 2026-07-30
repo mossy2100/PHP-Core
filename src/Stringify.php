@@ -75,13 +75,13 @@ final class Stringify
     /**
      * Set the number of spaces used for each indentation level.
      *
-     * @param int $indent The number of spaces (must be > 0).
-     * @throws InvalidArgumentException If the indent is not positive.
+     * @param int $indent The number of spaces (must be >= 0).
+     * @throws DomainException If the indent is negative.
      */
     public static function setIndent(int $indent): void
     {
-        if ($indent <= 0) {
-            throw new InvalidArgumentException("Invalid indent: $indent. Must be positive.");
+        if ($indent < 0) {
+            throw new DomainException("Invalid indent: $indent. Must not be negative.");
         }
         self::$indent = $indent;
     }
@@ -100,12 +100,12 @@ final class Stringify
      * Set the maximum line length for pretty-printed output.
      *
      * @param int $maxLineLength The maximum line length (must be > 0).
-     * @throws InvalidArgumentException If the max line length is not positive.
+     * @throws DomainException If the max line length is not positive.
      */
     public static function setMaxLineLength(int $maxLineLength): void
     {
         if ($maxLineLength <= 0) {
-            throw new InvalidArgumentException("Invalid max line length: $maxLineLength. Must be positive.");
+            throw new DomainException("Invalid max line length: $maxLineLength. Must be positive.");
         }
         self::$maxLineLength = $maxLineLength;
     }
@@ -155,7 +155,6 @@ final class Stringify
      * @return string The string representation of the value.
      * @throws DomainException If the value cannot be stringified.
      * @throws UnexpectedValueException If the value has an unknown type.
-     * @throws InvalidArgumentException
      */
     public static function stringify(mixed $value, bool $prettyPrint = false, int $indentLevel = 0): string
     {
@@ -321,7 +320,8 @@ final class Stringify
      *
      * @param string $value The string value to encode.
      * @return string The single-quoted, escaped string representation.
-     * @throws DomainException If the string is not UTF-8 and the encoding could not be detected.
+     * @throws DomainException If the string is not UTF-8 and the encoding could not be detected or the string could not
+     * be converted to UTF-8.
      */
     public static function stringifyString(string $value): string
     {
@@ -334,14 +334,14 @@ final class Stringify
             // Try to detect the encoding.
             $encoding = mb_detect_encoding($value, mb_detect_order(), true);
             if ($encoding === false) {
-                throw new DomainException('String encoding is not UTF-8 and could not be detected.');
+                throw new DomainException('String encoding cannot be detected.');
             }
 
             // Convert the string to UTF-8.
             $value = mb_convert_encoding($value, 'UTF-8', $encoding);
             if ($value === false) {
                 // @codeCoverageIgnoreStart
-                throw new DomainException('String was not UTF-8 and could not be converted to UTF-8.');
+                throw new DomainException('String cannot be converted to UTF-8.');
                 // @codeCoverageIgnoreEnd
             }
         }
@@ -376,6 +376,7 @@ final class Stringify
      * needs to be set explicitly by internal callers, since Arrays::removeRecursion() is otherwise
      * safe (but redundant) to run again on data that's already clean.
      * @return string The string representation of the array.
+     * @throws DomainException If a value cannot be stringified.
      */
     public static function stringifyArray(
         array $arr,
@@ -478,7 +479,7 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing (default false).
      * @param int $indentLevel The level of indentation for this structure (default 0).
      * @return string The string representation of the object.
-     * @throws UnexpectedValueException
+     * @throws DomainException If a value cannot be stringified.
      */
     public static function stringifyObject(object $obj, bool $prettyPrint = false, int $indentLevel = 0): string
     {
@@ -579,7 +580,7 @@ final class Stringify
         // So, check the debug type.
         $type = get_debug_type($value);
         if (!str_starts_with($type, 'resource (')) {
-            throw new InvalidArgumentException("Invalid type: $type. Must be a resource.");
+            throw new InvalidArgumentException("Invalid value type: $type. Must be a resource.");
         }
 
         /** @var resource $value */
@@ -600,6 +601,7 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing.
      * @param int $indentLevel The level of indentation for this structure.
      * @return string The string representation of the value.
+     * @throws DomainException If the value cannot be stringified.
      */
     private static function stringifyCleanedValue(mixed $value, bool $prettyPrint, int $indentLevel): string
     {
@@ -709,6 +711,7 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing.
      * @param int $indentLevel The level of indentation for this structure.
      * @return string The string representation of the associative array.
+     * @throws DomainException If a value cannot be stringified.
      */
     private static function stringifyAssociativeArray(array $arr, bool $prettyPrint, int $indentLevel): string
     {

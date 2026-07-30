@@ -106,7 +106,7 @@ final class StringifyTest extends TestCase
     public function testStringifyStringUndetectableEncoding(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('String encoding is not UTF-8 and could not be detected.');
+        $this->expectExceptionMessage('String encoding cannot be detected.');
         Stringify::stringifyString("\xfe\xff");
     }
 
@@ -400,7 +400,7 @@ final class StringifyTest extends TestCase
     public function testStringifyResourceWithNonResource(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid type: string. Must be a resource.');
+        $this->expectExceptionMessage('Invalid value type: string. Must be a resource.');
         Stringify::stringifyResource('not a resource');
     }
 
@@ -833,21 +833,11 @@ final class StringifyTest extends TestCase
     }
 
     /**
-     * Test setIndent() throws for zero.
-     */
-    public function testSetIndentZeroThrows(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid indent:');
-        Stringify::setIndent(0);
-    }
-
-    /**
      * Test setIndent() throws for negative value.
      */
     public function testSetIndentNegativeThrows(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid indent:');
         Stringify::setIndent(-1);
     }
@@ -878,7 +868,7 @@ final class StringifyTest extends TestCase
      */
     public function testSetMaxLineLengthZeroThrows(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid max line length:');
         Stringify::setMaxLineLength(0);
     }
@@ -888,7 +878,7 @@ final class StringifyTest extends TestCase
      */
     public function testSetMaxLineLengthNegativeThrows(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid max line length:');
         Stringify::setMaxLineLength(-10);
     }
