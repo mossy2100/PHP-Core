@@ -20,6 +20,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   range), returning it exactly as written, whitespace and comments included; the surrounding statement (e.g. a
   trailing `;`) is excluded. Returns `''` if the source isn't available (e.g. a closure wrapping an internal
   function). `Stringify::stringify()` now dispatches closures to this method.
+- **`OceanMoon\Core\FloatFormat`** — enum selecting `Floats::format()`'s notation: `FixedPoint`, `Scientific`, or
+  `Auto` (whichever produces the more useful string).
+- **`OceanMoon\Core\ExponentFormat`** — enum selecting how `Floats::format()` renders an exponent, if present:
+  `AsciiLowerCaseE`/`AsciiUpperCaseE` (`e+23`/`E+23`), `AsciiMath` (`*10^23`), `UnicodeMath` (`×10²³`, the default),
+  or `HtmlMath` (`&times;10<sup>23</sup>`). Has a public `format(int $exponent): string` method, independently
+  usable and testable.
+- **`Floats::getExponent()`** — returns a float's base-10 exponent as if written in normalized scientific notation
+  (a single non-zero digit before the decimal point). Computed via `floor(log10(abs($value)))`, verified and
+  adjusted by one if needed to guard against `log10()` rounding error at exact powers of 10.
+- **`Environment::getLocale()`** — auto-detects the locale from the HTTP `Accept-Language` header, falling back to
+  PHP's current default (`Locale::getDefault()`, which always returns a value). Also adds
+  **`Environment::INVARIANT_LOCALE`** (`'en_US_POSIX'`), used internally by `Floats::format()` for deterministic,
+  locale-independent output.
+- **`OceanMoon\Core\hr()`** — prints a horizontal rule (a repeated character followed by a newline).
 
 ### Changed
 
@@ -80,6 +94,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **`Stringify::stringifyString()`**: strings are now rendered single-quoted (only `\` and `'` are escaped) instead
   of double-quoted. Control characters like `\n`/`\t` are no longer escaped and are embedded as literal characters —
   still valid, parseable single-quoted PHP, just multi-line for values containing a real newline.
+- **`Floats::format()`** overhauled:
+  - The old `string $specifier` parameter (one of the 8 raw sprintf letters `e/E/f/F/g/G/h/H`) is replaced by the
+    new `FloatFormat`/`ExponentFormat` enums (see Added, above). The old boolean `$ascii` flag is gone —
+    `ExponentFormat` now offers five styles instead of just ASCII vs. Unicode. Invalid enum values are rejected by
+    PHP's own type system, so the old `DomainException` for an invalid specifier letter no longer applies.
+  - New signature: `format(float $value, int $precision = 6, bool $trimZeros = true, FloatFormat $format =
+    FloatFormat::Auto, ExponentFormat $expFormat = ExponentFormat::UnicodeMath, RoundingMode $roundingMode =
+    RoundingMode::HalfAwayFromZero)`. `$precision` is no longer nullable (default `6`); its meaning depends on
+    `$format` — decimal places for `FixedPoint`, significant digits for `Scientific`/`Auto`. `$trimZeros` is no
+    longer a three-state nullable "auto" flag — it's a plain bool, now defaulting to `true`.
+  - **`$roundingMode`** is new — implemented via `NumberFormatter` internally, but exposed through the same
+    `RoundingMode` enum used by `round()`, `Rational::round()`, and `Complex::round()`, defaulting to
+    `HalfAwayFromZero` rather than sprintf's round-half-to-even.
+  - **`FloatFormat::Auto`**'s selection logic no longer mimics sprintf's `%g`/`%h` cutover rule. It now formats the
+    value both ways and picks whichever preserves more real information and avoids excessive leading/trailing
+    zeros — comparing actual digit counts (via a private `analyzeDigits()` helper) rather than comparing the
+    value's exponent against `$precision`, so it won't switch to scientific notation and needlessly discard
+    precision when fixed-point can show the value just as compactly and more exactly (e.g. `1234567.89` stays
+    `'1234567.89'` rather than becoming a lossy `'1.23457E+6'`).
+  - Non-finite values (`NAN`, `±INF`) are now returned via their default PHP string representation regardless of
+    the other parameters, rather than passing through `sprintf()`.
+  - **Known follow-up (not included in this change)**: `Quantities\Quantity::format()` delegates positionally to
+    `Floats::format()`'s old signature and will need a matching update in a subsequent Quantities release.
 
 ### Fixed
 

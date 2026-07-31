@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OceanMoon\Core;
 
 use DomainException;
+use NumberFormatter;
 use Random\RandomException;
+use RoundingMode;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -126,6 +128,38 @@ final class Floats
     public static function isSpecial(float $value): bool
     {
         return !is_finite($value) || self::isNegativeZero($value);
+    }
+
+    /**
+     * Get the base-10 exponent of a float, as if it were written in normalized scientific notation
+     * (i.e. a single non-zero digit before the decimal point).
+     *
+     * Computed via floor(log10(abs($value))), then verified and adjusted by one if needed. This guards against
+     * log10() rounding error at exact powers of 10 (e.g. some platforms return log10(1000) as 2.9999999999999996
+     * rather than exactly 3.0, which would otherwise throw off the floor() result by one).
+     *
+     * @param float $value The value to get the exponent of. Must be finite.
+     * @return int The exponent. Returns 0 for a value of 0.0.
+     */
+    public static function getExponent(float $value): int
+    {
+        // Handle 0 separately to avoid INF result.
+        if ($value === 0.0) {
+            return 0;
+        }
+
+        $absValue = abs($value);
+        $exp = (int) floor(log10($absValue));
+        $mantissa = $absValue / (10.0 ** $exp);
+
+        // Guard against log10() rounding error at exact powers of 10.
+        if ($mantissa >= 10.0) {
+            $exp++;
+        } elseif ($mantissa < 1.0) {
+            $exp--;
+        }
+
+        return $exp;
     }
 
     #endregion
@@ -364,91 +398,124 @@ final class Floats
     /**
      * Format a float as a string with control over precision and notation.
      *
-     * Format specifiers:
-     *   - 'e': Scientific notation with lowercase 'e'.
-     *   - 'E': Scientific notation with uppercase 'E'.
-     *   - 'f': Fixed-point notation (locale-aware).
-     *   - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
-     *   - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware). [default]
-     *   - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
-     *   - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
-     *   - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
-     * For more information, see https://www.php.net/manual/en/function.sprintf.php
+     * NAN and ±INF are returned as their default PHP string representations ('NAN', 'INF', '-INF'), regardless of
+     * the other parameters.
      *
-     * The meaning of the precision argument depends on the format specifier.
-     *   - For e/E/f/F, precision means the number of digits after the decimal point.
-     *   - For g/G/h/H, precision means the number of significant digits.
+     * The meaning of $precision depends on $format:
+     *   - FixedPoint: Number of decimal places.
+     *   - Scientific: Number of significant digits.
+     *   - Auto: Depends which format is used. If fixed-point is selected, decimal places; if not, significant figures.
      *
-     * If $trimZeros is true, trailing zeros (and if necessary, a trailing decimal point) are automatically
-     * removed. For a value string with an exponent, this applies only to the mantissa (the part before the 'e').
-     * If $trimZeros is false, all digits are preserved.
-     * If $trimZeros is null (default), the behavior will depend on whether precision was specified or not.
-     * If $precision is null, zeros will be trimmed; if the $precision is specified, zeros will not be trimmed.
+     * The $format parameter selects the notation:
+     *   - FloatFormat::FixedPoint: Does not include exponent.
+     *   - FloatFormat::Scientific: Always includes exponent.
+     *   - FloatFormat::Auto (default): Whichever of the above produces the more useful string, with the greater
+     *     number of significant figures and not too many leading or trailing zeros.
      *
-     * When $ascii is false and scientific notation is used, the exponent is rendered as ×10 with
-     * superscript digits (e.g. 1.50×10³) instead of e+3.
+     * If $trimZeros is:
+     * - true:  Trailing zeros - and, if necessary, a trailing decimal point - are automatically removed.
+     *          For scientific notation this applies to the mantissa.
+     * - false: All digits are preserved (default).
+     *
+     * $expFormat controls how an exponent, if present, is rendered.
+     * @see ExponentFormat for options.
+     *
+     * For example:
+     * ```php
+     * Floats::format(1234.5);                                      // '1234.5'
+     * Floats::format(0.0001234, format: FloatFormat::Scientific);  // '1.234E-4'
+     * Floats::format(1234.5, precision: 3, trimZeros: false);      // '1234.500'
+     * ```
      *
      * @param float $value The numeric value to format.
-     * @param string $specifier The format specifier (default 'g').
-     * @param ?int $precision Number of decimal places for e/f (default null = 6), or significant digits for g/h
-     * (default null = 7).
-     * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
-     * @param bool $ascii If true, use ASCII e notation. If false (default), use ×10 with superscript exponents.
+     * @param int $precision Maximum number of decimal places or significant digits to include (default 6).
+     * @param bool $trimZeros If trailing zeros should be trimmed (default true).
+     * @param FloatFormat $format If the value should be formatted using FixedPoint or Scientific notation, or Auto
+     * to choose the best one (default).
+     * @param ExponentFormat $expFormat The exponent format to use (default UnicodeMath).
+     * @param RoundingMode $roundingMode The rounding mode to use. (default HalfAwayFromZero, matching round(),
+     * Rational::round(), and Complex::round(), rather than sprintf()'s round-half-to-even behavior).
      * @return string The formatted value string.
-     * @throws DomainException If the specifier or precision is invalid.
+     * @throws DomainException If the precision is outside the valid range.
      */
     public static function format(
         float $value,
-        string $specifier = 'g',
-        ?int $precision = null,
-        ?bool $trimZeros = null,
-        bool $ascii = false
+        int $precision = 6,
+        bool $trimZeros = true,
+        FloatFormat $format = FloatFormat::Auto,
+        ExponentFormat $expFormat = ExponentFormat::UnicodeMath,
+        RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero
     ): string {
-        // Validate the specifier.
-        $validFormats = ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'];
-        if (!in_array($specifier, $validFormats, true)) {
-            $formatsString = Arrays::toSerialList(Arrays::quoteValues($validFormats), 'or');
-            throw new DomainException("Invalid format specifier: '$specifier'. Must be $formatsString.");
+        // If NAN/±INF return the string equivalent.
+        if (!is_finite($value)) {
+            return (string) $value;
         }
 
         // Validate the precision.
-        if ($precision !== null && ($precision < 0 || $precision > 17)) {
-            throw new DomainException("Invalid precision: $precision. Must be between 0 and 17.");
-        }
-
-        // Set $trimZeros if not set.
-        if ($trimZeros === null) {
-            $trimZeros = $precision === null;
+        if ($format === FloatFormat::FixedPoint) {
+            if ($precision < 0 || $precision > 17) {
+                throw new DomainException("Invalid number of decimal places: $precision. Must be between 0 and 17.");
+            }
+        } else {
+            if ($precision < 1 || $precision > 17) {
+                throw new DomainException(
+                    "Invalid number of significant figures: $precision. Must be between 1 and 17."
+                );
+            }
         }
 
         // Canonicalize -0.0 to 0.0.
         $value = self::normalizeZero($value);
 
-        // Format with the desired precision and specifier.
-        // If precision is null, default to 7 for g/G/h/H (matching %e's 7 significant digits) and 6
-        // for e/E/f/F (matching sprintf's default decimal places). This makes 'g' genuinely "the
-        // shorter of e and f at matching precision".
-        $effectivePrecision = $precision
-            ?? (in_array($specifier, ['g', 'G', 'h', 'H'], true) ? 7 : 6);
-        $formatString = "%.$effectivePrecision$specifier";
-        $valueStr = sprintf($formatString, $value);
+        // Convert the rounding mode from an enum to an int.
+        $roundingMode = self::convertRoundingMode($roundingMode);
 
-        // Look for an 'e' or 'E'.
-        $ePos = stripos($valueStr, 'e');
+        // Get the format if Auto is specified.
+        switch ($format)
+        {
+            case FloatFormat::FixedPoint:
+                $valueStr = self::formatFixed($value, $precision, $roundingMode);
+                break;
 
-        // Check for fixed point format.
-        if ($ePos === false) {
+            case FloatFormat::Scientific:
+                $valueStr = self::formatScientific($value, $precision, $roundingMode);
+                break;
+
+            default:
+                // Auto mode.
+                // Get fixed point version.
+                $fix = self::formatFixed($value, $precision, $roundingMode);
+                [$fix_nLeading0s, $fix_nSigdigits, $fix_nTrailing0s] = self::analyzeDigits($fix);
+
+                // Get scientific version.
+                $sci = self::formatScientific($value, $precision, $roundingMode);
+                [$sci_nLeading0s, $sci_nSigdigits, $sci_nTrailing0s] = self::analyzeDigits($sci);
+
+                // If, by using a fixed-point notation, we end up with fewer significant digits, or there are more than
+                // 3 leading or trailing 0s, use scientific notation instead.
+                if ($fix_nSigdigits < $sci_nSigdigits || $fix_nLeading0s > 3 || $fix_nTrailing0s > 3) {
+                    $valueStr = $sci;
+                    $format = FloatFormat::Scientific;
+                } else {
+                    $valueStr = $fix;
+                    $format = FloatFormat::FixedPoint;
+                }
+        }
+
+        // Handle fixed point.
+        if ($format === FloatFormat::FixedPoint) {
             // Trim zeros if requested.
             if ($trimZeros && str_contains($valueStr, '.')) {
                 $valueStr = rtrim(rtrim($valueStr, '0'), '.');
             }
 
+            // Done.
             return $valueStr;
         }
 
-        // Disassemble the value string.
+        // Scientific notation. Disassemble the string.
+        $ePos = stripos($valueStr, 'E');
         $mantissa = substr($valueStr, 0, $ePos);
-        $expSeparator = $valueStr[$ePos];
         $exp = substr($valueStr, $ePos + 1);
 
         // Trim zeros from the mantissa if requested.
@@ -456,14 +523,8 @@ final class Floats
             $mantissa = rtrim(rtrim($mantissa, '0'), '.');
         }
 
-        // If we want Unicode format and there's an exponent, replace it with the Unicode version.
-        if (!$ascii) {
-            $expSeparator = '×10';
-            $exp = Integers::toSuperscript((int) $exp);
-        }
-
-        // Reassemble the value string.
-        return $mantissa . $expSeparator . $exp;
+        // Reassemble the value string with the formatted exponent.
+        return $mantissa . $expFormat->format((int) $exp);
     }
 
     #endregion
@@ -950,6 +1011,116 @@ final class Floats
                 'Invalid absolute tolerance: ' . ex($absTol) . '. Must be finite and non-negative.'
             );
         }
+    }
+
+    /**
+     * Convert a RoundingMode to a NumberFormatter constant.
+     *
+     * @param RoundingMode $roundingMode The RoundingMode to convert.
+     * @return int The NumberFormatter constant.
+     */
+    private static function convertRoundingMode(RoundingMode $roundingMode): int
+    {
+        return match ($roundingMode) {
+            RoundingMode::HalfAwayFromZero => NumberFormatter::ROUND_HALFUP,
+            RoundingMode::HalfTowardsZero => NumberFormatter::ROUND_HALFDOWN,
+            RoundingMode::HalfEven => NumberFormatter::ROUND_HALFEVEN,
+            RoundingMode::HalfOdd => NumberFormatter::ROUND_HALFODD,
+            RoundingMode::TowardsZero => NumberFormatter::ROUND_TOWARD_ZERO,
+            RoundingMode::AwayFromZero => NumberFormatter::ROUND_AWAY_FROM_ZERO,
+            RoundingMode::NegativeInfinity => NumberFormatter::ROUND_FLOOR,
+            RoundingMode::PositiveInfinity => NumberFormatter::ROUND_CEILING,
+        };
+    }
+
+    /**
+     * Format a float in fixed-point notation (no exponent), using the invariant locale.
+     *
+     * @param float $value The value to format.
+     * @param int $precision The number of decimal places.
+     * @param int $roundingMode A NumberFormatter::ROUND_* constant.
+     * @return string The formatted value, e.g. '1234.500000'. Not trimmed or sign/locale-adjusted.
+     */
+    private static function formatFixed(float $value, int $precision, int $roundingMode): string
+    {
+        $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::DECIMAL);
+        $nf->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
+        $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
+        return $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+    }
+
+    /**
+     * Format a float in scientific notation (always includes an exponent), using the invariant locale.
+     *
+     * @param float $value The value to format.
+     * @param int $precision The number of significant digits.
+     * @param int $roundingMode A NumberFormatter::ROUND_* constant.
+     * @return string The formatted value, e.g. '1.234500E+003'. Not trimmed or reformatted for ExponentFormat.
+     */
+    private static function formatScientific(float $value, int $precision, int $roundingMode): string
+    {
+        $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::SCIENTIFIC);
+        $nf->setAttribute(NumberFormatter::SIGNIFICANT_DIGITS_USED, 1);
+        $nf->setAttribute(NumberFormatter::MIN_SIGNIFICANT_DIGITS, $precision);
+        $nf->setAttribute(NumberFormatter::MAX_SIGNIFICANT_DIGITS, $precision);
+        $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
+        return $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+    }
+
+    /**
+     * Analyze a formatted numeric string (from formatFixed() or formatScientific()) to help Auto mode decide
+     * between fixed-point and scientific notation.
+     *
+     * The string is trimmed of trailing zero padding in the fractional part before counting, so that padding
+     * added purely to reach $precision decimal places (e.g. formatFixed(3.14, 6) => '3.140000') isn't mistaken
+     * for genuine trailing zeros indicating a round number. Only a real, structural trailing zero - one that
+     * remains after trimming, whether in the integer part (e.g. '5000') or, for a scientific candidate, the
+     * mantissa - counts.
+     *
+     * @param string $str A string from formatFixed() or formatScientific(). For a scientific string, only the
+     * mantissa (before the exponent) is analyzed.
+     * @return array{0: int, 1: int, 2: int} [leading zero count, significant digit count, trailing zero count].
+     */
+    private static function analyzeDigits(string $str): array
+    {
+        // Remove sign.
+        if ($str !== '' && ($str[0] === '-' || $str[0] === '+')) {
+            $str = substr($str, 1);
+        }
+
+        // Remove exponent.
+        $ePos = stripos($str, 'E');
+        if ($ePos !== false) {
+            $str = substr($str, 0, $ePos);
+        }
+
+        // Trim trailing zeros after the decimal point.
+        if (str_contains($str, '.')) {
+            $str = rtrim($str, '0');
+        }
+
+        // Remove decimal point.
+        $digits = str_replace('.', '', $str);
+
+        // Count the total number of digits.
+        $length = strlen($digits);
+
+        // Count leading zeros.
+        $nLeadingZeros = 0;
+        while ($nLeadingZeros < $length && $digits[$nLeadingZeros] === '0') {
+            $nLeadingZeros++;
+        }
+
+        // Count trailing zeros.
+        $nTrailingZeros = 0;
+        while ($nTrailingZeros < $length && $digits[$length - 1 - $nTrailingZeros] === '0') {
+            $nTrailingZeros++;
+        }
+
+        // Get the number of signficant digits.
+        $nSignificantDigits = $length - $nLeadingZeros -$nTrailingZeros;
+
+        return [$nLeadingZeros, $nSignificantDigits, $nTrailingZeros];
     }
 
     #endregion

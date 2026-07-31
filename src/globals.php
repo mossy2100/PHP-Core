@@ -55,7 +55,7 @@ function println(mixed $value = ''): void
  *
  * @param mixed $value The value to print.
  * @param bool $prettyPrint Whether to format the output with newlines.
- * @param $return If a value should be returned or printed.
+ * @param bool $return If a value should be returned or printed.
  * @return ?string Either null if printed, or a string representing the value.
  */
 function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): ?string
@@ -112,4 +112,15 @@ function to_string(mixed $value): string
 
     // Fallback to stringify() which will handle anything else.
     return Stringify::stringify($value);
+}
+
+/**
+ * Print a horizontal rule: a line of repeated characters followed by a newline.
+ *
+ * @param string $ch The character to repeat.
+ * @param int $length The number of times to repeat it.
+ */
+function hr(string $ch = '-', int $length = 80): void
+{
+    println(str_repeat($ch, $length));
 }
