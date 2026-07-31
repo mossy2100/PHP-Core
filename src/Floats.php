@@ -485,15 +485,15 @@ final class Floats
                 // Auto mode.
                 // Get fixed point version.
                 $fix = self::formatFixed($value, $precision, $roundingMode);
-                [$fix_nLeading0s, $fix_nSigdigits, $fix_nTrailing0s] = self::analyzeDigits($fix);
+                [$fixLeading0s, $fixSigDigits, $fixTrailing0s] = self::analyzeDigits($fix);
 
                 // Get scientific version.
                 $sci = self::formatScientific($value, $precision, $roundingMode);
-                [$sci_nLeading0s, $sci_nSigdigits, $sci_nTrailing0s] = self::analyzeDigits($sci);
+                [$sciLeading0s, $sciSigDigits, $sciTrailing0s] = self::analyzeDigits($sci);
 
                 // If, by using a fixed-point notation, we end up with fewer significant digits, or there are more than
                 // 3 leading or trailing 0s, use scientific notation instead.
-                if ($fix_nSigdigits < $sci_nSigdigits || $fix_nLeading0s > 3 || $fix_nTrailing0s > 3) {
+                if ($fixSigDigits < $sciSigDigits || $fixLeading0s > 3 || $fixTrailing0s > 3) {
                     $valueStr = $sci;
                     $format = FloatFormat::Scientific;
                 } else {
@@ -1094,33 +1094,32 @@ final class Floats
             $str = substr($str, 0, $ePos);
         }
 
-        // Trim trailing zeros after the decimal point.
         if (str_contains($str, '.')) {
+            // Trim trailing zeros after the decimal point.
             $str = rtrim($str, '0');
+            // Remove decimal point.
+            $str = str_replace('.', '', $str);
         }
 
-        // Remove decimal point.
-        $digits = str_replace('.', '', $str);
-
-        // Count the total number of digits.
-        $length = strlen($digits);
+        // Only digits remain. Count the total number.
+        $length = strlen($str);
 
         // Count leading zeros.
-        $nLeadingZeros = 0;
-        while ($nLeadingZeros < $length && $digits[$nLeadingZeros] === '0') {
-            $nLeadingZeros++;
+        $nLeading0s = 0;
+        while ($nLeading0s < $length && $str[$nLeading0s] === '0') {
+            $nLeading0s++;
         }
 
         // Count trailing zeros.
-        $nTrailingZeros = 0;
-        while ($nTrailingZeros < $length && $digits[$length - 1 - $nTrailingZeros] === '0') {
-            $nTrailingZeros++;
+        $nTrailing0s = 0;
+        while ($nTrailing0s < $length && $str[$length - 1 - $nTrailing0s] === '0') {
+            $nTrailing0s++;
         }
 
         // Get the number of signficant digits.
-        $nSignificantDigits = $length - $nLeadingZeros -$nTrailingZeros;
+        $nSigDigits = $length - $nLeading0s -$nTrailing0s;
 
-        return [$nLeadingZeros, $nSignificantDigits, $nTrailingZeros];
+        return [$nLeading0s, $nSigDigits, $nTrailing0s];
     }
 
     #endregion
