@@ -1,12 +1,12 @@
 # Constants
 
-Shared constants and functions used by Core, Math, and other packages.
+Shared constants used by Core, Math, and other packages.
 
 ---
 
 ## Overview
 
-`src/globals.php` provides a small set of namespaced constants and functions (`OceanMoon\Core`) that are more useful as globals than as class members. The number of items is deliberately kept small to minimise the number of `use const` and `use function` statements, which aren't that common or well-known in PHP.
+`src/globals.php` provides a small set of namespaced constants (`OceanMoon\Core`) that are more useful as globals than as class members. The number of items is deliberately kept small to minimise the number of `use const` statements, which aren't that common or well-known in PHP.
 
 ---
 
@@ -21,14 +21,6 @@ To use a constant without qualifying the namespace every time, add a `use const`
 
 ```php
 use const OceanMoon\Core\M_TAU;
-```
-
-To use a function without qualifying the namespace every time, add a `use function` import:
-
-**Example:**
-
-```php
-use function OceanMoon\Core\println;
 ```
 
 ---
@@ -72,149 +64,12 @@ $cleaned = Arrays::removeRecursion($arr);
 
 ---
 
-## Functions
-
-### println()
-
-```php
-function println(mixed $value = ''): void
-```
-
-Print a value followed by a newline.
-
-The name mimics Java, Scala, Swift, Rust, Go, Julia, etc., and aligns with PHP's `print()` construct.
-
-**Parameters:**
-
-- `$value` (mixed, optional) - The value to print. Defaults to `''`.
-
-**Example:**
-
-```php
-use function OceanMoon\Core\println;
-
-println('Hello, world!');  // Outputs: Hello, world!\n
-```
-
-If the value is not a string, it's converted automatically by PHP. This can produce a notice or warning for some values, such as NAN, arrays, closures, and objects that aren't `Stringable`. If necessary, call `to_string()` (documented below) on the value first, which will prevent this.
-
-**Example:**
-
-```php
-println(NAN);
-// Issues 'Warning: unexpected NAN value was coerced to string', same as `print NAN` or `echo NAN`.
-
-println(to_string(NAN));
-// Prints "NAN".
-```
-
-### inspect()
-
-```php
-function inspect(mixed $value, bool $prettyPrint = false, bool $return = false): ?string
-```
-
-Print a stringified value (see [`Stringify::stringify()`](Stringify.md#stringify)). An alternative to `var_dump()`, `var_export()`, `print_r()`,
-or a plain `(string)` cast, with several advantages:
-
-1. Output is concise, yet informative.
-2. The value's type is apparent, even when not given explicitly.
-3. The result is valid PHP code for all types except objects, resources, and compound objects containing values of these types or having recursion (circular references).
-4. The function never errors, even with circular references.
-
-**Parameters:**
-
-- `$value` (mixed) - The value to inspect.
-- `$prettyPrint` (bool) - Whether to format the output with additional whitespace for readability. Defaults to `false`.
-- `$return` (bool) - If `true`, returns the stringified value instead of printing it. Defaults to `false`.
-
-**Returns:**
-
-- `?string` - `null` if the value was printed, or the stringified value if `$return` is `true`.
-
-**Example:**
-
-```php
-use function OceanMoon\Core\inspect;
-
-inspect(['name' => 'John', 'age' => 30]);
-// Outputs: ["name" => "John", "age" => 30]
-
-$s = inspect(['name' => 'John', 'age' => 30], return: true);
-// $s === '["name" => "John", "age" => 30]'
-```
-
-### to_string()
-
-```php
-function to_string(mixed $value): string
-```
-
-Convert any value to a string, without errors or warnings.
-
-**Behavior:**
-
-1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases that usually emit a warning are caught.
-2. Otherwise, falls back to `Stringify::stringify()` — this handles `NAN`, arrays, non-`Stringable` objects, resources, and
-   anything else the cast couldn't.
-
-**Parameters:**
-
-- `$value` (mixed) - The value to convert.
-
-**Returns:**
-
-- `string` - The value as a string.
-
-**Examples:**
-
-```php
-use function OceanMoon\Core\to_string;
-
-echo to_string('hello');     // 'hello'
-echo to_string(42);          // '42'
-echo to_string(true);        // '1'
-echo to_string(null);        // ''
-echo to_string([1, 2, 3]);   // '[1, 2, 3]' (via Stringify)
-echo to_string(NAN);         // 'NAN' (via Stringify; a direct cast would emit a warning)
-
-class CodeMonkey {
-    public $name = 'Shaun';
-}
-echo to_string(new CodeMonkey);  // 'CodeMonkey #9 {+name => 'Shaun'}' (via Stringify)
-```
-
-### ex()
-
-```php
-function ex(mixed $value): string
-```
-
-Get a short, abbreviated string representation of a value, using `Stringify::abbrev()`. Intended for building exception
-messages that report the invalid value without risking an overly long message for large arrays, strings, or objects.
-
-The approximate maximum length is hard-coded to 32 (`Stringify::abbrev()`'s own default) rather than exposed as a parameter.
-
-**Parameters:**
-
-- `$value` (mixed) - The value to convert to a string.
-
-**Returns:**
-
-- `string` - The abbreviated string representation of the value.
-
-**Example:**
-
-```php
-use function OceanMoon\Core\ex;
-
-throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
-```
-
----
-
 ## See Also
 
 - **[Numbers](Numbers.md)** - Number-related functions
 - **[Arrays](Arrays.md)** - `removeRecursion()`, which uses the `RECURSION` marker
+- **[Stringify](Stringify.md)** - `toString()` and `prepEx()`, which took over from the removed `to_string()` and
+  `ex()` global functions
+- **Console** - `print()`, `println()`, and `dump()`, which took over from the removed `println()` and `inspect()`
+  global functions, with added ANSI styling
 - **[Stringify](Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, and `to_string()`

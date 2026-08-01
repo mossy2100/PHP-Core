@@ -50,26 +50,18 @@ final class Types
      */
     public static function getBasicType(mixed $value): string
     {
-        // Try get_debug_type() first as this returns the new, canonical type names.
+        // Use get_debug_type() to get the new, canonical type names.
         $type = get_debug_type($value);
-        if (in_array($type, ['null', 'bool', 'int', 'float', 'string', 'array'], true)) {
-            return $type;
-        }
 
-        // Check for enum.
-        if ($value instanceof UnitEnum) {
-            return 'enum';
-        }
-
-        // Check for closure.
-        if ($value instanceof Closure) {
-            return 'closure';
-        }
-
-        // Call gettype() and return the first word, which should be "object", "resource", or "unknown".
-        // NB: The documentation for get_debug_type() has no equivalent for "unknown type", so this may never occur.
-        $type = gettype($value);
-        return explode(' ', $type)[0];
+        return match (true) {
+            // The basics.
+            in_array($type, ['null', 'bool', 'int', 'float', 'string', 'array'], true) => $type,
+            // Check for special object types.
+            $value instanceof UnitEnum => 'enum',
+            $value instanceof Closure => 'closure',
+            // Call gettype() and return the first word, which should be "object", "resource", or "unknown".
+            default => explode(' ', gettype($value))[0]
+        };
     }
 
     #endregion

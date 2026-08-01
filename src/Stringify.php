@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace OceanMoon\Core;
 
+use BadMethodCallException;
 use Closure;
 use DomainException;
+use ErrorException;
 use InvalidArgumentException;
 use ReflectionFunction;
+use Throwable;
 use UnexpectedValueException;
 use UnitEnum;
 
@@ -207,6 +210,33 @@ final class Stringify
     }
 
     /**
+     * Convert any value to a string, without errors.
+     *
+     * - Default string conversion is used when it works.
+     * - Falls back to stringify() for values that emit warnings or errors on default string conversion (e.g. arrays,
+     *   NAN, non-Stringable objects).
+     *
+     * @param mixed $value Whatever you want converted to a string.
+     * @return string The value as a string.
+     */
+    public static function toString(mixed $value): string
+    {
+        // Temporarily convert warnings to exceptions to catch cases where the default cast would emit a warning.
+        set_error_handler(static fn () => throw new ErrorException());
+
+        try {
+            return (string) $value; // @phpstan-ignore cast.string
+        } catch (Throwable) {
+            // Fall through to the DateTimeInterface/Stringify handling below.
+        } finally {
+            restore_error_handler();
+        }
+
+        // Fallback to stringify() which will handle anything else.
+        return self::stringify($value);
+    }
+
+    /**
      * Get a short string representation of the given value for use in error messages, log messages, and the like.
      *
      * @param mixed $value The value to get the string representation for.
@@ -264,6 +294,47 @@ final class Stringify
         return $result;
     }
 
+    /**
+     * Prepare an exception message, substituting each '?' placeholder, left to right, with abbrev() of the
+     * matching value.
+     *
+     * A value that itself contains '?' is inserted verbatim — it is not re-scanned for further placeholders, since
+     * all splitting happens against the original $message before any substitution occurs.
+     *
+     * For example:
+     * ```php
+     * Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', $min, $max);
+     * // "Invalid range: [-5, -10]. Min must not exceed max."
+     * ```
+     *
+     * @param string $message The message template, with a '?' placeholder for each value.
+     * @param mixed ...$values The values to substitute, one per placeholder, in order.
+     * @return string The prepared message.
+     * @throws BadMethodCallException If the number of values doesn't match the number of placeholders.
+     */
+    public static function prepEx(string $message, mixed ...$values): string
+    {
+        $parts = explode('?', $message);
+        $placeholderCount = count($parts) - 1;
+
+        if ($placeholderCount !== count($values)) {
+            throw new BadMethodCallException(
+                self::prepEx(
+                    'Cannot prepare exception message due to incorrect value count: ?. Expected ?.',
+                    count($values),
+                    $placeholderCount
+                )
+            );
+        }
+
+        $result = $parts[0];
+        foreach (array_values($values) as $i => $value) {
+            $result .= self::abbrev($value) . $parts[$i + 1];
+        }
+
+        return $result;
+    }
+
     #endregion
 
     #region Type-specific stringification methods
@@ -308,7 +379,7 @@ final class Stringify
 
         // If the string representation of the float value has no decimal point or exponent (i.e. nothing to distinguish
         // it from an integer), append a decimal point.
-        if (!preg_match('/[.eE]/', $s)) {
+        if (preg_match('/[.eE]/', $s) === 0) {
             $s .= '.0';
         }
 
