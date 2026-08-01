@@ -236,6 +236,41 @@ Floats::isSpecial(-42.5);  // false
 
 ---
 
+### getExponent()
+
+```php
+public static function getExponent(float $value): int
+```
+
+Get the base-10 exponent of a float, as if it were written in normalized scientific notation (a single non-zero digit
+before the decimal point). Computed via `floor(log10(abs($value)))`, then corrected for `log10()` rounding error at
+exact powers of 10 (e.g. some platforms return `log10(1000)` as `2.9999999999999996` rather than exactly `3.0`, which
+would otherwise throw off the result by one).
+
+**Parameters:**
+
+- `$value` (float) - The value to get the exponent of. Must be finite.
+
+**Returns:**
+
+- `int` - The exponent. Returns `0` for a value of `0.0`.
+
+**Examples:**
+
+```php
+Floats::getExponent(5.0);      // 0
+Floats::getExponent(1234.0);   // 3
+Floats::getExponent(-1234.0);  // 3 (sign-independent)
+Floats::getExponent(0.001);    // -3
+Floats::getExponent(1000.0);   // 3 (exact power of 10)
+Floats::getExponent(0.0);      // 0
+```
+
+**Use Case:** For magnitude-based decisions (e.g. choosing a unit prefix, or how many significant digits are
+meaningful).
+
+---
+
 ## Comparison Methods
 
 ### approxEqual()
@@ -425,7 +460,8 @@ Floats::approxCompare(NAN, 1.0);      // throws DomainException
 - Throws `DomainException` if either argument is NAN (NAN cannot be meaningfully compared).
 - First checks approximate equality using `approxEqual()` with the specified tolerances.
 - If approximately equal, returns `0`.
-- Otherwise uses spaceship operator (`<=>`) to determine ordering, normalized to exactly -1 or 1 using `Numbers::sign()`.
+- Otherwise uses spaceship operator (`<=>`) to determine ordering, normalized to exactly -1 or 1 using
+  `Numbers::sign()`.
 - Infinities are handled by `approxEqual()` using exact equality.
 
 **Use Cases:**
@@ -741,8 +777,9 @@ public static function toHex(float $value): string
 Convert a float to a unique 16-character hexadecimal string representation. Every possible float value produces a unique
 hex string, making this method ideal for hashing or keying floats in collections.
 
-**Note:** The method works for NAN, but, be aware, the NAN as defined by IEEE doesn't technically have a unique hex representation; in fact,
-for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the hex representation of NAN used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
+**Note:** The method works for NAN, but, be aware, the NAN as defined by IEEE doesn't technically have a unique hex
+representation; in fact, for 64-bit IEEE floats, 2<sup>53</sup> - 2 bit patterns mean NAN. This method will return the
+hex representation of NAN used by PHP ('7ff8000000000000'). Also see notes for `bitsToFloat()`.
 
 **Parameters:**
 
@@ -784,42 +821,50 @@ Floats::toHex($a) !== Floats::toHex($b);  // true
 ```php
 public static function format(
     float $value,
-    string $specifier = 'g',
-    ?int $precision = null,
-    ?bool $trimZeros = null,
-    bool $ascii = false
+    int $precision = 6,
+    bool $trimZeros = true,
+    FloatFormat $format = FloatFormat::Auto,
+    ExponentFormat $expFormat = ExponentFormat::UnicodeMath,
+    RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero
 ): string
 ```
 
-Format a float as a string with control over precision, notation, and trailing zeros. A richer alternative to
+Format a float as a string with control over precision, notation, exponent style, and rounding. A richer alternative to
 `sprintf()` with built-in support for Unicode scientific notation (e.g. `1.50×10³` instead of `1.50e+3`).
+
+NAN and ±INF are returned as their default PHP string representations (`'NAN'`, `'INF'`, `'-INF'`), regardless of the
+other parameters.
+
+`FloatFormat::Auto` will determine which of `FixedPoint` and `Scientific` produces the more readable and useful output. `FixedPoint` will be used unless the result has fewer significant figures, or more than 3 leading or trailing zeros.
 
 **Parameters:**
 
 - `$value` (float) - The numeric value to format.
-- `$specifier` (string) - The format specifier. Default: `'g'`.
+- `$precision` (int) - Maximum number of decimal places (fixed point notation) or significant digits (scientific
+  notation) to include. Default `6`.
+- `$trimZeros` (bool) - If `true` (default), trailing zeros — and, if necessary, a trailing decimal point — are removed.
+  If `false`, all digits from `$precision` are preserved.
+- `$format` (`FloatFormat`) - Selects the notation. Default `FloatFormat::Auto`.
 
-| Specifier | Description                                                                    |
-| --------- | ------------------------------------------------------------------------------ |
-| `'e'`     | Scientific notation with lowercase `e`.                                        |
-| `'E'`     | Scientific notation with uppercase `E`.                                        |
-| `'f'`     | Fixed-point notation (locale-aware).                                           |
-| `'F'`     | Fixed-point notation (non-locale-aware, always uses `.` as decimal separator). |
-| `'g'`     | Shortest of `e` or `f` (lower-case `e`, locale-aware). **Default.**            |
-| `'G'`     | Shortest of `E` or `f` (upper-case `E`, locale-aware).                         |
-| `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
-| `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
+  | Case                      | Description                                                          |
+  | ------------------------- | -------------------------------------------------------------------- |
+  | `FloatFormat::FixedPoint` | Does not include an exponent.                                        |
+  | `FloatFormat::Scientific` | Always includes an exponent.                                         |
+  | `FloatFormat::Auto`       | Whichever of the above produces the more useful string. **Default.** |
 
-- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. When
-  `null`, defaults to `6` for `e`/`E`/`f`/`F` (matching `sprintf`) and `7` for `g`/`G`/`h`/`H`. The `g`/`h` default is
-  one higher so that the result has the same precision as `e` (which uses 6 decimal places = 7 significant digits),
-  making `g` genuinely "the shorter of `e` and `f` at matching precision".
-- `$trimZeros` (?bool) - Controls trailing zero trimming:
-  - `null` (default) — auto: trims when `$precision` is null, preserves when `$precision` is explicit.
-  - `true` — always trim trailing zeros (and trailing decimal point).
-  - `false` — never trim; preserve all digits.
-- `$ascii` (bool) - If `true`, use ASCII `e` notation. If `false` (default), scientific notation uses `×10` with
-  superscript exponents (e.g. `1.50×10³`).
+- `$expFormat` (`ExponentFormat`) - Controls how an exponent, if present, is rendered. Default
+  `ExponentFormat::UnicodeMath`.
+
+  | Case                              | Example (exponent 23)    |
+  | --------------------------------- | ------------------------ |
+  | `ExponentFormat::AsciiLowerCaseE` | `e+23`                   |
+  | `ExponentFormat::AsciiUpperCaseE` | `E+23`                   |
+  | `ExponentFormat::AsciiMath`       | `*10^23`                 |
+  | `ExponentFormat::UnicodeMath`     | `×10²³` **Default.**     |
+  | `ExponentFormat::HtmlMath`        | `&times;10<sup>23</sup>` |
+
+- `$roundingMode` (`RoundingMode`) - The rounding mode to use. Default `RoundingMode::HalfAwayFromZero`, matching
+  `round()`, `Rational::round()`, and `Complex::round()`, rather than `sprintf()`'s round-half-to-even behavior.
 
 **Returns:**
 
@@ -827,31 +872,40 @@ Format a float as a string with control over precision, notation, and trailing z
 
 **Throws:**
 
-- `DomainException` - If the specifier is invalid or precision is outside 0–17.
+- `DomainException` - If `$precision` is outside the valid range: 0–17 for `FixedPoint`, 1–17 for `Scientific`/`Auto`.
 
 **Examples:**
 
 ```php
-// Default: shortest form, trims trailing zeros.
-Floats::format(5.0);                           // "5"
-Floats::format(1234.56);                       // "1234.56"
+// Default: Auto notation, trims trailing zeros.
+Floats::format(1234.5);                                      // "1234.5"
+Floats::format(5.0);                                          // "5"
 
-// Fixed precision preserves trailing zeros by default.
-Floats::format(5.0, 'f', 2);                   // "5.00"
-Floats::format(5.0, 'f', 2, true);             // "5" (explicit trim)
+// Fixed-point, with and without trimming.
+Floats::format(5.0, precision: 2, format: FloatFormat::FixedPoint);                 // "5"
+Floats::format(5.0, precision: 2, trimZeros: false, format: FloatFormat::FixedPoint); // "5.00"
 
-// Scientific notation with Unicode (default).
-Floats::format(1500.0, 'e', 2);                // "1.50×10³"
-Floats::format(0.0025, 'e', 2);                // "2.50×10⁻³"
+// Scientific notation, Unicode math (default).
+Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific);  // "1.5×10³"
+Floats::format(0.0025, precision: 2, format: FloatFormat::Scientific);  // "2.5×10⁻³"
 
-// Scientific notation with ASCII.
-Floats::format(1500.0, 'e', 2, ascii: true);   // "1.50e+3"
+// Scientific notation, ASCII 'e'.
+Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::AsciiLowerCaseE);
+// "1.5e+3"
 
-// Scientific notation with null precision trims zeros.
-Floats::format(3000.0, 'e');                   // "3×10³"
+// Auto prefers scientific notation for small numbers with excessive leading zeros.
+Floats::format(0.0001234);   // "1.234×10⁻⁴"
 
 // -0.0 is normalized to 0.
-Floats::format(-0.0);                          // "0"
+Floats::format(-0.0);        // "0"
+
+// NAN/±INF pass through as PHP's own string representations, regardless of other parameters.
+Floats::format(NAN);         // "NAN"
+Floats::format(INF);         // "INF"
+
+// Rounding mode affects ties.
+Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint); // "1" (HalfAwayFromZero, default)
+Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfEven); // "0"
 ```
 
 ---

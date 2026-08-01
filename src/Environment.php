@@ -15,7 +15,7 @@ final class Environment
     /**
      * Invariant locale, matching the root locale in the Unix Common Locale Data Repository (CLDR).
      */
-    const INVARIANT_LOCALE = 'en_US_POSIX';
+    public const string INVARIANT_LOCALE = 'en_US_POSIX';
 
     /**
      * Private constructor to prevent instantiation.
@@ -65,7 +65,7 @@ final class Environment
     {
         // Try to detect from the HTTP Accept-Language header.
         // @codeCoverageIgnoreStart
-        if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && is_string($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $detected = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             if ($detected !== false) {
                 return $detected;

@@ -152,9 +152,11 @@ final class Floats
         $exp = (int) floor(log10($absValue));
         $mantissa = $absValue / (10.0 ** $exp);
 
-        // Guard against log10() rounding error at exact powers of 10.
+        // Guard against log10() rounding error at exact powers of 10. The mantissa < 1.0 branch is reachable
+        // (log10() can overestimate the exponent for a value just below a power of 10); the mantissa >= 10.0
+        // branch is not observed to be reachable on this platform's libm, so it is excluded from coverage.
         if ($mantissa >= 10.0) {
-            $exp++;
+            $exp++; // @codeCoverageIgnore
         } elseif ($mantissa < 1.0) {
             $exp--;
         }
@@ -446,9 +448,10 @@ final class Floats
         ExponentFormat $expFormat = ExponentFormat::UnicodeMath,
         RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero
     ): string {
-        // If NAN/±INF return the string equivalent.
+        // If NAN/±INF return the string equivalent. Uses var_export() rather than a direct cast to avoid the
+        // warning PHP emits when casting NAN to string.
         if (!is_finite($value)) {
-            return (string) $value;
+            return var_export($value, true);
         }
 
         // Validate the precision.
@@ -471,8 +474,7 @@ final class Floats
         $roundingMode = self::convertRoundingMode($roundingMode);
 
         // Get the format if Auto is specified.
-        switch ($format)
-        {
+        switch ($format) {
             case FloatFormat::FixedPoint:
                 $valueStr = self::formatFixed($value, $precision, $roundingMode);
                 break;
@@ -493,28 +495,23 @@ final class Floats
 
                 // If, by using a fixed-point notation, we end up with fewer significant digits, or there are more than
                 // 3 leading or trailing 0s, use scientific notation instead.
-                if ($fixSigDigits < $sciSigDigits || $fixLeading0s > 3 || $fixTrailing0s > 3) {
-                    $valueStr = $sci;
-                    $format = FloatFormat::Scientific;
-                } else {
-                    $valueStr = $fix;
-                    $format = FloatFormat::FixedPoint;
-                }
+                $valueStr = $fixSigDigits < $sciSigDigits || $fixLeading0s > 3 || $fixTrailing0s > 3 ? $sci : $fix;
         }
 
+        // Get the position of 'E' if present.
+        $ePos = stripos($valueStr, 'E');
+
         // Handle fixed point.
-        if ($format === FloatFormat::FixedPoint) {
+        if ($ePos === false) {
             // Trim zeros if requested.
             if ($trimZeros && str_contains($valueStr, '.')) {
                 $valueStr = rtrim(rtrim($valueStr, '0'), '.');
             }
-
             // Done.
             return $valueStr;
         }
 
         // Scientific notation. Disassemble the string.
-        $ePos = stripos($valueStr, 'E');
         $mantissa = substr($valueStr, 0, $ePos);
         $exp = substr($valueStr, $ePos + 1);
 
@@ -615,8 +612,8 @@ final class Floats
             return (int) $f;
         }
 
-        // Use ex() rather than string interpolation to avoid warning triggered by NAN/±INF.
-        throw new DomainException('Cannot convert float ' . ex($f) . ' to an int losslessly.');
+        // Use Stringify::prepEx() rather than string interpolation to avoid warning triggered by NAN/±INF.
+        throw new DomainException(Stringify::prepEx('Cannot convert float ? to an int losslessly.', $f));
     }
 
     #endregion
@@ -652,14 +649,14 @@ final class Floats
     {
         // Validate parameters.
         if (!is_finite($min)) {
-            throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
+            throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
         }
         if (!is_finite($max)) {
-            throw new DomainException('Invalid maximum: ' . ex($max) . '. Must be finite.');
+            throw new DomainException(Stringify::prepEx('Invalid maximum: ?. Must be finite.', $max));
         }
         if ($min > $max) {
             throw new DomainException(
-                'Invalid range: [' . ex($min) . ', ' . ex($max) . ']. Minimum must not exceed maximum.'
+                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
             );
         }
 
@@ -742,14 +739,14 @@ final class Floats
     {
         // Validate parameters.
         if (!is_finite($min)) {
-            throw new DomainException('Invalid minimum: ' . ex($min) . '. Must be finite.');
+            throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
         }
         if (!is_finite($max)) {
-            throw new DomainException('Invalid maximum: ' . ex($max) . '. Must be finite.');
+            throw new DomainException(Stringify::prepEx('Invalid maximum: ?. Must be finite.', $max));
         }
         if ($min > $max) {
             throw new DomainException(
-                'Invalid range: [' . ex($min) . ', ' . ex($max) . ']. Minimum must not exceed maximum.'
+                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
             );
         }
 
@@ -1003,12 +1000,12 @@ final class Floats
     ): void {
         if (!is_finite($relTol) || $relTol < 0) {
             throw new DomainException(
-                'Invalid relative tolerance: ' . ex($relTol) . '. Must be finite and non-negative.'
+                Stringify::prepEx('Invalid relative tolerance: ?. Must be finite and non-negative.', $relTol)
             );
         }
         if (!is_finite($absTol) || $absTol < 0) {
             throw new DomainException(
-                'Invalid absolute tolerance: ' . ex($absTol) . '. Must be finite and non-negative.'
+                Stringify::prepEx('Invalid absolute tolerance: ?. Must be finite and non-negative.', $absTol)
             );
         }
     }
@@ -1040,13 +1037,24 @@ final class Floats
      * @param int $precision The number of decimal places.
      * @param int $roundingMode A NumberFormatter::ROUND_* constant.
      * @return string The formatted value, e.g. '1234.500000'. Not trimmed or sign/locale-adjusted.
+     * @throws UnexpectedValueException
      */
     private static function formatFixed(float $value, int $precision, int $roundingMode): string
     {
+        // Format the float.
         $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::DECIMAL);
         $nf->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
         $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
-        return $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+        $result = $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+
+        // Check for error.
+        if ($result === false) {
+            // @codeCoverageIgnoreStart
+            throw new UnexpectedValueException('Could not format float using fixed point notation.');
+            // @codeCoverageIgnoreEnd
+        }
+
+        return $result;
     }
 
     /**
@@ -1056,6 +1064,7 @@ final class Floats
      * @param int $precision The number of significant digits.
      * @param int $roundingMode A NumberFormatter::ROUND_* constant.
      * @return string The formatted value, e.g. '1.234500E+003'. Not trimmed or reformatted for ExponentFormat.
+     * @throws UnexpectedValueException
      */
     private static function formatScientific(float $value, int $precision, int $roundingMode): string
     {
@@ -1064,7 +1073,16 @@ final class Floats
         $nf->setAttribute(NumberFormatter::MIN_SIGNIFICANT_DIGITS, $precision);
         $nf->setAttribute(NumberFormatter::MAX_SIGNIFICANT_DIGITS, $precision);
         $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
-        return $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+        $result = $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+
+        // Check for error.
+        if ($result === false) {
+            // @codeCoverageIgnoreStart
+            throw new UnexpectedValueException('Could not format float using scientific notation.');
+            // @codeCoverageIgnoreEnd
+        }
+
+        return $result;
     }
 
     /**
@@ -1117,7 +1135,7 @@ final class Floats
         }
 
         // Get the number of signficant digits.
-        $nSigDigits = $length - $nLeading0s -$nTrailing0s;
+        $nSigDigits = $length - $nLeading0s - $nTrailing0s;
 
         return [$nLeading0s, $nSigDigits, $nTrailing0s];
     }

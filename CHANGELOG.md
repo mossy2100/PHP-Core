@@ -11,8 +11,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- **`OceanMoon\Core\ex()`** — returns a short, abbreviated string representation of a value (wraps
-  `Stringify::abbrev()`), for building consistent, informative exception messages.
+- **`OceanMoon\Core\Console`** — new singleton class for ANSI/SGR-styled console output, replacing the removed
+  `println()`/`inspect()` global functions and adding a horizontal-rule helper (see Changed, below). Every method
+  echoes its escape code immediately and returns `$this` for chaining, and tracks current style state so it can be
+  snapshotted (`getStyle()`) and restored (`setStyle()`). Includes:
+  - Foreground/background color and 16-color palette constants (`setColor()`, `setBackground()`, `resetColor()`).
+  - Attribute toggles: `bold()`/`boldOff()`, `dim()`/`dimOff()`, `italic()`/`italicOff()`, `underline()`/
+    `underlineOff()`, `strikethrough()`/`strikethroughOff()`, `reverse()`/`reverseOff()`.
+  - Output helpers: `print()`/`println()` (successors to the removed global `println()`), and `dump()` (successor
+    to the removed global `inspect()`), which colors its output by value type via `Types::getBasicType()`.
+  - Semantic message helpers `success()`/`error()`/`warn()`/`info()`, each printing a glyph-prefixed message with a
+    conventional foreground/background pairing.
+  - `link()` — emits a clickable OSC 8 hyperlink, falling back to plain text in unsupported terminals.
+  - `bell()` and `hr()` (a horizontal rule).
+- **`Stringify::toString()`** — successor to the removed global `to_string()` function; converts any value to a
+  string without warnings or errors, falling back to `Stringify::stringify()` for values a plain `(string)` cast
+  can't handle (arrays, `NAN`, non-`Stringable` objects).
+- **`Stringify::prepEx()`** — successor to the removed global `ex()` function; prepares an exception message from a
+  template, substituting each `'?'` placeholder, left to right, with `Stringify::abbrev()` of the matching value
+  (e.g. `Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', $min, $max)`). Supports multiple
+  placeholders in one call, unlike `ex()`, which only ever produced one abbreviated value at a time.
 - **`Types::getBasicType()`** now recognizes closures, returning `'closure'` (a new case between `'enum'` and
   `'object'`).
 - **`Stringify::stringifyClosure()`** — stringifies a closure by reading back its original source code from the file
@@ -33,7 +51,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   PHP's current default (`Locale::getDefault()`, which always returns a value). Also adds
   **`Environment::INVARIANT_LOCALE`** (`'en_US_POSIX'`), used internally by `Floats::format()` for deterministic,
   locale-independent output.
-- **`OceanMoon\Core\hr()`** — prints a horizontal rule (a repeated character followed by a newline).
 
 ### Changed
 
@@ -58,8 +75,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   value instead of printing it (returns `?string`: the value when `$return` is `true`, `null` otherwise).
 - **`writeln()`**: `$value` now defaults to `''`, so calling it with no arguments prints just a newline instead of
   throwing `ArgumentCountError`.
+- **`src/globals.php` reduced further to just `M_TAU` and `RECURSION`** — `println()`, `inspect()`, `to_string()`,
+  `ex()`, and `write()`/`writeln()` are all removed as global functions. `println()`/`inspect()` are superseded by
+  the new `Console::print()`/`println()`/`dump()` (see Added, above), which add ANSI styling; `to_string()` and
+  `ex()` are superseded by the new `Stringify::toString()` and `Stringify::prepEx()`.
 - Exception messages reworded throughout the package to consistently report the invalid value/type (via the new
-  `ex()` helper) and the expected constraint, instead of a fixed generic string:
+  `Stringify::prepEx()` helper) and the expected constraint, instead of a fixed generic string:
   - `Arrays::quoteValues()`/`toSerialList()`: `'Invalid array value type: {type}. Must be string.'`.
   - `Floats::approxEqual()`/`approxCompare()`: tolerance validation extracted into a shared, private
     `validateTolerances()` helper; also now rejects non-finite tolerances, not just negative ones. Messages are now
@@ -130,6 +151,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   against exactly `0`, not negative values (possible when an item's width leaves less than one column's worth of
   space), so it could still break the grid layout instead of falling back to one item per line. Now guards against
   any non-positive value.
+- **`Environment::getLocale()`**: the `Accept-Language` header check used `!empty(...)`, which would silently treat
+  a non-string header value (e.g. an array, in principle possible via `$_SERVER`) as usable input. Now explicitly
+  checks `isset(...) && is_string(...)`.
 
 ### Removed
 
@@ -162,10 +186,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   is `3`, not `10`), added its missing `stringifyString()` `@throws DomainException` documentation, and added a
   `stringifyClosure()` section plus a "Closure support" mention in Key Features.
 - **`docs/Floats.md`**: added missing `**Throws:** RuntimeException` blocks for `toHex()` and `ulp()` (both require
-  a 64-bit system).
+  a 64-bit system); added a new `getExponent()` section (previously undocumented); rewrote the `format()` section
+  for the new `FloatFormat`/`ExponentFormat`/`RoundingMode`-based signature, replacing the stale string-specifier/
+  `$ascii` documentation.
+- **`docs/Globals.md`**: removed the `println()`/`inspect()` sections (moved to `Console`, see Added, above); "See
+  Also" updated to point to their replacements (`Console`, `Stringify::toString()`/`prepEx()`).
 - Test coverage added for `Types::getBasicType()`'s closure detection and `Stringify::stringifyClosure()` (arrow vs.
   brace-style syntax, closures embedded inline as call/array arguments, nested-bracket boundary detection, and the
   no-source fallback).
+- Test coverage added for `Floats::getExponent()`'s `log10()`-rounding-error correction (the one branch reachable on
+  this platform; the other is marked `@codeCoverageIgnore`, being unreachable with this libm), all 8 `RoundingMode`
+  cases via `Floats::format()`, and `Console::getInstance()`'s singleton-reuse branch.
 
 ## [3.0.0] - 2026-07-17
 

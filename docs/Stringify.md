@@ -170,6 +170,43 @@ Closures:
 Stringify::stringify(static fn (float $x): float => $x * $x); // 'static fn (float $x): float => $x * $x'
 ```
 
+### toString()
+
+```php
+public static function toString(mixed $value): string
+```
+
+Convert any value to a string, without errors or warnings.
+
+**Behavior:**
+
+1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases that usually emit a warning are caught.
+2. Otherwise, falls back to `Stringify::stringify()` — this handles `NAN`, arrays, non-`Stringable` objects, resources, and anything else the cast couldn't.
+
+**Parameters:**
+
+- `$value` (mixed) - The value to convert.
+
+**Returns:**
+
+- `string` - The value as a string.
+
+**Examples:**
+
+```php
+echo Stringify::toString('hello');     // 'hello'
+echo Stringify::toString(42);          // '42'
+echo Stringify::toString(true);        // '1'
+echo Stringify::toString(null);        // ''
+echo Stringify::toString([1, 2, 3]);   // '[1, 2, 3]' (via Stringify)
+echo Stringify::toString(NAN);         // 'NAN' (via Stringify; a direct cast would emit a warning)
+
+class CodeMonkey {
+    public $name = 'Shaun';
+}
+echo Stringify::toString(new CodeMonkey);  // 'CodeMonkey #9 {+name => 'Shaun'}' (via Stringify)
+```
+
 ### abbrev()
 
 ```php
@@ -198,6 +235,48 @@ error messages and logs where space is limited.
 Stringify::abbrev('hello');                            // "'hello'"
 Stringify::abbrev('this is a very long string', 15);   // "'this is a ve…'"
 Stringify::abbrev([1, 2, 3, 4, 5, 6, 7], 15);          // '[1, 2, 3, 4, …]'
+```
+
+### prepEx()
+
+```php
+public static function prepEx(string $message, mixed ...$values): string
+```
+
+Prepare an exception message, substituting each `?` placeholder in `$message`, left to right, with `Stringify::abbrev()`
+of the matching value. Intended for building exception messages that report one or more offending values without risking
+an overly long message for large arrays, strings, or objects.
+
+A value that itself contains `?` is inserted verbatim — it is not re-scanned for further placeholders, since all
+splitting happens against the original `$message` before any substitution occurs.
+
+**Parameters:**
+
+- `$message` (string) - The message template, with a `?` placeholder for each value.
+- `...$values` (mixed) - The values to substitute, one per placeholder, in order.
+
+**Returns:**
+
+- `string` - The prepared message.
+
+**Throws:**
+
+- `BadMethodCallException` - If the number of values doesn't match the number of placeholders.
+
+**Examples:**
+
+```php
+Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min);
+// "Invalid minimum: -INF. Must be finite."
+
+Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', $min, $max);
+// "Invalid range: [-5, -10]. Min must not exceed max."
+```
+
+Typical usage, building an exception message directly in a `throw`:
+
+```php
+throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
 ```
 
 ---
@@ -503,4 +582,3 @@ Stringify::stringifyResource($file);  // 'resource #5 (closed)'
 
 - **[Types](Types.md)** - Type checking and inspection utilities.
 - **[Arrays](Arrays.md)** - Array utility methods including `containsRecursion()`.
-- **[Globals](Globals.md)** - `inspect()`, `ex()`, and `to_string()`, plain functions built on `Stringify` methods.
