@@ -1,0 +1,137 @@
+# ExponentFormat
+
+Rendering styles for the exponent portion of scientific-notation float output.
+
+---
+
+## Overview
+
+`ExponentFormat` controls how the exponent is rendered when [`Floats::format()`](../Floats.md) produces
+scientific notation (`FloatFormat::Scientific`, or `FloatFormat::Auto` choosing scientific). It ranges from
+plain ASCII `e`/`E` notation through to Unicode and HTML mathematical notation.
+
+This is a pure (unbacked) enum, but unlike most enums in this library it carries behavior: `format()`
+renders a signed exponent as a string in the case's style.
+
+---
+
+## Cases
+
+### AsciiLowerCaseE
+
+```php
+case AsciiLowerCaseE;
+```
+
+ASCII lower-case `e` notation (e.g. `'e+23'`). The exponent is not padded to a fixed width, and the sign is always included.
+
+### AsciiUpperCaseE
+
+```php
+case AsciiUpperCaseE;
+```
+
+ASCII upper-case `E` notation (e.g. `'E+23'`). The exponent is not padded to a fixed width, and the sign is always included.
+
+### AsciiMath
+
+```php
+case AsciiMath;
+```
+
+ASCII mathematical notation (e.g. `'*10^23'`). Uses ASCII operators and digits.
+
+### UnicodeMath
+
+```php
+case UnicodeMath;
+```
+
+Unicode mathematical notation (e.g. `'×10²³'`). Uses the multiplication sign and superscript digits. This is
+`Floats::format()`'s default.
+
+### HtmlMath
+
+```php
+case HtmlMath;
+```
+
+HTML mathematical notation (e.g. `'&times;10<sup>23</sup>'`).
+
+---
+
+## Cases Summary
+
+| Case               | Example                  |
+|---------------------|---------------------------|
+| `AsciiLowerCaseE`   | `e+23`                    |
+| `AsciiUpperCaseE`   | `E+23`                    |
+| `AsciiMath`         | `*10^23`                  |
+| `UnicodeMath`       | `×10²³` **Default.**      |
+| `HtmlMath`          | `&times;10<sup>23</sup>`  |
+
+---
+
+## Methods
+
+### format()
+
+```php
+public function format(int $exponent): string
+```
+
+Render a signed exponent as a string, ready to append directly after a (possibly trimmed) mantissa.
+
+`AsciiLowerCaseE` and `AsciiUpperCaseE` always include an explicit sign (`'+'` or `'-'`), matching `sprintf()`'s
+own `'e'`/`'E'` conventions. The three mathematical notations (`AsciiMath`, `UnicodeMath`, `HtmlMath`) omit the
+`'+'` for positive exponents and show only `'-'` for negative ones, matching how scientific notation is
+conventionally written by hand (e.g. `'×10³'`, not `'×10+3'`).
+
+**Parameters:**
+
+- `$exponent` (`int`) — The exponent (may be negative, zero, or positive).
+
+**Returns:**
+
+- `string` — The rendered exponent, e.g. `'e+23'`, `'E-23'`, `'*10^23'`, `'×10²³'`, `'&times;10<sup>23</sup>'`.
+
+**Examples:**
+
+```php
+use OceanMoon\Core\Enums\ExponentFormat;
+
+ExponentFormat::AsciiLowerCaseE->format(23);   // 'e+23'
+ExponentFormat::AsciiUpperCaseE->format(-23);  // 'E-23'
+ExponentFormat::AsciiMath->format(23);         // '*10^23'
+ExponentFormat::UnicodeMath->format(23);       // '×10²³'
+ExponentFormat::UnicodeMath->format(-23);      // '×10⁻²³' (no '+' for positive, only '-' for negative)
+ExponentFormat::HtmlMath->format(23);          // '&times;10<sup>23</sup>'
+```
+
+---
+
+## Usage Examples
+
+`ExponentFormat` is normally passed to `Floats::format()`'s `$expFormat` parameter rather than called
+directly:
+
+```php
+use OceanMoon\Core\Enums\ExponentFormat;
+use OceanMoon\Core\Enums\FloatFormat;
+use OceanMoon\Core\Floats;
+
+Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific);
+// '1.5×10³' (UnicodeMath, the default)
+
+Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::AsciiLowerCaseE);
+// '1.5e+3'
+```
+
+---
+
+## See Also
+
+- **[Floats](../Floats.md)** — `format()` is where `ExponentFormat` is used, via the `$expFormat` parameter.
+- **[FloatFormat](FloatFormat.md)** — Selects whether an exponent is used at all.
+- **[Integers](../Integers.md)** — `toSuperscript()` is used internally by `UnicodeMath` to render the
+  exponent's digits.

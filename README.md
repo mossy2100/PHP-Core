@@ -104,6 +104,19 @@ examples.
 
 ---
 
+## Enums
+
+### [FloatFormat](docs/Enums/FloatFormat.md)
+
+Notation styles for `Floats::format()` — fixed-point, scientific, or automatic selection between the two.
+
+### [ExponentFormat](docs/Enums/ExponentFormat.md)
+
+Rendering styles for the exponent portion of scientific-notation float output, from plain ASCII `e`/`E` through
+to Unicode and HTML mathematical notation.
+
+---
+
 ## Exceptions
 
 ### [FormatException](docs/Exceptions/FormatException.md)

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace OceanMoon\Core\Enums;
+
+use OceanMoon\Core\Integers;
 
 /**
  * Rendering styles for the exponent portion of scientific-notation float output.

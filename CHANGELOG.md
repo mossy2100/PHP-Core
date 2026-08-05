@@ -38,9 +38,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   range), returning it exactly as written, whitespace and comments included; the surrounding statement (e.g. a
   trailing `;`) is excluded. Returns `''` if the source isn't available (e.g. a closure wrapping an internal
   function). `Stringify::stringify()` now dispatches closures to this method.
-- **`OceanMoon\Core\FloatFormat`** — enum selecting `Floats::format()`'s notation: `FixedPoint`, `Scientific`, or
-  `Auto` (whichever produces the more useful string).
-- **`OceanMoon\Core\ExponentFormat`** — enum selecting how `Floats::format()` renders an exponent, if present:
+- **`OceanMoon\Core\Enums\FloatFormat`** — enum selecting `Floats::format()`'s notation: `FixedPoint`, `Scientific`,
+  or `Auto` (whichever produces the more useful string).
+- **`OceanMoon\Core\Enums\ExponentFormat`** — enum selecting how `Floats::format()` renders an exponent, if present:
   `AsciiLowerCaseE`/`AsciiUpperCaseE` (`e+23`/`E+23`), `AsciiMath` (`*10^23`), `UnicodeMath` (`×10²³`, the default),
   or `HtmlMath` (`&times;10<sup>23</sup>`). Has a public `format(int $exponent): string` method, independently
   usable and testable.

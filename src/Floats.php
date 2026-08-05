@@ -6,6 +6,8 @@ namespace OceanMoon\Core;
 
 use DomainException;
 use NumberFormatter;
+use OceanMoon\Core\Enums\ExponentFormat;
+use OceanMoon\Core\Enums\FloatFormat;
 use Random\RandomException;
 use RoundingMode;
 use RuntimeException;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace OceanMoon\Core\Enums;
 
 /**
  * Notation styles for Floats::format().
