@@ -27,7 +27,8 @@ final class Environment
     }
 
     // @codeCoverageIgnoreStart
-    // We can't test these methods properly without running PHP on a 32-bit system; unnecessary for such a simple class.
+    // Ignore these two methods for code coverage. We can't test them properly without running PHP on a 32-bit system,
+    // which is unnecessary for such a simple class.
 
     /**
      * Check if the system is 64-bit.

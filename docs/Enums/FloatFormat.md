@@ -9,8 +9,8 @@ Notation styles for [`Floats::format()`](../Floats.md).
 `FloatFormat` selects how a float is rendered: with a plain decimal point, always in scientific notation, or
 automatically choosing whichever is more compact.
 
-This is a pure (unbacked) enum — its cases carry no value, they're purely selectors passed to
-`Floats::format()`'s `$format` parameter.
+This is a pure (unbacked) enum. Its cases carry no value — they're purely selectors passed to `Floats::format()`'s
+`$format` parameter.
 
 ---
 
@@ -30,8 +30,8 @@ Use a decimal point, with no exponent (e.g. `'1234.5'`).
 case Scientific;
 ```
 
-Always include an exponent (e.g. `'1.2345×10³'`), rendered per the
-[`ExponentFormat`](ExponentFormat.md) passed to `Floats::format()`.
+Always include an exponent (e.g. `'1.2345×10³'`), rendered per the [`ExponentFormat`](ExponentFormat.md) passed to
+`Floats::format()`.
 
 ### Auto
 
@@ -39,11 +39,10 @@ Always include an exponent (e.g. `'1.2345×10³'`), rendered per the
 case Auto;
 ```
 
-Whichever of `FixedPoint` or `Scientific` produces the more compact string. This is `Floats::format()`'s
-default.
+Whichever of `FixedPoint` or `Scientific` produces the more compact string. This is `Floats::format()`'s default.
 
-`FixedPoint` is preferred unless `Scientific` has fewer significant figures, or `FixedPoint` would need more
-than 3 leading or trailing zeros.
+`FixedPoint` is preferred unless `Scientific` has fewer significant figures, or `FixedPoint` would need more than 3
+leading or trailing zeros.
 
 ---
 
@@ -56,8 +55,7 @@ use OceanMoon\Core\Floats;
 Floats::format(1234.5, format: FloatFormat::FixedPoint);  // '1234.5'
 Floats::format(1234.5, format: FloatFormat::Scientific);  // '1.2345×10³'
 Floats::format(1234.5, format: FloatFormat::Auto);        // '1234.5' (more compact than scientific here)
-
-Floats::format(0.0000012345, format: FloatFormat::Auto);  // '1.2345×10⁻⁶' (fixed-point would need 5 leading zeros)
+Floats::format(0.0000012345, format: FloatFormat::Auto);  // '1.2345×10⁻⁶' (fixed-point would need 6 leading zeros)
 ```
 
 ---
@@ -65,5 +63,5 @@ Floats::format(0.0000012345, format: FloatFormat::Auto);  // '1.2345×10⁻⁶' 
 ## See Also
 
 - **[Floats](../Floats.md)** — `format()` is where `FloatFormat` is used.
-- **[ExponentFormat](ExponentFormat.md)** — Controls how the exponent is rendered when `Scientific` (or
-  `Auto` choosing scientific) is used.
+- **[ExponentFormat](ExponentFormat.md)** — Controls how the exponent is rendered when `Scientific` (or `Auto` choosing
+  scientific) is used.

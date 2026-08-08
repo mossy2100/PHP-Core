@@ -17,11 +17,18 @@ All utility classes are final with static methods and cannot be instantiated.
 
 ## Development and Quality Assurance
 
-[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation.
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the
+development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude
+providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and
+documentation.
 
-All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage.
+All code was thoroughly reviewed by the author, and validated using industry-standard tools including
+[PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and
+[PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/)
+coding standards and comprehensive unit testing with 100% code coverage.
 
-This collaborative approach has produced a well-designed, production-ready package with thorough test coverage and documentation.
+This collaborative approach has produced a well-designed, production-ready package with thorough test coverage and
+documentation.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
@@ -70,13 +77,24 @@ unique string keys.
 ### [Stringify](docs/Stringify.md)
 
 Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. This class
-serves as the basis of the `inspect()` and `ex()` functions.
+serves as the basis of the `Console::dump()` method.
+
+### [Environment](docs/Environment.md)
+
+Runtime environment detection: 64-bit architecture checks, and locale detection from the HTTP `Accept-Language` header.
+
+### [Console](docs/Console.md)
+
+Singleton for ANSI/SGR-styled console output: 16-color foreground/background, text attributes (bold, italic, underline,
+etc.), method chaining, style snapshot/restore, and higher-level helpers like `dump()` and severity-colored messages
+(`success()`, `error()`, `warn()`, `info()`).
 
 ---
 
 ## [Globals](docs/Globals.md)
 
-Useful constants (`M_TAU`, `RECURSION`) and functions (`println()`, `inspect()`, `to_string()`, `ex()`) that work better as globals (namespaced to `OceanMoon\Core`) than as class members.
+Useful constants (`M_TAU`, `RECURSION`) that work better as globals (namespaced to `OceanMoon\Core`) than as class
+members.
 
 ---
 
@@ -84,7 +102,8 @@ Useful constants (`M_TAU`, `RECURSION`) and functions (`println()`, `inspect()`,
 
 ### Comparison Traits
 
-Equality and ordering comparison operations for custom types. See [ComparisonTraits.md](docs/Traits/Comparison/ComparisonTraits.md) for the trait hierarchy and usage guide.
+Equality and ordering comparison operations for custom types. See
+[ComparisonTraits.md](docs/Traits/Comparison/ComparisonTraits.md) for the trait hierarchy and usage guide.
 
 | Trait                                                          | Description                                                          |
 | -------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -98,9 +117,9 @@ Equality and ordering comparison operations for custom types. See [ComparisonTra
 Custom PHPUnit assertions for test cases. See [TestingTraits.md](docs/Traits/Asserts/TestingTraits.md) for usage
 examples.
 
-| Trait                                                     | Description                                                                                |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [FloatAssertions](docs/Traits/Asserts/FloatAssertions.md) | Provides `assertApproxEqual()` and `assertApproxZero()` with informative failure messages. |
+| Trait                                                     | Description                                                       |
+| --------------------------------------------------------- | ----------------------------------------------------------------- |
+| [FloatAssertions](docs/Traits/Asserts/FloatAssertions.md) | Provides `assertApproxEqual()` with informative failure messages. |
 
 ---
 
@@ -112,8 +131,8 @@ Notation styles for `Floats::format()` — fixed-point, scientific, or automatic
 
 ### [ExponentFormat](docs/Enums/ExponentFormat.md)
 
-Rendering styles for the exponent portion of scientific-notation float output, from plain ASCII `e`/`E` through
-to Unicode and HTML mathematical notation.
+Rendering styles for the exponent portion of scientific-notation float output, from plain ASCII `e`/`E` through to
+Unicode and HTML mathematical notation.
 
 ---
 

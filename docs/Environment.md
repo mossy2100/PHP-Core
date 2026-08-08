@@ -11,6 +11,22 @@ is 64-bit. This is a static utility class and cannot be instantiated.
 
 ---
 
+## Constants
+
+### INVARIANT_LOCALE
+
+```php
+public const string INVARIANT_LOCALE = 'en_US_POSIX';
+```
+
+The invariant locale, matching the root locale in the Unix Common Locale Data Repository (CLDR).
+
+Use this wherever number or date formatting must be stable and locale-independent — e.g. `Floats::format()` constructs
+its `NumberFormatter` with `INVARIANT_LOCALE` rather than `getLocale()`, so a request's `Accept-Language` header can't
+change whether a formatted float uses `.` or `,` as its decimal separator.
+
+---
+
 ## Methods
 
 ### is64Bit()
@@ -78,8 +94,40 @@ Environment::require64Bit();  // throws RuntimeException
 - Validating environment before performing IEEE-754 bit manipulation
 - Early failure with a clear error message on unsupported systems
 
+### getLocale()
+
+```php
+public static function getLocale(): string
+```
+
+Get the current request's locale. Auto-detects it from the HTTP `Accept-Language` header, falling back to PHP's current
+default locale (`Locale::getDefault()`) when no header is present or it can't be parsed.
+
+**Returns:**
+
+- `string` - The detected locale, e.g. `'en_US'`, `'de_DE'`. Always a non-empty string.
+
+**Examples:**
+
+```php
+// Browser sent 'Accept-Language: de-DE,de;q=0.9,en;q=0.8'.
+Environment::getLocale(); // 'de_DE'
+
+// No Accept-Language header present (e.g. CLI script).
+Environment::getLocale(); // Falls back to Locale::getDefault().
+```
+
+**Use Cases:**
+
+- Formatting numbers, currencies, or dates for the current visitor rather than the server's default locale
+- Passing to `NumberFormatter`/`IntlDateFormatter` for locale-aware output
+
+> For output that must stay locale-independent regardless of the visitor (e.g. a machine-readable format), use
+> [`INVARIANT_LOCALE`](#invariant_locale) instead.
+
 ---
 
 ## See Also
 
-- **[Floats](Floats.md)** - Uses `require64Bit()` for IEEE-754 bit operations
+- **[Floats](Floats.md)** - Uses `require64Bit()` for IEEE-754 bit operations, and `INVARIANT_LOCALE` for
+  locale-independent number formatting in `format()`

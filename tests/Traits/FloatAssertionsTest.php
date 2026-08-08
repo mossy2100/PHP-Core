@@ -120,37 +120,4 @@ final class FloatAssertionsTest extends TestCase
     }
 
     #endregion
-
-    #region assertApproxZero tests
-
-    /**
-     * Test assertApproxZero passes for zero.
-     */
-    public function testAssertApproxZeroPassesForZero(): void
-    {
-        $this->assertApproxZero(0.0);
-        $this->assertApproxZero(-0.0);
-    }
-
-    /**
-     * Test assertApproxZero passes for values within tolerance.
-     */
-    public function testAssertApproxZeroPassesWithinTolerance(): void
-    {
-        $this->assertApproxZero(PHP_FLOAT_EPSILON / 2);
-        $this->assertApproxZero(-PHP_FLOAT_EPSILON / 2);
-        $this->assertApproxZero(0.001, 0.01);
-    }
-
-    /**
-     * Test assertApproxZero fails for values outside tolerance.
-     */
-    public function testAssertApproxZeroFailsOutsideTolerance(): void
-    {
-        $this->expectException(AssertionFailedError::class);
-
-        $this->assertApproxZero(1.0);
-    }
-
-    #endregion
 }

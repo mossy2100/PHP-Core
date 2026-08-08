@@ -17,7 +17,9 @@ enum ExponentFormat
     case AsciiLowerCaseE;
 
     /**
-     * ASCII upper-case E notation (e.g. 'E+23'). The exponent is not padded to a fixed width.
+     * ASCII upper-case E notation (e.g. 'E+23'). The exponent is not padded to a fixed width. Matches the
+     * scientific notation PHP itself falls back to when casting a float to string (e.g. (string) 1.5e20 ===
+     * '1.5E+20'), including the explicit sign.
      */
     case AsciiUpperCaseE;
 
@@ -40,9 +42,10 @@ enum ExponentFormat
      * Render a signed exponent as a string, ready to append directly after a (possibly trimmed) mantissa.
      *
      * AsciiLowerCaseE and AsciiUpperCaseE always include an explicit sign ('+' or '-'), matching sprintf()'s own
-     * 'e'/'E' conventions. The three mathematical notations (AsciiMath, UnicodeMath, HtmlMath) omit the '+' for
-     * positive exponents and show only '-' for negative ones, matching how scientific notation is conventionally
-     * written by hand (e.g. '×10³', not '×10+3').
+     * 'e'/'E' conventions (AsciiUpperCaseE also matches PHP's own float-to-string cast, which always signs the
+     * exponent). The three mathematical notations (AsciiMath, UnicodeMath, HtmlMath) omit the '+' for positive
+     * exponents and show only '-' for negative ones, matching how scientific notation is conventionally written
+     * by hand (e.g. '×10³', not '×10+3').
      *
      * @param int $exponent The exponent (may be negative, zero, or positive).
      * @return string The rendered exponent, e.g. 'e+23', 'E-23', '*10^23', '×10²³', '&times;10<sup>23</sup>'.

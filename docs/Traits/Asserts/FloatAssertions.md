@@ -13,7 +13,6 @@ false is true", these assertions show the expected value, actual value, and the 
 The trait provides:
 
 - `assertApproxEqual()` - Assert two floats are approximately equal
-- `assertApproxZero()` - Assert a float is approximately zero
 
 ---
 
@@ -51,24 +50,6 @@ Absolute difference: 0.42331 (tolerance: 2.22044604925031e-16)
 Relative difference: 0.134802795673498 (tolerance: 1.0e-9)
 ```
 
-### assertApproxZero()
-
-```php
-public function assertApproxZero(
-    float $actual,
-    float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE,
-    string $message = ''
-): void
-```
-
-Asserts that a floating-point value is approximately zero within specified absolute tolerance.
-
-**Parameters:**
-
-- `$actual` (float) - The actual value to compare
-- `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON)
-- `$message` (string) - Optional custom failure message prefix
-
 ---
 
 ## Examples
@@ -96,7 +77,7 @@ class CalculationTest extends TestCase
         $result = 1.0 - 0.9 - 0.1;
 
         // This would fail with assertSame() due to floating-point error
-        $this->assertApproxZero($result);
+        $this->assertApproxEqual(0.0, $result);
     }
 }
 ```
@@ -118,7 +99,7 @@ public function testNearZeroResult(): void
     $result = computeResidual();
 
     // Allow absolute error of 0.001
-    $this->assertApproxZero($result, absTol: 1e-3);
+    $this->assertApproxEqual(0.0, $result, absTol: 1e-3);
 }
 ```
 

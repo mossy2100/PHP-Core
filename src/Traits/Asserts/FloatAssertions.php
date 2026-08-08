@@ -14,6 +14,10 @@ use OceanMoon\Core\Floats;
  * assertTrue(Floats::approxEqual(...)), which only reports "Failed asserting that false is true",
  * this method shows the expected value, actual value, and the difference.
  *
+ * This serves as a more flexible alternative to PHPUnit's assertEqualsWithDelta(), as it allows for both absolute and
+ * relative tolerances. The error message is also somewhat more informative, showing the actual difference and the
+ * tolerances used.
+ *
  * Example usage:
  * ```php
  * class MyTest extends TestCase
@@ -79,20 +83,5 @@ trait FloatAssertions
         );
 
         $this->fail($message !== '' ? $message . "\n" . $defaultMessage : $defaultMessage);
-    }
-
-    /**
-     * Assert that a floating-point value is approximately zero within specified tolerance.
-     *
-     * @param float $actual The actual value to compare.
-     * @param float $absTol The maximum allowed absolute difference from zero.
-     * @param string $message Optional custom failure message.
-     */
-    public function assertApproxZero(
-        float $actual,
-        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE,
-        string $message = ''
-    ): void {
-        $this->assertApproxEqual(0.0, $actual, 0.0, $absTol, $message);
     }
 }

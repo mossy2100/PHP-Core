@@ -22,6 +22,7 @@ const M_TAU = 2 * M_PI; // @codeCoverageIgnore
 /**
  * The marker used by Arrays and Stringify to represent a circular reference.
  *
- * This is intended to match the recursion marker text ("*RECURSION*") used by the print_r() function.
+ * This is intended to match the recursion marker text ("*RECURSION*") used by the print_r() function. It's unlikely to
+ * be required outside of debugging, but placed here because it's used by both Arrays and Stringify.
  */
 const RECURSION = '*RECURSION*'; // @codeCoverageIgnore

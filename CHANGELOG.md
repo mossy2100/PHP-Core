@@ -141,6 +141,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`M_TAU`** (`src/globals.php`) was defined via `define('M_TAU', ...)` inside `namespace OceanMoon\Core`, which —
+  unlike `const` — always defines a *global* constant regardless of the surrounding namespace. This meant
+  `OceanMoon\Core\M_TAU` never actually existed as a symbol, so the documented `use const OceanMoon\Core\M_TAU;`
+  import (used by `Floats::wrap()`'s own tests) threw `Undefined constant`. Now a plain `const M_TAU = 2 * M_PI;`:
+  correctly namespaced, and immune to any future PHP core addition of a global `M_TAU` (a namespaced constant can't
+  collide with one in the global namespace, so the earlier `defined()` guard is no longer needed either).
 - **`Stringify::stringifyListArray()`'s pretty-print grid format** — eligibility was based on whether the compact
   form contained a newline, which a list of nested arrays (e.g. `[[1, 2], [3, 4]]`) never does on its own, so it was
   wrongly collapsed onto one line via grid format instead of printing one array per line. Now checks whether every
@@ -161,6 +167,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   needs — it bakes in its own optional leading sign, which conflicts with callers (like `OceanMoon\Math\Complex::
   fromString()`) that need to track a sign separately from the numeric magnitude via their own surrounding capture
   group.
+- **`FloatAssertions::assertApproxZero()`** removed. It had no call sites anywhere across the packages — tests
+  checking a near-zero result use `assertApproxEqual(0.0, $actual, absTol: ...)` directly instead.
 
 ### Documentation
 
@@ -197,6 +205,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Test coverage added for `Floats::getExponent()`'s `log10()`-rounding-error correction (the one branch reachable on
   this platform; the other is marked `@codeCoverageIgnore`, being unreachable with this libm), all 8 `RoundingMode`
   cases via `Floats::format()`, and `Console::getInstance()`'s singleton-reuse branch.
+- **`docs/Console.md`** (new) — full documentation for the `Console` class, previously entirely undocumented despite
+  being a 692-line class: the 16 color constants and `TYPE_COLOR`'s exact type-to-color mapping, singleton
+  construction, and the Color/Attribute/Style/Output method groups. Linked from a new `Console` entry in
+  `README.md`'s `## Classes` section.
+- **`docs/Enums/FloatFormat.md`, `docs/Enums/ExponentFormat.md`** (new) — full documentation for both enums.
+  Linked from a new `## Enums` section in `README.md`.
+- **`docs/Environment.md`**: added a `## Constants` section documenting `INVARIANT_LOCALE` (including why
+  `Floats::format()` uses it instead of `getLocale()` — so a request's `Accept-Language` header can't change
+  whether formatted output uses `.` or `,` as its decimal separator), and documented `getLocale()` itself, neither
+  of which had been written up before. `Environment` was also missing from `README.md`'s `## Classes` list
+  entirely; added.
+- **`docs/Traits/Asserts/FloatAssertions.md`**: updated for `assertApproxZero()`'s removal (see Removed, above) —
+  its two examples that used it now call `assertApproxEqual(0.0, ..., absTol: ...)` directly.
+
+### Tests
+
+- **`tests/Floats/FloatsTest.php`** (1562 lines) split into one file per region, matching `Floats.php`'s own
+  structure: `FloatsComparisonTest`, `FloatsTransformationTest`, `FloatsConversionTest`, `FloatsIntegerTest`,
+  `FloatsInspectionTest` (`FloatsRandomTest`/`FloatsBitOperationsTest` were already split out and untouched).
+  Along the way, several oversized `#region` blocks that lumped multiple methods' tests together (e.g. one region
+  covering `frac()`, `wrap()`, `toHex()`, and `toInt()` all at once) were split into one region per method, per
+  this project's test-writing convention. All 100 original test methods carried over with no loss or duplication.
+- **`tests/Traits/FloatAssertionsTest.php`**: removed the `assertApproxZero()` test region, matching its removal
+  from the trait.
 
 ## [3.0.0] - 2026-07-17
 
