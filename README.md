@@ -11,7 +11,8 @@ A general purpose package containing core PHP utility classes and methods for us
 ## Description
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations.
-All utility classes are final with static methods and cannot be instantiated.
+Most utility classes are final with static methods and cannot be instantiated directly. `Console` is the exception —
+a singleton with instance methods and internal style state, accessed via `Console::getInstance()`.
 
 ---
 
