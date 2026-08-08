@@ -6,7 +6,9 @@ Shared constants used by Core, Math, and other packages.
 
 ## Overview
 
-`src/globals.php` provides a small set of namespaced constants (`OceanMoon\Core`) that are more useful as globals than as class members. The number of items is deliberately kept small to minimise the number of `use const` statements, which aren't that common or well-known in PHP.
+`src/globals.php` provides a small set of namespaced constants (`OceanMoon\Core`) that are more useful as globals than
+as class members. The number of items is deliberately kept small to minimise the number of `use const` statements, which
+aren't that common or well-known in PHP.
 
 ---
 
@@ -33,7 +35,8 @@ use const OceanMoon\Core\M_TAU;
 const M_TAU = 2 * M_PI;
 ```
 
-The circle constant tau τ = 2π (≈ 6.2831853). Equal to the number of radians in a full circle. Named to match PHP's own naming pattern for mathematical constants, such as `M_PI`, `M_E`, etc.
+The circle constant tau τ = 2π (≈ 6.2831853). Equal to the number of radians in a full circle. Named to match PHP's own
+naming pattern for mathematical constants, such as `M_PI`, `M_E`, etc.
 
 ```php
 use const OceanMoon\Core\M_TAU;
@@ -68,8 +71,8 @@ $cleaned = Arrays::removeRecursion($arr);
 
 - **[Numbers](Numbers.md)** - Number-related functions
 - **[Arrays](Arrays.md)** - `removeRecursion()`, which uses the `RECURSION` marker
-- **[Stringify](Stringify.md)** - `toString()` and `prepEx()`, which took over from the removed `to_string()` and
-  `ex()` global functions
+- **[Stringify](Stringify.md)** - `toString()` and `prepEx()`, which took over from the removed `to_string()` and `ex()`
+  global functions
 - **Console** - `print()`, `println()`, and `dump()`, which took over from the removed `println()` and `inspect()`
   global functions, with added ANSI styling
 - **[Stringify](Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, and `to_string()`

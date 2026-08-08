@@ -228,6 +228,7 @@ error messages and logs where space is limited.
 **Throws:**
 
 - `DomainException` - If the maximum length is less than 3, or if the value cannot be stringified.
+- `UnexpectedValueException` - If the value's type cannot be inferred.
 
 **Examples:**
 
@@ -282,6 +283,52 @@ throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.
 ---
 
 ## Type-Specific Stringification Methods
+
+### stringifyBool()
+
+```php
+public static function stringifyBool(bool $value): string
+```
+
+Stringify a boolean.
+
+**Parameters:**
+
+- `$value` (bool) - The boolean value to encode.
+
+**Returns:**
+
+- `string` - `'true'` or `'false'`.
+
+**Examples:**
+
+```php
+Stringify::stringifyBool(true);   // 'true'
+Stringify::stringifyBool(false);  // 'false'
+```
+
+### stringifyInt()
+
+```php
+public static function stringifyInt(int $value): string
+```
+
+Stringify an integer.
+
+**Parameters:**
+
+- `$value` (int) - The integer value to encode.
+
+**Returns:**
+
+- `string` - The string representation of the integer.
+
+**Examples:**
+
+```php
+Stringify::stringifyInt(42);   // '42'
+Stringify::stringifyInt(-7);   // '-7'
+```
 
 ### stringifyFloat()
 
@@ -349,6 +396,7 @@ public static function stringifyArray(
     array $arr,
     bool $prettyPrint = false,
     int $indentLevel = 0,
+    bool $alreadyCleaned = false,
 ): string
 ```
 
@@ -372,10 +420,17 @@ The max line length is controlled by `setMaxLineLength()` (default: `120`).
 - `$arr` (array) - The array to encode.
 - `$prettyPrint` (bool) - Whether to use pretty printing (default: `false`).
 - `$indentLevel` (int) - The level of indentation (default: `0`).
+- `$alreadyCleaned` (bool) - Whether `$arr` is already known to be free of circular references, e.g. because an
+  ancestor call already cleaned it via `Arrays::removeRecursion()`. Internal callers pass this to avoid a
+  redundant pass; you shouldn't normally need to set it yourself (default: `false`).
 
 **Returns:**
 
 - `string` - The string representation of the array.
+
+**Throws:**
+
+- `DomainException` - If a value cannot be stringified.
 
 **Examples:**
 
@@ -397,9 +452,8 @@ Pretty-printed grid (scalar list exceeding max line length):
 ```php
 Stringify::stringifyArray(range(1, 50), true);
 // [
-//     1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-//     11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-//     ...
+//     1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+//     30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
 // ]
 ```
 
@@ -419,8 +473,7 @@ Stringify::stringifyArray(['name' => 'John', 'age' => 30], true);
 public static function stringifyEnum(UnitEnum $value): string
 ```
 
-Get a string representation of an enum case in the form `Fully\Qualified\ClassName::CaseName`. The leading backslash is
-removed if present.
+Get a string representation of an enum case in the form `Fully\Qualified\ClassName::CaseName`.
 
 **Parameters:**
 
@@ -436,7 +489,9 @@ removed if present.
 Stringify::stringifyEnum(Suit::Hearts);  // 'App\Enums\Suit::Hearts'
 ```
 
-**Note:** `stringifyObject()` and `stringify()` automatically detect enum instances and delegate to this method.
+**Note:** `stringify()` automatically detects enum instances and delegates to this method. `stringifyObject()` does
+not — call `stringifyEnum()` directly for an enum case, since passing one to `stringifyObject()` stringifies it as
+a plain object instead.
 
 ### stringifyClosure()
 
@@ -485,7 +540,9 @@ public static function stringifyObject(object $obj, bool $prettyPrint = false, i
 
 Stringify an object using a custom format with the class name, curly braces, and UML visibility symbols.
 
-If the object is an enum, it is automatically delegated to `stringifyEnum()`.
+Enum cases are not given special treatment here — pass one and it's stringified as a plain object rather than via
+`stringifyEnum()`'s `ClassName::CaseName` form. `stringify()` avoids this by dispatching enums to `stringifyEnum()`
+directly, before `stringifyObject()` is ever reached.
 
 **Parameters:**
 
@@ -496,6 +553,10 @@ If the object is an enum, it is automatically delegated to `stringifyEnum()`.
 **Returns:**
 
 - `string` - The string representation of the object.
+
+**Throws:**
+
+- `DomainException` - If a value cannot be stringified.
 
 **Visibility Symbols (UML notation):**
 

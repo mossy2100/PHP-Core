@@ -157,7 +157,8 @@ Raise one integer to the power of another, returning an integer result or throwi
 
 **Throws:**
 
-- `DomainException` - If the exponent is negative (except for bases ±1, which return valid integer results).
+- `DomainException` - If the exponent is negative. This always throws regardless of the base, including `1 ** -1` and
+  `(-1) ** -1`, since the result would be a float in every case.
 - `OverflowException` - If the result is too large to represent as an integer.
 
 **Examples:**
@@ -166,14 +167,11 @@ Raise one integer to the power of another, returning an integer result or throwi
 Integers::pow(2, 10);   // 1024
 Integers::pow(5, 0);    // 1
 Integers::pow(-2, 3);   // -8
-Integers::pow(1, -1);   // 1 (1⁻¹ = 1)
-Integers::pow(-1, -1);  // -1 ((-1)⁻¹ = -1)
+Integers::pow(1, -1);   // throws DomainException (negative exponent)
+Integers::pow(-1, -1);  // throws DomainException (negative exponent)
 Integers::pow(2, -1);   // throws DomainException (negative exponent)
 Integers::pow(10, 100); // throws OverflowException
 ```
-
-**Note:** Negative exponents are not allowed except for bases ±1 (which return valid integer results: 1⁻¹ = 1 and (-1)⁻¹
-= -1). A `DomainException` is thrown for other bases with negative exponents.
 
 ---
 
@@ -227,7 +225,7 @@ Integers::gcd(PHP_INT_MIN);      // throws OverflowException (nothing reduces PH
 - The GCD is always computed using absolute values, so negative inputs are treated as positive
 - The GCD of 0 and any number n is |n|
 - The GCD of 0 and 0 is 0
-- `PHP_INT_MIN` is not allowed because `abs(PHP_INT_MIN)` overflows
+- `PHP_INT_MIN` is allowed as an argument (see **Throws** above for the one case where it still overflows)
 
 ---
 

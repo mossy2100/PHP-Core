@@ -107,6 +107,10 @@ final class Types
                 /** @var UnitEnum $value */
                 return 'e:' . $value::class . '::' . $value->name;
 
+            case 'closure':
+                /** @var Closure $value */
+                return 'c:' . spl_object_id($value);
+
             case 'object':
                 /** @var object $value */
                 return 'o:' . spl_object_id($value);

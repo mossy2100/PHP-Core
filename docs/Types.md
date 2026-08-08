@@ -35,7 +35,8 @@ Get the basic type of a value as a canonical string name.
 
 **Returns:**
 
-- `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `object`, `resource`, or `unknown`
+- `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `closure`, `object`, `resource`, or
+  `unknown`
 
 **Examples:**
 
@@ -47,6 +48,7 @@ Types::getBasicType(3.14);           // "float"
 Types::getBasicType("hello");        // "string"
 Types::getBasicType([1, 2, 3]);      // "array"
 Types::getBasicType(Suit::Hearts);   // "enum"
+Types::getBasicType(fn() => null);   // "closure"
 Types::getBasicType(new stdClass()); // "object"
 ```
 
@@ -75,7 +77,7 @@ distinct value produces a unique string.
 
 **Throws:**
 
-- `UnexpectedValueException` - If the value has an unknown type
+- `UnexpectedValueException` - If the value has an unknown type.
 
 **String Format (by type):**
 
@@ -86,8 +88,14 @@ distinct value produces a unique string.
 - `string`: `"s:{length}:{content}"` (e.g., `"s:5:hello"`)
 - `array`: `"a:{count}:{stringified}"` (e.g., `"a:3:[1, 2, 3]"`)
 - `enum`: `"e:{ClassName}::{CaseName}"` (e.g., `"e:App\Enums\Suit::Hearts"`)
+- `closure`: `"c:{object_id}"` (e.g., `"c:7"`)
 - `object`: `"o:{object_id}"` (e.g., `"o:1"`)
 - `resource`: `"r:{resource_id}"` (e.g., `"r:5"`)
+
+`closure` is identity-based, like `object`: two structurally identical but distinct closures produce different
+keys, since each `fn(...)`/`function (...) {}` literal creates a new object. A `closure`'s key can also never
+collide with an `object`'s, even though both are ultimately built from `spl_object_id()`, which shares one ID
+space across every object type — the `c:`/`o:` prefix keeps them distinct.
 
 **Examples:**
 
@@ -106,6 +114,11 @@ Types::getUniqueString(-0.0);              // "f:8000000000000000" (different!)
 
 // Enums use class name and case name
 Types::getUniqueString(Suit::Hearts);      // "e:App\Enums\Suit::Hearts"
+
+// Closures use object ID, so two structurally identical closures still get different keys
+$add1 = fn ($x) => $x + 1;
+$add2 = fn ($x) => $x + 1;
+Types::getUniqueString($add1) === Types::getUniqueString($add2); // false
 
 // Objects use object ID
 $obj = new stdClass();

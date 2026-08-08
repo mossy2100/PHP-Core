@@ -32,7 +32,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   (e.g. `Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', $min, $max)`). Supports multiple
   placeholders in one call, unlike `ex()`, which only ever produced one abbreviated value at a time.
 - **`Types::getBasicType()`** now recognizes closures, returning `'closure'` (a new case between `'enum'` and
-  `'object'`).
+  `'object'`). **`Types::getUniqueString()`** follows suit with a `'c:{object_id}'` format for closures (matching
+  `'o:{object_id}'` for plain objects) — previously a closure fell through to the `unknown`-type case and threw
+  `UnexpectedValueException`.
 - **`Stringify::stringifyClosure()`** — stringifies a closure by reading back its original source code from the file
   it was declared in (via `ReflectionFunction` plus `token_get_all()` to precisely locate the closure's own token
   range), returning it exactly as written, whitespace and comments included; the surrounding statement (e.g. a
@@ -218,6 +220,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   entirely; added.
 - **`docs/Traits/Asserts/FloatAssertions.md`**: updated for `assertApproxZero()`'s removal (see Removed, above) —
   its two examples that used it now call `assertApproxEqual(0.0, ..., absTol: ...)` directly.
+- Accuracy pass across `docs/Floats.md`, `docs/Integers.md`, `docs/Stringify.md`, and `docs/Types.md`, checked
+  against current source: two `Floats.md` example results that were wrong at a floating-point precision boundary
+  (`approxEqual()`/`approxCompare()`); `Integers.md`'s `pow()` and `gcd()` sections describing behavior that no
+  longer matches the source (`pow()`'s ±1-base exception, a stale `gcd()` bullet contradicting its own examples);
+  `Stringify.md` missing `stringifyBool()`/`stringifyInt()` entirely, a wrong pretty-print grid example, two false
+  claims about `stringifyEnum()`/`stringifyObject()` behavior, and three missing `@throws`; `Types.md` missing the
+  `closure` case in `getBasicType()`'s docs (see `Types::getBasicType()`, Added, above). `docs/Numbers.md` was
+  audited too and found already accurate.
 
 ### Tests
 
@@ -229,6 +239,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   this project's test-writing convention. All 100 original test methods carried over with no loss or duplication.
 - **`tests/Traits/FloatAssertionsTest.php`**: removed the `assertApproxZero()` test region, matching its removal
   from the trait.
+- **`tests/TypesTest.php`**: added `testGetStringKeyClosure()` for `getUniqueString()`'s new `closure` case
+  (identity-based key, no collision with `object` keys), and added a closure to `testGetStringKeyUniqueness()`.
 
 ## [3.0.0] - 2026-07-17
 

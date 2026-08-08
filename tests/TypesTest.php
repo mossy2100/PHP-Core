@@ -287,6 +287,31 @@ final class TypesTest extends TestCase
     }
 
     /**
+     * Test getStringKey with closures.
+     */
+    public function testGetStringKeyClosure(): void
+    {
+        // Test that closures produce keys with their object ID.
+        $closure1 = static fn (int $x): int => $x + 1;
+        $key1 = Types::getUniqueString($closure1);
+        $this->assertStringStartsWith('c:', $key1);
+
+        // Test that structurally-identical but distinct closures produce different keys (identity, not value).
+        $closure2 = static fn (int $x): int => $x + 1;
+        $key2 = Types::getUniqueString($closure2);
+        $this->assertNotSame($key1, $key2);
+
+        // Test that the same closure instance produces the same key.
+        $closure3 = $closure1;
+        $key3 = Types::getUniqueString($closure3);
+        $this->assertSame($key1, $key3);
+
+        // Test that a closure's key never collides with a plain object's, despite sharing the same underlying
+        // spl_object_id() space.
+        $this->assertNotSame($key1, Types::getUniqueString(new stdClass()));
+    }
+
+    /**
      * Test getStringKey with objects.
      */
     public function testGetStringKeyObject(): void
@@ -341,6 +366,7 @@ final class TypesTest extends TestCase
             Types::getUniqueString(0.0),
             Types::getUniqueString(''),
             Types::getUniqueString([]),
+            Types::getUniqueString(static fn (): null => null),
             Types::getUniqueString(new stdClass()),
         ];
 

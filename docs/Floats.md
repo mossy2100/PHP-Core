@@ -341,7 +341,7 @@ Floats::approxEqual(1e-20, 2e-20, 1e-9, 0.0);  // false
 Floats::approxEqual(100.0, 101.0, 0.02);  // true (1% difference, within 2%)
 
 // Custom both
-Floats::approxEqual(0.001, 0.0011, 0.01, 1e-4);  // true
+Floats::approxEqual(0.001, 0.00105, 0.01, 1e-4);  // true
 ```
 
 Special values:
@@ -441,7 +441,7 @@ Floats::approxCompare(1.0, 1.1, 1e-6);              // -1 (exceeds relative tole
 
 // Custom tolerances
 Floats::approxCompare(1.0, 1.0 + 1e-11, 1e-9, 1e-10);  // 0
-Floats::approxCompare(1.0, 1.0 + 1e-9, 1e-9, 1e-10);   // 1
+Floats::approxCompare(1.0, 1.0 + 1e-9, 1e-9, 1e-10);   // -1
 
 // Handles precision issues
 Floats::approxCompare(0.1 + 0.2, 0.3);  // 0 (approximately equal)
