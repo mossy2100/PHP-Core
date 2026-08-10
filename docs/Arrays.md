@@ -20,10 +20,10 @@ Methods are organized into:
 
 ## Inspection Methods
 
-### containsRecursion()
+### hasRecursion()
 
 ```php
-public static function containsRecursion(array $arr): bool
+public static function hasRecursion(array $arr): bool
 ```
 
 Checks if an array contains circular references (recursion). This occurs when an array contains a reference to itself,
@@ -44,7 +44,7 @@ Direct recursion:
 ```php
 $arr = ['foo' => 'bar'];
 $arr['self'] = &$arr;
-Arrays::containsRecursion($arr); // true
+Arrays::hasRecursion($arr); // true
 ```
 
 Indirect recursion:
@@ -54,14 +54,14 @@ $arr1 = ['name' => 'array1'];
 $arr2 = ['name' => 'array2'];
 $arr1['child'] = &$arr2;
 $arr2['parent'] = &$arr1;
-Arrays::containsRecursion($arr1); // true
+Arrays::hasRecursion($arr1); // true
 ```
 
 No recursion:
 
 ```php
 $arr = [[1, 2], [3, 4]];
-Arrays::containsRecursion($arr); // false
+Arrays::hasRecursion($arr); // false
 ```
 
 **Note:** This method uses `json_encode()` internally to detect recursion, as circular references cannot be
@@ -315,7 +315,7 @@ $arr = [[1, 2], [3, 4]];
 Arrays::removeRecursion($arr); // [[1, 2], [3, 4]] (unchanged; no recursion)
 ```
 
-**Note:** Uses `containsRecursion()`'s underlying technique (parsing `print_r()`'s recursion-aware output) to locate
+**Note:** Uses `hasRecursion()`'s underlying technique (parsing `print_r()`'s recursion-aware output) to locate
 each recursive reference, rather than reimplementing cycle detection from scratch.
 
 ---

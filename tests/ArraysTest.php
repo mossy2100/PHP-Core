@@ -19,7 +19,7 @@ use const OceanMoon\Core\RECURSION;
 #[CoversClass(Arrays::class)]
 final class ArraysTest extends TestCase
 {
-    #region Tests for containsRecursion()
+    #region Tests for hasRecursion()
 
     /**
      * Test that simple arrays without recursion return false.
@@ -27,19 +27,19 @@ final class ArraysTest extends TestCase
     public function testContainsRecursionSimpleArray(): void
     {
         // Test empty array.
-        $this->assertFalse(Arrays::containsRecursion([]));
+        $this->assertFalse(Arrays::hasRecursion([]));
 
         // Test simple flat array.
-        $this->assertFalse(Arrays::containsRecursion([1, 2, 3]));
+        $this->assertFalse(Arrays::hasRecursion([1, 2, 3]));
 
         // Test associative array.
-        $this->assertFalse(Arrays::containsRecursion([
+        $this->assertFalse(Arrays::hasRecursion([
             'name' => 'John',
             'age'  => 30,
         ]));
 
         // Test array with mixed types.
-        $this->assertFalse(Arrays::containsRecursion([1, 'hello', true, null, 3.14]));
+        $this->assertFalse(Arrays::hasRecursion([1, 'hello', true, null, 3.14]));
     }
 
     /**
@@ -48,13 +48,13 @@ final class ArraysTest extends TestCase
     public function testContainsRecursionNestedArray(): void
     {
         // Test nested array without recursion.
-        $this->assertFalse(Arrays::containsRecursion([
+        $this->assertFalse(Arrays::hasRecursion([
             [1, 2],
             [3, 4],
         ]));
 
         // Test deeply nested array without recursion.
-        $this->assertFalse(Arrays::containsRecursion([
+        $this->assertFalse(Arrays::hasRecursion([
             'level1' => [
                 'level2' => [
                     'level3' => [
@@ -68,7 +68,7 @@ final class ArraysTest extends TestCase
         // Test array containing objects without recursion.
         $obj = new stdClass();
         $obj->name = 'test';
-        $this->assertFalse(Arrays::containsRecursion([
+        $this->assertFalse(Arrays::hasRecursion([
             'object' => $obj,
         ]));
     }
@@ -85,7 +85,7 @@ final class ArraysTest extends TestCase
         $arr['self'] = &$arr;
 
         // Test that recursion is detected.
-        $this->assertTrue(Arrays::containsRecursion($arr));
+        $this->assertTrue(Arrays::hasRecursion($arr));
     }
 
     /**
@@ -104,10 +104,10 @@ final class ArraysTest extends TestCase
         $arr2['parent'] = &$arr1;
 
         // Test that recursion is detected in first array.
-        $this->assertTrue(Arrays::containsRecursion($arr1));
+        $this->assertTrue(Arrays::hasRecursion($arr1));
 
         // Test that recursion is detected in second array.
-        $this->assertTrue(Arrays::containsRecursion($arr2));
+        $this->assertTrue(Arrays::hasRecursion($arr2));
     }
 
     /**
@@ -127,7 +127,7 @@ final class ArraysTest extends TestCase
         $arr['level1']['level2']['level3']['back'] = &$arr;
 
         // Test that nested recursion is detected.
-        $this->assertTrue(Arrays::containsRecursion($arr));
+        $this->assertTrue(Arrays::hasRecursion($arr));
     }
 
     /**
@@ -144,7 +144,7 @@ final class ArraysTest extends TestCase
         $arr['ref2'] = &$arr;
 
         // Test that recursion is detected even with multiple references.
-        $this->assertTrue(Arrays::containsRecursion($arr));
+        $this->assertTrue(Arrays::hasRecursion($arr));
     }
 
     /**
@@ -164,7 +164,7 @@ final class ArraysTest extends TestCase
         ];
 
         // Test that this is not detected as recursion (it's just a reference to a sub-array).
-        $result = Arrays::containsRecursion($arr);
+        $result = Arrays::hasRecursion($arr);
 
         $this->assertFalse($result);
     }
@@ -193,7 +193,7 @@ final class ArraysTest extends TestCase
         ];
 
         // Test that no recursion is detected.
-        $this->assertFalse(Arrays::containsRecursion($arr));
+        $this->assertFalse(Arrays::hasRecursion($arr));
     }
 
     #endregion
@@ -923,7 +923,7 @@ final class ArraysTest extends TestCase
         Arrays::removeRecursion($arr);
 
         // The original is still genuinely recursive.
-        $this->assertTrue(Arrays::containsRecursion($arr));
+        $this->assertTrue(Arrays::hasRecursion($arr));
     }
 
     #endregion

@@ -34,7 +34,7 @@ final class Arrays
      * @param array<array-key, mixed> $arr The array to check.
      * @return bool True if the array contains recursion, false otherwise.
      */
-    public static function containsRecursion(array $arr): bool
+    public static function hasRecursion(array $arr): bool
     {
         try {
             json_encode($arr, JSON_THROW_ON_ERROR);
@@ -190,7 +190,7 @@ final class Arrays
      * $b = &$a;
      * $a[] = $b; // $a now contains a real reference cycle back to itself.
      * ```
-     * self::containsRecursion() can already tell you that some recursion exists, using
+     * self::hasRecursion() can already tell you that some recursion exists, using
      * json_encode() and catching its JSON_ERROR_RECURSION error — but that only answers a yes/no
      * question for the whole array; it doesn't say where the recursive reference is, so it isn't
      * enough on its own to know which value to replace. Array `===` compares by value, not by
