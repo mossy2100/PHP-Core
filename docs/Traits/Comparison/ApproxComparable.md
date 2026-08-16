@@ -8,15 +8,13 @@ ordering and floating-point precision concerns.
 ## Overview
 
 The `ApproxComparable` trait combines `Comparable` and `ApproxEquatable` to provide a complete set of comparison
-operations including approximate equality. This is ideal for types with natural ordering that contain floating-point
-values (e.g., Rational numbers).
-
-The trait provides the following methods:
+operations including approximate equality. This is ideal for types with natural ordering that contain
+floating-point values (e.g., Rational numbers).
 
 | Name                   | Description                                    | Implementation              |
 | ---------------------- | ---------------------------------------------- | --------------------------- |
-| `compare()`            | Exact ordering comparison                      | Todo                        |
-| `approxEqual()`        | Approximate equality                           | Todo                        |
+| `compare()`            | Exact ordering comparison                      | You implement               |
+| `approxEqual()`        | Approximate equality                           | You implement               |
 | `approxCompare()`      | Approximate ordering comparison with tolerance | Provided                    |
 | `equal()`              | Exact equality                                 | Provided (via `Comparable`) |
 | `lessThan()`           | Check if less than                             | Provided (via `Comparable`) |
@@ -48,9 +46,9 @@ abstract public function approxEqual(
 
 **You must implement this method.** See [ApproxEquatable.md](ApproxEquatable.md) for full documentation.
 
-Both abstract methods should check the type of `$other` explicitly (typically `instanceof self`) and throw (typically
-`InvalidArgumentException`) for anything that isn't a deliberate, documented exception to same-type-only comparison -
-see [Equatable.md](Equatable.md) for the reasoning.
+Both abstract methods should check the type of `$other` explicitly (typically `instanceof self`) and throw
+(typically `InvalidArgumentException`) for anything that isn't a deliberate, documented exception to
+same-type-only comparison - see [Equatable.md](Equatable.md) for the reasoning.
 
 ---
 
@@ -66,8 +64,8 @@ public function approxCompare(
 ): int
 ```
 
-Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances, otherwise
-performs exact comparison. Provided by the trait, built on `approxEqual()` and `compare()`.
+Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances,
+otherwise performs exact comparison. Provided by the trait, built on `approxEqual()` and `compare()`.
 
 **Use Cases:**
 
@@ -125,64 +123,9 @@ class Rational
 
 ---
 
-## Relationship with Other Traits
-
-`ApproxComparable` combines `Comparable` and `ApproxEquatable`, providing the complete comparison suite for ordered
-types with floating-point components.
-
-See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
-
----
-
-## Classes Using ApproxComparable
-
-- `OceanMoon\Math\Rational` - Rational numbers, require approximate equality and less/greater than comparisons.
-- `OceanMoon\Quantities\Quantity` - Physical quantities with unit-aware ordering.
-
----
-
-## Best Practices
-
-1. **Implement Both**: Provide both exact (`compare()`) and approximate (`approxEqual()`) implementations.
-2. **Consistent Semantics**: Ensure approximate equality aligns with your ordering semantics.
-3. **Don't Override approxCompare()**: Let the trait provide it based on `approxEqual()` and `compare()`.
-4. **Type Safety**: Check the type of `$other` explicitly in both `compare()` and `approxEqual()` - throw for anything
-   that isn't a deliberate, documented exception to same-type-only comparison.
-5. **Use Floats Utilities**: Leverage `Floats::approxEqual()` and `Floats::compare()` for float comparisons.
-6. **Sensible Defaults**: Choose default tolerances appropriate for your type's typical use cases.
-
----
-
-## When to Use Each Method
-
-### Use `equal()` when:
-
-- You need exact equality
-- Comparing integer-only types
-- Working with canonical forms (e.g., reduced fractions)
-
-### Use `approxEqual()` when:
-
-- Comparing floating-point results
-- Dealing with accumulated rounding errors
-- Checking if values are "close enough" for practical purposes
-
-### Use `compare()` when:
-
-- Sorting with strict ordering
-- Finding exact min/max
-- Binary search with exact matching
-
-### Use `approxCompare()` when:
-
-- Sorting with tolerance "buckets"
-- Finding approximate min/max
-- Range queries with tolerance
-
----
-
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
-- [Comparable.md](Comparable.md) - Base ordering trait
-- [ApproxEquatable.md](ApproxEquatable.md) - Approximate equality trait
+- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview, including guidance on choosing between
+  `equal()`/`approxEqual()`/`compare()`/`approxCompare()`
+- [Comparable.md](Comparable.md) - Base ordering trait this includes
+- [ApproxEquatable.md](ApproxEquatable.md) - Base approximate-equality trait this includes

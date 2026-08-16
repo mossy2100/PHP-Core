@@ -19,9 +19,6 @@ use Override;
  * @see ApproxComparable For types needing approximate comparison with tolerance.
  *
  * Full documentation and examples: docs/Traits/Comparison/Comparable.md
- *
- * @codeCoverageIgnore
- * @phpstan-ignore trait.unused
  */
 trait Comparable
 {

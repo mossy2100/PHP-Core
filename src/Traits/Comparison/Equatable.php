@@ -17,9 +17,6 @@ namespace OceanMoon\Core\Traits\Comparison;
  *
  * @see Comparable For types with natural ordering.
  * @see ApproxEquatable For approximate equality comparison.
- *
- * @codeCoverageIgnore
- * @phpstan-ignore trait.unused
  */
 trait Equatable
 {

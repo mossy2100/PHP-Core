@@ -24,8 +24,6 @@ use OceanMoon\Core\Floats;
  * @see ApproxComparable For types with both ordering and approximate equality.
  * @see Floats::approxEqual() The algorithm to use for tolerance checking.
  *
- * Full documentation and examples: docs/Traits/Comparison/ApproxEquatable.md
- *
  * @codeCoverageIgnore
  * @phpstan-ignore trait.unused
  */

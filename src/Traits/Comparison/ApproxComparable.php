@@ -27,9 +27,6 @@ use OceanMoon\Core\Floats;
  * @see Floats::approxEqual() The tolerance algorithm used.
  *
  * Full documentation and examples: docs/Traits/Comparison/ApproxComparable.md
- *
- * @codeCoverageIgnore
- * @phpstan-ignore trait.unused
  */
 trait ApproxComparable
 {

@@ -12,11 +12,9 @@ implement. It uses the `Equatable` trait and adds ordering methods.
 The trait follows the **Template Method Pattern** - you implement the `compare()` method, and all other methods are
 automatically provided.
 
-The trait provides the following methods:
-
 | Name                   | Description                       | Implementation                      |
 | ---------------------- | --------------------------------- | ----------------------------------- |
-| `compare()`            | Ordering comparison               | Todo                                |
+| `compare()`            | Ordering comparison               | You implement                       |
 | `equal()`              | Check equality                    | Provided (delegates to `compare()`) |
 | `lessThan()`           | Check if less than                | Provided                            |
 | `lessThanOrEqual()`    | Check if less than or equal to    | Provided                            |
@@ -41,20 +39,17 @@ abstract public function compare(mixed $other): int
 
 **Parameters:**
 
-- `$other` (mixed) - The value to compare with
+- `$other` (mixed) - The value to compare with.
 
-**Returns:**
-
-- `int` - Exactly `-1`, `0`, or `1`
+**Returns:** `int` - Exactly `-1`, `0`, or `1`.
 
 **Implementation Guidelines:**
 
-- Must return **exactly** -1, 0, or 1 (not just negative/zero/positive). The convenience methods use strict equality
-  checks. Use `Numbers::sign()` to normalize the spaceship operator's result.
+- Must return **exactly** -1, 0, or 1 (not just negative/zero/positive). The convenience methods use strict
+  equality checks. Use `Numbers::sign()` to normalize the spaceship operator's result.
 - Check the type of `$other` explicitly (typically `instanceof self`) - don't attempt to convert or coerce it.
 - Throw (typically `InvalidArgumentException`) for any type that isn't a deliberate, documented exception to
-  same-type-only comparison - see [Equatable.md](Equatable.md) for the reasoning (this mirrors why `==`/`!=` are avoided
-  in favor of `===`/`!==`).
+  same-type-only comparison - see [Equatable.md](Equatable.md) for the reasoning.
 
 ---
 
@@ -125,38 +120,8 @@ var_dump($v3->greaterThan($v1));  // true (2.0.0 > 1.2.3)
 
 ---
 
-## Relationship with Other Traits
-
-`Comparable` extends `Equatable` and adds ordering operations. It automatically provides `equal()` based on `compare()`.
-
-For approximate comparison with ordering, use `ApproxComparable` instead.
-
-See [ComparisonTraits.md](ComparisonTraits.md) for complete hierarchy and usage guide.
-
----
-
-## Classes Using Comparable
-
-- `OceanMoon\Math\Rational` - Rational numbers, via `ApproxComparable`.
-- `OceanMoon\Quantities\Quantity` - Physical quantities with unit-aware ordering, via `ApproxComparable`.
-
----
-
-## Best Practices
-
-1. **Return Exactly -1, 0, or 1**: Use `Numbers::sign()` or explicit conditionals to normalize the spaceship operator
-   result.
-2. **Type Checking**: Check the type of `$other` explicitly - throw for anything that isn't a deliberate, documented
-   exception to same-type-only comparison.
-3. **Consistency**: Ensure `compare()` is consistent with your type's equality semantics.
-4. **Transitivity**: If A < B and B < C, then A < C must be true.
-5. **Don't Override equal()**: Unless you have a very specific reason, let the trait provide `equal()` based on
-   `compare()`.
-6. **Use Trait Composition**: The `Comparable` trait already includes `Equatable` via trait composition - don't
-   separately use `Equatable`.
-
----
-
 ## See Also
 
 - [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
+- [Equatable.md](Equatable.md) - Base equality trait this includes
+- [ApproxComparable.md](ApproxComparable.md) - For approximate comparison with ordering
