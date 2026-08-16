@@ -60,13 +60,9 @@ Add two integers with overflow detection.
 - `$a` (int) - The first integer
 - `$b` (int) - The second integer
 
-**Returns:**
+**Returns:** `int` - The sum of the two integers
 
-- `int` - The sum of the two integers
-
-**Throws:**
-
-- `OverflowException` - If the addition results in a value too large to be represented as an integer.
+**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -89,13 +85,9 @@ Subtract one integer from another with overflow detection.
 - `$a` (int) - The integer to subtract from
 - `$b` (int) - The integer to subtract
 
-**Returns:**
+**Returns:** `int` - The difference (a - b)
 
-- `int` - The difference (a - b)
-
-**Throws:**
-
-- `OverflowException` - If the subtraction results in a value too large to be represented as an integer.
+**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -118,13 +110,9 @@ Multiply two integers with overflow detection.
 - `$a` (int) - The first integer
 - `$b` (int) - The second integer
 
-**Returns:**
+**Returns:** `int` - The product
 
-- `int` - The product
-
-**Throws:**
-
-- `OverflowException` - If the multiplication results in a value too large to be represented as an integer.
+**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -151,15 +139,11 @@ Raise one integer to the power of another, returning an integer result or throwi
 - `$a` (int) - The base
 - `$b` (int) - The exponent
 
-**Returns:**
+**Returns:** `int` - The result of raising a to the power of b
 
-- `int` - The result of raising a to the power of b
-
-**Throws:**
-
-- `DomainException` - If the exponent is negative. This always throws regardless of the base, including `1 ** -1` and
+**Throws:** `DomainException` - If the exponent is negative. This always throws regardless of the base, including `1 ** -1` and
   `(-1) ** -1`, since the result would be a float in every case.
-- `OverflowException` - If the result is too large to represent as an integer.
+- `OverflowException` - If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -190,9 +174,7 @@ positive integer that divides all the given numbers without remainder.
 
 - `...$nums` (int) - One or more integers
 
-**Returns:**
-
-- `int` - The greatest common divisor (always non-negative)
+**Returns:** `int` - The greatest common divisor (always non-negative)
 
 **Throws:**
 
@@ -243,9 +225,7 @@ Convert an integer to Unicode subscript characters.
 
 - `$n` (int) - The integer to convert
 
-**Returns:**
-
-- `string` - The integer as subscript characters
+**Returns:** `string` - The integer as subscript characters
 
 **Examples:**
 
@@ -272,9 +252,7 @@ Convert an integer to Unicode superscript characters.
 
 - `$n` (int) - The integer to convert
 
-**Returns:**
-
-- `string` - The integer as superscript characters
+**Returns:** `string` - The integer as superscript characters
 
 **Examples:**
 
@@ -300,9 +278,7 @@ Check if a string is a valid subscript integer representation.
 
 - `$s` (string) - The string to check
 
-**Returns:**
-
-- `bool` - True if the string matches the pattern for a subscript integer
+**Returns:** `bool` - True if the string matches the pattern for a subscript integer
 
 **Examples:**
 
@@ -328,9 +304,7 @@ Check if a string is a valid superscript integer representation.
 
 - `$s` (string) - The string to check
 
-**Returns:**
-
-- `bool` - True if the string matches the pattern for a superscript integer
+**Returns:** `bool` - True if the string matches the pattern for a superscript integer
 
 **Examples:**
 
@@ -356,13 +330,9 @@ Convert a string of Unicode subscript characters to an integer.
 
 - `$s` (string) - The subscript string to convert
 
-**Returns:**
+**Returns:** `int` - The integer value
 
-- `int` - The integer value
-
-**Throws:**
-
-- [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid subscript characters
+**Throws:** [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid subscript characters
 
 **Examples:**
 
@@ -391,13 +361,9 @@ Convert a string of Unicode superscript characters to an integer.
 
 - `$s` (string) - The superscript string to convert
 
-**Returns:**
+**Returns:** `int` - The integer value
 
-- `int` - The integer value
-
-**Throws:**
-
-- [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid superscript characters
+**Throws:** [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid superscript characters
 
 **Examples:**
 

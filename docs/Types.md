@@ -33,9 +33,7 @@ Get the basic type of a value as a canonical string name.
 
 - `$value` (mixed) - The value to get the type of
 
-**Returns:**
-
-- `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `closure`, `object`, `resource`, or
+**Returns:** `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `closure`, `object`, `resource`, or
   `unknown`
 
 **Examples:**
@@ -71,13 +69,9 @@ distinct value produces a unique string.
 
 - `$value` (mixed) - The value to convert
 
-**Returns:**
+**Returns:** `string` - A unique string representation of the value
 
-- `string` - A unique string representation of the value
-
-**Throws:**
-
-- `UnexpectedValueException` - If the value has an unknown type.
+**Throws:** `UnexpectedValueException` - If the value has an unknown type.
 
 **String Format (by type):**
 
@@ -144,9 +138,7 @@ Check if two values have the same type using `get_debug_type()` for comparison.
 - `$obj1` (mixed) - The first value to compare
 - `$obj2` (mixed) - The second value to compare
 
-**Returns:**
-
-- `bool` - True if the types are the same, false otherwise
+**Returns:** `bool` - True if the types are the same, false otherwise
 
 **Examples:**
 
@@ -178,13 +170,9 @@ or used by other traits (nested traits).
 - `$objOrClass` (object|string) - The object or class name to inspect
 - `$trait` (string) - The fully qualified trait name to check for
 
-**Returns:**
+**Returns:** `bool` - Returns `true` if the object or class uses the trait, `false` otherwise
 
-- `bool` - Returns `true` if the object or class uses the trait, `false` otherwise
-
-**Throws:**
-
-- `DomainException` - If the provided class name is invalid
+**Throws:** `DomainException` - If the provided class name is invalid
 
 **Examples:**
 
@@ -236,13 +224,9 @@ traits.
 
 - `$objOrClass` (object|string) - The object or class (or interface or trait) to inspect
 
-**Returns:**
+**Returns:** `string[]` - Array of fully qualified trait names
 
-- `string[]` - Array of fully qualified trait names
-
-**Throws:**
-
-- `DomainException` - If the provided class name is invalid
+**Throws:** `DomainException` - If the provided class name is invalid
 
 **Examples:**
 

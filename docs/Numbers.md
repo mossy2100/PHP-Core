@@ -32,9 +32,7 @@ for numeric strings like `"42"` or `"3.14"`.
 
 - `$value` (mixed) - The value to check.
 
-**Returns:**
-
-- `bool` - `true` if the value is an `int` or `float`, `false` otherwise.
+**Returns:** `bool` - `true` if the value is an `int` or `float`, `false` otherwise.
 
 **Examples:**
 
@@ -86,9 +84,7 @@ The method also avoids the need for loose equality using `==` or `!=`, which sev
 - `$a` (int|float) - The first number
 - `$b` (int|float) - The second number
 
-**Returns:**
-
-- `bool` - Returns `true` if the numbers are equal, `false` otherwise.
+**Returns:** `bool` - Returns `true` if the numbers are equal, `false` otherwise.
 
 **Behavior:**
 
@@ -181,9 +177,9 @@ handled.
 - `$zeroForZero` (bool) - If `true` (default), return 0 for any zero value; if `false`, return the sign of the zero (-1 for -0.0,
   1 otherwise)
 
-**Returns:**
+**Returns:** `int` - Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true` (default).
 
-- `int` - Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true` (default).
+**Throws:** `DomainException` - If `$value` is NAN (NAN has no defined sign).
 
 **Examples:**
 
@@ -229,13 +225,9 @@ second parameter.
 - `$num` (int|float) - The number whose magnitude to use.
 - `$signSource` (int|float) - The number whose sign to copy.
 
-**Returns:**
+**Returns:** `int|float` - The magnitude of `$num` with the sign of `$signSource`.
 
-- `int|float` - The magnitude of `$num` with the sign of `$signSource`.
-
-**Throws:**
-
-- `DomainException` - If NAN is passed as either parameter (NAN has no defined sign).
+**Throws:** `DomainException` - If NAN is passed as either parameter (NAN has no defined sign).
 
 **Examples:**
 

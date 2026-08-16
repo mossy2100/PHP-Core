@@ -180,9 +180,9 @@ final class Arrays
     }
 
     /**
-     * Return a copy of an array with any circular (self-referencing) sub-arrays replaced by the
-     * RECURSION marker string, so the result can be safely inspected, iterated, or serialized
-     * without triggering infinite recursion or a fatal error.
+     * Return a copy of an array with any circular (self-referencing) sub-arrays replaced by the RECURSION marker
+     * string, so the result can be safely inspected, iterated, or serialized without triggering infinite recursion or a
+     * fatal error.
      *
      * PHP arrays can genuinely contain themselves, e.g.:
      * ```php
@@ -190,20 +190,17 @@ final class Arrays
      * $b = &$a;
      * $a[] = $b; // $a now contains a real reference cycle back to itself.
      * ```
-     * self::hasRecursion() can already tell you that some recursion exists, using
-     * json_encode() and catching its JSON_ERROR_RECURSION error — but that only answers a yes/no
-     * question for the whole array; it doesn't say where the recursive reference is, so it isn't
-     * enough on its own to know which value to replace. Array `===` compares by value, not by
-     * reference identity, so there's no built-in way to ask "is this the same array instance as an
-     * ancestor?" either. print_r() (like inspect()) performs the same underlying cycle detection
-     * internally (implemented in C, with access to the engine's reference-counted array
-     * structures), but — usefully here — its text output preserves the position of each recursive
-     * reference within the printed structure. This method detects recursion by parsing that
+     * self::hasRecursion() can already tell you that some recursion exists, using json_encode() and catching its
+     * JSON_ERROR_RECURSION error — but that only answers a yes/no question for the whole array; it doesn't say where
+     * the recursive reference is, so it isn't enough on its own to know which value to replace. Array `===` compares by
+     * value, not by reference identity, so there's no built-in way to ask "is this the same array instance as an
+     * ancestor?" either. print_r() performs the same underlying cycle detection internally (implemented in C, with
+     * access to the engine's reference-counted array structures), but — usefully here — its text output preserves the
+     * position of each recursive reference within the printed structure. This method detects recursion by parsing that
      * positional output, rather than reimplementing cycle detection from scratch.
      *
-     * Only genuine reference cycles are detected and replaced; two unrelated sub-arrays that
-     * happen to have identical contents are left untouched, since print_r() itself does not flag
-     * them as recursive.
+     * Only genuine reference cycles are detected and replaced; two unrelated sub-arrays that happen to have identical
+     * contents are left untouched, since print_r() itself does not flag them as recursive.
      *
      * @param array<array-key, mixed> $arr The array to clean.
      * @return array<array-key, mixed> A copy of $arr with any circular sub-arrays replaced by the

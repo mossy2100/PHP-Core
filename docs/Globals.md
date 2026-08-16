@@ -69,10 +69,6 @@ $cleaned = Arrays::removeRecursion($arr);
 
 ## See Also
 
-- **[Numbers](Numbers.md)** - Number-related functions
-- **[Arrays](Arrays.md)** - `removeRecursion()`, which uses the `RECURSION` marker
-- **[Stringify](Stringify.md)** - `toString()` and `prepEx()`, which took over from the removed `to_string()` and `ex()`
-  global functions
-- **Console** - `print()`, `println()`, and `dump()`, which took over from the removed `println()` and `inspect()`
-  global functions, with added ANSI styling
-- **[Stringify](Stringify.md)** - Value-to-string conversion used internally by `inspect()`, `ex()`, and `to_string()`
+- **[Floats](Floats.md)** - Float-related methods, including `wrap()`, which uses `M_TAU`.
+- **[Arrays](Arrays.md)** - `removeRecursion()`, which uses `RECURSION`.
+- **[Stringify](Stringify.md)** - Value-to-string conversion class, which also uses `RECURSION`.

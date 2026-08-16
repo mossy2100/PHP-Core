@@ -108,9 +108,7 @@ Determines if a floating-point number is negative zero (-0.0).
 
 - `$value` (float) - The floating-point number to check
 
-**Returns:**
-
-- `bool` - Returns `true` if the value is negative zero (-0.0), `false` otherwise
+**Returns:** `bool` - Returns `true` if the value is negative zero (-0.0), `false` otherwise
 
 **Examples:**
 
@@ -132,9 +130,7 @@ Determines if a floating-point number is positive zero (+0.0).
 
 - `$value` (float) - The floating-point number to check
 
-**Returns:**
-
-- `bool` - Returns `true` if the value is positive zero (+0.0), `false` otherwise
+**Returns:** `bool` - Returns `true` if the value is positive zero (+0.0), `false` otherwise
 
 **Examples:**
 
@@ -157,9 +153,7 @@ Check if a floating-point number is negative. This method considers -0.0 as nega
 
 - `$value` (float) - The value to check
 
-**Returns:**
-
-- `bool` - Returns `true` for -0.0, -INF, and negative values; `false` for +0.0, INF, NAN, and positive values
+**Returns:** `bool` - Returns `true` for -0.0, -INF, and negative values; `false` for +0.0, INF, NAN, and positive values
 
 **Examples:**
 
@@ -186,9 +180,7 @@ Check if a floating-point number is positive. This method considers +0.0 as posi
 
 - `$value` (float) - The value to check
 
-**Returns:**
-
-- `bool` - Returns `true` for +0.0, INF, and positive values; `false` for -0.0, -INF, NAN, and negative values
+**Returns:** `bool` - Returns `true` for +0.0, INF, and positive values; `false` for -0.0, -INF, NAN, and negative values
 
 **Examples:**
 
@@ -216,9 +208,7 @@ special value.
 
 - `$value` (float) - The value to check
 
-**Returns:**
-
-- `bool` - Returns `true` if the value is NAN, -0.0, +INF, or -INF; `false` otherwise
+**Returns:** `bool` - Returns `true` if the value is NAN, -0.0, +INF, or -INF; `false` otherwise
 
 **Examples:**
 
@@ -251,9 +241,7 @@ would otherwise throw off the result by one).
 
 - `$value` (float) - The value to get the exponent of. Must be finite.
 
-**Returns:**
-
-- `int` - The exponent. Returns `0` for a value of `0.0`.
+**Returns:** `int` - The exponent. Returns `0` for a value of `0.0`.
 
 **Examples:**
 
@@ -301,13 +289,9 @@ which uses the following algorithm:
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`, which is ~2.22e-16)
 
-**Returns:**
+**Returns:** `bool` - Returns `true` if the floats are approximately equal, `false` otherwise
 
-- `bool` - Returns `true` if the floats are approximately equal, `false` otherwise
-
-**Throws:**
-
-- `DomainException` - If either tolerance is negative
+**Throws:** `DomainException` - If either tolerance is negative
 
 **Examples:**
 
@@ -415,13 +399,9 @@ float is less than, equal to (within tolerance), or greater than the second floa
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`)
 
-**Returns:**
+**Returns:** `int` - Returns exactly `-1` if `$a < $b`, `0` if approximately equal, `1` if `$a > $b`
 
-- `int` - Returns exactly `-1` if `$a < $b`, `0` if approximately equal, `1` if `$a > $b`
-
-**Throws:**
-
-- `DomainException` - If either float is NAN, or either tolerance is negative
+**Throws:** `DomainException` - If either float is NAN, or either tolerance is negative
 
 **Examples:**
 
@@ -505,9 +485,7 @@ the distinction between -0.0 and +0.0 matters.
 
 - `$value` (float) - The floating-point number to normalize
 
-**Returns:**
-
-- `float` - Returns `0.0` if the input is `-0.0`, otherwise returns the value unchanged
+**Returns:** `float` - Returns `0.0` if the input is `-0.0`, otherwise returns the value unchanged
 
 **Examples:**
 
@@ -534,9 +512,7 @@ Truncate a float towards zero (remove the fractional part). This is equivalent t
 
 - `$value` (float) - The value to truncate
 
-**Returns:**
-
-- `float` - The truncated value (integer part towards zero)
+**Returns:** `float` - The truncated value (integer part towards zero)
 
 **Examples:**
 
@@ -607,9 +583,7 @@ values, the result is also negative.
 
 - `$value` (float) - The value to get the fractional part of
 
-**Returns:**
-
-- `float` - The fractional part. Returns `0.0` for ±INF (infinity has no fractional part). Returns `NAN` for NAN input.
+**Returns:** `float` - The fractional part. Returns `0.0` for ±INF (infinity has no fractional part). Returns `NAN` for NAN input.
 
 **Examples:**
 
@@ -672,9 +646,7 @@ the value modulo the period and adjusts it to fit within the specified range.
 - `$unitsPerTurn` (float) - The period/range size (default: `OceanMoon\Core\M_TAU` for radians)
 - `$signed` (bool) - If `true`, use signed range; if `false`, use unsigned range (default: `true`)
 
-**Returns:**
-
-- `float` - The wrapped value within the specified range
+**Returns:** `float` - The wrapped value within the specified range
 
 **Behavior:**
 
@@ -785,13 +757,9 @@ hex representation of NAN used by PHP ('7ff8000000000000'). Also see notes for `
 
 - `$value` (float) - The float to convert
 
-**Returns:**
+**Returns:** `string` - A 16-character hexadecimal string representing the binary representation of the float
 
-- `string` - A 16-character hexadecimal string representing the binary representation of the float
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
 
@@ -866,13 +834,9 @@ other parameters.
 - `$roundingMode` (`RoundingMode`) - The rounding mode to use. Default `RoundingMode::HalfAwayFromZero`, matching
   `round()`, `Rational::round()`, and `Complex::round()`, rather than `sprintf()`'s round-half-to-even behavior.
 
-**Returns:**
+**Returns:** `string` - The formatted value string.
 
-- `string` - The formatted value string.
-
-**Throws:**
-
-- `DomainException` - If `$precision` is outside the valid range: 0–17 for `FixedPoint`, 1–17 for `Scientific`/`Auto`.
+**Throws:** `DomainException` - If `$precision` is outside the valid range: 0–17 for `FixedPoint`, 1–17 for `Scientific`/`Auto`.
 
 **Examples:**
 
@@ -926,9 +890,7 @@ narrower checks.
 
 - `$value` (float) - The value to check
 
-**Returns:**
-
-- `bool` - `true` if the value is numerically an integer, `false` otherwise
+**Returns:** `bool` - `true` if the value is numerically an integer, `false` otherwise
 
 **Behavior:**
 
@@ -978,9 +940,7 @@ integers within IEEE-754 double's safe integer range (±`MAX_SAFE_INT`, i.e. ±(
 
 - `$value` (float) - The value to check
 
-**Returns:**
-
-- `bool` - Returns `true` if the value represents a safe integer, `false` otherwise
+**Returns:** `bool` - Returns `true` if the value represents a safe integer, `false` otherwise
 
 **Behavior:**
 
@@ -1088,9 +1048,7 @@ floating-point errors that may accumulate during calculations.
 - `$relTol` (float) - The maximum allowed relative difference (default: `1e-9`)
 - `$absTol` (float) - The maximum allowed absolute difference (default: `PHP_FLOAT_EPSILON`)
 
-**Returns:**
-
-- `bool` - Returns `true` if the value is approximately an integer, `false` otherwise
+**Returns:** `bool` - Returns `true` if the value is approximately an integer, `false` otherwise
 
 **Examples:**
 
@@ -1149,13 +1107,9 @@ returning a sentinel value - a caller that ignores the return value can't silent
 
 - `$f` (float) - The float to convert
 
-**Returns:**
+**Returns:** `int` - The equivalent integer
 
-- `int` - The equivalent integer
-
-**Throws:**
-
-- `DomainException` - If the float cannot be converted to an int losslessly
+**Throws:** `DomainException` - If the float cannot be converted to an int losslessly
 
 **Behavior:**
 
@@ -1232,9 +1186,7 @@ representable float within the given range except -0.0, which is specifically ex
 - `$min` (float) - The minimum value (inclusive, default: -PHP_FLOAT_MAX)
 - `$max` (float) - The maximum value (inclusive, default: PHP_FLOAT_MAX)
 
-**Returns:**
-
-- `float` - A random finite float in the range [min, max]
+**Returns:** `float` - A random finite float in the range [min, max]
 
 **Throws:**
 
@@ -1297,9 +1249,7 @@ each possible return value is equal.
 - `$min` (float) - The minimum value (inclusive)
 - `$max` (float) - The maximum value (inclusive)
 
-**Returns:**
-
-- `float` - A random float in the range [min, max]
+**Returns:** `float` - A random float in the range [min, max]
 
 **Throws:**
 
@@ -1376,13 +1326,9 @@ Converts a float to its 64-bit integer representation. This reinterprets the IEE
 
 - `$f` (float) - The float to convert
 
-**Returns:**
+**Returns:** `int` - The 64-bit integer represented by the same bit pattern
 
-- `int` - The 64-bit integer represented by the same bit pattern
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
 
@@ -1428,13 +1374,9 @@ float, which preserves the numeric value rather than the bit representation.
 
 - `$bits` (int) - The 64-bit integer representing the desired bit pattern
 
-**Returns:**
+**Returns:** `float` - The float with the specified bit pattern
 
-- `float` - The float with the specified bit pattern
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Note:** The IEEE 754 standard supports 2<sup>53</sup> - 2 distinct bit patterns that represent NAN values. While this
 method can construct floats from any of these bit patterns, PHP normalizes all NAN values to a canonical representation
@@ -1482,17 +1424,13 @@ Disassemble a float into its IEEE-754 double-precision components.
 
 - `$f` (float) - The float to disassemble
 
-**Returns:**
-
-- An associative array containing:
+**Returns:** An associative array containing:
   - `bits` (int): Complete 64-bit representation
   - `sign` (int): 0 for positive, 1 for negative
   - `exponent` (int): 11-bit biased exponent (0-2047, bias is 1023)
   - `fraction` (int): 52-bit fraction/mantissa
 
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Examples:**
 
@@ -1541,9 +1479,7 @@ Assemble a float from its IEEE-754 double-precision components.
 - `$exponent` (int) - The 11-bit biased exponent (0-2047)
 - `$fraction` (int) - The 52-bit fraction/mantissa (0 to 2^52 - 1)
 
-**Returns:**
-
-- `float` - The assembled float
+**Returns:** `float` - The assembled float
 
 **Throws:**
 
@@ -1606,13 +1542,9 @@ to the adjacent float in the IEEE-754 number line.
 
 - `$f` (float) - The given number
 
-**Returns:**
+**Returns:** `float` - The next floating-point number after the given number
 
-- `float` - The next floating-point number after the given number
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
 
@@ -1659,13 +1591,9 @@ move to the adjacent float in the IEEE-754 number line.
 
 - `$f` (float) - The given number
 
-**Returns:**
+**Returns:** `float` - The previous floating-point number before the given number
 
-- `float` - The previous floating-point number before the given number
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
 
@@ -1722,13 +1650,9 @@ represents the gap between a float and the next largest representable float valu
 
 - `$value` (float) - The value to calculate ULP for
 
-**Returns:**
+**Returns:** `float` - The ULP spacing. Returns `NAN` for NAN, `INF` for ±INF.
 
-- `float` - The ULP spacing. Returns `NAN` for NAN, `INF` for ±INF.
-
-**Throws:**
-
-- `RuntimeException` - If the system is not 64-bit
+**Throws:** `RuntimeException` - If the system is not 64-bit
 
 **Behavior:**
 

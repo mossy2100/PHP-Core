@@ -152,13 +152,14 @@ final class Integers
      *
      * There are two possible reasons why the method could throw, i.e. the result is a float rather than an int:
      * - The exponent is negative, which produces a float result in all cases (including 1^-1 or -1^-1).
-     * - The result of the operation is too large to be represented as an integer.
+     * - The result's magnitude is too large to be represented as an integer (whether the true result is very large
+     *   and positive, or very large and negative).
      *
      * @param int $a The base.
      * @param int $b The exponent (must be non-negative).
      * @return int The result of raising $a to the power of $b.
      * @throws DomainException If the exponent is negative.
-     * @throws OverflowException If the result is too large to be represented as an integer.
+     * @throws OverflowException If the result's magnitude is too large to be represented as an integer.
      */
     public static function pow(int $a, int $b): int
     {

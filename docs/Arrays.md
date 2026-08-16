@@ -315,8 +315,10 @@ $arr = [[1, 2], [3, 4]];
 Arrays::removeRecursion($arr); // [[1, 2], [3, 4]] (unchanged; no recursion)
 ```
 
-**Note:** Uses `hasRecursion()`'s underlying technique (parsing `print_r()`'s recursion-aware output) to locate
-each recursive reference, rather than reimplementing cycle detection from scratch.
+**Note:** `hasRecursion()` only answers a yes/no question, using `json_encode()` and catching its
+`JSON_ERROR_RECURSION` error — it doesn't say *where* the recursive reference is. This method takes a different
+approach: it locates each recursive reference by parsing `print_r()`'s recursion-aware output, rather than
+reimplementing cycle detection from scratch.
 
 ---
 
