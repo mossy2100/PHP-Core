@@ -277,6 +277,16 @@ final class NumbersTest extends TestCase
         $this->assertSame(-1, Numbers::sign(-INF, false));
     }
 
+    /**
+     * Test that sign throws DomainException when value is NAN.
+     */
+    public function testSignWithNanThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Cannot get sign of NAN.');
+        Numbers::sign(NAN);
+    }
+
     #endregion
 
     #region Method copySign() tests.
