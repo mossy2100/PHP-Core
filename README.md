@@ -12,7 +12,8 @@ A general purpose package containing core PHP utility classes and methods for us
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations.
 Most utility classes are final with static methods and cannot be instantiated directly. `Console` is the exception —
-a singleton with instance methods and internal style state, accessed via `Console::getInstance()`.
+an instantiable class with instance methods and internal style state, since its fluent `->` chaining API needs a
+real object to chain off.
 
 ---
 
@@ -86,7 +87,7 @@ Runtime environment detection: 64-bit architecture checks, and locale detection 
 
 ### [Console](docs/Console.md)
 
-Singleton for ANSI/SGR-styled console output: 16-color foreground/background, text attributes (bold, italic, underline,
+ANSI/SGR-styled console output: 16-color foreground/background, text attributes (bold, italic, underline,
 etc.), method chaining, style snapshot/restore, and higher-level helpers like `dump()` and severity-colored messages
 (`success()`, `error()`, `warn()`, `info()`).
 
@@ -94,7 +95,7 @@ etc.), method chaining, style snapshot/restore, and higher-level helpers like `d
 
 ## [Globals](docs/Globals.md)
 
-Useful constants (`M_TAU`, `RECURSION`) that work better as globals (namespaced to `OceanMoon\Core`) than as class
+Useful constants (`M_TAU`, `RECURSION`) that are more convenient to use as globals (namespaced to `OceanMoon\Core`) than as class
 members.
 
 ---

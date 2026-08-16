@@ -17,7 +17,7 @@ use DomainException;
  * $t = new Console();
  * $t->setColor(Console::WHITE, Console::RED)->bold();
  * echo ' ALERT ';
- * $t->reset();
+ * $t->resetStyle();
  * ```
  *
  * State: setColor()/resetColor() and the *On()/*Off() methods keep the properties below in sync.
@@ -107,33 +107,6 @@ class Console
         'resource' => self::RED,
         'unknown'  => self::GRAY,
     ];
-
-    #endregion
-
-    #region Construction
-
-    /**
-     * Private constructor to prevent instantiation.
-     *
-     * @codeCoverageIgnore
-     */
-    private function __construct()
-    {
-    }
-
-    /**
-     * Get the singleton instance of Console.
-     *
-     * @return self The Console instance.
-     */
-    public static function getInstance(): self
-    {
-        static $instance = null;
-        if ($instance === null) {
-            $instance = new self();
-        }
-        return $instance;
-    }
 
     #endregion
 

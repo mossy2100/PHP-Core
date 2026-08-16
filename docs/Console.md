@@ -1,6 +1,6 @@
 # Console
 
-Singleton for ANSI/SGR-styled console output, with method chaining and style state tracking.
+ANSI/SGR-styled console output, with method chaining and style state tracking.
 
 ---
 
@@ -14,7 +14,7 @@ severity-colored messages, hyperlinks, horizontal rules).
 Every method echoes its escape code immediately and returns `$this`, so calls chain naturally:
 
 ```php
-$console = Console::getInstance();
+$console = new Console();
 $console->setColor(Console::WHITE, Console::RED)->bold();
 echo ' ALERT ';
 $console->resetStyle();
@@ -94,30 +94,6 @@ color a value by its type; look it up directly if you want the same color scheme
 
 ---
 
-## Construction
-
-`Console` is a singleton — its constructor is private, so instances are only ever obtained via `getInstance()`.
-
-### getInstance()
-
-```php
-public static function getInstance(): self
-```
-
-Get the singleton `Console` instance, creating it on first call.
-
-**Returns:**
-
-- `self` - The shared `Console` instance.
-
-**Examples:**
-
-```php
-$console = Console::getInstance();
-```
-
----
-
 ## Color Methods
 
 ### setColor()
@@ -140,8 +116,8 @@ Set the foreground color and, optionally, the background color at the same time.
 **Examples:**
 
 ```php
-Console::getInstance()->setColor(Console::RED);
-Console::getInstance()->setColor(Console::WHITE, Console::RED);
+new Console()->setColor(Console::RED);
+new Console()->setColor(Console::WHITE, Console::RED);
 ```
 
 ### setBackground()
@@ -275,7 +251,7 @@ value is `false`.
 **Examples:**
 
 ```php
-$console = Console::getInstance();
+$console = new Console();
 $saved = $console->getStyle();
 
 $console->setColor(Console::RED)->bold();
@@ -359,8 +335,8 @@ The console's style is restored to what it was before the call, once the dump is
 **Examples:**
 
 ```php
-Console::getInstance()->dump(3.14); // 'float: 3.14', in TYPE_COLOR['float']
-Console::getInstance()->dump(['a' => 1]); // "array: ['a' => 1]", in TYPE_COLOR['array']
+new Console()->dump(3.14); // 'float: 3.14', in TYPE_COLOR['float']
+new Console()->dump(['a' => 1]); // "array: ['a' => 1]", in TYPE_COLOR['array']
 ```
 
 ### message()
@@ -413,9 +389,9 @@ Print a glyph-prefixed message at a fixed severity level and color pairing, rest
 **Examples:**
 
 ```php
-Console::getInstance()->success('Build finished.');
-Console::getInstance()->warn('Deprecated option used.');
-Console::getInstance()->error('Connection refused.');
+new Console()->success('Build finished.');
+new Console()->warn('Deprecated option used.');
+new Console()->error('Connection refused.');
 ```
 
 ### link()
@@ -440,8 +416,8 @@ there — nothing breaks).
 **Examples:**
 
 ```php
-Console::getInstance()->link('https://php.net');
-Console::getInstance()->link('https://php.net', 'PHP manual');
+new Console()->link('https://php.net');
+new Console()->link('https://php.net', 'PHP manual');
 ```
 
 ### bell()
@@ -478,8 +454,8 @@ characters in `$ch`.
 **Examples:**
 
 ```php
-Console::getInstance()->hr(); // '--------------------------------------------------------------------------------'
-Console::getInstance()->hr('=', 20); // '===================='
+new Console()->hr(); // '--------------------------------------------------------------------------------'
+new Console()->hr('=', 20); // '===================='
 ```
 
 ---

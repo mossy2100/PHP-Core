@@ -19,36 +19,13 @@ use const OceanMoon\Core\RECURSION;
 #[CoversClass(Console::class)]
 final class ConsoleTest extends TestCase
 {
-    /** The Console instance. */
-    private static Console $console;
+    /** A fresh Console instance for each test. */
+    private Console $console;
 
-    /**
-     * Console is a singleton, so its style state persists across tests unless reset here first.
-     *
-     * Deliberately not initialized in setUpBeforeClass(): that method runs outside any single test's code
-     * coverage recording window, so the singleton's one-time construction inside getInstance() would never be
-     * attributed to any test. Initializing here instead, on every test, keeps it inside a covered test's window.
-     */
     protected function setUp(): void
     {
-        self::$console = Console::getInstance();
-
-        ob_start();
-        self::$console->resetStyle();
-        ob_end_clean();
+        $this->console = new Console();
     }
-
-    #region Method getInstance() tests.
-
-    /**
-     * Test getInstance() returns the same instance on repeated calls, since Console is a singleton.
-     */
-    public function testGetInstanceReturnsSameInstance(): void
-    {
-        $this->assertSame(Console::getInstance(), Console::getInstance());
-    }
-
-    #endregion
 
     #region Method setBackground() tests.
 
@@ -59,9 +36,9 @@ final class ConsoleTest extends TestCase
     public function testSetBackground(): void
     {
         $this->expectOutputString("\033[41m");
-        self::$console->setBackground(Console::RED);
-        $this->assertSame(Console::RED, self::$console->getStyle()['background']);
-        $this->assertSame(Console::DEFAULT, self::$console->getStyle()['foreground']);
+        $this->console->setBackground(Console::RED);
+        $this->assertSame(Console::RED, $this->console->getStyle()['background']);
+        $this->assertSame(Console::DEFAULT, $this->console->getStyle()['foreground']);
     }
 
     #endregion
@@ -74,8 +51,8 @@ final class ConsoleTest extends TestCase
     public function testSetColorForegroundOnly(): void
     {
         $this->expectOutputString("\033[97m");
-        self::$console->setColor(Console::WHITE);
-        $style = self::$console->getStyle();
+        $this->console->setColor(Console::WHITE);
+        $style = $this->console->getStyle();
         $this->assertSame(Console::WHITE, $style['foreground']);
         $this->assertSame(Console::DEFAULT, $style['background']);
     }
@@ -87,8 +64,8 @@ final class ConsoleTest extends TestCase
     public function testSetColorForegroundAndBackground(): void
     {
         $this->expectOutputString("\033[97m\033[41m");
-        self::$console->setColor(Console::WHITE, Console::RED);
-        $style = self::$console->getStyle();
+        $this->console->setColor(Console::WHITE, Console::RED);
+        $style = $this->console->getStyle();
         $this->assertSame(Console::WHITE, $style['foreground']);
         $this->assertSame(Console::RED, $style['background']);
     }
@@ -99,7 +76,7 @@ final class ConsoleTest extends TestCase
     public function testSetColorReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->setColor(Console::WHITE));
+        $this->assertSame($this->console, $this->console->setColor(Console::WHITE));
     }
 
     #endregion
@@ -112,12 +89,12 @@ final class ConsoleTest extends TestCase
     public function testResetColor(): void
     {
         ob_start();
-        self::$console->setColor(Console::WHITE, Console::RED);
+        $this->console->setColor(Console::WHITE, Console::RED);
         ob_end_clean();
 
         $this->expectOutputString("\033[39m\033[49m");
-        self::$console->resetColor();
-        $style = self::$console->getStyle();
+        $this->console->resetColor();
+        $style = $this->console->getStyle();
         $this->assertSame(Console::DEFAULT, $style['foreground']);
         $this->assertSame(Console::DEFAULT, $style['background']);
     }
@@ -132,8 +109,8 @@ final class ConsoleTest extends TestCase
     public function testBoldAndDimOn(): void
     {
         $this->expectOutputString("\033[1m\033[2m");
-        self::$console->bold()->dim();
-        $style = self::$console->getStyle();
+        $this->console->bold()->dim();
+        $style = $this->console->getStyle();
         $this->assertTrue($style['bold']);
         $this->assertTrue($style['dim']);
     }
@@ -145,12 +122,12 @@ final class ConsoleTest extends TestCase
     public function testBoldOffPreservesDim(): void
     {
         ob_start();
-        self::$console->bold()->dim();
+        $this->console->bold()->dim();
         ob_end_clean();
 
         $this->expectOutputString("\033[22m\033[2m");
-        self::$console->boldOff();
-        $style = self::$console->getStyle();
+        $this->console->boldOff();
+        $style = $this->console->getStyle();
         $this->assertFalse($style['bold']);
         $this->assertTrue($style['dim']);
     }
@@ -162,12 +139,12 @@ final class ConsoleTest extends TestCase
     public function testDimOffPreservesBold(): void
     {
         ob_start();
-        self::$console->bold()->dim();
+        $this->console->bold()->dim();
         ob_end_clean();
 
         $this->expectOutputString("\033[22m\033[1m");
-        self::$console->dimOff();
-        $style = self::$console->getStyle();
+        $this->console->dimOff();
+        $style = $this->console->getStyle();
         $this->assertTrue($style['bold']);
         $this->assertFalse($style['dim']);
     }
@@ -179,12 +156,12 @@ final class ConsoleTest extends TestCase
     public function testBoldOffWithDimAlreadyOff(): void
     {
         ob_start();
-        self::$console->bold();
+        $this->console->bold();
         ob_end_clean();
 
         $this->expectOutputString("\033[22m");
-        self::$console->boldOff();
-        $style = self::$console->getStyle();
+        $this->console->boldOff();
+        $style = $this->console->getStyle();
         $this->assertFalse($style['bold']);
         $this->assertFalse($style['dim']);
     }
@@ -199,10 +176,10 @@ final class ConsoleTest extends TestCase
     public function testItalicToggle(): void
     {
         $this->expectOutputString("\033[3m\033[23m");
-        self::$console->italic();
-        $this->assertTrue(self::$console->getStyle()['italic']);
-        self::$console->italicOff();
-        $this->assertFalse(self::$console->getStyle()['italic']);
+        $this->console->italic();
+        $this->assertTrue($this->console->getStyle()['italic']);
+        $this->console->italicOff();
+        $this->assertFalse($this->console->getStyle()['italic']);
     }
 
     /**
@@ -211,10 +188,10 @@ final class ConsoleTest extends TestCase
     public function testUnderlineToggle(): void
     {
         $this->expectOutputString("\033[4m\033[24m");
-        self::$console->underline();
-        $this->assertTrue(self::$console->getStyle()['underline']);
-        self::$console->underlineOff();
-        $this->assertFalse(self::$console->getStyle()['underline']);
+        $this->console->underline();
+        $this->assertTrue($this->console->getStyle()['underline']);
+        $this->console->underlineOff();
+        $this->assertFalse($this->console->getStyle()['underline']);
     }
 
     /**
@@ -223,10 +200,10 @@ final class ConsoleTest extends TestCase
     public function testStrikethroughToggle(): void
     {
         $this->expectOutputString("\033[9m\033[29m");
-        self::$console->strikethrough();
-        $this->assertTrue(self::$console->getStyle()['strikethrough']);
-        self::$console->strikethroughOff();
-        $this->assertFalse(self::$console->getStyle()['strikethrough']);
+        $this->console->strikethrough();
+        $this->assertTrue($this->console->getStyle()['strikethrough']);
+        $this->console->strikethroughOff();
+        $this->assertFalse($this->console->getStyle()['strikethrough']);
     }
 
     /**
@@ -235,10 +212,10 @@ final class ConsoleTest extends TestCase
     public function testReverseToggle(): void
     {
         $this->expectOutputString("\033[7m\033[27m");
-        self::$console->reverse();
-        $this->assertTrue(self::$console->getStyle()['reverse']);
-        self::$console->reverseOff();
-        $this->assertFalse(self::$console->getStyle()['reverse']);
+        $this->console->reverse();
+        $this->assertTrue($this->console->getStyle()['reverse']);
+        $this->console->reverseOff();
+        $this->assertFalse($this->console->getStyle()['reverse']);
     }
 
     #endregion
@@ -251,7 +228,7 @@ final class ConsoleTest extends TestCase
     public function testGetStyleReturnsCurrentState(): void
     {
         ob_start();
-        self::$console->setColor(Console::GREEN, Console::BLACK)->bold()->underline();
+        $this->console->setColor(Console::GREEN, Console::BLACK)->bold()->underline();
         ob_end_clean();
 
         $this->assertSame([
@@ -263,7 +240,7 @@ final class ConsoleTest extends TestCase
             'underline'     => true,
             'strikethrough' => false,
             'reverse'       => false,
-        ], self::$console->getStyle());
+        ], $this->console->getStyle());
     }
 
     /**
@@ -273,17 +250,17 @@ final class ConsoleTest extends TestCase
     public function testSetStyleRoundTrip(): void
     {
         ob_start();
-        self::$console->setColor(Console::GREEN, Console::BLACK)->bold()->underline();
-        $snapshot = self::$console->getStyle();
-        self::$console->resetStyle();
+        $this->console->setColor(Console::GREEN, Console::BLACK)->bold()->underline();
+        $snapshot = $this->console->getStyle();
+        $this->console->resetStyle();
         ob_end_clean();
 
-        $this->assertNotSame($snapshot, self::$console->getStyle());
+        $this->assertNotSame($snapshot, $this->console->getStyle());
 
         ob_start();
-        self::$console->setStyle($snapshot);
+        $this->console->setStyle($snapshot);
         ob_end_clean();
-        $this->assertSame($snapshot, self::$console->getStyle());
+        $this->assertSame($snapshot, $this->console->getStyle());
     }
 
     /**
@@ -292,20 +269,20 @@ final class ConsoleTest extends TestCase
     public function testSetStylePartialArray(): void
     {
         ob_start();
-        self::$console->bold();
+        $this->console->bold();
         ob_end_clean();
 
         ob_start();
-        self::$console->setStyle([
+        $this->console->setStyle([
             'italic' => true,
         ]);
         ob_end_clean();
 
         $this->assertTrue(
-            self::$console->getStyle()['bold'],
+            $this->console->getStyle()['bold'],
             'bold should be untouched since it was not in the partial array'
         );
-        $this->assertTrue(self::$console->getStyle()['italic']);
+        $this->assertTrue($this->console->getStyle()['italic']);
     }
 
     /**
@@ -315,16 +292,16 @@ final class ConsoleTest extends TestCase
     public function testSetStyleExplicitFalseTurnsOff(): void
     {
         ob_start();
-        self::$console->bold();
+        $this->console->bold();
         ob_end_clean();
 
         ob_start();
-        self::$console->setStyle([
+        $this->console->setStyle([
             'bold' => false,
         ]);
         ob_end_clean();
 
-        $this->assertFalse(self::$console->getStyle()['bold']);
+        $this->assertFalse($this->console->getStyle()['bold']);
     }
 
     #endregion
@@ -337,14 +314,14 @@ final class ConsoleTest extends TestCase
     public function testResetStyle(): void
     {
         ob_start();
-        self::$console->setColor(
+        $this->console->setColor(
             Console::WHITE,
             Console::RED
         )->bold()->italic()->underline()->strikethrough()->reverse();
         ob_end_clean();
 
         $this->expectOutputString("\033[0m");
-        self::$console->resetStyle();
+        $this->console->resetStyle();
 
         $this->assertSame([
             'foreground'    => Console::DEFAULT,
@@ -355,7 +332,7 @@ final class ConsoleTest extends TestCase
             'underline'     => false,
             'strikethrough' => false,
             'reverse'       => false,
-        ], self::$console->getStyle());
+        ], $this->console->getStyle());
     }
 
     #endregion
@@ -383,7 +360,7 @@ final class ConsoleTest extends TestCase
             . "\033[29m" // restore strikethrough off
             . "\033[27m" // restore reverse off
         );
-        self::$console->message('hi');
+        $this->console->message('hi');
     }
 
     /**
@@ -409,7 +386,7 @@ final class ConsoleTest extends TestCase
             . "\033[29m"
             . "\033[27m"
         );
-        self::$console->message('hi', Console::WHITE, Console::RED);
+        $this->console->message('hi', Console::WHITE, Console::RED);
     }
 
     /**
@@ -418,7 +395,7 @@ final class ConsoleTest extends TestCase
     public function testMessageReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->message('hi'));
+        $this->assertSame($this->console, $this->console->message('hi'));
     }
 
     #endregion
@@ -431,7 +408,7 @@ final class ConsoleTest extends TestCase
     public function testSuccess(): void
     {
         $this->expectOutputRegex('/\033\[97m\033\[42m ✓ ok /');
-        self::$console->success('ok');
+        $this->console->success('ok');
     }
 
     /**
@@ -440,7 +417,7 @@ final class ConsoleTest extends TestCase
     public function testError(): void
     {
         $this->expectOutputRegex('/\033\[97m\033\[41m ✗ bad /');
-        self::$console->error('bad');
+        $this->console->error('bad');
     }
 
     /**
@@ -449,7 +426,7 @@ final class ConsoleTest extends TestCase
     public function testWarn(): void
     {
         $this->expectOutputRegex('/\033\[30m\033\[103m ⚠ careful /');
-        self::$console->warn('careful');
+        $this->console->warn('careful');
     }
 
     /**
@@ -458,7 +435,7 @@ final class ConsoleTest extends TestCase
     public function testInfo(): void
     {
         $this->expectOutputRegex('/\033\[97m\033\[44m ℹ fyi /');
-        self::$console->info('fyi');
+        $this->console->info('fyi');
     }
 
     #endregion
@@ -485,7 +462,7 @@ final class ConsoleTest extends TestCase
             . "\033[29m"
             . "\033[27m"
         );
-        self::$console->link('https://example.com', 'Example');
+        $this->console->link('https://example.com', 'Example');
     }
 
     /**
@@ -494,7 +471,7 @@ final class ConsoleTest extends TestCase
     public function testLinkWithoutLabelUsesUrl(): void
     {
         $this->expectOutputRegex('#\033]8;;https://example\.com\033\\\\https://example\.com\033]8;;#');
-        self::$console->link('https://example.com');
+        $this->console->link('https://example.com');
     }
 
     /**
@@ -503,7 +480,7 @@ final class ConsoleTest extends TestCase
     public function testLinkReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->link('https://example.com'));
+        $this->assertSame($this->console, $this->console->link('https://example.com'));
     }
 
     #endregion
@@ -516,7 +493,7 @@ final class ConsoleTest extends TestCase
     public function testBell(): void
     {
         $this->expectOutputString("\x07");
-        self::$console->bell();
+        $this->console->bell();
     }
 
     #endregion
@@ -529,7 +506,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithNoArgument(): void
     {
         $this->expectOutputString('');
-        self::$console->print();
+        $this->console->print();
     }
 
     /**
@@ -538,7 +515,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithString(): void
     {
         $this->expectOutputString('Hello');
-        self::$console->print('Hello');
+        $this->console->print('Hello');
     }
 
     /**
@@ -547,7 +524,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithInt(): void
     {
         $this->expectOutputString('42');
-        self::$console->print(42);
+        $this->console->print(42);
     }
 
     /**
@@ -557,7 +534,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithFloat(): void
     {
         $this->expectOutputString('3.14');
-        self::$console->print(3.14);
+        $this->console->print(3.14);
     }
 
     /**
@@ -566,7 +543,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithTrue(): void
     {
         $this->expectOutputString('1');
-        self::$console->print(true);
+        $this->console->print(true);
     }
 
     /**
@@ -575,7 +552,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithFalse(): void
     {
         $this->expectOutputString('');
-        self::$console->print(false);
+        $this->console->print(false);
     }
 
     /**
@@ -584,7 +561,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithNull(): void
     {
         $this->expectOutputString('');
-        self::$console->print(null);
+        $this->console->print(null);
     }
 
     /**
@@ -593,7 +570,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithStringableObject(): void
     {
         $this->expectOutputString('custom');
-        self::$console->print(new StringableThing());
+        $this->console->print(new StringableThing());
     }
 
     /**
@@ -603,7 +580,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithNonStringableObjectDoesNotThrow(): void
     {
         $this->expectOutputRegex('/^OceanMoon\\\\Core\\\\Tests\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/');
-        self::$console->print(new Foo());
+        $this->console->print(new Foo());
     }
 
     /**
@@ -612,7 +589,7 @@ final class ConsoleTest extends TestCase
     public function testPrintMultilineWithDefaultBackground(): void
     {
         $this->expectOutputString("a\nb");
-        self::$console->print("a\nb");
+        $this->console->print("a\nb");
     }
 
     /**
@@ -622,7 +599,7 @@ final class ConsoleTest extends TestCase
     public function testPrintMultilineWithNonDefaultBackground(): void
     {
         ob_start();
-        self::$console->setBackground(Console::RED);
+        $this->console->setBackground(Console::RED);
         ob_end_clean();
 
         $this->expectOutputString(
@@ -632,7 +609,7 @@ final class ConsoleTest extends TestCase
             . "\033[41m" // re-apply the RED background after the newline
             . 'b'
         );
-        self::$console->print("a\nb");
+        $this->console->print("a\nb");
     }
 
     /**
@@ -641,7 +618,7 @@ final class ConsoleTest extends TestCase
     public function testPrintReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->print('x'));
+        $this->assertSame($this->console, $this->console->print('x'));
     }
 
     #endregion
@@ -654,7 +631,7 @@ final class ConsoleTest extends TestCase
     public function testPrintlnWithNoArgument(): void
     {
         $this->expectOutputString(PHP_EOL);
-        self::$console->println();
+        $this->console->println();
     }
 
     /**
@@ -664,7 +641,7 @@ final class ConsoleTest extends TestCase
     public function testPrintlnAppendsNewline(): void
     {
         $this->expectOutputString('Hello' . PHP_EOL);
-        self::$console->println('Hello');
+        $this->console->println('Hello');
     }
 
     /**
@@ -673,7 +650,7 @@ final class ConsoleTest extends TestCase
     public function testPrintlnReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->println('x'));
+        $this->assertSame($this->console, $this->console->println('x'));
     }
 
     #endregion
@@ -692,7 +669,7 @@ final class ConsoleTest extends TestCase
             . "\n"
             . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m" // restore prior style
         );
-        self::$console->dump([1, 2, 3]);
+        $this->console->dump([1, 2, 3]);
     }
 
     /**
@@ -712,7 +689,7 @@ final class ConsoleTest extends TestCase
             . "\n"
             . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m"
         );
-        self::$console->dump($arr);
+        $this->console->dump($arr);
     }
 
     /**
@@ -726,7 +703,7 @@ final class ConsoleTest extends TestCase
             . '    \+a => 1,\n    #b => 2,\n    -c => 3,\n\}\n'
             . '\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/'
         );
-        self::$console->dump(new Foo());
+        $this->console->dump(new Foo());
     }
 
     /**
@@ -735,7 +712,7 @@ final class ConsoleTest extends TestCase
     public function testDumpVarWithNoArgumentThrows(): void
     {
         $this->expectException(ArgumentCountError::class);
-        self::$console->dump(); // @phpstan-ignore arguments.count
+        $this->console->dump(); // @phpstan-ignore arguments.count
     }
 
     /**
@@ -745,7 +722,7 @@ final class ConsoleTest extends TestCase
     public function testDumpReturnsSelf(): void
     {
         $this->expectOutputRegex('/.+/');
-        $this->assertSame(self::$console, self::$console->dump([1, 2, 3]));
+        $this->assertSame($this->console, $this->console->dump([1, 2, 3]));
     }
 
     #endregion
@@ -753,67 +730,67 @@ final class ConsoleTest extends TestCase
     #region Method hr() tests.
 
     /**
-     * Test self::$console->hr() with default arguments prints an 80-character line of dashes.
+     * Test $this->console->hr() with default arguments prints an 80-character line of dashes.
      */
     public function testHrWithDefaults(): void
     {
         $this->expectOutputString(str_repeat('-', 80) . PHP_EOL);
-        self::$console->hr();
+        $this->console->hr();
     }
 
     /**
-     * Test self::$console->hr() with a custom character.
+     * Test $this->console->hr() with a custom character.
      */
     public function testHrWithCustomCharacter(): void
     {
         $this->expectOutputString(str_repeat('=', 80) . PHP_EOL);
-        self::$console->hr('=');
+        $this->console->hr('=');
     }
 
     /**
-     * Test self::$console->hr() with a custom length.
+     * Test $this->console->hr() with a custom length.
      */
     public function testHrWithCustomLength(): void
     {
         $this->expectOutputString(str_repeat('-', 20) . PHP_EOL);
-        self::$console->hr(length: 20);
+        $this->console->hr(length: 20);
     }
 
     /**
-     * Test self::$console->hr() with a multi-character string repeats and truncates to exactly $length characters, not
+     * Test $this->console->hr() with a multi-character string repeats and truncates to exactly $length characters, not
      * $length repetitions of the string.
      */
     public function testHrWithMultiCharacterString(): void
     {
         $this->expectOutputString('ababa' . PHP_EOL);
-        self::$console->hr('ab', 5);
+        $this->console->hr('ab', 5);
     }
 
     /**
-     * Test self::$console->hr() with a multibyte character repeats and truncates by character count, not byte count.
+     * Test $this->console->hr() with a multibyte character repeats and truncates by character count, not byte count.
      */
     public function testHrWithMultibyteCharacter(): void
     {
         $this->expectOutputString('★★★' . PHP_EOL);
-        self::$console->hr('★', 3);
+        $this->console->hr('★', 3);
     }
 
     /**
-     * Test self::$console->hr() with a length of zero prints just a newline.
+     * Test $this->console->hr() with a length of zero prints just a newline.
      */
     public function testHrWithZeroLength(): void
     {
         $this->expectOutputString(PHP_EOL);
-        self::$console->hr(length: 0);
+        $this->console->hr(length: 0);
     }
 
     /**
-     * Test self::$console->hr() with an empty string for $ch throws.
+     * Test $this->console->hr() with an empty string for $ch throws.
      */
     public function testHrWithEmptyStringThrows(): void
     {
         $this->expectException(DomainException::class);
-        self::$console->hr('', 5);
+        $this->console->hr('', 5);
     }
 
     #endregion
