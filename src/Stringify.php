@@ -574,10 +574,8 @@ final class Stringify
             }
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
-            $nSpacesBracketIndent = $indentLevel * self::$indent;
-            $bracketIndent = $prettyPrint ? str_repeat(' ', $nSpacesBracketIndent) : '';
-            $nSpacesItemIndent = $nSpacesBracketIndent + self::$indent;
-            $itemIndent = $prettyPrint ? str_repeat(' ', $nSpacesItemIndent) : '';
+            [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
+                self::prepareIndents($indentLevel, $prettyPrint);
 
             $keys = array_keys($arr);
             $values = array_values($arr);
@@ -708,10 +706,9 @@ final class Stringify
         }
 
         // Set up for multi-line pretty printing.
-        $nSpacesBracketIndent = $indentLevel * self::$indent;
-        $bracketIndent = str_repeat(' ', $nSpacesBracketIndent);
-        $nSpacesItemIndent = $nSpacesBracketIndent + self::$indent;
-        $itemIndent = str_repeat(' ', $nSpacesItemIndent);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
+            self::prepareIndents($indentLevel, $prettyPrint);
+
         $nItems = count($arr);
 
         // Check if all values are simple (nulls or scalars).
@@ -805,10 +802,8 @@ final class Stringify
         }
 
         // Set up for pretty printing.
-        $nSpacesBracketIndent = $indentLevel * self::$indent;
-        $bracketIndent = str_repeat(' ', $nSpacesBracketIndent);
-        $nSpacesItemIndent = $nSpacesBracketIndent + self::$indent;
-        $itemIndent = str_repeat(' ', $nSpacesItemIndent);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
+            self::prepareIndents($indentLevel, $prettyPrint);
 
         // Get the maximum key width.
         $maxKeyWidth = 0;
@@ -987,6 +982,27 @@ final class Stringify
             }
         }
         return null; // @codeCoverageIgnore
+    }
+
+    /**
+     * Prepare indent values for pretty printing.
+     *
+     * The two indent strings are empty when $prettyPrint is false, so callers can use them unconditionally
+     * without an extra branch; the two indent widths are still computed either way.
+     *
+     * @param int $indentLevel The current nesting depth (0 for the outermost structure).
+     * @param bool $prettyPrint Whether pretty printing is enabled.
+     * @return array{0: int, 1: string, 2: int, 3: string} [$nSpacesBracketIndent, $bracketIndent,
+     * $nSpacesItemIndent, $itemIndent]: the number of spaces to indent a closing bracket and that many spaces as
+     * a string, followed by the number of spaces to indent an item and that many spaces as a string.
+     */
+    private static function prepareIndents(int $indentLevel, bool $prettyPrint): array
+    {
+        $nSpacesBracketIndent = $indentLevel * self::$indent;
+        $bracketIndent = $prettyPrint ? str_repeat(' ', $nSpacesBracketIndent) : '';
+        $nSpacesItemIndent = $nSpacesBracketIndent + self::$indent;
+        $itemIndent = $prettyPrint ? str_repeat(' ', $nSpacesItemIndent) : '';
+        return [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent];
     }
 
     #endregion

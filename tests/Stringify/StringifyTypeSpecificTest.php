@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace OceanMoon\Core\Tests\Stringify;
 
-use ArgumentCountError;
-use BadMethodCallException;
 use Closure;
 use DomainException;
 use InvalidArgumentException;
@@ -16,20 +14,12 @@ use PHPUnit\Framework\TestCase;
 use const OceanMoon\Core\RECURSION;
 
 /**
- * Test class for Stringify utility class.
+ * Test class for Stringify utility class - type-specific stringification methods.
  */
 #[CoversClass(Stringify::class)]
-final class StringifyTest extends TestCase
+final class StringifyTypeSpecificTest extends TestCase
 {
-    #region Scalar types
-
-    /**
-     * Test stringifying null values.
-     */
-    public function testStringifyNull(): void
-    {
-        $this->assertSame('null', Stringify::stringify(null));
-    }
+    #region Method stringifyBool() tests.
 
     /**
      * Test stringifying boolean values.
@@ -39,6 +29,10 @@ final class StringifyTest extends TestCase
         $this->assertSame('true', Stringify::stringify(true));
         $this->assertSame('false', Stringify::stringify(false));
     }
+
+    #endregion
+
+    #region Method stringifyInt() tests.
 
     /**
      * Test stringifying integer values.
@@ -50,6 +44,58 @@ final class StringifyTest extends TestCase
         $this->assertSame('-17', Stringify::stringify(-17));
         $this->assertSame('1000000', Stringify::stringify(1000000));
     }
+
+    #endregion
+
+    #region Method stringifyFloat() tests.
+
+    /**
+     * Test stringifying float values.
+     */
+    public function testStringifyFloat(): void
+    {
+        $this->assertSame('3.14', Stringify::stringifyFloat(3.14));
+        $this->assertSame('-2.5', Stringify::stringifyFloat(-2.5));
+
+        // Float that looks like integer gets .0 appended.
+        $this->assertSame('5.0', Stringify::stringifyFloat(5.0));
+        $this->assertSame('-10.0', Stringify::stringifyFloat(-10.0));
+        $this->assertSame('0.0', Stringify::stringifyFloat(0.0));
+
+        // Float with exponent notation (already distinguishable from int).
+        $result = Stringify::stringifyFloat(1.5e100);
+        $this->assertMatchesRegularExpression('/[eE]/', $result);
+
+        // Very small float with exponent notation.
+        $result = Stringify::stringifyFloat(1.5e-10);
+        $this->assertMatchesRegularExpression('/[eE]/', $result);
+    }
+
+    /**
+     * Test stringifying special float values.
+     */
+    public function testStringifyFloatSpecial(): void
+    {
+        $this->assertSame('NAN', Stringify::stringifyFloat(NAN));
+        $this->assertSame('INF', Stringify::stringifyFloat(INF));
+        $this->assertSame('-INF', Stringify::stringifyFloat(-INF));
+        $this->assertSame('-0.0', Stringify::stringifyFloat(-0.0));
+    }
+
+    /**
+     * Test that stringify() correctly dispatches floats.
+     */
+    public function testStringifyFloatIntegration(): void
+    {
+        $this->assertSame('5.0', Stringify::stringify(5.0));
+        $this->assertSame('3.14', Stringify::stringify(3.14));
+        $this->assertSame('NAN', Stringify::stringify(NAN));
+        $this->assertSame('INF', Stringify::stringify(INF));
+    }
+
+    #endregion
+
+    #region Method stringifyString() tests.
 
     /**
      * Test stringifying string values via stringify() dispatch.
@@ -122,53 +168,9 @@ final class StringifyTest extends TestCase
         $this->assertSame("'日本語'", Stringify::stringify('日本語'));
     }
 
-    /**
-     * Test stringifying float values.
-     */
-    public function testStringifyFloat(): void
-    {
-        $this->assertSame('3.14', Stringify::stringifyFloat(3.14));
-        $this->assertSame('-2.5', Stringify::stringifyFloat(-2.5));
-
-        // Float that looks like integer gets .0 appended.
-        $this->assertSame('5.0', Stringify::stringifyFloat(5.0));
-        $this->assertSame('-10.0', Stringify::stringifyFloat(-10.0));
-        $this->assertSame('0.0', Stringify::stringifyFloat(0.0));
-
-        // Float with exponent notation (already distinguishable from int).
-        $result = Stringify::stringifyFloat(1.5e100);
-        $this->assertMatchesRegularExpression('/[eE]/', $result);
-
-        // Very small float with exponent notation.
-        $result = Stringify::stringifyFloat(1.5e-10);
-        $this->assertMatchesRegularExpression('/[eE]/', $result);
-    }
-
-    /**
-     * Test stringifying special float values.
-     */
-    public function testStringifyFloatSpecial(): void
-    {
-        $this->assertSame('NAN', Stringify::stringifyFloat(NAN));
-        $this->assertSame('INF', Stringify::stringifyFloat(INF));
-        $this->assertSame('-INF', Stringify::stringifyFloat(-INF));
-        $this->assertSame('-0.0', Stringify::stringifyFloat(-0.0));
-    }
-
-    /**
-     * Test that stringify() correctly dispatches floats.
-     */
-    public function testStringifyFloatIntegration(): void
-    {
-        $this->assertSame('5.0', Stringify::stringify(5.0));
-        $this->assertSame('3.14', Stringify::stringify(3.14));
-        $this->assertSame('NAN', Stringify::stringify(NAN));
-        $this->assertSame('INF', Stringify::stringify(INF));
-    }
-
     #endregion
 
-    #region Arrays — non-pretty
+    #region Method stringifyArray() tests.
 
     /**
      * Test stringifying simple lists without pretty print.
@@ -232,10 +234,6 @@ final class StringifyTest extends TestCase
             3,
         ]));
     }
-
-    #endregion
-
-    #region Arrays — pretty print
 
     /**
      * Test that a short scalar list fits on one line when pretty printing.
@@ -366,7 +364,7 @@ final class StringifyTest extends TestCase
 
     #endregion
 
-    #region Resources
+    #region Method stringifyResource() tests.
 
     /**
      * Test stringifying an open resource.
@@ -408,7 +406,7 @@ final class StringifyTest extends TestCase
 
     #endregion
 
-    #region Enums
+    #region Method stringifyEnum() tests.
 
     /**
      * Test stringifying enum cases.
@@ -417,7 +415,7 @@ final class StringifyTest extends TestCase
     {
         // Test that stringify() dispatches enums correctly.
         $result = Stringify::stringify(TestEnum::Foo);
-        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Foo', $result);
+        $this->assertSame('OceanMoon\Core\Tests\Stringify\TestEnum::Foo', $result);
     }
 
     /**
@@ -425,8 +423,8 @@ final class StringifyTest extends TestCase
      */
     public function testStringifyEnumDirect(): void
     {
-        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
-        $this->assertSame('OceanMoon\Core\Tests\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
+        $this->assertSame('OceanMoon\Core\Tests\Stringify\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
+        $this->assertSame('OceanMoon\Core\Tests\Stringify\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
     }
 
     /**
@@ -435,14 +433,14 @@ final class StringifyTest extends TestCase
     public function testStringifyBackedEnum(): void
     {
         $this->assertSame(
-            'OceanMoon\Core\Tests\TestBackedEnum::Alpha',
+            'OceanMoon\Core\Tests\Stringify\TestBackedEnum::Alpha',
             Stringify::stringifyEnum(TestBackedEnum::Alpha)
         );
     }
 
     #endregion
 
-    #region Closures
+    #region Method stringifyClosure() tests.
 
     /**
      * Test that stringify() dispatches closures correctly, reading back the original source.
@@ -542,9 +540,27 @@ final class StringifyTest extends TestCase
         $this->assertSame('', Stringify::stringifyClosure($closure));
     }
 
+    /**
+     * Returns its first argument unchanged. Used to capture a closure while it's still embedded inline as a
+     * non-last call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
+     */
+    private static function first(Closure $a, mixed $b): Closure
+    {
+        return $a;
+    }
+
+    /**
+     * Returns its argument unchanged. Used to capture a closure while it's still embedded inline as a sole/last
+     * call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
+     */
+    private static function identity(Closure $value): Closure
+    {
+        return $value;
+    }
+
     #endregion
 
-    #region Objects
+    #region Method stringifyObject() tests.
 
     /**
      * Test stringifying simple objects.
@@ -721,396 +737,6 @@ final class StringifyTest extends TestCase
     }
 
     #endregion
-
-    #region Method Stringify::toString() tests.
-
-    /**
-     * Test Stringify::toString() with a string returns it unchanged.
-     */
-    public function testToStringWithString(): void
-    {
-        $this->assertSame('Hello', Stringify::toString('Hello'));
-    }
-
-    /**
-     * Test Stringify::toString() with an integer.
-     */
-    public function testToStringWithInt(): void
-    {
-        $this->assertSame('42', Stringify::toString(42));
-        $this->assertSame('-17', Stringify::toString(-17));
-    }
-
-    /**
-     * Test Stringify::toString() with a float. Uses a raw (string) cast, not Stringify::stringifyFloat(), so
-     * a whole-number float loses its distinguishing ".0" suffix.
-     */
-    public function testToStringWithFloat(): void
-    {
-        $this->assertSame('3.14', Stringify::toString(3.14));
-        $this->assertSame('5', Stringify::toString(5.0));
-    }
-
-    /**
-     * Test Stringify::toString() with non-finite floats (NAN, INF, -INF). Casting these to string directly emits a
-     * "coerced to string" warning (PHP 8.5+), which Stringify::toString() avoids.
-     */
-    public function testToStringWithNonFiniteFloats(): void
-    {
-        $this->assertSame('NAN', Stringify::toString(NAN));
-        $this->assertSame('INF', Stringify::toString(INF));
-        $this->assertSame('-INF', Stringify::toString(-INF));
-    }
-
-    /**
-     * Test Stringify::toString() with null uses PHP's raw (string) cast, giving an empty string.
-     */
-    public function testToStringWithNull(): void
-    {
-        $this->assertSame('', Stringify::toString(null));
-    }
-
-    /**
-     * Test Stringify::toString() with booleans uses PHP's raw (string) cast: '1' for true, '' for false.
-     */
-    public function testToStringWithBool(): void
-    {
-        $this->assertSame('1', Stringify::toString(true));
-        $this->assertSame('', Stringify::toString(false));
-    }
-
-    /**
-     * Test Stringify::toString() with an array falls back to Stringify's concise representation.
-     */
-    public function testToStringWithArray(): void
-    {
-        $this->assertSame('[1, 2, 3]', Stringify::toString([1, 2, 3]));
-        $this->assertSame("['a' => 1]", Stringify::toString([
-            'a' => 1,
-        ]));
-    }
-
-    /**
-     * Test Stringify::toString() with an array containing a circular reference doesn't error.
-     */
-    public function testToStringWithRecursiveArray(): void
-    {
-        $arr = [
-            'x' => 1,
-        ];
-        $arr['self'] = &$arr;
-
-        $this->assertSame("['x' => 1, 'self' => " . RECURSION . ']', Stringify::toString($arr));
-    }
-
-    /**
-     * Test Stringify::toString() with a Stringable object uses __toString() directly.
-     */
-    public function testToStringWithStringableObject(): void
-    {
-        $this->assertSame('custom', Stringify::toString(new StringableThing()));
-    }
-
-    /**
-     * Test Stringify::toString() with an enum case falls back to Stringify.
-     */
-    public function testToStringWithEnum(): void
-    {
-        $this->assertSame('OceanMoon\Core\Tests\Suit::Hearts', Stringify::toString(Suit::Hearts));
-    }
-
-    /**
-     * Test Stringify::toString() with a non-Stringable object falls back to Stringify, showing the class name
-     * and properties. The object ID Stringify now includes in its output is non-deterministic, so
-     * this checks the shape rather than an exact string.
-     */
-    public function testToStringWithNonStringableObject(): void
-    {
-        $result = Stringify::toString(new Foo());
-
-        $this->assertMatchesRegularExpression(
-            '/^OceanMoon\\\\Core\\\\Tests\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/',
-            $result
-        );
-    }
-
-    /**
-     * Test Stringify::toString() with a resource.
-     */
-    public function testToStringWithResource(): void
-    {
-        $resource = fopen('php://memory', 'rb');
-        $this->assertIsResource($resource);
-
-        $this->assertMatchesRegularExpression('/^Resource id #\d+$/', Stringify::toString($resource));
-
-        fclose($resource);
-    }
-
-    /**
-     * Test Stringify::toString() with no argument throws.
-     */
-    public function testToStringWithNoArgumentThrows(): void
-    {
-        $this->expectException(ArgumentCountError::class);
-        Stringify::toString(); // @phpstan-ignore arguments.count
-    }
-
-    #endregion
-
-    #region Method abbrev() tests.
-
-    /**
-     * Test abbrev method with short strings.
-     */
-    public function testAbbrevShortString(): void
-    {
-        $this->assertSame("'hello'", Stringify::abbrev('hello'));
-        $this->assertSame('42', Stringify::abbrev(42));
-        $this->assertSame('true', Stringify::abbrev(true));
-    }
-
-    /**
-     * Test abbrev method with long strings.
-     */
-    public function testAbbrevLongString(): void
-    {
-        $longString = 'this is a very long string that should be truncated';
-        $result = Stringify::abbrev($longString, 20);
-
-        $this->assertLessThanOrEqual(20, mb_strlen($result));
-        $this->assertStringEndsWith("…'", $result);
-    }
-
-    /**
-     * Test abbrev method with arrays.
-     */
-    public function testAbbrevArray(): void
-    {
-        $array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        $result = Stringify::abbrev($array, 20);
-
-        $this->assertLessThanOrEqual(20, mb_strlen($result));
-        $this->assertStringEndsWith('…]', $result);
-    }
-
-    /**
-     * Test abbrev method with maximum length too small.
-     */
-    public function testAbbrevMaxLenTooSmall(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid maximum string length: 2. Must be at least 3.');
-        Stringify::abbrev(123, 2);
-    }
-
-    /**
-     * Test abbrev with an object whose class name alone is longer than $maxLen: the class name must
-     * never be truncated, so the worst case is "ClassName".
-     */
-    public function testAbbrevObjectNeverTruncatesClassName(): void
-    {
-        $obj = new StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed();
-
-        $result = Stringify::abbrev($obj, 10);
-
-        $this->assertSame(StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed::class, $result);
-    }
-
-    /**
-     * Test abbrev with an object where $maxLen comfortably covers the class name: normal truncation
-     * (based on $maxLen, not the class-name guard) still applies.
-     */
-    public function testAbbrevObjectRegularTruncation(): void
-    {
-        $obj = new class {
-            public int $a = 1;
-
-            public int $b = 2;
-
-            public int $c = 3;
-        };
-
-        $result = Stringify::abbrev($obj, 30);
-
-        $this->assertLessThanOrEqual(30, mb_strlen($result));
-        $this->assertStringEndsWith('…}', $result);
-    }
-
-    #endregion
-
-    #region Method prepEx() tests.
-
-    /**
-     * Test prepEx() substitutes each '?' placeholder, left to right, with abbrev() of the matching value.
-     */
-    public function testPrepExSubstitutesPlaceholders(): void
-    {
-        $this->assertSame(
-            'Invalid range: [-5, -10]. Min must not exceed max.',
-            Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', -5, -10)
-        );
-    }
-
-    /**
-     * Test prepEx() with no placeholders and no values returns the message unchanged.
-     */
-    public function testPrepExWithNoPlaceholders(): void
-    {
-        $this->assertSame('No placeholders here.', Stringify::prepEx('No placeholders here.'));
-    }
-
-    /**
-     * Test prepEx() inserts a value containing '?' verbatim, without re-scanning it for further placeholders.
-     */
-    public function testPrepExValueContainingQuestionMark(): void
-    {
-        $this->assertSame(
-            "Value: 'contains a ? mark'",
-            Stringify::prepEx('Value: ?', 'contains a ? mark')
-        );
-    }
-
-    /**
-     * Test prepEx() throws when given more values than placeholders.
-     */
-    public function testPrepExTooManyValuesThrows(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('Cannot prepare exception message due to incorrect value count: 2. Expected 1.');
-        Stringify::prepEx('One: ?', 1, 2);
-    }
-
-    /**
-     * Test prepEx() throws when given fewer values than placeholders.
-     */
-    public function testPrepExTooFewValuesThrows(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('Cannot prepare exception message due to incorrect value count: 1. Expected 2.');
-        Stringify::prepEx('Two: ? ?', 1);
-    }
-
-    #endregion
-
-    #region Configuration
-
-    /**
-     * Test getIndent() returns the default value initially.
-     */
-    public function testGetIndentDefault(): void
-    {
-        $this->assertSame(Stringify::DEFAULT_INDENT, Stringify::getIndent());
-    }
-
-    /**
-     * Test setIndent() changes the indent value.
-     */
-    public function testSetIndent(): void
-    {
-        Stringify::setIndent(2);
-        try {
-            $this->assertSame(2, Stringify::getIndent());
-
-            // Verify it affects pretty-printed output.
-            $result = Stringify::stringify([
-                'a' => 1,
-                'b' => 2,
-            ], true);
-            $expected = "[\n  'a' => 1,\n  'b' => 2,\n]";
-            $this->assertSame($expected, $result);
-        } finally {
-            Stringify::resetDefaults();
-        }
-    }
-
-    /**
-     * Test setIndent() throws for negative value.
-     */
-    public function testSetIndentNegativeThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid indent:');
-        Stringify::setIndent(-1);
-    }
-
-    /**
-     * Test getMaxLineLength() returns the default value initially.
-     */
-    public function testGetMaxLineLengthDefault(): void
-    {
-        $this->assertSame(Stringify::DEFAULT_MAX_LINE_LENGTH, Stringify::getMaxLineLength());
-    }
-
-    /**
-     * Test setMaxLineLength() changes the max line length.
-     */
-    public function testSetMaxLineLength(): void
-    {
-        Stringify::setMaxLineLength(60);
-        try {
-            $this->assertSame(60, Stringify::getMaxLineLength());
-        } finally {
-            Stringify::resetDefaults();
-        }
-    }
-
-    /**
-     * Test setMaxLineLength() throws for zero.
-     */
-    public function testSetMaxLineLengthZeroThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid max line length:');
-        Stringify::setMaxLineLength(0);
-    }
-
-    /**
-     * Test setMaxLineLength() throws for negative value.
-     */
-    public function testSetMaxLineLengthNegativeThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid max line length:');
-        Stringify::setMaxLineLength(-10);
-    }
-
-    /**
-     * Test resetDefaults() restores both values.
-     */
-    public function testResetDefaults(): void
-    {
-        Stringify::setIndent(8);
-        Stringify::setMaxLineLength(40);
-        Stringify::resetDefaults();
-
-        $this->assertSame(Stringify::DEFAULT_INDENT, Stringify::getIndent());
-        $this->assertSame(Stringify::DEFAULT_MAX_LINE_LENGTH, Stringify::getMaxLineLength());
-    }
-
-    #endregion
-
-    #region Helper methods
-
-    /**
-     * Returns its first argument unchanged. Used to capture a closure while it's still embedded inline as a
-     * non-last call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
-     */
-    private static function first(Closure $a, mixed $b): Closure
-    {
-        return $a;
-    }
-
-    /**
-     * Returns its argument unchanged. Used to capture a closure while it's still embedded inline as a sole/last
-     * call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
-     */
-    private static function identity(Closure $value): Closure
-    {
-        return $value;
-    }
-
-    #endregion
 }
 
 /**
@@ -1131,12 +757,4 @@ enum TestBackedEnum: string
     case Alpha = 'a';
 
     case Beta = 'b';
-}
-
-/**
- * Test fixture with a deliberately long class name, for abbrev()'s class-name-preservation tests.
- */
-class StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed
-{
-    public int $a = 1;
 }
