@@ -6,18 +6,18 @@ namespace OceanMoon\Core\Tests\Traits;
 
 use OceanMoon\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the FloatAssertions trait.
- *
- * @coversNothing
  */
+#[CoversTrait(FloatAssertions::class)]
 final class FloatAssertionsTest extends TestCase
 {
     use FloatAssertions;
 
-    #region assertApproxEqual tests
+    #region Method assertApproxEqual() tests.
 
     /**
      * Test assertApproxEqual passes for equal values.

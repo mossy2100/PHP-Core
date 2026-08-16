@@ -43,6 +43,8 @@ enum TestColor: string
 #[CoversClass(Types::class)]
 final class TypesTest extends TestCase
 {
+    #region Method getBasicType() tests.
+
     /**
      * Test getBasicType with null.
      */
@@ -161,19 +163,23 @@ final class TypesTest extends TestCase
         fclose($resource);
     }
 
+    #endregion
+
+    #region Method getUniqueString() tests.
+
     /**
-     * Test getStringKey with null.
+     * Test getUniqueString with null.
      */
-    public function testGetStringKeyNull(): void
+    public function testGetUniqueStringNull(): void
     {
         // Test that null produces unique key.
         $this->assertSame('n', Types::getUniqueString(null));
     }
 
     /**
-     * Test getStringKey with boolean values.
+     * Test getUniqueString with boolean values.
      */
-    public function testGetStringKeyBool(): void
+    public function testGetUniqueStringBool(): void
     {
         // Test that booleans produce unique keys.
         $this->assertSame('b:T', Types::getUniqueString(true));
@@ -184,9 +190,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with integers.
+     * Test getUniqueString with integers.
      */
-    public function testGetStringKeyInt(): void
+    public function testGetUniqueStringInt(): void
     {
         // Test that integers produce unique keys.
         $this->assertSame('i:0', Types::getUniqueString(0));
@@ -198,9 +204,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with floats.
+     * Test getUniqueString with floats.
      */
-    public function testGetStringKeyFloat(): void
+    public function testGetUniqueStringFloat(): void
     {
         // Test that floats produce unique keys starting with 'f:'.
         $key1 = Types::getUniqueString(3.14);
@@ -222,9 +228,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with strings.
+     * Test getUniqueString with strings.
      */
-    public function testGetStringKeyString(): void
+    public function testGetUniqueStringString(): void
     {
         // Test that strings produce keys with format 's:length:content'.
         $this->assertSame('s:5:hello', Types::getUniqueString('hello'));
@@ -239,9 +245,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with arrays.
+     * Test getUniqueString with arrays.
      */
-    public function testGetStringKeyArray(): void
+    public function testGetUniqueStringArray(): void
     {
         // Test that arrays produce keys starting with 'a:count:'.
         $key1 = Types::getUniqueString([1, 2, 3]);
@@ -262,9 +268,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with enums.
+     * Test getUniqueString with enums.
      */
-    public function testGetStringKeyEnum(): void
+    public function testGetUniqueStringEnum(): void
     {
         // Test that unit enums produce keys with class and case name.
         $key = Types::getUniqueString(TestSuit::Hearts);
@@ -287,9 +293,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with closures.
+     * Test getUniqueString with closures.
      */
-    public function testGetStringKeyClosure(): void
+    public function testGetUniqueStringClosure(): void
     {
         // Test that closures produce keys with their object ID.
         $closure1 = static fn (int $x): int => $x + 1;
@@ -312,9 +318,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with objects.
+     * Test getUniqueString with objects.
      */
-    public function testGetStringKeyObject(): void
+    public function testGetUniqueStringObject(): void
     {
         // Test that objects produce keys with their object ID.
         $obj1 = new stdClass();
@@ -332,9 +338,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey with resources.
+     * Test getUniqueString with resources.
      */
-    public function testGetStringKeyResource(): void
+    public function testGetUniqueStringResource(): void
     {
         // Test that resources produce keys with their resource ID.
         $resource = fopen('php://memory', 'rb');
@@ -354,9 +360,9 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Test getStringKey produces unique keys for different types.
+     * Test getUniqueString produces unique keys for different types.
      */
-    public function testGetStringKeyUniqueness(): void
+    public function testGetUniqueStringUniqueness(): void
     {
         // Test that different types produce different keys.
         $keys = [
@@ -373,6 +379,10 @@ final class TypesTest extends TestCase
         // Verify all keys are unique.
         $this->assertCount(count($keys), array_unique($keys));
     }
+
+    #endregion
+
+    #region Method same() tests.
 
     /**
      * Test same with identical primitive types.
@@ -516,6 +526,10 @@ final class TypesTest extends TestCase
         );
     }
 
+    #endregion
+
+    #region Method usesTrait() tests.
+
     /**
      * Test usesTrait with object using a trait.
      */
@@ -584,6 +598,10 @@ final class TypesTest extends TestCase
         $this->expectExceptionMessage('Invalid class name: NonExistentClass. Must be a class, interface, or trait.');
         Types::usesTrait('NonExistentClass', TestTrait::class);
     }
+
+    #endregion
+
+    #region Method getTraits() tests.
 
     /**
      * Test getTraits with a class using a trait.
@@ -654,6 +672,8 @@ final class TypesTest extends TestCase
         );
         Types::getTraits('NonExistentClassName');
     }
+
+    #endregion
 }
 
 // Test fixtures for trait testing.

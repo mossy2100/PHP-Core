@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Integers::class)]
 final class IntegersTest extends TestCase
 {
-    #region Tests for add()
+    #region Method add() tests.
 
     /**
      * Test addition of integers without overflow.
@@ -66,7 +66,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for sub()
+    #region Method sub() tests.
 
     /**
      * Test subtraction of integers without overflow.
@@ -114,7 +114,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for mul()
+    #region Method mul() tests.
 
     /**
      * Test multiplication of integers without overflow.
@@ -166,7 +166,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for pow()
+    #region Method pow() tests.
 
     /**
      * Test exponentiation of integers without overflow.
@@ -231,7 +231,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for gcd()
+    #region Method gcd() tests.
 
     /**
      * Test GCD calculation with two integers.
@@ -384,7 +384,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for toSubscript()
+    #region Method toSubscript() tests.
 
     /**
      * Test toSubscript with positive integer.
@@ -407,7 +407,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for toSuperscript()
+    #region Method toSuperscript() tests.
 
     /**
      * Test toSuperscript with positive integer.
@@ -430,7 +430,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for isSubscript()
+    #region Method isSubscript() tests.
 
     /**
      * Test isSubscript with valid subscript strings.
@@ -481,7 +481,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for isSuperscript()
+    #region Method isSuperscript() tests.
 
     /**
      * Test isSuperscript with valid superscript strings.
@@ -532,7 +532,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for fromSubscript()
+    #region Method fromSubscript() tests.
 
     /**
      * Test fromSubscript with valid subscript strings.
@@ -584,7 +584,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Tests for fromSuperscript()
+    #region Method fromSuperscript() tests.
 
     /**
      * Test fromSuperscript with valid superscript strings.
@@ -636,7 +636,7 @@ final class IntegersTest extends TestCase
 
     #endregion
 
-    #region Round-trip tests
+    #region Round-trip tests.
 
     /**
      * Test round-trip conversion: toSubscript then fromSubscript.

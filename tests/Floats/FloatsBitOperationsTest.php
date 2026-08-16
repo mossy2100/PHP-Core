@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsBitOperationsTest extends TestCase
 {
-    #region Adjacent floats method tests
+    #region Method next() tests.
 
     /**
      * Test next with regular positive numbers.
@@ -107,6 +107,10 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertGreaterThan($f, $next);
     }
 
+    #endregion
+
+    #region Method previous() tests.
+
     /**
      * Test previous with regular positive numbers.
      */
@@ -186,6 +190,10 @@ final class FloatsBitOperationsTest extends TestCase
         $prev = Floats::previous(INF);
         $this->assertSame(PHP_FLOAT_MAX, $prev);
     }
+
+    #endregion
+
+    #region next()/previous() round-trip and consistency tests.
 
     /**
      * Test round-trip: next(previous(x)) should equal x for regular floats.
@@ -279,7 +287,7 @@ final class FloatsBitOperationsTest extends TestCase
 
     #endregion
 
-    #region floatToBits and bitsToFloat tests
+    #region Method floatToBits() tests.
 
     /**
      * Test floatToBits with positive zero.
@@ -359,6 +367,10 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertSame(4609434218613702656, Floats::floatToBits(1.5));
     }
 
+    #endregion
+
+    #region Method bitsToFloat() tests.
+
     /**
      * Test bitsToFloat with zero bits returns positive zero.
      */
@@ -401,6 +413,10 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertTrue(is_nan(Floats::bitsToFloat($nanBits)));
     }
 
+    #endregion
+
+    #region floatToBits()/bitsToFloat() round-trip tests.
+
     /**
      * Test floatToBits and bitsToFloat round-trip.
      */
@@ -435,7 +451,7 @@ final class FloatsBitOperationsTest extends TestCase
 
     #endregion
 
-    #region disassemble and assemble tests
+    #region Method disassemble() tests.
 
     /**
      * Test disassemble with positive one.
@@ -546,6 +562,10 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertGreaterThan(0, $result['fraction']);
     }
 
+    #endregion
+
+    #region Method assemble() tests.
+
     /**
      * Test assemble with positive one.
      */
@@ -630,20 +650,6 @@ final class FloatsBitOperationsTest extends TestCase
     }
 
     /**
-     * Test assemble round-trip with disassemble.
-     */
-    public function testAssembleDisassembleRoundTrip(): void
-    {
-        $testValues = [1.0, -1.0, 2.0, 0.5, 1.5, -42.25, 1e10, 1e-10, PHP_FLOAT_MAX];
-
-        foreach ($testValues as $value) {
-            $parts = Floats::disassemble($value);
-            $result = Floats::assemble($parts['sign'], $parts['exponent'], $parts['fraction']);
-            $this->assertSame($value, $result, "Round trip failed for $value");
-        }
-    }
-
-    /**
      * Test assemble with invalid sign throws DomainException.
      */
     public function testAssembleInvalidSignThrows(): void
@@ -705,7 +711,25 @@ final class FloatsBitOperationsTest extends TestCase
 
     #endregion
 
-    #region ULP tests
+    #region disassemble()/assemble() round-trip tests.
+
+    /**
+     * Test assemble round-trip with disassemble.
+     */
+    public function testAssembleDisassembleRoundTrip(): void
+    {
+        $testValues = [1.0, -1.0, 2.0, 0.5, 1.5, -42.25, 1e10, 1e-10, PHP_FLOAT_MAX];
+
+        foreach ($testValues as $value) {
+            $parts = Floats::disassemble($value);
+            $result = Floats::assemble($parts['sign'], $parts['exponent'], $parts['fraction']);
+            $this->assertSame($value, $result, "Round trip failed for $value");
+        }
+    }
+
+    #endregion
+
+    #region Method ulp() tests.
 
     /**
      * Test ULP with standard values.

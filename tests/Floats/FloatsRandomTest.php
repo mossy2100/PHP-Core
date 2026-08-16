@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsRandomTest extends TestCase
 {
-    #region Random methods tests
+    #region Method rand() tests.
 
     /**
      * Test rand returns finite floats.
@@ -45,158 +45,6 @@ final class FloatsRandomTest extends TestCase
         // Check that we got at least 2 different values (extremely unlikely to fail)
         $unique = array_unique($values);
         $this->assertGreaterThan(1, count($unique), 'Should generate different random values');
-    }
-
-    /**
-     * Test randUniform with valid range.
-     */
-    public function testRandUniformWithValidRange(): void
-    {
-        $min = 10.0;
-        $max = 20.0;
-
-        // Generate multiple values and verify they're all in range
-        for ($i = 0; $i < 100; $i++) {
-            $f = Floats::randUniform($min, $max);
-            $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
-            $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
-            $this->assertTrue(is_finite($f), 'Value should be finite');
-        }
-    }
-
-    /**
-     * Test randUniform with negative range.
-     */
-    public function testRandUniformWithNegativeRange(): void
-    {
-        $min = -50.0;
-        $max = -10.0;
-
-        $f = Floats::randUniform($min, $max);
-        $this->assertGreaterThanOrEqual($min, $f);
-        $this->assertLessThanOrEqual($max, $f);
-    }
-
-    /**
-     * Test randUniform with range crossing zero.
-     */
-    public function testRandUniformWithRangeCrossingZero(): void
-    {
-        $min = -10.0;
-        $max = 10.0;
-
-        $f = Floats::randUniform($min, $max);
-        $this->assertGreaterThanOrEqual($min, $f);
-        $this->assertLessThanOrEqual($max, $f);
-    }
-
-    /**
-     * Test randUniform with min >= max throws DomainException.
-     */
-    public function testRandUniformWithMinEqualToMax(): void
-    {
-        $f = Floats::randUniform(42.5, 42.5);
-        $this->assertEquals(42.5, $f);
-    }
-
-    /**
-     * Test randUniform with min > max throws DomainException.
-     */
-    public function testRandUniformWithMinGreaterThanMaxThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid range: [20.0, 10.0]. Minimum must not exceed maximum.');
-        Floats::randUniform(20.0, 10.0);
-    }
-
-    /**
-     * Test randUniform with NAN min throws DomainException.
-     */
-    public function testRandUniformWithNanMinThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid minimum: NAN. Must be finite.');
-        Floats::randUniform(NAN, 10.0);
-    }
-
-    /**
-     * Test randUniform with NAN max throws DomainException.
-     */
-    public function testRandUniformWithNanMaxThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid maximum: NAN. Must be finite.');
-        Floats::randUniform(0.0, NAN);
-    }
-
-    /**
-     * Test randUniform with positive infinity min throws DomainException.
-     */
-    public function testRandUniformWithInfMinThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid minimum: INF. Must be finite.');
-        Floats::randUniform(INF, 10.0);
-    }
-
-    /**
-     * Test randUniform with negative infinity max throws DomainException.
-     */
-    public function testRandUniformWithNegativeInfMaxThrows(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid maximum: -INF. Must be finite.');
-        Floats::randUniform(0.0, -INF);
-    }
-
-    /**
-     * Test randUniform with negative zero as min or max normalizes to positive zero.
-     */
-    public function testRandUniformWithNegativeZero(): void
-    {
-        // -0.0 should be treated as 0.0, so this creates a valid range [0.0, 10.0]
-        $f = Floats::randUniform(-0.0, 10.0);
-        $this->assertGreaterThanOrEqual(0.0, $f);
-        $this->assertLessThanOrEqual(10.0, $f);
-    }
-
-    /**
-     * Test randUniform generates no duplicates.
-     * This test creates a range of exactly 10 adjacent floats and samples it many times, to ensure an even distribution
-     * across all possible results from the method.
-     * With optimal step calculation, we should never get duplicates.
-     */
-    public function testRandUniformNoCollisions(): void
-    {
-        // Build a range of exactly 10 adjacent floats starting from 1.0
-        $nValues = 10;
-        $min = 1.0;
-        $max = $min;
-        $counts = [
-            Floats::toHex($min) => 0,
-        ];
-        for ($i = 0; $i < $nValues - 1; $i++) {
-            $f = Floats::next($max);
-            $counts[Floats::toHex($f)] = 0;
-            $max = $f;
-        }
-
-        // Sample the range many times, and count how many times each value appears.
-        $nIters = 100000;
-        for ($i = 0; $i < $nIters; $i++) {
-            $f = Floats::randUniform($min, $max);
-            $counts[Floats::toHex($f)]++;
-        }
-
-        // Check we got the right number of results.
-        $this->assertEquals($nValues, count($counts));
-
-        // Check we got a reasonably even distribution across the possible values.
-        $avg = $nIters / $nValues;
-        foreach ($counts as $count) {
-            $this->assertGreaterThanOrEqual($avg * 0.9, $count);
-            $this->assertLessThanOrEqual($avg * 1.1, $count);
-        }
     }
 
     /**
@@ -347,6 +195,162 @@ final class FloatsRandomTest extends TestCase
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
             $this->assertTrue(is_finite($f));
+        }
+    }
+
+    #endregion
+
+    #region Method randUniform() tests.
+
+    /**
+     * Test randUniform with valid range.
+     */
+    public function testRandUniformWithValidRange(): void
+    {
+        $min = 10.0;
+        $max = 20.0;
+
+        // Generate multiple values and verify they're all in range
+        for ($i = 0; $i < 100; $i++) {
+            $f = Floats::randUniform($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
+            $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
+            $this->assertTrue(is_finite($f), 'Value should be finite');
+        }
+    }
+
+    /**
+     * Test randUniform with negative range.
+     */
+    public function testRandUniformWithNegativeRange(): void
+    {
+        $min = -50.0;
+        $max = -10.0;
+
+        $f = Floats::randUniform($min, $max);
+        $this->assertGreaterThanOrEqual($min, $f);
+        $this->assertLessThanOrEqual($max, $f);
+    }
+
+    /**
+     * Test randUniform with range crossing zero.
+     */
+    public function testRandUniformWithRangeCrossingZero(): void
+    {
+        $min = -10.0;
+        $max = 10.0;
+
+        $f = Floats::randUniform($min, $max);
+        $this->assertGreaterThanOrEqual($min, $f);
+        $this->assertLessThanOrEqual($max, $f);
+    }
+
+    /**
+     * Test randUniform with min >= max throws DomainException.
+     */
+    public function testRandUniformWithMinEqualToMax(): void
+    {
+        $f = Floats::randUniform(42.5, 42.5);
+        $this->assertEquals(42.5, $f);
+    }
+
+    /**
+     * Test randUniform with min > max throws DomainException.
+     */
+    public function testRandUniformWithMinGreaterThanMaxThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid range: [20.0, 10.0]. Minimum must not exceed maximum.');
+        Floats::randUniform(20.0, 10.0);
+    }
+
+    /**
+     * Test randUniform with NAN min throws DomainException.
+     */
+    public function testRandUniformWithNanMinThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid minimum: NAN. Must be finite.');
+        Floats::randUniform(NAN, 10.0);
+    }
+
+    /**
+     * Test randUniform with NAN max throws DomainException.
+     */
+    public function testRandUniformWithNanMaxThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid maximum: NAN. Must be finite.');
+        Floats::randUniform(0.0, NAN);
+    }
+
+    /**
+     * Test randUniform with positive infinity min throws DomainException.
+     */
+    public function testRandUniformWithInfMinThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid minimum: INF. Must be finite.');
+        Floats::randUniform(INF, 10.0);
+    }
+
+    /**
+     * Test randUniform with negative infinity max throws DomainException.
+     */
+    public function testRandUniformWithNegativeInfMaxThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid maximum: -INF. Must be finite.');
+        Floats::randUniform(0.0, -INF);
+    }
+
+    /**
+     * Test randUniform with negative zero as min or max normalizes to positive zero.
+     */
+    public function testRandUniformWithNegativeZero(): void
+    {
+        // -0.0 should be treated as 0.0, so this creates a valid range [0.0, 10.0]
+        $f = Floats::randUniform(-0.0, 10.0);
+        $this->assertGreaterThanOrEqual(0.0, $f);
+        $this->assertLessThanOrEqual(10.0, $f);
+    }
+
+    /**
+     * Test randUniform generates no duplicates.
+     * This test creates a range of exactly 10 adjacent floats and samples it many times, to ensure an even distribution
+     * across all possible results from the method.
+     * With optimal step calculation, we should never get duplicates.
+     */
+    public function testRandUniformNoCollisions(): void
+    {
+        // Build a range of exactly 10 adjacent floats starting from 1.0
+        $nValues = 10;
+        $min = 1.0;
+        $max = $min;
+        $counts = [
+            Floats::toHex($min) => 0,
+        ];
+        for ($i = 0; $i < $nValues - 1; $i++) {
+            $f = Floats::next($max);
+            $counts[Floats::toHex($f)] = 0;
+            $max = $f;
+        }
+
+        // Sample the range many times, and count how many times each value appears.
+        $nIters = 100000;
+        for ($i = 0; $i < $nIters; $i++) {
+            $f = Floats::randUniform($min, $max);
+            $counts[Floats::toHex($f)]++;
+        }
+
+        // Check we got the right number of results.
+        $this->assertEquals($nValues, count($counts));
+
+        // Check we got a reasonably even distribution across the possible values.
+        $avg = $nIters / $nValues;
+        foreach ($counts as $count) {
+            $this->assertGreaterThanOrEqual($avg * 0.9, $count);
+            $this->assertLessThanOrEqual($avg * 1.1, $count);
         }
     }
 

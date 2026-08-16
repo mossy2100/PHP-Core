@@ -19,7 +19,7 @@ use const OceanMoon\Core\RECURSION;
 #[CoversClass(Arrays::class)]
 final class ArraysTest extends TestCase
 {
-    #region Tests for hasRecursion()
+    #region Method hasRecursion() tests.
 
     /**
      * Test that simple arrays without recursion return false.
@@ -198,7 +198,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for quoteValues()
+    #region Method quoteValues() tests.
 
     /**
      * Test quoteValues with single quotes (default).
@@ -452,7 +452,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for first()
+    #region Method first() tests.
 
     /**
      * Test first() returns first value of a list array.
@@ -513,7 +513,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for last()
+    #region Method last() tests.
 
     /**
      * Test last() returns last value of a list array.
@@ -585,7 +585,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for toSerialList()
+    #region Method toSerialList() tests.
 
     /**
      * Test toSerialList with empty array returns empty string.
@@ -655,7 +655,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for removeValue()
+    #region Method removeValue() tests.
 
     /**
      * Test removeValue removes a value that exists.
@@ -742,7 +742,7 @@ final class ArraysTest extends TestCase
 
     #endregion
 
-    #region Tests for removeRecursion()
+    #region Method removeRecursion() tests.
 
     /**
      * Test that a simple array without recursion is returned unchanged.
