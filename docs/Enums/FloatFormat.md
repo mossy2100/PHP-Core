@@ -30,7 +30,8 @@ Use a decimal point, with no exponential part (e.g. `'1234.5'`).
 case Scientific;
 ```
 
-Always include an exponential part (e.g. `'1.2345×10³'`), rendered per the [`ExponentFormat`](ExponentFormat.md) passed to `Floats::format()`.
+Always include an exponential part (e.g. `'1.2345×10³'`), rendered per the [`ExponentFormat`](ExponentFormat.md) passed to
+`Floats::format()`.
 
 ### Auto
 

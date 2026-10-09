@@ -17,19 +17,20 @@ utility class and cannot be instantiated.
 - **Clearer float representation**: Floats are always made distinguishable from integers by appending `.0` if no decimal
   point or `E` is present in the string (e.g., `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled
   correctly.
-- **PHP-style array formatting**: Both list arrays and associative arrays use square brackets (`[...]`). List arrays omit keys;
-  associative arrays show keys with thick arrows (`=>`).
-- **Smart pretty printing**: Simple list arrays use single-line, grid, or one-per-line layout depending on length. Associative arrays and objects align keys/property names.
-- **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#` protected,
-  `-` private).
+- **PHP-style array formatting**: Both list arrays and associative arrays use square brackets (`[...]`). List arrays
+  omit keys; associative arrays show keys with thick arrows (`=>`).
+- **Smart pretty printing**: Simple list arrays use single-line, grid, or one-per-line layout depending on length.
+  Associative arrays and objects align keys/property names.
+- **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#`
+  protected, `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
 - **Closure support**: Closures are rendered as their original source code, obtained from the file they were
   declared in.
 - **Resource formatting**: Resources show both the id (via `get_resource_id()`) and the resource type from
   `get_debug_type()`, e.g. `resource #5 (stream)`.
 
-The output for scalars, strings, enums, arrays, and closures is parseable PHP code. Object and resource output is not parseable,
-but is designed for readability.
+The output for scalars, strings, enums, arrays, and closures is parseable PHP code. Object and resource output is not
+parseable, but is designed for readability.
 
 ---
 
@@ -58,7 +59,7 @@ Set or get the number of spaces used for each indentation level in pretty-printe
 
 **Throws:**
 
-- `DomainException` - If the supplied indent is negative.
+- `DomainException` — If the supplied indent is negative.
 
 **Example:**
 
@@ -78,11 +79,13 @@ public static function setMaxLineLength(int $maxLineLength): void
 public static function getMaxLineLength(): int
 ```
 
-Set or get the maximum line length for pretty-printed output. This only affects when list arrays wrap from a compact, single-line format to a grid or one-value-per-line format. Other long values (strings, etc.) aren't chopped down to this length.
+Set or get the maximum line length for pretty-printed output. This only affects when list arrays wrap from a compact,
+single-line format to a grid or one-value-per-line format. Other long values (strings, etc.) aren't chopped down to this
+length.
 
 **Throws:**
 
-- `DomainException` - If the max line length is not greater than 0.
+- `DomainException` — If the max line length is not greater than 0.
 
 **Example:**
 
@@ -125,19 +128,19 @@ appropriate type-specific method.
 
 **Parameters:**
 
-- `$value` (mixed) - The value to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing with indentation (default: `false`).
-- `$indentLevel` (int) - The level of indentation for nested structures (default: `0`).
+- `$value` (mixed) — The value to encode.
+- `$prettyPrint` (bool) — Whether to use pretty printing with indentation (default: `false`).
+- `$indentLevel` (int) — The level of indentation for nested structures (default: `0`).
 
 **Returns:**
 
-- `string` - The string representation of the value.
+- `string` — The string representation of the value.
 
 **Throws:**
 
-- `DomainException` - If the value cannot be stringified (e.g., a string whose encoding can't be detected or
+- `DomainException` — If the value cannot be stringified (e.g., a string whose encoding can't be detected or
   converted to UTF-8).
-- `UnexpectedValueException` - If the value has an unknown type. Defensive only: every type `Types::getBasicType()`
+- `UnexpectedValueException` — If the value has an unknown type. Defensive only: every type `Types::getBasicType()`
   can currently return is handled, so this isn't reachable in practice.
 
 **Examples:**
@@ -182,16 +185,18 @@ Convert any value to a string, without errors or warnings.
 
 **Behavior:**
 
-1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases that usually emit a warning are caught.
-2. Otherwise, falls back to `Stringify::stringify()` — this handles `NAN`, arrays, non-`Stringable` objects, resources, and anything else the cast couldn't.
+1. Tries PHP's default `(string)` cast first, with warnings temporarily promoted to exceptions so that cases that
+   usually emit a warning are caught.
+2. Otherwise, falls back to `Stringify::stringify()` — this handles `NAN`, arrays, non-`Stringable` objects, resources,
+   and anything else the cast couldn't.
 
 **Parameters:**
 
-- `$value` (mixed) - The value to convert.
+- `$value` (mixed) — The value to convert.
 
 **Returns:**
 
-- `string` - The value as a string.
+- `string` — The value as a string.
 
 **Examples:**
 
@@ -220,17 +225,17 @@ error messages and logs where space is limited.
 
 **Parameters:**
 
-- `$value` (mixed) - The value to get the string representation for.
-- `$maxLen` (int) - The maximum length of the result (default: `32`, minimum: `3`).
+- `$value` (mixed) — The value to get the string representation for.
+- `$maxLen` (int) — The maximum length of the result (default: `32`, minimum: `3`).
 
 **Returns:**
 
-- `string` - The abbreviated string representation.
+- `string` — The abbreviated string representation.
 
 **Throws:**
 
-- `DomainException` - If the maximum length is less than 3, or if the value cannot be stringified.
-- `UnexpectedValueException` - If the value's type cannot be inferred. Defensive only — see `stringify()`, which
+- `DomainException` — If the maximum length is less than 3, or if the value cannot be stringified.
+- `UnexpectedValueException` — If the value's type cannot be inferred. Defensive only — see `stringify()`, which
   this method calls internally; not reachable in practice.
 
 **Examples:**
@@ -256,16 +261,16 @@ splitting happens against the original `$message` before any substitution occurs
 
 **Parameters:**
 
-- `$message` (string) - The message template, with a `?` placeholder for each value.
-- `...$values` (mixed) - The values to substitute, one per placeholder, in order.
+- `$message` (string) — The message template, with a `?` placeholder for each value.
+- `...$values` (mixed) — The values to substitute, one per placeholder, in order.
 
 **Returns:**
 
-- `string` - The prepared message.
+- `string` — The prepared message.
 
 **Throws:**
 
-- `BadMethodCallException` - If the number of values doesn't match the number of placeholders.
+- `BadMethodCallException` — If the number of values doesn't match the number of placeholders.
 
 **Examples:**
 
@@ -297,11 +302,11 @@ Stringify a boolean.
 
 **Parameters:**
 
-- `$value` (bool) - The boolean value to encode.
+- `$value` (bool) — The boolean value to encode.
 
 **Returns:**
 
-- `string` - `'true'` or `'false'`.
+- `string` — `'true'` or `'false'`.
 
 **Examples:**
 
@@ -320,11 +325,11 @@ Stringify an integer.
 
 **Parameters:**
 
-- `$value` (int) - The integer value to encode.
+- `$value` (int) — The integer value to encode.
 
 **Returns:**
 
-- `string` - The string representation of the integer.
+- `string` — The string representation of the integer.
 
 **Examples:**
 
@@ -344,11 +349,11 @@ returned as-is.
 
 **Parameters:**
 
-- `$value` (float) - The float value to encode.
+- `$value` (float) — The float value to encode.
 
 **Returns:**
 
-- `string` - The string representation of the float.
+- `string` — The string representation of the float.
 
 **Examples:**
 
@@ -373,15 +378,16 @@ Non-UTF-8 input is converted to UTF-8. Unicode characters are preserved as-is (n
 
 **Parameters:**
 
-- `$value` (string) - The string value to encode.
+- `$value` (string) — The string value to encode.
 
 **Returns:**
 
-- `string` - The single-quoted, escaped string representation.
+- `string` — The single-quoted, escaped string representation.
 
 **Throws:**
 
-- `DomainException` - If the string is not UTF-8 and the encoding could not be detected or the string could not be converted to UTF-8.
+- `DomainException` — If the string is not UTF-8 and the encoding could not be detected or the string could not be
+  converted to UTF-8.
 
 **Examples:**
 
@@ -406,11 +412,12 @@ public static function stringifyArray(
 Stringify a PHP array as concise, parseable code. List arrays (sequential integer keys starting at 0) show values only.
 Associative arrays show keys and values with fat arrows (`=>`).
 
-When pretty printing is enabled, three layout strategies are used for list arrays of "simple" items (i.e. nulls and scalars):
+When pretty printing is enabled, three layout strategies are used for list arrays of "simple" items (i.e. nulls and
+scalars):
 
-1. **Single line** - if the result fits within the configured max line length.
-2. **Grid** - items padded to equal width and arranged in columns.
-3. **One per line** - for list arrays containing non-scalar values.
+1. **Single line** — if the result fits within the configured max line length.
+2. **Grid** — items padded to equal width and arranged in columns.
+3. **One per line** — for list arrays containing non-scalar values.
 
 List arrays of complex items are always one value per line when pretty printing.
 
@@ -420,20 +427,20 @@ The max line length is controlled by `setMaxLineLength()` (default: `120`).
 
 **Parameters:**
 
-- `$arr` (array) - The array to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing (default: `false`).
-- `$indentLevel` (int) - The level of indentation (default: `0`).
-- `$alreadyCleaned` (bool) - Whether `$arr` is already known to be free of circular references, e.g. because an
+- `$arr` (array) — The array to encode.
+- `$prettyPrint` (bool) — Whether to use pretty printing (default: `false`).
+- `$indentLevel` (int) — The level of indentation (default: `0`).
+- `$alreadyCleaned` (bool) — Whether `$arr` is already known to be free of circular references, e.g. because an
   ancestor call already cleaned it via `Arrays::removeRecursion()`. Internal callers pass this to avoid a
   redundant pass; you shouldn't normally need to set it yourself (default: `false`).
 
 **Returns:**
 
-- `string` - The string representation of the array.
+- `string` — The string representation of the array.
 
 **Throws:**
 
-- `DomainException` - If a value cannot be stringified.
+- `DomainException` — If a value cannot be stringified.
 
 **Examples:**
 
@@ -480,11 +487,11 @@ Get a string representation of an enum case in the form `Fully\Qualified\ClassNa
 
 **Parameters:**
 
-- `$value` (UnitEnum) - The enum case to stringify.
+- `$value` (UnitEnum) — The enum case to stringify.
 
 **Returns:**
 
-- `string` - The string representation.
+- `string` — The string representation.
 
 **Examples:**
 
@@ -508,11 +515,11 @@ assignment/statement (e.g. a trailing `;`) is not included.
 
 **Parameters:**
 
-- `$value` (Closure) - The closure to stringify.
+- `$value` (Closure) — The closure to stringify.
 
 **Returns:**
 
-- `string` - The closure's original source code, or `''` if unavailable (e.g. the closure has no file, such as one
+- `string` — The closure's original source code, or `''` if unavailable (e.g. the closure has no file, such as one
   created via `Closure::fromCallable()` wrapping an internal function, or the file has changed on disk since the
   closure was declared).
 
@@ -549,23 +556,23 @@ directly, before `stringifyObject()` is ever reached.
 
 **Parameters:**
 
-- `$obj` (object) - The object to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing (default: `false`).
-- `$indentLevel` (int) - The level of indentation (default: `0`).
+- `$obj` (object) — The object to encode.
+- `$prettyPrint` (bool) — Whether to use pretty printing (default: `false`).
+- `$indentLevel` (int) — The level of indentation (default: `0`).
 
 **Returns:**
 
-- `string` - The string representation of the object.
+- `string` — The string representation of the object.
 
 **Throws:**
 
-- `DomainException` - If a value cannot be stringified.
+- `DomainException` — If a value cannot be stringified.
 
 **Visibility Symbols (UML notation):**
 
-- `+` - Public property
-- `#` - Protected property
-- `-` - Private property
+- `+` — Public property
+- `#` — Protected property
+- `-` — Private property
 
 **Examples:**
 
@@ -620,15 +627,15 @@ so the type is checked via `get_debug_type()` instead.
 
 **Parameters:**
 
-- `$value` (mixed) - The resource to stringify.
+- `$value` (mixed) — The resource to stringify.
 
 **Returns:**
 
-- `string` - The string representation of the resource, e.g. `'resource #5 (stream)'`.
+- `string` — The string representation of the resource, e.g. `'resource #5 (stream)'`.
 
 **Throws:**
 
-- `InvalidArgumentException` - If the value is not a resource.
+- `InvalidArgumentException` — If the value is not a resource.
 
 **Examples:**
 
@@ -644,5 +651,5 @@ Stringify::stringifyResource($file);  // 'resource #5 (closed)'
 
 ## See Also
 
-- **[Types](Types.md)** - Type checking and inspection utilities.
-- **[Arrays](Arrays.md)** - Array utility methods including `hasRecursion()`.
+- **[Types](Types.md)** — Type checking and inspection utilities.
+- **[Arrays](Arrays.md)** — Array utility methods including `hasRecursion()`.

@@ -57,12 +57,12 @@ Add two integers with overflow detection.
 
 **Parameters:**
 
-- `$a` (int) - The first integer
-- `$b` (int) - The second integer
+- `$a` (int) — The first integer
+- `$b` (int) — The second integer
 
-**Returns:** `int` - The sum of the two integers
+**Returns:** `int` — The sum of the two integers
 
-**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
+**Throws:** `OverflowException` — If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -82,12 +82,12 @@ Subtract one integer from another with overflow detection.
 
 **Parameters:**
 
-- `$a` (int) - The integer to subtract from
-- `$b` (int) - The integer to subtract
+- `$a` (int) — The integer to subtract from
+- `$b` (int) — The integer to subtract
 
-**Returns:** `int` - The difference (a - b)
+**Returns:** `int` — The difference (a - b)
 
-**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
+**Throws:** `OverflowException` — If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -107,12 +107,12 @@ Multiply two integers with overflow detection.
 
 **Parameters:**
 
-- `$a` (int) - The first integer
-- `$b` (int) - The second integer
+- `$a` (int) — The first integer
+- `$b` (int) — The second integer
 
-**Returns:** `int` - The product
+**Returns:** `int` — The product
 
-**Throws:** `OverflowException` - If the result's magnitude is too large to be represented as an integer.
+**Throws:** `OverflowException` — If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -136,14 +136,14 @@ Raise one integer to the power of another, returning an integer result or throwi
 
 **Parameters:**
 
-- `$a` (int) - The base
-- `$b` (int) - The exponent
+- `$a` (int) — The base
+- `$b` (int) — The exponent
 
-**Returns:** `int` - The result of raising a to the power of b
+**Returns:** `int` — The result of raising a to the power of b
 
-**Throws:** `DomainException` - If the exponent is negative. This always throws regardless of the base, including `1 ** -1` and
-  `(-1) ** -1`, since the result would be a float in every case.
-- `OverflowException` - If the result's magnitude is too large to be represented as an integer.
+**Throws:** `DomainException` — If the exponent is negative. This always throws regardless of the base, including
+`1 ** -1` and `(-1) ** -1`, since the result would be a float in every case.
+- `OverflowException` — If the result's magnitude is too large to be represented as an integer.
 
 **Examples:**
 
@@ -172,14 +172,14 @@ positive integer that divides all the given numbers without remainder.
 
 **Parameters:**
 
-- `...$nums` (int) - One or more integers
+- `...$nums` (int) — One or more integers
 
-**Returns:** `int` - The greatest common divisor (always non-negative)
+**Returns:** `int` — The greatest common divisor (always non-negative)
 
 **Throws:**
 
-- `BadMethodCallException` - If no arguments are provided
-- `OverflowException` - If the true result is `PHP_INT_MIN`'s magnitude (`2^63`), which doesn't fit in an `int`. This
+- `BadMethodCallException` — If no arguments are provided
+- `OverflowException` — If the true result is `PHP_INT_MIN`'s magnitude (`2^63`), which doesn't fit in an `int`. This
   only happens when `PHP_INT_MIN` is present and every other argument is `0` or also `PHP_INT_MIN` — any other value
   has a smaller magnitude and would reduce the GCD below `2^63`. `PHP_INT_MIN` combined with anything else always
   produces a valid, in-range result (see examples below).
@@ -223,9 +223,9 @@ Convert an integer to Unicode subscript characters.
 
 **Parameters:**
 
-- `$n` (int) - The integer to convert
+- `$n` (int) — The integer to convert
 
-**Returns:** `string` - The integer as subscript characters
+**Returns:** `string` — The integer as subscript characters
 
 **Examples:**
 
@@ -250,9 +250,9 @@ Convert an integer to Unicode superscript characters.
 
 **Parameters:**
 
-- `$n` (int) - The integer to convert
+- `$n` (int) — The integer to convert
 
-**Returns:** `string` - The integer as superscript characters
+**Returns:** `string` — The integer as superscript characters
 
 **Examples:**
 
@@ -276,9 +276,9 @@ Check if a string is a valid subscript integer representation.
 
 **Parameters:**
 
-- `$s` (string) - The string to check
+- `$s` (string) — The string to check
 
-**Returns:** `bool` - True if the string matches the pattern for a subscript integer
+**Returns:** `bool` — True if the string matches the pattern for a subscript integer
 
 **Examples:**
 
@@ -302,9 +302,9 @@ Check if a string is a valid superscript integer representation.
 
 **Parameters:**
 
-- `$s` (string) - The string to check
+- `$s` (string) — The string to check
 
-**Returns:** `bool` - True if the string matches the pattern for a superscript integer
+**Returns:** `bool` — True if the string matches the pattern for a superscript integer
 
 **Examples:**
 
@@ -328,15 +328,15 @@ Convert a string of Unicode subscript characters to an integer.
 
 **Parameters:**
 
-- `$s` (string) - The subscript string to convert
+- `$s` (string) — The subscript string to convert
 
-**Returns:** `int` - The integer value
+**Returns:** `int` — The integer value
 
 **Throws:**
 
-- [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid subscript characters, or
+- [`FormatException`](Exceptions/FormatException.md) — If the string contains invalid subscript characters, or
   doesn't represent an integer (e.g. it's empty, or just a minus sign with no digits).
-- `OverflowException` - If the value is outside the valid range for `int` (`PHP_INT_MIN` to `PHP_INT_MAX`).
+- `OverflowException` — If the value is outside the valid range for `int` (`PHP_INT_MIN` to `PHP_INT_MAX`).
 
 **Examples:**
 
@@ -366,15 +366,15 @@ Convert a string of Unicode superscript characters to an integer.
 
 **Parameters:**
 
-- `$s` (string) - The superscript string to convert
+- `$s` (string) — The superscript string to convert
 
-**Returns:** `int` - The integer value
+**Returns:** `int` — The integer value
 
 **Throws:**
 
-- [`FormatException`](Exceptions/FormatException.md) - If the string contains invalid superscript characters, or
+- [`FormatException`](Exceptions/FormatException.md) — If the string contains invalid superscript characters, or
   doesn't represent an integer (e.g. it's empty, or just a minus sign with no digits).
-- `OverflowException` - If the value is outside the valid range for `int` (`PHP_INT_MIN` to `PHP_INT_MAX`).
+- `OverflowException` — If the value is outside the valid range for `int` (`PHP_INT_MIN` to `PHP_INT_MAX`).
 
 **Examples:**
 
@@ -398,5 +398,5 @@ gracefully.
 
 ## See Also
 
-- **[Floats](Floats.md)** - Float utility methods
-- **[Numbers](Numbers.md)** - General number utilities
+- **[Floats](Floats.md)** — Float utility methods
+- **[Numbers](Numbers.md)** — General number utilities

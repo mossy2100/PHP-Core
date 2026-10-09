@@ -39,9 +39,9 @@ abstract public function compare(mixed $other): int
 
 **Parameters:**
 
-- `$other` (mixed) - The value to compare with.
+- `$other` (mixed) — The value to compare with.
 
-**Returns:** `int` - Exactly `-1`, `0`, or `1`.
+**Returns:** `int` — Exactly `-1`, `0`, or `1`.
 
 **Implementation Guidelines:**
 
@@ -122,6 +122,6 @@ var_dump($v3->greaterThan($v1));  // true (2.0.0 > 1.2.3)
 
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
-- [Equatable.md](Equatable.md) - Base equality trait this includes
-- [ApproxComparable.md](ApproxComparable.md) - For approximate comparison with ordering
+- [ComparisonTraits.md](ComparisonTraits.md) — Trait hierarchy overview
+- [Equatable.md](Equatable.md) — Base equality trait this includes
+- [ApproxComparable.md](ApproxComparable.md) — For approximate comparison with ordering

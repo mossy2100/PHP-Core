@@ -12,7 +12,7 @@ false is true", these assertions show the expected value, actual value, and the 
 
 The trait provides:
 
-- `assertApproxEqual()` - Assert two floats are approximately equal
+- `assertApproxEqual()` — Assert two floats are approximately equal
 
 ---
 
@@ -34,13 +34,13 @@ Asserts that two floating-point values are approximately equal within specified 
 
 **Parameters:**
 
-- `$expected` (float) - The expected value
-- `$actual` (float) - The actual value to compare
-- `$relTol` (float) - Relative tolerance (default: 1e-9)
-- `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16)
-- `$message` (string) - Optional custom failure message prefix
+- `$expected` (float) — The expected value
+- `$actual` (float) — The actual value to compare
+- `$relTol` (float) — Relative tolerance (default: 1e-9)
+- `$absTol` (float) — Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16)
+- `$message` (string) — Optional custom failure message prefix
 
-**Throws:** `PHPUnit\Framework\AssertionFailedError` - If `$expected` and `$actual` are not approximately equal within
+**Throws:** `PHPUnit\Framework\AssertionFailedError` — If `$expected` and `$actual` are not approximately equal within
 tolerance.
 
 **Failure Message:**
@@ -155,5 +155,5 @@ $this->assertApproxEqual(3.14159, $result);
 
 ## See Also
 
-- [Floats.md](../../Floats.md) - The `Floats::approxEqual()` method used internally
-- [ApproxEquatable.md](../Comparison/ApproxEquatable.md) - Trait for value objects needing approximate equality
+- [Floats.md](../../Floats.md) — The `Floats::approxEqual()` method used internally
+- [ApproxEquatable.md](../Comparison/ApproxEquatable.md) — Trait for value objects needing approximate equality

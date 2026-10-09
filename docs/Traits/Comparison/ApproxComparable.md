@@ -125,7 +125,7 @@ class Rational
 
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview, including guidance on choosing between
+- [ComparisonTraits.md](ComparisonTraits.md) — Trait hierarchy overview, including guidance on choosing between
   `equal()`/`approxEqual()`/`compare()`/`approxCompare()`
-- [Comparable.md](Comparable.md) - Base ordering trait this includes
-- [ApproxEquatable.md](ApproxEquatable.md) - Base approximate-equality trait this includes
+- [Comparable.md](Comparable.md) — Base ordering trait this includes
+- [ApproxEquatable.md](ApproxEquatable.md) — Base approximate-equality trait this includes

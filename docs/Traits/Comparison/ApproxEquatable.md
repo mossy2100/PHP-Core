@@ -34,15 +34,16 @@ suitable for floating-point values.
 
 **Parameters:**
 
-- `$other` (mixed) - The value to compare with.
-- `$relTol` (float) - Relative tolerance (default: 1e-9).
-- `$absTol` (float) - Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16).
+- `$other` (mixed) — The value to compare with.
+- `$relTol` (float) — Relative tolerance (default: 1e-9).
+- `$absTol` (float) — Absolute tolerance (default: PHP_FLOAT_EPSILON ≈ 2.22e-16).
 
-**Returns:** `bool` - `true` if approximately equal within tolerances, `false` otherwise.
+**Returns:** `bool` — `true` if approximately equal within tolerances, `false` otherwise.
 
 **Implementation Guidelines:**
 
-- Check the type of `$other` explicitly (typically `instanceof self`). Don't attempt to convert or coerce it. This matches `equal()`'s contract (see [Equatable.md](Equatable.md)).
+- Check the type of `$other` explicitly (typically `instanceof self`). Don't attempt to convert or coerce it. This
+  matches `equal()`'s contract (see [Equatable.md](Equatable.md)).
 - Throw (typically `InvalidArgumentException`) for any type that isn't a deliberate, documented exception to
   same-type-only comparison.
 - Use `Floats::approxEqual()` for the actual float comparisons: it checks absolute tolerance first (`|a - b| ≤
@@ -108,7 +109,7 @@ $z1->equal("not a complex");      // throws InvalidArgumentException
 
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
-- [Equatable.md](Equatable.md) - Base equality trait this includes
-- [ApproxComparable.md](ApproxComparable.md) - For types with both ordering and approximate equality
-- [Floats.md](../../Floats.md) - The `Floats::approxEqual()` tolerance algorithm
+- [ComparisonTraits.md](ComparisonTraits.md) — Trait hierarchy overview
+- [Equatable.md](Equatable.md) — Base equality trait this includes
+- [ApproxComparable.md](ApproxComparable.md) — For types with both ordering and approximate equality
+- [Floats.md](../../Floats.md) — The `Floats::approxEqual()` tolerance algorithm

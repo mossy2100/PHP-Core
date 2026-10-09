@@ -42,8 +42,8 @@ the user's terminal theme — this is standard ANSI behavior, not something `Con
 
 ### Color constants
 
-Each names one of the terminal's 16 standard palette slots (the "normal intensity" 30–37 range, and the
-"bright"/high-intensity 90–97 range), plus `DEFAULT` for the terminal's own default color. Pass any of these to
+Each names one of the terminal's 16 standard palette slots (the "normal intensity" 30-37 range, and the
+"bright"/high-intensity 90-97 range), plus `DEFAULT` for the terminal's own default color. Pass any of these to
 `foreground()`/`background()`/`colors()`.
 
 | Constant         | Value | Notes                                            |
@@ -106,11 +106,11 @@ Set just the foreground color.
 
 **Parameters:**
 
-- `$foreground` (`int`) - A `Console` color constant.
+- `$foreground` (`int`) — A `Console` color constant.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### background()
 
@@ -122,11 +122,11 @@ Set just the background color.
 
 **Parameters:**
 
-- `$background` (`int`) - A `Console` color constant.
+- `$background` (`int`) — A `Console` color constant.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### colors()
 
@@ -138,12 +138,12 @@ Set the foreground and background colors together.
 
 **Parameters:**
 
-- `$foreground` (`int`) - A `Console` color constant.
-- `$background` (`int`) - A `Console` color constant.
+- `$foreground` (`int`) — A `Console` color constant.
+- `$background` (`int`) — A `Console` color constant.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 **Examples:**
 
@@ -163,7 +163,7 @@ Return both the foreground and background colors to the terminal's defaults. Equ
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ---
 
@@ -185,11 +185,11 @@ afterwards if it was still active — from the caller's perspective, only bold i
 
 **Parameters:**
 
-- `$bold` (`bool`) - `true` (default) to turn bold on, `false` to turn it off.
+- `$bold` (`bool`) — `true` (default) to turn bold on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### dim()
 
@@ -202,11 +202,11 @@ was still active, so only dim is affected from the caller's perspective.
 
 **Parameters:**
 
-- `$dim` (`bool`) - `true` (default) to turn dim on, `false` to turn it off.
+- `$dim` (`bool`) — `true` (default) to turn dim on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### italic()
 
@@ -218,11 +218,11 @@ Turn italic text on or off.
 
 **Parameters:**
 
-- `$italic` (`bool`) - `true` (default) to turn italic on, `false` to turn it off.
+- `$italic` (`bool`) — `true` (default) to turn italic on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### underline()
 
@@ -234,11 +234,11 @@ Turn underlined text on or off.
 
 **Parameters:**
 
-- `$underline` (`bool`) - `true` (default) to turn underline on, `false` to turn it off.
+- `$underline` (`bool`) — `true` (default) to turn underline on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### strikethrough()
 
@@ -250,11 +250,11 @@ Turn strikethrough text on or off.
 
 **Parameters:**
 
-- `$strikethrough` (`bool`) - `true` (default) to turn strikethrough on, `false` to turn it off.
+- `$strikethrough` (`bool`) — `true` (default) to turn strikethrough on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### reverse()
 
@@ -266,11 +266,11 @@ Turn reverse video (swap foreground and background colors) on or off.
 
 **Parameters:**
 
-- `$reverse` (`bool`) - `true` (default) to turn reverse video on, `false` to turn it off.
+- `$reverse` (`bool`) — `true` (default) to turn reverse video on, `false` to turn it off.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ---
 
@@ -286,7 +286,7 @@ Get a detached snapshot of the current style: foreground, background, and every 
 
 **Returns:**
 
-- `array` - Keys `foreground`, `background` (both `int`), and `bold`, `dim`, `italic`, `underline`, `strikethrough`,
+- `array` — Keys `foreground`, `background` (both `int`), and `bold`, `dim`, `italic`, `underline`, `strikethrough`,
   `reverse` (all `bool`). Colors are in foreground-space, so the array round-trips cleanly through `setStyle()`.
 
 ### setStyle()
@@ -301,11 +301,11 @@ value is `false`.
 
 **Parameters:**
 
-- `$style` (`array`) - Any subset of the keys `getStyle()` returns.
+- `$style` (`array`) — Any subset of the keys `getStyle()` returns.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 **Examples:**
 
@@ -330,7 +330,7 @@ specific prior snapshot.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ---
 
@@ -352,11 +352,11 @@ each line break, so it doesn't visually bleed onto the next line.
 
 **Parameters:**
 
-- `$value` (`mixed`) - The value to print. Defaults to `''`.
+- `$value` (`mixed`) — The value to print. Defaults to `''`.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### println()
 
@@ -385,11 +385,11 @@ The console's style is restored to what it was before the call, once the dump is
 
 **Parameters:**
 
-- `$value` (`mixed`) - The value to dump.
+- `$value` (`mixed`) — The value to dump.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 **Examples:**
 
@@ -409,16 +409,16 @@ severity helpers below (`success()`, `error()`, `warn()`, `info()`) are all thin
 
 **Parameters:**
 
-- `$text` (`string`) - The message text.
-- `$foreground` (`?int`) - A `Console` color constant for the message only. `null` (default) leaves the current
+- `$text` (`string`) — The message text.
+- `$foreground` (`?int`) — A `Console` color constant for the message only. `null` (default) leaves the current
   foreground unchanged.
-- `$background` (`?int`) - A `Console` color constant for the message only. `null` (default) leaves the current
+- `$background` (`?int`) — A `Console` color constant for the message only. `null` (default) leaves the current
   background unchanged.
-- `$bold` (`?bool`) - The bold state for the message only. `null` (default) leaves the current bold state unchanged.
+- `$bold` (`?bool`) — The bold state for the message only. `null` (default) leaves the current bold state unchanged.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### success() / error() / warn() / info()
 
@@ -441,11 +441,11 @@ afterwards.
 
 **Parameters:**
 
-- `$text` (`string`) - The message text.
+- `$text` (`string`) — The message text.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 **Examples:**
 
@@ -467,12 +467,12 @@ there — nothing breaks).
 
 **Parameters:**
 
-- `$url` (`string`) - The URL to link to.
-- `$text` (`string`) - The clickable label. Defaults to `$url` itself.
+- `$url` (`string`) — The URL to link to.
+- `$text` (`string`) — The clickable label. Defaults to `$url` itself.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 **Examples:**
 
@@ -488,11 +488,12 @@ public function bell(): self
 ```
 
 Ring the terminal bell, by emitting the BEL control character (`0x07`). Note this is `"\x07"` in PHP, not `"\a"` — PHP
-doesn't support the `\a` escape sequence. It can be a useful attention-grabber indicating the end of a long-running process.
+doesn't support the `\a` escape sequence. It can be a useful attention-grabber indicating the end of a long-running
+process.
 
 **Returns:**
 
-- `self` - Returns `$this` for chaining.
+- `self` — Returns `$this` for chaining.
 
 ### hr()
 
@@ -505,12 +506,12 @@ characters in `$ch`.
 
 **Parameters:**
 
-- `$ch` (`string`) - The substring to repeat. Defaults to `'-'`.
-- `$length` (`int`) - The total length of the rule, in characters. Defaults to `80`.
+- `$ch` (`string`) — The substring to repeat. Defaults to `'-'`.
+- `$length` (`int`) — The total length of the rule, in characters. Defaults to `80`.
 
 **Throws:**
 
-- `DomainException` - If `$ch` is an empty string.
+- `DomainException` — If `$ch` is an empty string.
 
 **Examples:**
 
@@ -523,6 +524,6 @@ new Console()->hr('=', 20); // '===================='
 
 ## See Also
 
-- **[Stringify](Stringify.md)** - `print()`/`println()`/`dump()` use `Stringify::toString()`/`stringify()` to convert
+- **[Stringify](Stringify.md)** — `print()`/`println()`/`dump()` use `Stringify::toString()`/`stringify()` to convert
   values without warnings or errors.
-- **[Types](Types.md)** - `dump()` uses `Types::getBasicType()` to pick a `TYPE_COLOR` entry.
+- **[Types](Types.md)** — `dump()` uses `Types::getBasicType()` to pick a `TYPE_COLOR` entry.

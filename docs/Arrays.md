@@ -11,10 +11,10 @@ instantiated.
 
 Methods are organized into:
 
-- **Inspection methods** - Analyze array properties (e.g., detect circular references).
-- **String methods** - Convert arrays to or format arrays as strings (e.g., quote values, serial lists).
-- **Extraction methods** - Extract values from arrays (e.g., first/last element).
-- **Transformation methods** - Transform arrays (e.g., remove values).
+- **Inspection methods** — Analyze array properties (e.g., detect circular references).
+- **String methods** — Convert arrays to or format arrays as strings (e.g., quote values, serial lists).
+- **Extraction methods** — Extract values from arrays (e.g., first/last element).
+- **Transformation methods** — Transform arrays (e.g., remove values).
 
 ---
 
@@ -31,11 +31,11 @@ either directly or indirectly through nested arrays.
 
 **Parameters:**
 
-- `$arr` (array) - The array to check for circular references.
+- `$arr` (array) — The array to check for circular references.
 
 **Returns:**
 
-- `bool` - Returns `true` if recursion is detected, `false` otherwise.
+- `bool` — Returns `true` if recursion is detected, `false` otherwise.
 
 **Examples:**
 
@@ -82,16 +82,16 @@ messages, output, or documentation.
 
 **Parameters:**
 
-- `$arr` (array\<string\>) - Array of strings to quote.
-- `$doubleQuotes` (bool) - Use double quotes instead of single quotes (default: `false`).
+- `$arr` (array\<string\>) — Array of strings to quote.
+- `$doubleQuotes` (bool) — Use double quotes instead of single quotes (default: `false`).
 
 **Returns:**
 
-- `array<string>` - Array with each value wrapped in quotes, preserving array keys.
+- `array<string>` — Array with each value wrapped in quotes, preserving array keys.
 
 **Throws:**
 
-- `InvalidArgumentException` - If any array value is not a string.
+- `InvalidArgumentException` — If any array value is not a string.
 
 **Examples:**
 
@@ -130,22 +130,22 @@ public static function toSerialList(array $arr, string $conjunction = 'and', boo
 ```
 
 Convert an array of strings to a serial list (e.g., `'apples, oranges, and bananas'`). By default, the Oxford comma is
-used when there are more than two items. Array keys are ignored - the values are treated as a list, so an associative
+used when there are more than two items. Array keys are ignored — the values are treated as a list, so an associative
 array works just as well as a plain list.
 
 **Parameters:**
 
-- `$arr` (array) - Array of strings.
-- `$conjunction` (string) - The conjunction to use between the last two items (default: `'and'`).
-- `$oxford` (bool) - Whether to use an Oxford comma in lists of 3 or more items (default: `true`).
+- `$arr` (array) — Array of strings.
+- `$conjunction` (string) — The conjunction to use between the last two items (default: `'and'`).
+- `$oxford` (bool) — Whether to use an Oxford comma in lists of 3 or more items (default: `true`).
 
 **Returns:**
 
-- `string` - The serial list as a string.
+- `string` — The serial list as a string.
 
 **Throws:**
 
-- `InvalidArgumentException` - If any array value is not a string.
+- `InvalidArgumentException` — If any array value is not a string.
 
 **Examples:**
 
@@ -186,15 +186,15 @@ the first value is actually null.
 
 **Parameters:**
 
-- `$arr` (non-empty-array) - The array to extract from.
+- `$arr` (non-empty-array) — The array to extract from.
 
 **Returns:**
 
-- `mixed` - The first value in the array.
+- `mixed` — The first value in the array.
 
 **Throws:**
 
-- `LengthException` - If the array is empty.
+- `LengthException` — If the array is empty.
 
 **Examples:**
 
@@ -223,15 +223,15 @@ actually null.
 
 **Parameters:**
 
-- `$arr` (non-empty-array) - The array to extract from.
+- `$arr` (non-empty-array) — The array to extract from.
 
 **Returns:**
 
-- `mixed` - The last value in the array.
+- `mixed` — The last value in the array.
 
 **Throws:**
 
-- `LengthException` - If the array is empty.
+- `LengthException` — If the array is empty.
 
 **Examples:**
 
@@ -259,12 +259,12 @@ Remove all instances of a value from an array. Uses strict comparison (`!==`), s
 
 **Parameters:**
 
-- `$arr` (array) - The original array.
-- `$valueToRemove` (mixed) - The value to remove.
+- `$arr` (array) — The original array.
+- `$valueToRemove` (mixed) — The value to remove.
 
 **Returns:**
 
-- `array` - A new array without the given value. Keys from the original array are preserved.
+- `array` — A new array without the given value. Keys from the original array are preserved.
 
 **Examples:**
 
@@ -300,11 +300,11 @@ contents are left untouched.
 
 **Parameters:**
 
-- `$arr` (array) - The array to clean.
+- `$arr` (array) — The array to clean.
 
 **Returns:**
 
-- `array` - A copy of `$arr` with any circular sub-arrays replaced by the `RECURSION` marker.
+- `array` — A copy of `$arr` with any circular sub-arrays replaced by the `RECURSION` marker.
 
 **Examples:**
 
@@ -328,5 +328,5 @@ reimplementing cycle detection from scratch.
 
 ## See Also
 
-- **[Stringify](Stringify.md)** - Value-to-string conversion utilities.
-- **[Types](Types.md)** - Type checking and conversion utilities.
+- **[Stringify](Stringify.md)** — Value-to-string conversion utilities.
+- **[Types](Types.md)** — Type checking and conversion utilities.

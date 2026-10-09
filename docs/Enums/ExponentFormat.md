@@ -95,7 +95,8 @@ exponents and show only `'-'` for negative ones, matching how scientific notatio
 
 - `$exponent` (`int`) — The exponent (may be negative, zero, or positive).
 
-**Returns:** `string` - The rendered exponential part, e.g. `'e+42'`, `'E-42'`, `'*10^42'`, `'×10⁴²'`, `'&times;10<sup>42</sup>'`.
+**Returns:** `string` — The rendered exponential part, e.g. `'e+42'`, `'E-42'`, `'*10^42'`, `'×10⁴²'`,
+`'&times;10<sup>42</sup>'`.
 
 **Examples:**
 

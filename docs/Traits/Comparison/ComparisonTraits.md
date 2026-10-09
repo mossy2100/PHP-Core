@@ -285,7 +285,7 @@ well-tested and consistent.
 
 ## See Also
 
-- [Equatable.md](Equatable.md) - Base trait for equality
-- [Comparable.md](Comparable.md) - Trait for ordering
-- [ApproxEquatable.md](ApproxEquatable.md) - Trait for approximate equality
-- [ApproxComparable.md](ApproxComparable.md) - Trait for complete comparison
+- [Equatable.md](Equatable.md) — Base trait for equality
+- [Comparable.md](Comparable.md) — Trait for ordering
+- [ApproxEquatable.md](ApproxEquatable.md) — Trait for approximate equality
+- [ApproxComparable.md](ApproxComparable.md) — Trait for complete comparison

@@ -39,7 +39,7 @@ Check if the system is 64-bit.
 
 **Returns:**
 
-- `bool` - True if the system has 64-bit integers, false otherwise
+- `bool` — True if the system has 64-bit integers, false otherwise
 
 **Examples:**
 
@@ -76,7 +76,7 @@ Require that the system is 64-bit. Throws an exception if the current system doe
 
 **Throws:**
 
-- `RuntimeException` - If the system is not 64-bit
+- `RuntimeException` — If the system is not 64-bit
 
 **Examples:**
 
@@ -105,7 +105,7 @@ default locale (`Locale::getDefault()`) when no header is present or it can't be
 
 **Returns:**
 
-- `string` - The detected locale, e.g. `'en_US'`, `'de_DE'`. Always a non-empty string.
+- `string` — The detected locale, e.g. `'en_US'`, `'de_DE'`. Always a non-empty string.
 
 **Examples:**
 
@@ -129,5 +129,5 @@ Environment::getLocale(); // Falls back to Locale::getDefault().
 
 ## See Also
 
-- **[Floats](Floats.md)** - Uses `require64Bit()` for IEEE-754 bit operations, and `INVARIANT_LOCALE` for
+- **[Floats](Floats.md)** — Uses `require64Bit()` for IEEE-754 bit operations, and `INVARIANT_LOCALE` for
   locale-independent number formatting in `format()`

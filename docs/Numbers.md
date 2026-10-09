@@ -31,9 +31,9 @@ for numeric strings like `"42"` or `"3.14"`.
 
 **Parameters:**
 
-- `$value` (mixed) - The value to check.
+- `$value` (mixed) — The value to check.
 
-**Returns:** `bool` - `true` if the value is an `int` or `float`, `false` otherwise.
+**Returns:** `bool` — `true` if the value is an `int` or `float`, `false` otherwise.
 
 **Examples:**
 
@@ -75,9 +75,9 @@ Like `isNumber()`, this differs from PHP's built-in `is_numeric()`, which also r
 
 **Parameters:**
 
-- `$value` (mixed) - The value to check.
+- `$value` (mixed) — The value to check.
 
-**Returns:** `bool` - `true` if the value is an `int` or a finite `float`, `false` otherwise.
+**Returns:** `bool` — `true` if the value is an `int` or a finite `float`, `false` otherwise.
 
 **Examples:**
 
@@ -127,14 +127,16 @@ equality (i.e. `===`) by first converting both to floats can result in false pos
 may convert to the same float. This happens because 64-bit integers have more precision than the 53 bits available in a
 float's mantissa.
 
-The method also avoids the need for loose equality using `==` or `!=`, which several coding standards and IDEs complain about. Furthermore, by requiring `int` or `float` parameters only, it eliminates unexpected bugs caused by PHP's behavior of silently converting numeric strings to numbers and comparing them as such.
+The method also avoids the need for loose equality using `==` or `!=`, which several coding standards and IDEs complain
+about. Furthermore, by requiring `int` or `float` parameters only, it eliminates unexpected bugs caused by PHP's
+behavior of silently converting numeric strings to numbers and comparing them as such.
 
 **Parameters:**
 
-- `$a` (int|float) - The first number
-- `$b` (int|float) - The second number
+- `$a` (int|float) — The first number
+- `$b` (int|float) — The second number
 
-**Returns:** `bool` - Returns `true` if the numbers are equal, `false` otherwise.
+**Returns:** `bool` — Returns `true` if the numbers are equal, `false` otherwise.
 
 **Behavior:**
 
@@ -184,7 +186,7 @@ Numbers::equal(NAN, NAN);    // false (NAN is never equal to itself)
 Numbers::equal(0.0, -0.0);   // true
 ```
 
-Large but exactly representable values work correctly even beyond `Floats::MAX_SAFE_INT` (2^53 - 1) - `equal()` only
+Large but exactly representable values work correctly even beyond `Floats::MAX_SAFE_INT` (2^53 - 1) — `equal()` only
 needs the float to exactly equal a specific int, not to survive an int→float→int round-trip, so `Floats::isSafeInt()` is
 not the right tool for this method's internals:
 
@@ -192,7 +194,7 @@ not the right tool for this method's internals:
 Numbers::equal(2 ** 60, 2.0 ** 60);  // true (2^60 is a power of two, exactly representable as a float)
 ```
 
-`PHP_INT_MIN` is a power of two, so it casts to `float` exactly; `PHP_INT_MAX` does not - it rounds up to `2^63`, which
+`PHP_INT_MIN` is a power of two, so it casts to `float` exactly; `PHP_INT_MAX` does not — it rounds up to `2^63`, which
 is outside the representable `int` range and therefore never equal to any `int`:
 
 ```php
@@ -223,13 +225,13 @@ handled.
 
 **Parameters:**
 
-- `$value` (int|float) - The number to check
-- `$zeroForZero` (bool) - If `true` (default), return 0 for any zero value; if `false`, return the sign of the zero (-1 for -0.0,
-  1 otherwise)
+- `$value` (int|float) — The number to check
+- `$zeroForZero` (bool) — If `true` (default), return 0 for any zero value; if `false`, return the sign of the zero (-1
+  for -0.0, 1 otherwise)
 
-**Returns:** `int` - Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true` (default).
+**Returns:** `int` — Returns 1 for positive, -1 for negative, or 0 for zero when `$zeroForZero` is `true` (default).
 
-**Throws:** `DomainException` - If `$value` is NAN (NAN has no defined sign).
+**Throws:** `DomainException` — If `$value` is NAN (NAN has no defined sign).
 
 **Examples:**
 
@@ -275,12 +277,12 @@ If `$num` is `PHP_INT_MIN` and `$signSource` is positive, the result will be a f
 
 **Parameters:**
 
-- `$num` (int|float) - The number whose magnitude to use.
-- `$signSource` (int|float) - The number whose sign to copy.
+- `$num` (int|float) — The number whose magnitude to use.
+- `$signSource` (int|float) — The number whose sign to copy.
 
-**Returns:** `int|float` - The magnitude of `$num` with the sign of `$signSource`.
+**Returns:** `int|float` — The magnitude of `$num` with the sign of `$signSource`.
 
-**Throws:** `DomainException` - If NAN is passed as either parameter (NAN has no defined sign).
+**Throws:** `DomainException` — If NAN is passed as either parameter (NAN has no defined sign).
 
 **Examples:**
 
@@ -335,6 +337,6 @@ Numbers::copySign(5, NAN);     // throws DomainException
 
 ## See Also
 
-- **[Floats](Floats.md)** - Float-specific utility methods including `approxEqual()` for approximate comparisons.
-- **[Integers](Integers.md)** - Integer-specific utility methods.
-- **[Types](Types.md)** - Type checking and comparison utilities.
+- **[Floats](Floats.md)** — Float-specific utility methods including `approxEqual()` for approximate comparisons.
+- **[Integers](Integers.md)** — Integer-specific utility methods.
+- **[Types](Types.md)** — Type checking and comparison utilities.

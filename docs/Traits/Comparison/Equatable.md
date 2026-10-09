@@ -27,9 +27,9 @@ abstract public function equal(mixed $other): bool
 
 **Parameters:**
 
-- `$other` (mixed) - The value to compare with.
+- `$other` (mixed) — The value to compare with.
 
-**Returns:** `bool` - `true` if the values are equal, `false` otherwise.
+**Returns:** `bool` — `true` if the values are equal, `false` otherwise.
 
 **Why `mixed` and not `self`:**
 
@@ -91,6 +91,6 @@ $p1->equal("string"); // throws InvalidArgumentException
 
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview
-- [Comparable.md](Comparable.md) - Adds ordering operations
-- [ApproxEquatable.md](ApproxEquatable.md) - Adds approximate equality
+- [ComparisonTraits.md](ComparisonTraits.md) — Trait hierarchy overview
+- [Comparable.md](Comparable.md) — Adds ordering operations
+- [ApproxEquatable.md](ApproxEquatable.md) — Adds approximate equality

@@ -10,7 +10,8 @@ Exception thrown when an arithmetic operation has no defined result for the give
 other operations that are undefined for specific inputs.
 
 For a plain `float`, PHP signals these cases by returning `NAN` or `±INF`. Value types with no such sentinel to fall
-back on, such as `Complex`, `Rational`, `Vector`, `Matrix`, and similar exact/structured numeric types, throw this exception instead.
+back on, such as `Complex`, `Rational`, `Vector`, `Matrix`, and similar exact/structured numeric types, throw this
+exception instead.
 
 The exception extends `DomainException`, so it's still caught by any existing `catch (DomainException)` code, while
 allowing more specific handling of undefined-operation failures.
@@ -87,7 +88,7 @@ Use other exceptions when:
 
 ## See Also
 
-- **[DomainException](https://www.php.net/manual/en/class.domainexception.php)** - Parent class
-- **[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)** - Project-wide exception usage guidelines
-- `OceanMoon\Math\Complex`, `OceanMoon\Math\Rational`, `OceanMoon\Math\Vector`, `OceanMoon\Math\Matrix` - all use
+- **[DomainException](https://www.php.net/manual/en/class.domainexception.php)** — Parent class
+- **[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)** — Project-wide exception usage guidelines
+- `OceanMoon\Math\Complex`, `OceanMoon\Math\Rational`, `OceanMoon\Math\Vector`, `OceanMoon\Math\Matrix` — all use
   `ArithmeticException` for undefined arithmetic operations

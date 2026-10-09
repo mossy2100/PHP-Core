@@ -95,8 +95,8 @@ etc.), method chaining, style snapshot/restore, and higher-level helpers like `d
 
 ## [Globals](docs/Globals.md)
 
-Useful constants (`M_TAU`, `RECURSION`) that are more convenient to use as globals (namespaced to `OceanMoon\Core`) than as class
-members.
+Useful constants (`M_TAU`, `RECURSION`) that are more convenient to use as globals (namespaced to `OceanMoon\Core`) than
+as class members.
 
 ---
 
@@ -172,7 +172,7 @@ composer test
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details
+MIT License — see [LICENSE](LICENSE) for details
 
 ---
 
