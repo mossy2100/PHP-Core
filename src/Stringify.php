@@ -63,7 +63,7 @@ final class Stringify
      *
      * Arrays::removeRecursion() can't see this kind of cycle: it only inspects array values, and an
      * object property is never an array. Array recursion detection has to lean on print_r()'s own
-     * cycle detection because plain PHP arrays have no reliable identity check from userland code —
+     * cycle detection because plain PHP arrays have no reliable identity check from userland code -
      * but objects do, via spl_object_id(), so a simple visited-set here is enough; there's no need
      * to involve print_r() for this case.
      *
@@ -244,7 +244,7 @@ final class Stringify
      * @param int $maxLen The maximum length of the result. The minimum value is 3.
      * @return string The short string representation.
      * @throws DomainException If the maximum length is less than the minimum, or if the value cannot be stringified.
-     * @throws UnexpectedValueException If the type cannot be inferred. Defensive only — see stringify(), which this
+     * @throws UnexpectedValueException If the type cannot be inferred. Defensive only - see stringify(), which this
      * method calls internally; not reachable in practice.
      */
     public static function abbrev(mixed $value, int $maxLen = 32): string
@@ -300,7 +300,7 @@ final class Stringify
      * Prepare an exception message, substituting each '?' placeholder, left to right, with abbrev() of the
      * matching value.
      *
-     * A value that itself contains '?' is inserted verbatim — it is not re-scanned for further placeholders, since
+     * A value that itself contains '?' is inserted verbatim - it is not re-scanned for further placeholders, since
      * all splitting happens against the original $message before any substitution occurs.
      *
      * For example:
@@ -442,7 +442,7 @@ final class Stringify
      * @param array<array-key, mixed> $arr The array to encode.
      * @param bool $prettyPrint Whether to use pretty printing (default false).
      * @param int $indentLevel The level of indentation for this structure (default 0).
-     * @param bool $alreadyCleaned Whether $arr is already known to be free of circular references —
+     * @param bool $alreadyCleaned Whether $arr is already known to be free of circular references -
      * e.g. because it's a nested array within a value that an ancestor call already cleaned via
      * Arrays::removeRecursion(), which cleans the entire subtree in one pass. Sub-arrays discovered
      * while stringifying $arr's own values are always passed down as already cleaned; this only

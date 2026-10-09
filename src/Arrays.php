@@ -195,11 +195,11 @@ final class Arrays
      * $a[] = $b; // $a now contains a real reference cycle back to itself.
      * ```
      * self::hasRecursion() can already tell you that some recursion exists, using json_encode() and catching its
-     * JSON_ERROR_RECURSION error — but that only answers a yes/no question for the whole array; it doesn't say where
+     * JSON_ERROR_RECURSION error - but that only answers a yes/no question for the whole array; it doesn't say where
      * the recursive reference is, so it isn't enough on its own to know which value to replace. Array `===` compares by
      * value, not by reference identity, so there's no built-in way to ask "is this the same array instance as an
      * ancestor?" either. print_r() performs the same underlying cycle detection internally (implemented in C, with
-     * access to the engine's reference-counted array structures), but — usefully here — its text output preserves the
+     * access to the engine's reference-counted array structures), but - usefully here - its text output preserves the
      * position of each recursive reference within the printed structure. This method detects recursion by parsing that
      * positional output, rather than reimplementing cycle detection from scratch.
      *

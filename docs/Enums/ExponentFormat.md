@@ -6,9 +6,9 @@ Rendering styles for the exponential part of scientific-notation float output.
 
 ## Overview
 
-`ExponentFormat` controls how the exponent is rendered when [`Floats::format()`](../Floats.md) produces scientific
-notation (`FloatFormat::Scientific`, or `FloatFormat::Auto` choosing scientific). It ranges from plain ASCII `e`/`E`
-notation through to Unicode and HTML mathematical notation.
+`ExponentFormat` controls how the exponent is rendered when [`Floats::format()`](../Floats.md) produces scientific notation
+(`FloatFormat::Scientific`, or `FloatFormat::Auto` choosing scientific). It ranges from plain ASCII `e`/`E` notation
+through to Unicode and HTML mathematical notation.
 
 This is a pure (unbacked) enum, but unlike most enums in this library it carries behavior: `format()` renders a signed
 exponent as a string in the case's style.
@@ -33,7 +33,7 @@ case AsciiUpperCaseE;
 ```
 
 ASCII upper-case `E` notation (e.g. `'E+42'`). The exponent is not padded to a fixed width, and the sign is always
-included — matching the scientific notation PHP itself falls back to when casting a float to string (e.g.
+included - matching the scientific notation PHP itself falls back to when casting a float to string (e.g.
 `(string) 1.5e20 === '1.5E+20'`).
 
 ### AsciiMath
@@ -93,9 +93,9 @@ exponents and show only `'-'` for negative ones, matching how scientific notatio
 
 **Parameters:**
 
-- `$exponent` (`int`) — The exponent (may be negative, zero, or positive).
+- `$exponent` (`int`) - The exponent (may be negative, zero, or positive).
 
-**Returns:** `string` — The rendered exponential part, e.g. `'e+42'`, `'E-42'`, `'*10^42'`, `'×10⁴²'`,
+**Returns:** `string` - The rendered exponential part, e.g. `'e+42'`, `'E-42'`, `'*10^42'`, `'×10⁴²'`,
 `'&times;10<sup>42</sup>'`.
 
 **Examples:**
@@ -133,7 +133,6 @@ Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat:
 
 ## See Also
 
-- **[Floats](../Floats.md)** — `format()` is where `ExponentFormat` is used, via the `$expFormat` parameter.
-- **[FloatFormat](FloatFormat.md)** — Selects whether an exponential part is used at all.
-- **[Integers](../Integers.md)** — `toSuperscript()` is used internally by `UnicodeMath` to render the exponent's
-  digits.
+- **[Floats](../Floats.md)** - `format()` is where `ExponentFormat` is used, via the `$expFormat` parameter.
+- **[FloatFormat](FloatFormat.md)** - Selects whether an exponential part is used at all.
+- **[Integers](../Integers.md)** - `toSuperscript()` is used internally by `UnicodeMath` to render the exponent's digits.

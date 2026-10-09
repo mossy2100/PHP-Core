@@ -44,9 +44,9 @@ Every method in every trait here is typed `mixed $other`, never `self`. Two reas
 
 Because the type hint can't do the work, implementations are expected to check `$other`'s type explicitly (typically
 `instanceof self`) and **throw** (typically `InvalidArgumentException`) for anything that isn't a deliberate, documented
-exception. Never silently attempt a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==` in
-modern PHP: implicit type juggling in comparisons is a recurring source of bugs. Widening a comparison method to accept
-a related type should be rare, mathematically justified on a case-by-case basis, and documented at the point of
+exception. Never silently attempt a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==` in modern
+PHP: implicit type juggling in comparisons is a recurring source of bugs. Widening a comparison method to accept a
+related type should be rare, mathematically justified on a case-by-case basis, and documented at the point of
 implementation, not as a general-purpose "convert whatever you're given" policy.
 
 ---
@@ -285,7 +285,7 @@ well-tested and consistent.
 
 ## See Also
 
-- [Equatable.md](Equatable.md) — Base trait for equality
-- [Comparable.md](Comparable.md) — Trait for ordering
-- [ApproxEquatable.md](ApproxEquatable.md) — Trait for approximate equality
-- [ApproxComparable.md](ApproxComparable.md) — Trait for complete comparison
+- [Equatable.md](Equatable.md) - Base trait for equality
+- [Comparable.md](Comparable.md) - Trait for ordering
+- [ApproxEquatable.md](ApproxEquatable.md) - Trait for approximate equality
+- [ApproxComparable.md](ApproxComparable.md) - Trait for complete comparison

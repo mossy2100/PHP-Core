@@ -2,51 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [4.0.0] — 2026-10-10
+## [4.0.1] - 2026-10-10
 
-Breaking changes are marked **(breaking)**. The headline changes: the global functions are gone (replaced by
-`Console`, `Numbers` and new `Stringify` methods), the `OceanMoon\Core\Globals` namespace is gone, and
-`Floats::format()` has a new signature.
+### Documentation
+
+- Docs, code comments and this changelog use hyphens for every dash, replacing em and en dashes.
+- Docs reflowed so paragraphs and list items fill each line up to the 120-character limit.
+
+---
+
+## [4.0.0] - 2026-10-10
+
+Breaking changes are marked **(breaking)**. The headline changes: the global functions are gone (replaced by `Console`,
+`Numbers` and new `Stringify` methods), the `OceanMoon\Core\Globals` namespace is gone, and `Floats::format()` has a new
+signature.
 
 ### Added
 
-- **`Console`** — ANSI/SGR-styled console output. A plain instantiable class. Every method echoes immediately and
+- **`Console`** - ANSI/SGR-styled console output. A plain instantiable class. Every method echoes immediately and
   returns `$this` for chaining.
   - Colors: 16 palette constants, `foreground()`, `background()`, `colors()`, `resetColors()`.
-  - Attributes: `bold()`, `dim()`, `italic()`, `underline()`, `strikethrough()`, `reverse()` — each takes an
+  - Attributes: `bold()`, `dim()`, `italic()`, `underline()`, `strikethrough()`, `reverse()` - each takes an
     optional `bool` (default `true`); pass `false` to turn the attribute off.
   - Style state: `getStyle()`, `setStyle()`, `resetStyle()`.
   - Output: `print()`, `println()`, `dump()` (colored by type via the `TYPE_COLOR` map), `message()`, plus
     `success()`/`error()`/`warn()`/`info()`, `link()` (OSC 8 hyperlink), `bell()` and `hr()`.
-- **`Numbers`** — static class replacing the 3.0.0 free functions (see Removed):
-  - `isNumber()`, `sign()`, `copySign()` — same behavior as `is_number()`, `sign()`, `copy_sign()`.
-  - `equal()` — exact `int`/`float` equality without type juggling. Two floats compare by value (`NAN` never equals
+- **`Numbers`** - static class replacing the 3.0.0 free functions (see Removed):
+  - `isNumber()`, `sign()`, `copySign()` - same behavior as `is_number()`, `sign()`, `copy_sign()`.
+  - `equal()` - exact `int`/`float` equality without type juggling. Two floats compare by value (`NAN` never equals
     anything; `-0.0` equals `0.0`). A mixed pair is equal only if the float represents that exact integer.
-  - `isFiniteNumber()` — like `isNumber()`, but rejects `INF`, `-INF` and `NAN`.
-- **`Enums\FloatFormat`** — `FixedPoint`, `Scientific` or `Auto`, for `Floats::format()`.
-- **`Enums\ExponentFormat`** — `AsciiLowerCaseE` (`e+23`), `AsciiUpperCaseE` (`E+23`), `AsciiMath` (`*10^23`),
-  `UnicodeMath` (`×10²³`) or `HtmlMath` (`&times;10<sup>23</sup>`), for `Floats::format()`. Its `format(int)` method
-  can also be used on its own.
-- **`Floats::getExponent()`** — base-10 exponent of a float in normalized scientific notation. Throws
-  `DomainException` for a non-finite value.
-- **`Environment::getLocale()`** — locale from the HTTP `Accept-Language` header, falling back to
+  - `isFiniteNumber()` - like `isNumber()`, but rejects `INF`, `-INF` and `NAN`.
+- **`Enums\FloatFormat`** - `FixedPoint`, `Scientific` or `Auto`, for `Floats::format()`.
+- **`Enums\ExponentFormat`** - `AsciiLowerCaseE` (`e+23`), `AsciiUpperCaseE` (`E+23`), `AsciiMath` (`*10^23`),
+  `UnicodeMath` (`×10²³`) or `HtmlMath` (`&times;10<sup>23</sup>`), for `Floats::format()`. Its `format(int)` method can
+  also be used on its own.
+- **`Floats::getExponent()`** - base-10 exponent of a float in normalized scientific notation. Throws `DomainException`
+  for a non-finite value.
+- **`Environment::getLocale()`** - locale from the HTTP `Accept-Language` header, falling back to
   `Locale::getDefault()`.
-- **`Environment::INVARIANT_LOCALE`** (`'en_US_POSIX'`) — used by `Floats::format()` so output never depends on the
+- **`Environment::INVARIANT_LOCALE`** (`'en_US_POSIX'`) - used by `Floats::format()` so output never depends on the
   request's locale.
-- **`Stringify::toString()`** — converts any value to a string without warnings, falling back to `stringify()` for
+- **`Stringify::toString()`** - converts any value to a string without warnings, falling back to `stringify()` for
   values a `(string)` cast can't handle. Replaces `to_string()`.
-- **`Stringify::prepEx()`** — builds an exception message, replacing each `?` placeholder with `abbrev()` of the
+- **`Stringify::prepEx()`** - builds an exception message, replacing each `?` placeholder with `abbrev()` of the
   matching value, e.g. `Stringify::prepEx('Invalid range: [?, ?].', $min, $max)`.
-- **`Stringify::stringifyClosure()`** — returns a closure's original source code. Returns `''` if the source isn't
+- **`Stringify::stringifyClosure()`** - returns a closure's original source code. Returns `''` if the source isn't
   available. `stringify()` now uses it for closures.
 - **`Types::getBasicType()`** returns `'closure'` for closures, and **`Types::getUniqueString()`** supports them
   (`'c:{object_id}'`). Previously a closure threw `UnexpectedValueException` in `getUniqueString()`.
-- **`Arrays::toSerialList()`** — new `bool $oxford = true` parameter; pass `false` to omit the Oxford comma.
+- **`Arrays::toSerialList()`** - new `bool $oxford = true` parameter; pass `false` to omit the Oxford comma.
 
 ### Changed
 
@@ -88,16 +96,16 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
   Control characters such as `\n` are no longer escaped.
 - **`Floats::approxEqual()`/`approxCompare()`/`isApproxInt()`** also reject non-finite tolerances, not just negative
   ones.
-- **`FloatAssertions::assertApproxEqual()`** now measures relative difference against the larger of the two
-  magnitudes rather than `$expected` alone, so the result no longer depends on argument order.
+- **`FloatAssertions::assertApproxEqual()`** now measures relative difference against the larger of the two magnitudes
+  rather than `$expected` alone, so the result no longer depends on argument order.
 - **Exception messages** reworded throughout to report the invalid value or type and the expected constraint, e.g.
   `'Invalid array value type: int. Must be string.'`. Code that matches on message text may need updating.
 
 ### Fixed
 
-- **`Floats::wrap()`** — a non-finite or non-positive `$unitsPerTurn` silently produced `NAN` or an out-of-range
-  result. Now throws `DomainException`.
-- **`Stringify` pretty-print grid format** — a list of nested arrays such as `[[1, 2], [3, 4]]` was wrongly collapsed
+- **`Floats::wrap()`** - a non-finite or non-positive `$unitsPerTurn` silently produced `NAN` or an out-of-range result.
+  Now throws `DomainException`.
+- **`Stringify` pretty-print grid format** - a list of nested arrays such as `[[1, 2], [3, 4]]` was wrongly collapsed
   onto one line, and a narrow item width could break the grid layout instead of falling back to one item per line.
 
 ### Removed
@@ -115,9 +123,9 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
   | `println()`, `writeln()`      | `Console::println()`                                |
   | `dump_var()`                  | `Console::dump()`, or `Stringify::stringify()`      |
 
-- **`NUMBER_REGEX` (breaking)** — its built-in optional sign made it unsafe for callers that capture the sign
+- **`NUMBER_REGEX` (breaking)** - its built-in optional sign made it unsafe for callers that capture the sign
   separately.
-- **`FloatAssertions::assertApproxZero()` (breaking)** — use `assertApproxEqual(0.0, $actual, absTol: ...)`.
+- **`FloatAssertions::assertApproxZero()` (breaking)** - use `assertApproxEqual(0.0, $actual, absTol: ...)`.
 
 ### Documentation
 
@@ -134,36 +142,36 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ---
 
-## [3.0.0] — 2026-07-17
+## [3.0.0] - 2026-07-17
 
 ### Added
 
-- **`ArithmeticException`** (`OceanMoon\Core\Exceptions\ArithmeticException`, extends `DomainException`) — thrown when
+- **`ArithmeticException`** (`OceanMoon\Core\Exceptions\ArithmeticException`, extends `DomainException`) - thrown when
   an arithmetic operation has no defined result for its operands (division by zero, logarithm of a non-positive number
   or with base 0 or 1, etc.). Displaces `DivisionByZeroError` for this kind of failure in userland value types: `Error`
   types are reserved for engine-emitted conditions, not something userland code should throw. Not to be confused with
   PHP's own `ArithmeticError`, which is a genuinely different, engine-level thing.
-- **`OceanMoon\Core\Globals` namespace** — new home for free functions and constants shared across the package family,
+- **`OceanMoon\Core\Globals` namespace** - new home for free functions and constants shared across the package family,
   split into `src/Globals/constants.php`, `src/Globals/strings.php`, and `src/Globals/numbers.php`:
-  - `is_number()`, `is_zero()`, `sign()`, `copy_sign()` — see Removed (`Numbers` class) below.
-  - `println()`, `dump_var()`, `to_string()`, `write()`, `writeln()` — see Removed (`Strings`/`functions.php`) below.
+  - `is_number()`, `is_zero()`, `sign()`, `copy_sign()` - see Removed (`Numbers` class) below.
+  - `println()`, `dump_var()`, `to_string()`, `write()`, `writeln()` - see Removed (`Strings`/`functions.php`) below.
   - `M_TAU`, `RECURSION`, `NUMBER_REGEX` constants.
-- **`Arrays::removeRecursion()`** — returns a copy of an array with any circular (self-referencing) sub-arrays replaced
+- **`Arrays::removeRecursion()`** - returns a copy of an array with any circular (self-referencing) sub-arrays replaced
   by the `RECURSION` marker, so the result can be safely inspected, iterated, or serialized without triggering infinite
   recursion. Detects cycles by parsing `print_r()`'s own recursion-detection output (which preserves the position of
-  each recursive reference) rather than reimplementing cycle detection from scratch — `===` compares arrays by value,
+  each recursive reference) rather than reimplementing cycle detection from scratch - `===` compares arrays by value,
   not reference identity, so there's no other built-in way to identify "is this the same array instance as an
   ancestor?".
-- **`Stringify::stringifyBool()`, `stringifyInt()`, `stringifyEnum()`, `stringifyObject()`, `stringifyResource()`** —
+- **`Stringify::stringifyBool()`, `stringifyInt()`, `stringifyEnum()`, `stringifyObject()`, `stringifyResource()`** -
   promoted to public, individually-usable methods (previously internal to the `stringify()` dispatcher).
 
 ### Changed
 
 - **Comparison traits (`Equatable`, `Comparable`, `ApproxEquatable`, `ApproxComparable`) type policy finalized**: every
-  method is typed `mixed $other`, never `self` — `self` is invariant across both trait composition and inheritance, so a
+  method is typed `mixed $other`, never `self` - `self` is invariant across both trait composition and inheritance, so a
   subclass overriding e.g. `equal()` would narrow the type and PHP would reject it as an incompatible override.
-  Implementations must check `$other`'s type explicitly (typically `instanceof self`) and **throw** — typically
-  `InvalidArgumentException` — for anything that isn't a deliberate, documented exception to same-type-only comparison,
+  Implementations must check `$other`'s type explicitly (typically `instanceof self`) and **throw** - typically
+  `InvalidArgumentException` - for anything that isn't a deliberate, documented exception to same-type-only comparison,
   rather than attempting a conversion. This mirrors why `==`/`!=` are avoided in favor of `===`/`!==`: implicit type
   juggling in comparisons is a recurring source of bugs. Widening to accept a related type (e.g. `Complex` accepting
   `int`/`float`) should be rare and mathematically justified on a case-by-case basis, not a general "convert whatever
@@ -175,29 +183,29 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 - Internal renames for clarity: `stringifyList()` → `stringifyListArray()`, `stringifyDictionary()` →
   `stringifyAssociativeArray()`.
 - **`Floats::TAU`** removed; use the `OceanMoon\Core\Globals\M_TAU` constant directly.
-- **`Stringify::stringifyResource()`** — Now combines the resource id (via `get_resource_id()`) with the resource type
+- **`Stringify::stringifyResource()`** - Now combines the resource id (via `get_resource_id()`) with the resource type
   from `get_debug_type()`, e.g. `'resource #5 (stream)'`, instead of just `'resource (stream)'`.
-- **Region comments** — Switched from `// region` / `// endregion` to `#region` / `#endregion` (VS Code-compatible)
+- **Region comments** - Switched from `// region` / `// endregion` to `#region` / `#endregion` (VS Code-compatible)
   throughout the package.
 - Cast spacing normalized to PSR-12 style throughout (e.g. `(int)$x` → `(int) $x`).
 
 ### Removed
 
-- **`Numbers` class** (`src/Numbers.php`) — replaced by plain functions in `Globals/numbers.php` (see Added).
-- **`Numbers::REGEX`** — moved to `OceanMoon\Core\Globals\NUMBER_REGEX`.
-- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** — superseded by plain functions in
+- **`Numbers` class** (`src/Numbers.php`) - replaced by plain functions in `Globals/numbers.php` (see Added).
+- **`Numbers::REGEX`** - moved to `OceanMoon\Core\Globals\NUMBER_REGEX`.
+- **`Strings` class** (`src/Strings.php`) and **`src/functions.php`** - superseded by plain functions in
   `Globals/strings.php` (see Added).
-- **`IncomparableTypesException`** — removed. Comparison methods now throw plain `InvalidArgumentException` for
+- **`IncomparableTypesException`** - removed. Comparison methods now throw plain `InvalidArgumentException` for
   incompatible types instead, consistent with the rest of the package's exception conventions (see
   `docs/guidelines/EXCEPTIONS.md`); a dedicated exception type for this one case stopped earning its keep once the
   comparison methods were narrowed to a small, fixed set of accepted types (see Changed).
-- **`docs/Numbers.md`, `docs/Functions.md`, `docs/Exceptions/IncomparableTypesException.md`, `docs/Strings.md`** —
+- **`docs/Numbers.md`, `docs/Functions.md`, `docs/Exceptions/IncomparableTypesException.md`, `docs/Strings.md`** -
   removed along with the code they documented; replaced by `docs/Globals/Numbers.md`, `docs/Globals/Strings.md`,
   `docs/Globals/Constants.md`, and `docs/Exceptions/ArithmeticException.md`.
 
 ### Fixed
 
-- **`Floats::frac()`** — Docblock corrected: the identity `x = trunc(x) + frac(x)` is described as holding "even for
+- **`Floats::frac()`** - Docblock corrected: the identity `x = trunc(x) + frac(x)` is described as holding "even for
   non-finite numbers" (previously said "even for infinities", which didn't mention `NAN`).
 - **`Equatable`'s own docblock contradicted its real-world usage**: it said implementations should "return false (not
   throw)" for incomparable types, while every actual implementation across the package family throws. Corrected to
@@ -209,7 +217,7 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
   the finalized `mixed`-not-`self`, strict-throw type policy; removed all `identical()`/`IncomparableTypesException`
   references (including the now-broken external link some of these files carried to a different, older repo). Trimmed
   the inline `<code>` usage examples from the trait `.php` docblocks in favor of the `.md` files, which already covered
-  the same ground — the `.php` docblocks now carry only the contract information relevant while actually implementing
+  the same ground - the `.php` docblocks now carry only the contract information relevant while actually implementing
   the abstract methods (parameter/return meaning, the `mixed`-not-`self` rationale), with a plain-text pointer to the
   corresponding `.md` file for full examples.
 - New `docs/Exceptions/ArithmeticException.md`, `docs/Globals/Numbers.md`, `docs/Globals/Strings.md`,
@@ -223,80 +231,80 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ### Tests
 
-- `tests/Globals/NumbersTest.php` — full coverage for all four functions (`is_number()`, `is_zero()`, `sign()`,
+- `tests/Globals/NumbersTest.php` - full coverage for all four functions (`is_number()`, `is_zero()`, `sign()`,
   `copy_sign()`; 21 tests), using inline `// @phpstan-ignore function.alreadyNarrowedType` / `function.impossibleType`
   comments (matching the convention already used in `Integers.php`) in place of the blanket `ignoreErrors` block
   previously in `phpstan.neon`.
 - New `Stringify` test (`testStringifyArrayPrettyPrintMultilineItem`) exercising the multiline-fallback branch in
-  `stringifyListArray()`'s pretty-print formatting — a list containing a nested associative array (which always
+  `stringifyListArray()`'s pretty-print formatting - a list containing a nested associative array (which always
   pretty-prints multiline) alongside a scalar.
 - Fixed `testStringifyObjectPrettyPrint`: a stale regex used `+` as a quantifier ("4-or-more spaces") where the actual
-  output has a literal `+` character (the UML visibility marker for public properties) — the test's own bug, not
+  output has a literal `+` character (the UML visibility marker for public properties) - the test's own bug, not
   `Stringify`'s; the sibling `testStringifyComplexNesting` already correctly asserted the `+` marker.
 - New `tests/ArraysTest.php` coverage for `removeRecursion()`.
 - Updated exception-message assertions across the test suite for the removal of `IncomparableTypesException`.
 
 ---
 
-## [2.0.0] — 2026-06-18
+## [2.0.0] - 2026-06-18
 
 ### Changed
 
-- **Renamed package** from `galaxon/core` to `oceanmoon/core` — update your `composer.json` require accordingly.
+- **Renamed package** from `galaxon/core` to `oceanmoon/core` - update your `composer.json` require accordingly.
 - **Renamed PHP namespaces** from `Galaxon\Core\*` to `OceanMoon\Core\*` throughout all source and test files.
 - Updated dev dependency `galaxon/coding-standard` → `oceanmoon/coding-standard: ^2.0`.
 - `composer.json`: updated author email, homepage, and support URLs to Ocean Moon Software.
 
 ---
 
-## [1.6.0] — 2026-04-09
+## [1.6.0] - 2026-04-09
 
 ### Added
 
-- **Floats::format()** — New method for formatting floats as strings with control over precision, notation, and trailing
+- **Floats::format()** - New method for formatting floats as strings with control over precision, notation, and trailing
   zeros. Supports Unicode scientific notation (e.g. `1.50×10³`) as well as ASCII. Moved from `Quantity::formatValue()`.
   When `$precision` is `null`, defaults to 6 for `e`/`E`/`f`/`F` and 7 for `g`/`G`/`h`/`H` so that `g` is genuinely "the
   shorter of `e` and `f` at matching precision". Format string is always explicit `%.Nspec`.
-- **Traits reorganisation** — Traits split into `Traits/Asserts/` (testing assertion traits) and `Traits/Comparison/`
+- **Traits reorganisation** - Traits split into `Traits/Asserts/` (testing assertion traits) and `Traits/Comparison/`
   (value comparison traits).
 
 ### Changed
 
-- **Integers::fromSubscript() / fromSuperscript()** — Now throw `FormatException` instead of `DomainException` when the
+- **Integers::fromSubscript() / fromSuperscript()** - Now throw `FormatException` instead of `DomainException` when the
   input contains characters that are not valid sub/superscript digits. Invalid input is a parsing/format problem, not a
   domain-of-values problem.
 
 ### Removed
 
-- **NullArgumentException** — Removed before its first release. The downstream Quantities use case that motivated it
+- **NullArgumentException** - Removed before its first release. The downstream Quantities use case that motivated it
   ended up not needing it, and no other consumers materialised. Never shipped, so not a breaking change.
 
 ### Fixed
 
-- **Floats::frac()** — Returns `0.0` for ±INF instead of `NAN`, so the identity `x = trunc(x) + frac(x)` now holds for
+- **Floats::frac()** - Returns `0.0` for ±INF instead of `NAN`, so the identity `x = trunc(x) + frac(x)` now holds for
   all values.
 
 ---
 
-## [1.5.1] — 2026-04-02
+## [1.5.1] - 2026-04-02
 
 ### Added
 
-- **Strings** — New static utility class for string conversion and output:
-  - `toString()` — Convert any value to a string. Strings pass through, Stringable objects use `__toString()`, all other
+- **Strings** - New static utility class for string conversion and output:
+  - `toString()` - Convert any value to a string. Strings pass through, Stringable objects use `__toString()`, all other
     types go through `Stringify::stringify()`.
-  - `print()` — Print a value to stdout via `toString()`.
-  - `println()` — Print a value to stdout with a newline via `toString()`.
-- **docs/Strings.md** — Documentation for the new Strings class.
-- **StringsTest** — 12 tests covering toString, print, and println.
+  - `print()` - Print a value to stdout via `toString()`.
+  - `println()` - Print a value to stdout with a newline via `toString()`.
+- **docs/Strings.md** - Documentation for the new Strings class.
+- **StringsTest** - 12 tests covering toString, print, and println.
 
 ### Changed
 
-- **functions.php** — `println()` now delegates to `Strings::println()`.
+- **functions.php** - `println()` now delegates to `Strings::println()`.
 
 ### Removed
 
-- **Stringify::print()** and **Stringify::println()** — replaced by `Strings::print()` and `Strings::println()`.
+- **Stringify::print()** and **Stringify::println()** - replaced by `Strings::print()` and `Strings::println()`.
 
 ### Documentation
 
@@ -305,35 +313,35 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ---
 
-## [1.5.0] — 2026-03-30
+## [1.5.0] - 2026-03-30
 
 ### Added
 
-- **functions.php** — New namespaced convenience functions with `files` autoload entry:
-  - `println()` — Print a value with a newline. Strings output as-is, `Stringable` objects use `__toString()`, all other
+- **functions.php** - New namespaced convenience functions with `files` autoload entry:
+  - `println()` - Print a value with a newline. Strings output as-is, `Stringable` objects use `__toString()`, all other
     types go through `Stringify::stringify()`.
-- **Numbers::isNumber()** — Strict type check for `int` or `float` (rejects numeric strings unlike `is_numeric()`).
-- **Numbers::isZero()** — Check if a number is zero (`0`, `0.0`, or `-0.0`).
-- **Types::getBasicType()** — Now returns `'enum'` for `UnitEnum` instances (previously returned `'object'`).
-- **Types::getUniqueString()** — Now supports enums with format `"e:{ClassName}::{CaseName}"`.
+- **Numbers::isNumber()** - Strict type check for `int` or `float` (rejects numeric strings unlike `is_numeric()`).
+- **Numbers::isZero()** - Check if a number is zero (`0`, `0.0`, or `-0.0`).
+- **Types::getBasicType()** - Now returns `'enum'` for `UnitEnum` instances (previously returned `'object'`).
+- **Types::getUniqueString()** - Now supports enums with format `"e:{ClassName}::{CaseName}"`.
 
 ### Changed
 
-- **Stringify** — Indent and max line length are now configurable:
-  - `setIndent()` / `getIndent()` — Configure spaces per indentation level.
-  - `setMaxLineLength()` / `getMaxLineLength()` — Configure pretty-print line wrapping.
-  - `resetDefaults()` — Reset both to defaults.
+- **Stringify** - Indent and max line length are now configurable:
+  - `setIndent()` / `getIndent()` - Configure spaces per indentation level.
+  - `setMaxLineLength()` / `getMaxLineLength()` - Configure pretty-print line wrapping.
+  - `resetDefaults()` - Reset both to defaults.
   - Renamed constant `NUM_SPACES_INDENT` → `DEFAULT_INDENT`.
   - Skip grid format when items are too wide for 2 per line.
-- **Floats::floatToBits()** — Simplified from byte-array loop to single `pack`/`unpack` call.
-- **Floats::bitsToFloat()** — Same simplification.
-- **Exception messages** — Standardised across all classes to follow the guidelines in `EXCEPTIONS.md`: "state what went
+- **Floats::floatToBits()** - Simplified from byte-array loop to single `pack`/`unpack` call.
+- **Floats::bitsToFloat()** - Same simplification.
+- **Exception messages** - Standardised across all classes to follow the guidelines in `EXCEPTIONS.md`: "state what went
   wrong" format with offending values and concise constraints where useful.
-- **composer.json** — Updated `galaxon/coding-standard` dependency to `^1.0`.
+- **composer.json** - Updated `galaxon/coding-standard` dependency to `^1.0`.
 
 ### Fixed
 
-- **Floats::tryConvertToInt()** — Fixed overflow bug where floats near `PHP_INT_MAX` could silently overflow to
+- **Floats::tryConvertToInt()** - Fixed overflow bug where floats near `PHP_INT_MAX` could silently overflow to
   `PHP_INT_MIN` during `(int)` cast. Now detects and returns `null`.
 
 ### Removed
@@ -343,31 +351,31 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ### Documentation
 
-- **Functions.md** — New documentation page for `println()` and `is_number()`, including autoloading setup.
-- **README.md** — Added Functions section linking to new docs.
-- **Types.md** — Added `enum` to `getBasicType()` return values and examples. Added `enum` format to
+- **Functions.md** - New documentation page for `println()` and `is_number()`, including autoloading setup.
+- **README.md** - Added Functions section linking to new docs.
+- **Types.md** - Added `enum` to `getBasicType()` return values and examples. Added `enum` format to
   `getUniqueString()`. Fixed `throws` annotation (`TypeError` → `UnexpectedValueException`).
-- **Floats.md** — Fixed `bitsToFloat()` examples that used overflowing hex literals. Added note about PHP signed int
+- **Floats.md** - Fixed `bitsToFloat()` examples that used overflowing hex literals. Added note about PHP signed int
   overflow.
-- **Stringify.md** — Updated for configurable indent/max line length, new constant name.
+- **Stringify.md** - Updated for configurable indent/max line length, new constant name.
 
 ### Tests
 
-- **FunctionsTest** — Tests for `println()` (strings, ints, floats, booleans, null, empty, stringable objects).
-- **NumbersTest** — Tests for `isNumber()` and `isZero()`.
-- **FloatsBitOperationsTest** — 15 new tests for `floatToBits()` and `bitsToFloat()` covering known bit patterns,
+- **FunctionsTest** - Tests for `println()` (strings, ints, floats, booleans, null, empty, stringable objects).
+- **NumbersTest** - Tests for `isNumber()` and `isZero()`.
+- **FloatsBitOperationsTest** - 15 new tests for `floatToBits()` and `bitsToFloat()` covering known bit patterns,
   special values (±0, ±INF, NAN), and round-trip verification.
-- **TypesTest** — Added `testGetBasicTypeEnum` (unit and backed enums) and `testGetStringKeyEnum` (unique string format,
+- **TypesTest** - Added `testGetBasicTypeEnum` (unit and backed enums) and `testGetStringKeyEnum` (unique string format,
   different cases, different enum classes).
-- **StringifyTest** — Additional tests for configurable indent and max line length.
+- **StringifyTest** - Additional tests for configurable indent and max line length.
 
 ---
 
-## [1.4.0] — 2026-02-25
+## [1.4.0] - 2026-02-25
 
 ### Changed
 
-- **Stringify** — Major overhaul of output formatting:
+- **Stringify** - Major overhaul of output formatting:
   - Strings now use single quotes with backslash and single-quote escaping instead of `json_encode()` double quotes.
     Unicode characters are preserved as-is.
   - Arrays use PHP square bracket syntax for both lists and associative arrays (`['key' => 'value']`) instead of
@@ -387,52 +395,52 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ### Added
 
-- **Stringify** — New methods:
-  - `stringifyString()` — Single-quoted output with backslash/single-quote escaping and UTF-8 normalisation.
-  - `stringifyEnum()` — Renders enums as `Fully\Qualified\ClassName::CaseName`.
-  - `println()` — Like `print()` but appends a newline.
+- **Stringify** - New methods:
+  - `stringifyString()` - Single-quoted output with backslash/single-quote escaping and UTF-8 normalisation.
+  - `stringifyEnum()` - Renders enums as `Fully\Qualified\ClassName::CaseName`.
+  - `println()` - Like `print()` but appends a newline.
   - Constants `NUM_SPACES_INDENT` (4) and `DEFAULT_MAX_LINE_LENGTH` (120).
 
-- **Arrays** — New methods:
-  - `toSerialList()` — Convert an array of strings to a serial list with Oxford comma (e.g. `'a, b, and c'`). Supports
+- **Arrays** - New methods:
+  - `toSerialList()` - Convert an array of strings to a serial list with Oxford comma (e.g. `'a, b, and c'`). Supports
     custom conjunctions.
-  - `removeValue()` — Remove all instances of a value from an array using strict comparison. Keys are preserved.
+  - `removeValue()` - Remove all instances of a value from an array using strict comparison. Keys are preserved.
 
 ### Fixed
 
-- **Floats::toHex()** — Added missing `@throws RuntimeException` to docblock for 64-bit requirement.
+- **Floats::toHex()** - Added missing `@throws RuntimeException` to docblock for 64-bit requirement.
 
 ### Documentation
 
-- **Stringify.md** — Completely rewritten for new output format, new methods, and updated examples.
-- **Arrays.md** — Added documentation for `toSerialList()` and `removeValue()`. Updated overview to include String
+- **Stringify.md** - Completely rewritten for new output format, new methods, and updated examples.
+- **Arrays.md** - Added documentation for `toSerialList()` and `removeValue()`. Updated overview to include String
   Methods and Transformation Methods sections.
 
 ### Tests
 
-- **StringifyTest** — Completely rewritten (36 tests, 100+ assertions) covering single-quoted strings, escaping, UTF-8
+- **StringifyTest** - Completely rewritten (36 tests, 100+ assertions) covering single-quoted strings, escaping, UTF-8
   conversion, undetectable encoding, open/closed resources, enums, grid layout, and all other formatting changes.
-- **ArraysTest** — Added 15 tests for `toSerialList()` (empty, one/two/three/four items, custom conjunction, non-string
+- **ArraysTest** - Added 15 tests for `toSerialList()` (empty, one/two/three/four items, custom conjunction, non-string
   validation) and `removeValue()` (existing/missing values, multiple instances, key preservation, strict comparison,
   null removal).
 
 ---
 
-## [1.3.0] — 2026-01-30
+## [1.3.0] - 2026-01-30
 
 ### Added
 
-- **FloatAssertions trait** — PHPUnit assertions for approximate floating-point comparison
-  - `assertApproxEqual()` — Assert two floats are approximately equal with informative failure messages
-  - `assertApproxZero()` — Assert a float is approximately zero
+- **FloatAssertions trait** - PHPUnit assertions for approximate floating-point comparison
+  - `assertApproxEqual()` - Assert two floats are approximately equal with informative failure messages
+  - `assertApproxZero()` - Assert a float is approximately zero
   - Produces detailed failure messages showing expected/actual values and differences
   - Replaces uninformative `assertTrue(Floats::approxEqual(...))` pattern
 
 ### Documentation
 
-- **FloatAssertions.md** — New documentation for the FloatAssertions trait
-- **Traits.md** — Added "Testing Trait" section for FloatAssertions
-- **README.md** — Added FloatAssertions to the Traits section
+- **FloatAssertions.md** - New documentation for the FloatAssertions trait
+- **Traits.md** - Added "Testing Trait" section for FloatAssertions
+- **README.md** - Added FloatAssertions to the Traits section
 
 ### Tests
 
@@ -441,24 +449,24 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ---
 
-## [1.2.0] — 2026-01-27
+## [1.2.0] - 2026-01-27
 
 ### Added
 
-- **Arrays class** — New extraction methods (PHP 8.5 polyfills):
-  - `first()` — Get the first value in an array, throws `LengthException` if empty
-  - `last()` — Get the last value in an array, throws `LengthException` if empty
+- **Arrays class** - New extraction methods (PHP 8.5 polyfills):
+  - `first()` - Get the first value in an array, throws `LengthException` if empty
+  - `last()` - Get the last value in an array, throws `LengthException` if empty
 
-- **FormatException** — New exception class for string format validation errors
+- **FormatException** - New exception class for string format validation errors
   - Extends `DomainException`
   - For use when a string has an invalid format for the desired operation
 
 ### Fixed
 
-- **Floats::normalizeZero()** — Simplified logic using `=== 0.0` comparison
-- **Floats::tryConvertToInt()** — Added bounds check for `PHP_INT_MIN`/`PHP_INT_MAX` before conversion to prevent
+- **Floats::normalizeZero()** - Simplified logic using `=== 0.0` comparison
+- **Floats::tryConvertToInt()** - Added bounds check for `PHP_INT_MIN`/`PHP_INT_MAX` before conversion to prevent
   overflow
-- **Stringify::stringify()** — Added error suppression for non-finite float string conversion
+- **Stringify::stringify()** - Added error suppression for non-finite float string conversion
 
 ### Tests
 
@@ -468,34 +476,34 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ### Documentation
 
-- **Arrays.md** — Added "Extraction Methods" section with `first()` and `last()` documentation
-- **Integers.md** — Renamed "Conversion Methods" to "Subscript/Superscript Methods", added documentation for validation
+- **Arrays.md** - Added "Extraction Methods" section with `first()` and `last()` documentation
+- **Integers.md** - Renamed "Conversion Methods" to "Subscript/Superscript Methods", added documentation for validation
   and parsing methods
 
 ---
 
-## [1.1.0] — 2026-01-18
+## [1.1.0] - 2026-01-18
 
 ### Added
 
-- **Floats class** — New methods for integer/fractional part operations:
-  - `isApproxInt()` — Check if a float is approximately an integer within tolerance
-  - `trunc()` — Truncate a float towards zero (integer part)
-  - `frac()` — Get the fractional part of a float (satisfies x = trunc(x) + frac(x))
+- **Floats class** - New methods for integer/fractional part operations:
+  - `isApproxInt()` - Check if a float is approximately an integer within tolerance
+  - `trunc()` - Truncate a float towards zero (integer part)
+  - `frac()` - Get the fractional part of a float (satisfies x = trunc(x) + frac(x))
 
-- **Integers class** — New methods for Unicode sub/superscript conversion:
-  - `isSubscript()` — Check if a string is a valid subscript integer
-  - `isSuperscript()` — Check if a string is a valid superscript integer
-  - `fromSubscript()` — Convert subscript string to integer (e.g., ₁₂₃ → 123)
-  - `fromSuperscript()` — Convert superscript string to integer (e.g., ¹²³ → 123)
+- **Integers class** - New methods for Unicode sub/superscript conversion:
+  - `isSubscript()` - Check if a string is a valid subscript integer
+  - `isSuperscript()` - Check if a string is a valid superscript integer
+  - `fromSubscript()` - Convert subscript string to integer (e.g., ₁₂₃ → 123)
+  - `fromSuperscript()` - Convert superscript string to integer (e.g., ¹²³ → 123)
 
 - **Numbers class**:
-  - `REGEX` constant — Regular expression pattern for matching numbers
+  - `REGEX` constant - Regular expression pattern for matching numbers
 
 ### Documentation
 
-- **Floats.md** — Added documentation for `isApproxInt()`, `trunc()`, and `frac()`
-- **Trait documentation** — Updated to use `IncomparableTypesException`
+- **Floats.md** - Added documentation for `isApproxInt()`, `trunc()`, and `frac()`
+- **Trait documentation** - Updated to use `IncomparableTypesException`
 - Minor documentation updates to Arrays.md and IncomparableTypesException.md
 
 ### Tests
@@ -507,11 +515,11 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ---
 
-## [1.0.1] — 2026-01-05
+## [1.0.1] - 2026-01-05
 
 ### Added
 
-- **IncomparableTypesException** — Documentation and tests for the custom exception
+- **IncomparableTypesException** - Documentation and tests for the custom exception
   - Added PHPDoc comments to the exception class
   - Added `docs/Exceptions/IncomparableTypesException.md`
   - Added `tests/Exceptions/IncomparableTypesExceptionTest.php` (10 tests)
@@ -524,7 +532,7 @@ Breaking changes are marked **(breaking)**. The headline changes: the global fun
 
 ---
 
-## [1.0.0] — 2026-01-04
+## [1.0.0] - 2026-01-04
 
 ### First Stable Release
 
@@ -532,24 +540,24 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ### Breaking Changes
 
-- **Exception types standardized** — All domain validation errors now throw `DomainException` consistently:
-  - `Floats::approxEqual()` — Throws `DomainException` for negative tolerances (was `ValueError`)
-  - `Floats::approxCompare()` — Throws `DomainException` for NAN or negative tolerances (was `ValueError`)
-  - `Floats::rand()` — Throws `DomainException` for non-finite min/max (was `ValueError`)
-  - `Floats::randUniform()` — Throws `DomainException` for non-finite min/max (was `ValueError`)
-  - `Floats::assemble()` — Throws `DomainException` for invalid components (was `ValueError`)
-  - `Integers::pow()` — Throws `DomainException` for negative exponents (was `UnderflowException`)
-  - `Integers::gcd()` — Throws `DomainException` for `PHP_INT_MIN` (was `RangeException`)
-  - `Numbers::copySign()` — Throws `DomainException` for NAN (was `ValueError`)
-  - `Stringify::stringify()` — Throws `DomainException` for circular references (was `ValueError`)
-  - `Stringify::stringifyArray()` — Throws `DomainException` for circular references (was `ValueError`)
-  - `Stringify::abbrev()` — Throws `DomainException` for maxLen < 10 (was `ValueError`)
-  - `Types::usesTrait()` — Throws `DomainException` for invalid class name (was `ValueError`)
-  - `Types::getTraits()` — Throws `DomainException` for invalid class name (was `ValueError`)
+- **Exception types standardized** - All domain validation errors now throw `DomainException` consistently:
+  - `Floats::approxEqual()` - Throws `DomainException` for negative tolerances (was `ValueError`)
+  - `Floats::approxCompare()` - Throws `DomainException` for NAN or negative tolerances (was `ValueError`)
+  - `Floats::rand()` - Throws `DomainException` for non-finite min/max (was `ValueError`)
+  - `Floats::randUniform()` - Throws `DomainException` for non-finite min/max (was `ValueError`)
+  - `Floats::assemble()` - Throws `DomainException` for invalid components (was `ValueError`)
+  - `Integers::pow()` - Throws `DomainException` for negative exponents (was `UnderflowException`)
+  - `Integers::gcd()` - Throws `DomainException` for `PHP_INT_MIN` (was `RangeException`)
+  - `Numbers::copySign()` - Throws `DomainException` for NAN (was `ValueError`)
+  - `Stringify::stringify()` - Throws `DomainException` for circular references (was `ValueError`)
+  - `Stringify::stringifyArray()` - Throws `DomainException` for circular references (was `ValueError`)
+  - `Stringify::abbrev()` - Throws `DomainException` for maxLen < 10 (was `ValueError`)
+  - `Types::usesTrait()` - Throws `DomainException` for invalid class name (was `ValueError`)
+  - `Types::getTraits()` - Throws `DomainException` for invalid class name (was `ValueError`)
 
 ### Changed
 
-- **composer.json** — Updated for Packagist publication:
+- **composer.json** - Updated for Packagist publication:
   - Added keywords for discoverability
   - Added author information
   - Added homepage and support URLs
@@ -561,29 +569,29 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ---
 
-## [0.6.0] — 2025-12-27
+## [0.6.0] - 2025-12-27
 
 ### Added
 
-- **Environment class** — New utility class for runtime environment detection
-  - `is64Bit()` — Check if the system is 64-bit
-  - `require64Bit()` — Throw `RuntimeException` if not 64-bit (used by Floats bit operations)
+- **Environment class** - New utility class for runtime environment detection
+  - `is64Bit()` - Check if the system is 64-bit
+  - `require64Bit()` - Throw `RuntimeException` if not 64-bit (used by Floats bit operations)
 
-- **Integers formatting methods** — Convert integers to Unicode sub/superscript
-  - `SUBSCRIPT_CHARACTERS` constant — Unicode subscript character mappings
-  - `SUPERSCRIPT_CHARACTERS` constant — Unicode superscript character mappings
-  - `toSubscript()` — Convert integer to subscript characters (e.g., 123 → ₁₂₃)
-  - `toSuperscript()` — Convert integer to superscript characters (e.g., 123 → ¹²³)
+- **Integers formatting methods** - Convert integers to Unicode sub/superscript
+  - `SUBSCRIPT_CHARACTERS` constant - Unicode subscript character mappings
+  - `SUPERSCRIPT_CHARACTERS` constant - Unicode superscript character mappings
+  - `toSubscript()` - Convert integer to subscript characters (e.g., 123 → ₁₂₃)
+  - `toSuperscript()` - Convert integer to superscript characters (e.g., 123 → ¹²³)
 
 ### Changed
 
-- **Floats::ulp()** — Now uses `next()` for exact ULP calculation instead of approximation
-- **Integers::pow()** — Now throws `UnderflowException` instead of `ValueError` for negative exponents
-- **Floats class** — Reorganized with region markers for better code navigation
+- **Floats::ulp()** - Now uses `next()` for exact ULP calculation instead of approximation
+- **Integers::pow()** - Now throws `UnderflowException` instead of `ValueError` for negative exponents
+- **Floats class** - Reorganized with region markers for better code navigation
 
 ### Tests
 
-- **Floats::wrap() tests** — Expanded from 1 test with 4 assertions to 9 tests with 57 assertions
+- **Floats::wrap() tests** - Expanded from 1 test with 4 assertions to 9 tests with 57 assertions
   - Added tests for degrees (360) with signed and unsigned ranges
   - Added boundary condition tests (included/excluded bounds)
   - Added tests for radians (default), gradians, turns, and hours
@@ -592,16 +600,16 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 ### Documentation
 
 - **New documentation**: `docs/Environment.md`
-- **Floats.md** — Comprehensive rewrite of `wrap()` documentation
+- **Floats.md** - Comprehensive rewrite of `wrap()` documentation
   - Added Returns, Behavior, and Use Cases sections
   - Added examples with degrees, radians, gradians, turns, and hours
   - Added table explaining boundary inclusion/exclusion rules
-- **Integers.md** — Added documentation for formatting methods
-- **Various docs** — Minor updates to Numbers.md, Stringify.md, Types.md, and trait documentation
+- **Integers.md** - Added documentation for formatting methods
+- **Various docs** - Minor updates to Numbers.md, Stringify.md, Types.md, and trait documentation
 
 ---
 
-## [0.5.0] — 2025-12-10
+## [0.5.0] - 2025-12-10
 
 ### Breaking Changes
 
@@ -615,18 +623,18 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ### Changed
 
-- **`Numbers::equal()`** — Improved int/float comparison logic
+- **`Numbers::equal()`** - Improved int/float comparison logic
   - Now uses `Types::same()` for same-type comparison
   - Uses `Floats::tryConvertToInt()` for lossless cross-type comparison
   - More accurate than previous float casting approach
 
-- **`Floats::compare()`** — Simplified implementation to single expression
+- **`Floats::compare()`** - Simplified implementation to single expression
 
-- **Comparable trait** — Streamlined comparison methods
+- **Comparable trait** - Streamlined comparison methods
   - `greaterThan()` and `greaterThanOrEqual()` now rely on `compare()` for type checking
   - Reduces redundant type checks
 
-- **ApproxComparable trait** — Removed redundant type check from `approxCompare()`
+- **ApproxComparable trait** - Removed redundant type check from `approxCompare()`
 
 ### Documentation
 
@@ -635,7 +643,7 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ---
 
-## [0.4.0] — 2025-02-08
+## [0.4.0] - 2025-02-08
 
 ### Breaking Changes
 
@@ -657,7 +665,7 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
   - Parameters changed from `($f1, $f2, $epsilon, $relative)` to `($a, $b, $relTol, $absTol)`
   - Default relative tolerance: `1e-9` (new constant `DEFAULT_RELATIVE_TOLERANCE`)
   - Default absolute tolerance: `PHP_FLOAT_EPSILON` (new constant `DEFAULT_ABSOLUTE_TOLERANCE`)
-  - Removed `$relative` parameter — now uses combined relative and absolute tolerance
+  - Removed `$relative` parameter - now uses combined relative and absolute tolerance
   - IEEE-754 special value handling: `INF === INF`, `-INF === -INF`, `NAN` never equals anything
   - Removed `approxEqualAbsolute()` and `approxEqualRelative()` methods
 
@@ -681,13 +689,13 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
   - For types with natural ordering that contain floating-point values (e.g., Rational numbers)
 
 - **Floats constants**
-  - `DEFAULT_RELATIVE_TOLERANCE` (1e-9) — Default relative tolerance for `approxEqual()`
-  - `DEFAULT_ABSOLUTE_TOLERANCE` (PHP_FLOAT_EPSILON) — Default absolute tolerance
-  - `MAX_EXACT_INT` (2⁵³) — Maximum integer exactly representable as float
+  - `DEFAULT_RELATIVE_TOLERANCE` (1e-9) - Default relative tolerance for `approxEqual()`
+  - `DEFAULT_ABSOLUTE_TOLERANCE` (PHP_FLOAT_EPSILON) - Default absolute tolerance
+  - `MAX_EXACT_INT` (2⁵³) - Maximum integer exactly representable as float
 
-- **Types::same()** — Check if two values have the same type using `get_debug_type()`
+- **Types::same()** - Check if two values have the same type using `get_debug_type()`
 
-- **Comparable::checkSame()** — Public method to verify type compatibility, throws `TypeError` if types don't match
+- **Comparable::checkSame()** - Public method to verify type compatibility, throws `TypeError` if types don't match
 
 ### Changed
 
@@ -696,7 +704,7 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
   - Improved PHPDoc comments throughout
   - Better separation of concerns
 
-- **Numbers::approxEqual()** — Updated to use new Floats::approxEqual() signature
+- **Numbers::approxEqual()** - Updated to use new Floats::approxEqual() signature
 
 - **Traits now use composition**
   - Comparable uses Equatable
@@ -707,48 +715,48 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 ### Documentation
 
 - **New comprehensive trait documentation**:
-  - `docs/Traits/Traits.md` — Complete overview with hierarchy diagram and usage guide
-  - `docs/Traits/Equatable.md` — Rewritten for trait (previously interface)
-  - `docs/Traits/Comparable.md` — Updated for new namespace and behavior
-  - `docs/Traits/ApproxEquatable.md` — New documentation for approximate equality
-  - `docs/Traits/ApproxComparable.md` — New documentation for approximate comparison
+  - `docs/Traits/Traits.md` - Complete overview with hierarchy diagram and usage guide
+  - `docs/Traits/Equatable.md` - Rewritten for trait (previously interface)
+  - `docs/Traits/Comparable.md` - Updated for new namespace and behavior
+  - `docs/Traits/ApproxEquatable.md` - New documentation for approximate equality
+  - `docs/Traits/ApproxComparable.md` - New documentation for approximate comparison
 
 - **Updated class documentation**:
-  - `docs/Floats.md` — Completely reorganized to match new class structure
-  - `docs/Numbers.md` — Updated for new comparison method signatures
-  - `docs/Types.md` — Added `same()` documentation
+  - `docs/Floats.md` - Completely reorganized to match new class structure
+  - `docs/Numbers.md` - Updated for new comparison method signatures
+  - `docs/Types.md` - Added `same()` documentation
 
-- **README.md** — Added Traits section with links to all four traits and overview
+- **README.md** - Added Traits section with links to all four traits and overview
 
 ### Tests
 
-- **FloatsTest** — Comprehensive rewrite for new `approxEqual()` behavior
+- **FloatsTest** - Comprehensive rewrite for new `approxEqual()` behavior
   - Tests for relative and absolute tolerance
   - Tests for IEEE-754 special values (INF, -INF, NAN)
   - Tests for combined tolerance behavior
   - Reduced from 478 to ~280 lines (test consolidation)
 
-- **NumbersTest** — Updated for new `approxEqual()` signature
-- **TypesTest** — Added tests for `same()`
+- **NumbersTest** - Updated for new `approxEqual()` signature
+- **TypesTest** - Added tests for `same()`
 
 ---
 
-## [0.3.0] — 2025-01-15
+## [0.3.0] - 2025-01-15
 
 ### Added
 
-- **Arrays::quoteValues()** — Wrap string array values in quotes for formatting
+- **Arrays::quoteValues()** - Wrap string array values in quotes for formatting
   - Supports both single quotes (default) and double quotes
   - Useful for formatting lists in error messages or output
   - Throws `TypeError` if array contains non-string values
   - Preserves array keys
 
-- **Floats::ulp()** — Calculate Unit in Last Place (ULP) for floating-point precision analysis
+- **Floats::ulp()** - Calculate Unit in Last Place (ULP) for floating-point precision analysis
   - Returns the spacing between adjacent representable floats at a given magnitude
   - Useful for understanding floating-point precision limits and calculating error bounds
   - Moved from `NumberWithError` in Units package to provide general-purpose float utility
 
-- **Floats::isExactInt()** — Check if a float represents an exact integer without rounding error
+- **Floats::isExactInt()** - Check if a float represents an exact integer without rounding error
   - Validates integers are within IEEE-754 double's exact integer range (±2⁵³)
   - Returns `true` for whole numbers that can be exactly represented as floats
   - Moved from `NumberWithError::isExactFloat()` in Units package with improved naming
@@ -770,16 +778,16 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ### Documentation
 
-- **Arrays.md** — Added documentation for `quoteValues()`
-- **Floats.md** — Added documentation for `ulp()` and `isExactInt()`
+- **Arrays.md** - Added documentation for `quoteValues()`
+- **Floats.md** - Added documentation for `ulp()` and `isExactInt()`
 
 ---
 
-## [0.2.0] — 2025-01-29
+## [0.2.0] - 2025-01-29
 
 ### Breaking Changes
 
-- **Angle class removed** — Moved to `galaxon/units` package
+- **Angle class removed** - Moved to `galaxon/units` package
   - Use `Galaxon\Units\Angle` instead of `Galaxon\Core\Angle`
   - All Angle functionality now available in the separate Units package
 
@@ -791,31 +799,31 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ### Added
 
-- **Floats** — New constants and methods for float operations
-  - `TAU` constant — The mathematical constant τ (tau) = 2π, useful for angular calculations
-  - `EPSILON` constant — Default epsilon value (1e-10) for approximate comparisons
-  - `approxEqualAbsolute()` — Explicit absolute epsilon comparison
-  - `approxEqualRelative()` — Explicit relative epsilon comparison (scales with magnitude)
-  - `compare()` — Three-way comparison with approximate equality support
+- **Floats** - New constants and methods for float operations
+  - `TAU` constant - The mathematical constant τ (tau) = 2π, useful for angular calculations
+  - `EPSILON` constant - Default epsilon value (1e-10) for approximate comparisons
+  - `approxEqualAbsolute()` - Explicit absolute epsilon comparison
+  - `approxEqualRelative()` - Explicit relative epsilon comparison (scales with magnitude)
+  - `compare()` - Three-way comparison with approximate equality support
 
-- **Numbers** — New comparison methods
-  - `equal()` — Exact equality check for int|float values
-  - `approxEqual()` — Approximate equality with relative/absolute mode selection
+- **Numbers** - New comparison methods
+  - `equal()` - Exact equality check for int|float values
+  - `approxEqual()` - Approximate equality with relative/absolute mode selection
 
 ### Changed
 
-- **Floats::compare()** — Now uses `Numbers::sign()` to guarantee exactly -1, 0, or 1 return values
-- **Floats::approxEqual()** — Added 4th parameter `$relative` (defaults to `true`)
-- **Numbers::approxEqual()** — Added 3rd parameter `$epsilon` and 4th parameter `$relative`
+- **Floats::compare()** - Now uses `Numbers::sign()` to guarantee exactly -1, 0, or 1 return values
+- **Floats::approxEqual()** - Added 4th parameter `$relative` (defaults to `true`)
+- **Numbers::approxEqual()** - Added 3rd parameter `$epsilon` and 4th parameter `$relative`
 
 ### Documentation
 
 - **Enhanced PHPDoc comments** in `Equatable` and `Comparable` with detailed implementation guidelines
 - **Comprehensive documentation updates**:
-  - `docs/Floats.md` — Added TAU, wrap(), compare(), and all three approxEqual variants
-  - `docs/Numbers.md` — Added equal() and updated approxEqual() documentation
-  - `docs/Equatable.md` — Updated epsilon examples and best practices
-  - `docs/Comparable.md` — Corrected implementation details and added TypeError documentation
+  - `docs/Floats.md` - Added TAU, wrap(), compare(), and all three approxEqual variants
+  - `docs/Numbers.md` - Added equal() and updated approxEqual() documentation
+  - `docs/Equatable.md` - Updated epsilon examples and best practices
+  - `docs/Comparable.md` - Corrected implementation details and added TypeError documentation
   - Removed `docs/Angle.md` (moved to Units package)
 
 ### Tests
@@ -826,48 +834,48 @@ This is the first stable release of Galaxon Core, ready for publication on Packa
 
 ---
 
-## [0.1.0] — 2025-01-16
+## [0.1.0] - 2025-01-16
 
 ### Added
 
-- **Angle** — Class for working with angles in radians and degrees
-  - `wrapRadians()`, `wrapDegrees()` — Normalize angles to standard ranges
-  - `fromDegrees()`, `fromRadians()` — Factory methods
+- **Angle** - Class for working with angles in radians and degrees
+  - `wrapRadians()`, `wrapDegrees()` - Normalize angles to standard ranges
+  - `fromDegrees()`, `fromRadians()` - Factory methods
   - Conversion between radians and degrees
 
-- **Floats** — Utility methods for floating-point operations
-  - `approxEqual()` — Compare floats with epsilon tolerance
-  - `sign()` — Get sign of a float (-1, 0, or 1)
+- **Floats** - Utility methods for floating-point operations
+  - `approxEqual()` - Compare floats with epsilon tolerance
+  - `sign()` - Get sign of a float (-1, 0, or 1)
   - Constants for common epsilon values
 
-- **Integers** — Utility methods for integer operations
-  - `sign()` — Get sign of an integer
-  - `gcd()` — Greatest common divisor
-  - `lcm()` — Least common multiple
-  - `absExact()` — Absolute value with overflow detection
-  - `mulExact()`, `addExact()` — Arithmetic with overflow detection
+- **Integers** - Utility methods for integer operations
+  - `sign()` - Get sign of an integer
+  - `gcd()` - Greatest common divisor
+  - `lcm()` - Least common multiple
+  - `absExact()` - Absolute value with overflow detection
+  - `mulExact()`, `addExact()` - Arithmetic with overflow detection
 
-- **Numbers** — Utility methods for numeric operations
+- **Numbers** - Utility methods for numeric operations
   - Common operations that work with both int and float
 
-- **Arrays** — Utility methods for array operations
+- **Arrays** - Utility methods for array operations
 
-- **Stringify** — Utilities for converting values to strings
-  - `value()` — Convert any PHP value to a readable string representation
+- **Stringify** - Utilities for converting values to strings
+  - `value()` - Convert any PHP value to a readable string representation
 
-- **Types** — Utility methods for type checking and manipulation
-  - `isNumber()` — Check if value is int or float
-  - `isUint()` — Check if value is unsigned integer
-  - `getBasicType()` — Get canonical type name
-  - `getUniqueString()` — Convert any value to unique string
-  - `createError()` — Create TypeError with helpful message
-  - `usesTrait()` — Check if class/object uses a trait
-  - `getTraits()` — Get all traits used by class/interface/trait
+- **Types** - Utility methods for type checking and manipulation
+  - `isNumber()` - Check if value is int or float
+  - `isUint()` - Check if value is unsigned integer
+  - `getBasicType()` - Get canonical type name
+  - `getUniqueString()` - Convert any value to unique string
+  - `createError()` - Create TypeError with helpful message
+  - `usesTrait()` - Check if class/object uses a trait
+  - `getTraits()` - Get all traits used by class/interface/trait
 
-- **Equatable** — Interface for value equality comparison
-  - `equals(mixed $other): bool` — Check equality with another value
+- **Equatable** - Interface for value equality comparison
+  - `equals(mixed $other): bool` - Check equality with another value
 
-- **Comparable** — Trait providing comparison methods
+- **Comparable** - Trait providing comparison methods
   - `equals()`, `isLessThan()`, `isGreaterThan()`
   - `isLessThanOrEqual()`, `isGreaterThanOrEqual()`
   - Requires implementing class to provide `compare()` method

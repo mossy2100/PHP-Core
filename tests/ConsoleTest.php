@@ -374,7 +374,7 @@ final class ConsoleTest extends TestCase
             "\033[22m" // bold(false ?? false), the default state
             . "\033[39m\033[49m" // colors() with no override re-emits the current (default) colour
             . 'hi'
-            // The trailing newline comes from println() and is emitted here, before the style restore below —
+            // The trailing newline comes from println() and is emitted here, before the style restore below -
             // print()'s per-line background-bleed fix doesn't apply since the background is still DEFAULT.
             . "\n"
             . "\033[39m\033[49m" // restore colour

@@ -7,10 +7,10 @@ namespace OceanMoon\Core;
 use DomainException;
 
 /**
- * Console — emit ANSI/SGR escape codes to style console output, while tracking the current style so it can be
+ * Console - emit ANSI/SGR escape codes to style console output, while tracking the current style so it can be
  * snapshotted and restored.
  *
- * Every method echoes its escape code immediately and returns $this, so calls can be chained. Call them as statements —
+ * Every method echoes its escape code immediately and returns $this, so calls can be chained. Call them as statements -
  * don't wrap a call in echo yourself, or PHP will try to stringify the returned object.
  *
  * ```php
@@ -71,7 +71,7 @@ class Console
     private const int BACKGROUND_OFFSET = 10;
 
     /*
-     * SGR attribute on/off codes, used internally by the attribute methods below. Not exposed publicly — callers
+     * SGR attribute on/off codes, used internally by the attribute methods below. Not exposed publicly - callers
      * use those methods (e.g. bold(), italic()) rather than raw SGR numbers.
      */
     private const int BOLD_ON = 1;
@@ -95,7 +95,7 @@ class Console
 
     /** PHP type => Console color. */
     public const array TYPE_COLOR = [
-        'null'     => self::SILVER, // muted grey — "absence"
+        'null'     => self::SILVER, // muted grey - "absence"
         'bool'     => self::BRIGHT_YELLOW,
         'int'      => self::BRIGHT_BLUE,
         'float'    => self::BRIGHT_RED,
@@ -190,7 +190,7 @@ class Console
     /**
      * Turn bold text on or off.
      *
-     * There's no SGR code to clear bold alone — only INTENSITY_OFF (22), which clears both bold and dim. So turning
+     * There's no SGR code to clear bold alone - only INTENSITY_OFF (22), which clears both bold and dim. So turning
      * bold off emits that, then re-emits dim if it was still active, to leave dim untouched from the caller's
      * perspective.
      *
@@ -213,7 +213,7 @@ class Console
     /**
      * Turn dim (faint) text on or off.
      *
-     * There's no SGR code to clear dim alone — only INTENSITY_OFF (22), which clears both bold and dim. So turning
+     * There's no SGR code to clear dim alone - only INTENSITY_OFF (22), which clears both bold and dim. So turning
      * dim off emits that, then re-emits bold if it was still active, to leave bold untouched from the caller's
      * perspective.
      *

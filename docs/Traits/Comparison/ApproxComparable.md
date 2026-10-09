@@ -8,8 +8,8 @@ ordering and floating-point precision concerns.
 ## Overview
 
 The `ApproxComparable` trait combines `Comparable` and `ApproxEquatable` to provide a complete set of comparison
-operations including approximate equality. This is ideal for types with natural ordering that contain
-floating-point values (e.g., Rational numbers).
+operations including approximate equality. This is ideal for types with natural ordering that contain floating-point
+values (e.g., Rational numbers).
 
 | Name                   | Description                                    | Implementation              |
 | ---------------------- | ---------------------------------------------- | --------------------------- |
@@ -46,9 +46,9 @@ abstract public function approxEqual(
 
 **You must implement this method.** See [ApproxEquatable.md](ApproxEquatable.md) for full documentation.
 
-Both abstract methods should check the type of `$other` explicitly (typically `instanceof self`) and throw
-(typically `InvalidArgumentException`) for anything that isn't a deliberate, documented exception to
-same-type-only comparison. See [Equatable.md](Equatable.md) for the reasoning.
+Both abstract methods should check the type of `$other` explicitly (typically `instanceof self`) and throw (typically
+`InvalidArgumentException`) for anything that isn't a deliberate, documented exception to same-type-only comparison. See
+[Equatable.md](Equatable.md) for the reasoning.
 
 ---
 
@@ -64,8 +64,8 @@ public function approxCompare(
 ): int
 ```
 
-Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances,
-otherwise performs exact comparison. Provided by the trait, built on `approxEqual()` and `compare()`.
+Compare with approximate equality awareness. Returns 0 if values are approximately equal within tolerances, otherwise
+performs exact comparison. Provided by the trait, built on `approxEqual()` and `compare()`.
 
 **Use Cases:**
 
@@ -125,7 +125,7 @@ class Rational
 
 ## See Also
 
-- [ComparisonTraits.md](ComparisonTraits.md) — Trait hierarchy overview, including guidance on choosing between
+- [ComparisonTraits.md](ComparisonTraits.md) - Trait hierarchy overview, including guidance on choosing between
   `equal()`/`approxEqual()`/`compare()`/`approxCompare()`
-- [Comparable.md](Comparable.md) — Base ordering trait this includes
-- [ApproxEquatable.md](ApproxEquatable.md) — Base approximate-equality trait this includes
+- [Comparable.md](Comparable.md) - Base ordering trait this includes
+- [ApproxEquatable.md](ApproxEquatable.md) - Base approximate-equality trait this includes

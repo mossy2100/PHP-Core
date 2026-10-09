@@ -20,18 +20,18 @@ echo ' ALERT ';
 $console->resetStyle();
 ```
 
-Call these as statements — don't wrap a call in `echo` yourself, since PHP would try to stringify the returned `Console`
+Call these as statements - don't wrap a call in `echo` yourself, since PHP would try to stringify the returned `Console`
 object rather than print what it already echoed.
 
 Color numbers only name the terminal's 16 palette slots (`BLACK`, `RED`, ... `WHITE`). The actual RGB shown depends on
-the user's terminal theme — this is standard ANSI behavior, not something `Console` controls.
+the user's terminal theme - this is standard ANSI behavior, not something `Console` controls.
 
 ### Key Features
 
 - Method chaining: every method returns `$this`.
 - Style state tracking: `getStyle()`/`setStyle()` snapshot and restore the current foreground, background, and all
   attribute toggles.
-- `dump()` — a `var_dump()`/`print_r()` alternative that's concise, type-colored, and never triggers a notice or warning
+- `dump()` - a `var_dump()`/`print_r()` alternative that's concise, type-colored, and never triggers a notice or warning
   for any value type.
 - Severity-colored message helpers: `success()`, `error()`, `warn()`, `info()`.
 - Clickable OSC 8 hyperlinks via `link()`, with plain-text fallback in unsupported terminals.
@@ -66,8 +66,8 @@ Each names one of the terminal's 16 standard palette slots (the "normal intensit
 | `WHITE`          | `97`  | a.k.a. "bright silver".                          |
 | `DEFAULT`        | `39`  | Sentinel for "the terminal's own default color". |
 
-All constants are foreground-space values. `background()` applies the `+10` offset (e.g. `31` → `41`) internally at
-emit time — you never need to add it yourself.
+All constants are foreground-space values. `background()` applies the `+10` offset (e.g. `31` → `41`) internally at emit
+time - you never need to add it yourself.
 
 ### TYPE_COLOR
 
@@ -106,11 +106,11 @@ Set just the foreground color.
 
 **Parameters:**
 
-- `$foreground` (`int`) — A `Console` color constant.
+- `$foreground` (`int`) - A `Console` color constant.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### background()
 
@@ -122,11 +122,11 @@ Set just the background color.
 
 **Parameters:**
 
-- `$background` (`int`) — A `Console` color constant.
+- `$background` (`int`) - A `Console` color constant.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### colors()
 
@@ -138,12 +138,12 @@ Set the foreground and background colors together.
 
 **Parameters:**
 
-- `$foreground` (`int`) — A `Console` color constant.
-- `$background` (`int`) — A `Console` color constant.
+- `$foreground` (`int`) - A `Console` color constant.
+- `$background` (`int`) - A `Console` color constant.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 **Examples:**
 
@@ -163,7 +163,7 @@ Return both the foreground and background colors to the terminal's defaults. Equ
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ---
 
@@ -181,15 +181,15 @@ public function bold(bool $bold = true): self
 Turn bold text on or off.
 
 There's no SGR code to clear bold alone, only one that clears bold and dim together, so `bold(false)` re-applies dim
-afterwards if it was still active — from the caller's perspective, only bold is affected.
+afterwards if it was still active - from the caller's perspective, only bold is affected.
 
 **Parameters:**
 
-- `$bold` (`bool`) — `true` (default) to turn bold on, `false` to turn it off.
+- `$bold` (`bool`) - `true` (default) to turn bold on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### dim()
 
@@ -202,11 +202,11 @@ was still active, so only dim is affected from the caller's perspective.
 
 **Parameters:**
 
-- `$dim` (`bool`) — `true` (default) to turn dim on, `false` to turn it off.
+- `$dim` (`bool`) - `true` (default) to turn dim on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### italic()
 
@@ -218,11 +218,11 @@ Turn italic text on or off.
 
 **Parameters:**
 
-- `$italic` (`bool`) — `true` (default) to turn italic on, `false` to turn it off.
+- `$italic` (`bool`) - `true` (default) to turn italic on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### underline()
 
@@ -234,11 +234,11 @@ Turn underlined text on or off.
 
 **Parameters:**
 
-- `$underline` (`bool`) — `true` (default) to turn underline on, `false` to turn it off.
+- `$underline` (`bool`) - `true` (default) to turn underline on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### strikethrough()
 
@@ -250,11 +250,11 @@ Turn strikethrough text on or off.
 
 **Parameters:**
 
-- `$strikethrough` (`bool`) — `true` (default) to turn strikethrough on, `false` to turn it off.
+- `$strikethrough` (`bool`) - `true` (default) to turn strikethrough on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### reverse()
 
@@ -266,11 +266,11 @@ Turn reverse video (swap foreground and background colors) on or off.
 
 **Parameters:**
 
-- `$reverse` (`bool`) — `true` (default) to turn reverse video on, `false` to turn it off.
+- `$reverse` (`bool`) - `true` (default) to turn reverse video on, `false` to turn it off.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ---
 
@@ -286,7 +286,7 @@ Get a detached snapshot of the current style: foreground, background, and every 
 
 **Returns:**
 
-- `array` — Keys `foreground`, `background` (both `int`), and `bold`, `dim`, `italic`, `underline`, `strikethrough`,
+- `array` - Keys `foreground`, `background` (both `int`), and `bold`, `dim`, `italic`, `underline`, `strikethrough`,
   `reverse` (all `bool`). Colors are in foreground-space, so the array round-trips cleanly through `setStyle()`.
 
 ### setStyle()
@@ -295,17 +295,17 @@ Get a detached snapshot of the current style: foreground, background, and every 
 public function setStyle(array $style): self
 ```
 
-Apply a style array, as produced by `getStyle()`. Only the keys present are applied — a partial array (e.g. just
-`['bold' => true]`) works too — and each present key is realised exactly, including turning an attribute off if its
+Apply a style array, as produced by `getStyle()`. Only the keys present are applied - a partial array (e.g. just
+`['bold' => true]`) works too - and each present key is realised exactly, including turning an attribute off if its
 value is `false`.
 
 **Parameters:**
 
-- `$style` (`array`) — Any subset of the keys `getStyle()` returns.
+- `$style` (`array`) - Any subset of the keys `getStyle()` returns.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 **Examples:**
 
@@ -330,7 +330,7 @@ specific prior snapshot.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ---
 
@@ -344,7 +344,7 @@ public function print(mixed $value = ''): self
 
 Print a value without triggering warnings or errors, regardless of type. Converts `$value` via `Stringify::toString()`,
 which tries a plain `(string)` cast first, and falls back to `Stringify::stringify()`'s pretty-printed format if the
-cast would itself trigger a notice, warning, or error — e.g. for arrays, `NAN`, or a non-`Stringable` object. Ordinary
+cast would itself trigger a notice, warning, or error - e.g. for arrays, `NAN`, or a non-`Stringable` object. Ordinary
 strings, numbers, and `Stringable` objects print exactly as a normal `(string)` cast would.
 
 If a background color is currently set and `$value` contains newlines, the background is reset and re-applied around
@@ -352,11 +352,11 @@ each line break, so it doesn't visually bleed onto the next line.
 
 **Parameters:**
 
-- `$value` (`mixed`) — The value to print. Defaults to `''`.
+- `$value` (`mixed`) - The value to print. Defaults to `''`.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### println()
 
@@ -385,11 +385,11 @@ The console's style is restored to what it was before the call, once the dump is
 
 **Parameters:**
 
-- `$value` (`mixed`) — The value to dump.
+- `$value` (`mixed`) - The value to dump.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 **Examples:**
 
@@ -404,21 +404,21 @@ new Console()->dump(['a' => 1]); // "array: ['a' => 1]", in TYPE_COLOR['array']
 public function message(string $text, ?int $foreground = null, ?int $background = null, ?bool $bold = null): self
 ```
 
-Print a message, optionally in a one-off color and/or bold state, with the prior style restored afterwards. The
-severity helpers below (`success()`, `error()`, `warn()`, `info()`) are all thin wrappers around this.
+Print a message, optionally in a one-off color and/or bold state, with the prior style restored afterwards. The severity
+helpers below (`success()`, `error()`, `warn()`, `info()`) are all thin wrappers around this.
 
 **Parameters:**
 
-- `$text` (`string`) — The message text.
-- `$foreground` (`?int`) — A `Console` color constant for the message only. `null` (default) leaves the current
+- `$text` (`string`) - The message text.
+- `$foreground` (`?int`) - A `Console` color constant for the message only. `null` (default) leaves the current
   foreground unchanged.
-- `$background` (`?int`) — A `Console` color constant for the message only. `null` (default) leaves the current
+- `$background` (`?int`) - A `Console` color constant for the message only. `null` (default) leaves the current
   background unchanged.
-- `$bold` (`?bool`) — The bold state for the message only. `null` (default) leaves the current bold state unchanged.
+- `$bold` (`?bool`) - The bold state for the message only. `null` (default) leaves the current bold state unchanged.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### success() / error() / warn() / info()
 
@@ -434,18 +434,18 @@ afterwards.
 
 | Method      | Glyph | Colors                 | Severity                                                             |
 | ----------- | ----- | ---------------------- | -------------------------------------------------------------------- |
-| `success()` | ✓     | White on green         | Least severe — successful operations, confirmations.                 |
-| `info()`    | ℹ     | White on blue          | Low — informational messages the user may find useful.               |
-| `warn()`    | ⚠     | Black on bright yellow | Medium — non-fatal issues the user should be aware of.               |
-| `error()`   | ✗     | White on red           | Most severe — fatal errors that prevent the program from continuing. |
+| `success()` | ✓     | White on green         | Least severe - successful operations, confirmations.                 |
+| `info()`    | ℹ     | White on blue          | Low - informational messages the user may find useful.               |
+| `warn()`    | ⚠     | Black on bright yellow | Medium - non-fatal issues the user should be aware of.               |
+| `error()`   | ✗     | White on red           | Most severe - fatal errors that prevent the program from continuing. |
 
 **Parameters:**
 
-- `$text` (`string`) — The message text.
+- `$text` (`string`) - The message text.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 **Examples:**
 
@@ -463,16 +463,16 @@ public function link(string $url, string $text = ''): self
 
 Print a clickable hyperlink via the OSC 8 escape sequence, styled bright blue and underlined. Falls back to displaying
 the label as plain, unstyled text in terminals that don't support OSC 8 (the link target itself is simply not clickable
-there — nothing breaks).
+there - nothing breaks).
 
 **Parameters:**
 
-- `$url` (`string`) — The URL to link to.
-- `$text` (`string`) — The clickable label. Defaults to `$url` itself.
+- `$url` (`string`) - The URL to link to.
+- `$text` (`string`) - The clickable label. Defaults to `$url` itself.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 **Examples:**
 
@@ -487,13 +487,13 @@ new Console()->link('https://php.net', 'PHP manual');
 public function bell(): self
 ```
 
-Ring the terminal bell, by emitting the BEL control character (`0x07`). Note this is `"\x07"` in PHP, not `"\a"` — PHP
+Ring the terminal bell, by emitting the BEL control character (`0x07`). Note this is `"\x07"` in PHP, not `"\a"` - PHP
 doesn't support the `\a` escape sequence. It can be a useful attention-grabber indicating the end of a long-running
 process.
 
 **Returns:**
 
-- `self` — Returns `$this` for chaining.
+- `self` - Returns `$this` for chaining.
 
 ### hr()
 
@@ -506,12 +506,12 @@ characters in `$ch`.
 
 **Parameters:**
 
-- `$ch` (`string`) — The substring to repeat. Defaults to `'-'`.
-- `$length` (`int`) — The total length of the rule, in characters. Defaults to `80`.
+- `$ch` (`string`) - The substring to repeat. Defaults to `'-'`.
+- `$length` (`int`) - The total length of the rule, in characters. Defaults to `80`.
 
 **Throws:**
 
-- `DomainException` — If `$ch` is an empty string.
+- `DomainException` - If `$ch` is an empty string.
 
 **Examples:**
 
@@ -524,6 +524,6 @@ new Console()->hr('=', 20); // '===================='
 
 ## See Also
 
-- **[Stringify](Stringify.md)** — `print()`/`println()`/`dump()` use `Stringify::toString()`/`stringify()` to convert
-  values without warnings or errors.
-- **[Types](Types.md)** — `dump()` uses `Types::getBasicType()` to pick a `TYPE_COLOR` entry.
+- **[Stringify](Stringify.md)** - `print()`/`println()`/`dump()` use `Stringify::toString()`/`stringify()` to convert values without
+  warnings or errors.
+- **[Types](Types.md)** - `dump()` uses `Types::getBasicType()` to pick a `TYPE_COLOR` entry.

@@ -31,9 +31,9 @@ Get the basic type of a value as a canonical string name.
 
 **Parameters:**
 
-- `$value` (mixed) — The value to get the type of
+- `$value` (mixed) - The value to get the type of
 
-**Returns:** `string` — One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `closure`, `object`,
+**Returns:** `string` - One of: `null`, `bool`, `int`, `float`, `string`, `array`, `enum`, `closure`, `object`,
 `resource`, or `unknown`
 
 **Examples:**
@@ -67,11 +67,11 @@ distinct value produces a unique string.
 
 **Parameters:**
 
-- `$value` (mixed) — The value to convert
+- `$value` (mixed) - The value to convert
 
-**Returns:** `string` — A unique string representation of the value
+**Returns:** `string` - A unique string representation of the value
 
-**Throws:** `UnexpectedValueException` — If the value has an unknown type.
+**Throws:** `UnexpectedValueException` - If the value has an unknown type.
 
 **String Format (by type):**
 
@@ -86,10 +86,10 @@ distinct value produces a unique string.
 - `object`: `"o:{object_id}"` (e.g., `"o:1"`)
 - `resource`: `"r:{resource_id}"` (e.g., `"r:5"`)
 
-`closure` is identity-based, like `object`: two structurally identical but distinct closures produce different
-keys, since each `fn(...)`/`function (...) {}` literal creates a new object. A `closure`'s key can also never
-collide with an `object`'s, even though both are ultimately built from `spl_object_id()`, which shares one ID
-space across every object type — the `c:`/`o:` prefix keeps them distinct.
+`closure` is identity-based, like `object`: two structurally identical but distinct closures produce different keys,
+since each `fn(...)`/`function (...) {}` literal creates a new object. A `closure`'s key can also never collide with an
+`object`'s, even though both are ultimately built from `spl_object_id()`, which shares one ID space across every object
+type - the `c:`/`o:` prefix keeps them distinct.
 
 **Examples:**
 
@@ -135,10 +135,10 @@ Check if two values have the same type using `get_debug_type()` for comparison.
 
 **Parameters:**
 
-- `$obj1` (mixed) — The first value to compare
-- `$obj2` (mixed) — The second value to compare
+- `$obj1` (mixed) - The first value to compare
+- `$obj2` (mixed) - The second value to compare
 
-**Returns:** `bool` — True if the types are the same, false otherwise
+**Returns:** `bool` - True if the types are the same, false otherwise
 
 **Examples:**
 
@@ -167,12 +167,12 @@ or used by other traits (nested traits).
 
 **Parameters:**
 
-- `$objOrClass` (object|string) — The object or class name to inspect
-- `$trait` (string) — The fully qualified trait name to check for
+- `$objOrClass` (object|string) - The object or class name to inspect
+- `$trait` (string) - The fully qualified trait name to check for
 
-**Returns:** `bool` — Returns `true` if the object or class uses the trait, `false` otherwise
+**Returns:** `bool` - Returns `true` if the object or class uses the trait, `false` otherwise
 
-**Throws:** `DomainException` — If the provided class name is invalid
+**Throws:** `DomainException` - If the provided class name is invalid
 
 **Examples:**
 
@@ -222,11 +222,11 @@ traits.
 
 **Parameters:**
 
-- `$objOrClass` (object|string) — The object or class (or interface or trait) to inspect
+- `$objOrClass` (object|string) - The object or class (or interface or trait) to inspect
 
-**Returns:** `string[]` — Array of fully qualified trait names
+**Returns:** `string[]` - Array of fully qualified trait names
 
-**Throws:** `DomainException` — If the provided class name is invalid
+**Throws:** `DomainException` - If the provided class name is invalid
 
 **Examples:**
 
@@ -327,5 +327,5 @@ function sortIfComparable(array $items): array
 
 ## See Also
 
-- **[Floats](Floats.md)** — Used internally by `getUniqueString()` for float-to-hex conversion
-- **[Stringify](Stringify.md)** — Used internally by `getUniqueString()` for array stringification
+- **[Floats](Floats.md)** - Used internally by `getUniqueString()` for float-to-hex conversion
+- **[Stringify](Stringify.md)** - Used internally by `getUniqueString()` for array stringification

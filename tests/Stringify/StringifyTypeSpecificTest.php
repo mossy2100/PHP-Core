@@ -332,7 +332,7 @@ final class StringifyTypeSpecificTest extends TestCase
             'd266963a-c4e0-4255-a97d-f070e51fcb5e',
         ];
 
-        // maxLineLength of 40 — items are too wide for 2 per line, so grid is skipped.
+        // maxLineLength of 40 - items are too wide for 2 per line, so grid is skipped.
         Stringify::setMaxLineLength(40);
         try {
             $result = Stringify::stringifyArray($uuids, true);
@@ -716,7 +716,7 @@ final class StringifyTypeSpecificTest extends TestCase
 
     /**
      * Test that the same object referenced by two sibling (non-cyclic) properties is NOT mistaken
-     * for recursion — it should render in full both times, since it's a shared reference, not a
+     * for recursion - it should render in full both times, since it's a shared reference, not a
      * cycle.
      */
     public function testStringifyObjectSharedReferenceNotRecursive(): void

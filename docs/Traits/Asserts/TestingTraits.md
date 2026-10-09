@@ -32,5 +32,5 @@ class MyTest extends TestCase
 
 ## See Also
 
-- [FloatAssertions.md](FloatAssertions.md) — PHPUnit assertions for float comparison
-- [Floats.md](../../Floats.md) — Utilities for floating-point comparison
+- [FloatAssertions.md](FloatAssertions.md) - PHPUnit assertions for float comparison
+- [Floats.md](../../Floats.md) - Utilities for floating-point comparison

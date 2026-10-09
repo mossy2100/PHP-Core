@@ -11,23 +11,21 @@ A general purpose package containing core PHP utility classes and methods for us
 ## Description
 
 This package provides a comprehensive set of utility classes for working with various PHP types and common operations.
-Most utility classes are final with static methods and cannot be instantiated directly. `Console` is the exception —
-an instantiable class with instance methods and internal style state, since its fluent `->` chaining API needs a
-real object to chain off.
+Most utility classes are final with static methods and cannot be instantiated directly. `Console` is the exception - an
+instantiable class with instance methods and internal style state, since its fluent `->` chaining API needs a real
+object to chain off.
 
 ---
 
 ## Development and Quality Assurance
 
-[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the
-development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude
-providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and
-documentation.
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and
+commented primarily by the author, with Claude providing substantial assistance with code review, suggesting
+improvements, debugging, and generating tests and documentation.
 
-All code was thoroughly reviewed by the author, and validated using industry-standard tools including
-[PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and
-[PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/)
-coding standards and comprehensive unit testing with 100% code coverage.
+All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/),
+[PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing
+with 100% code coverage.
 
 This collaborative approach has produced a well-designed, production-ready package with thorough test coverage and
 documentation.
@@ -87,9 +85,9 @@ Runtime environment detection: 64-bit architecture checks, and locale detection 
 
 ### [Console](docs/Console.md)
 
-ANSI/SGR-styled console output: 16-color foreground/background, text attributes (bold, italic, underline,
-etc.), method chaining, style snapshot/restore, and higher-level helpers like `dump()` and severity-colored messages
-(`success()`, `error()`, `warn()`, `info()`).
+ANSI/SGR-styled console output: 16-color foreground/background, text attributes (bold, italic, underline, etc.), method
+chaining, style snapshot/restore, and higher-level helpers like `dump()` and severity-colored messages (`success()`,
+`error()`, `warn()`, `info()`).
 
 ---
 
@@ -104,8 +102,8 @@ as class members.
 
 ### Comparison Traits
 
-Equality and ordering comparison operations for custom types. See
-[ComparisonTraits.md](docs/Traits/Comparison/ComparisonTraits.md) for the trait hierarchy and usage guide.
+Equality and ordering comparison operations for custom types. See [ComparisonTraits.md](docs/Traits/Comparison/ComparisonTraits.md) for the trait hierarchy and usage
+guide.
 
 | Trait                                                          | Description                                                          |
 | -------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -116,8 +114,7 @@ Equality and ordering comparison operations for custom types. See
 
 ### Assert Traits
 
-Custom PHPUnit assertions for test cases. See [TestingTraits.md](docs/Traits/Asserts/TestingTraits.md) for usage
-examples.
+Custom PHPUnit assertions for test cases. See [TestingTraits.md](docs/Traits/Asserts/TestingTraits.md) for usage examples.
 
 | Trait                                                     | Description                                                       |
 | --------------------------------------------------------- | ----------------------------------------------------------------- |
@@ -129,7 +126,7 @@ examples.
 
 ### [FloatFormat](docs/Enums/FloatFormat.md)
 
-Notation styles for `Floats::format()` — fixed-point, scientific, or automatic selection between the two.
+Notation styles for `Floats::format()` - fixed-point, scientific, or automatic selection between the two.
 
 ### [ExponentFormat](docs/Enums/ExponentFormat.md)
 
@@ -172,7 +169,7 @@ composer test
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details
+MIT License - see [LICENSE](LICENSE) for details
 
 ---
 

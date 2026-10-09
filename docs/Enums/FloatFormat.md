@@ -9,7 +9,7 @@ Notation styles for [`Floats::format()`](../Floats.md).
 `FloatFormat` selects how a float is rendered: with a plain decimal point, always in scientific notation, or
 automatically choosing whichever is more compact.
 
-This is a pure (unbacked) enum. Its cases carry no value — they're purely selectors passed to `Floats::format()`'s
+This is a pure (unbacked) enum. Its cases carry no value - they're purely selectors passed to `Floats::format()`'s
 `$format` parameter.
 
 ---
@@ -70,6 +70,5 @@ Floats::format(0.0000012345, format: FloatFormat::Auto);  // '1.2345×10⁻⁶' 
 
 ## See Also
 
-- **[Floats](../Floats.md)** — `format()` is where `FloatFormat` is used.
-- **[ExponentFormat](ExponentFormat.md)** — Controls how the exponent is rendered when `Scientific` (or `Auto` choosing
-  scientific) is used.
+- **[Floats](../Floats.md)** - `format()` is where `FloatFormat` is used.
+- **[ExponentFormat](ExponentFormat.md)** - Controls how the exponent is rendered when `Scientific` (or `Auto` choosing scientific) is used.

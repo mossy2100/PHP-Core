@@ -17,10 +17,9 @@ The exception extends `DomainException`, so it's still caught by any existing `c
 allowing more specific handling of undefined-operation failures.
 
 `ArithmeticException` displaces PHP's built-in `DivisionByZeroError`: "Error" types are reserved for engine-emitted
-conditions and should in principle never be thrown from userland code (see the project's
-[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)). It should also not be confused with PHP's built-in
-`ArithmeticError`, which signals engine-level conditions (e.g. arithmetic overflow), not a recoverable domain-level
-operation failure.
+conditions and should in principle never be thrown from userland code (see the project's [Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)). It
+should also not be confused with PHP's built-in `ArithmeticError`, which signals engine-level conditions (e.g.
+arithmetic overflow), not a recoverable domain-level operation failure.
 
 ---
 
@@ -88,7 +87,7 @@ Use other exceptions when:
 
 ## See Also
 
-- **[DomainException](https://www.php.net/manual/en/class.domainexception.php)** — Parent class
-- **[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)** — Project-wide exception usage guidelines
-- `OceanMoon\Math\Complex`, `OceanMoon\Math\Rational`, `OceanMoon\Math\Vector`, `OceanMoon\Math\Matrix` — all use
+- **[DomainException](https://www.php.net/manual/en/class.domainexception.php)** - Parent class
+- **[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)** - Project-wide exception usage guidelines
+- `OceanMoon\Math\Complex`, `OceanMoon\Math\Rational`, `OceanMoon\Math\Vector`, `OceanMoon\Math\Matrix` - all use
   `ArithmeticException` for undefined arithmetic operations
