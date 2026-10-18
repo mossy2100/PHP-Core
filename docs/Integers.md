@@ -124,6 +124,37 @@ Integers::mul(PHP_INT_MAX, 2);  // throws OverflowException
 
 ---
 
+### mulMod()
+
+```php
+public static function mulMod(int $a, int $b, int $m): int
+```
+
+Calculate `(a × b) % m` without overflowing, even when `a × b` would. The result matches PHP's `$a * $b % $m` if the
+product fitted in an int: it has the sign of the product, and its magnitude is less than `|m|`.
+
+When the product overflows, it's calculated by "double and add", reducing modulo `m` at every step, in up to 63 steps.
+
+**Parameters:**
+
+- `$a` (int) - The first integer
+- `$b` (int) - The second integer
+- `$m` (int) - The modulus
+
+**Returns:** `int` - The remainder of `a × b` divided by `m`
+
+**Throws:** `ArithmeticException` - If `$m` is zero.
+
+**Examples:**
+
+```php
+Integers::mulMod(3, 5, 7);                               // 1
+Integers::mulMod(-3, 5, 7);                              // -1
+Integers::mulMod(PHP_INT_MAX, PHP_INT_MAX, 1000000007);  // 737564071
+```
+
+---
+
 ## Power Methods
 
 ### pow()

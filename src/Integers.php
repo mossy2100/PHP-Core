@@ -6,6 +6,7 @@ namespace OceanMoon\Core;
 
 use BadMethodCallException;
 use DomainException;
+use OceanMoon\Core\Exceptions\ArithmeticException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OverflowException;
 
@@ -141,6 +142,60 @@ final class Integers
 
         // Return the result.
         return $c;
+    }
+
+    /**
+     * Calculate (a × b) % m, without overflowing, even when a × b would.
+     *
+     * The result is the same as PHP's `$a * $b % $m` would be if the product fitted in an int: it has the sign of the
+     * product, and its magnitude is less than |m|. So it never overflows.
+     *
+     * When the product overflows, it's calculated by "double and add", like long multiplication in binary, reducing
+     * modulo m at every step. That takes up to 63 steps.
+     *
+     * @param int $a The first integer.
+     * @param int $b The second integer.
+     * @param int $m The modulus.
+     * @return int The remainder of a × b divided by m.
+     * @throws ArithmeticException If m is zero.
+     */
+    public static function mulMod(int $a, int $b, int $m): int
+    {
+        // Guard.
+        if ($m === 0) {
+            throw new ArithmeticException('Cannot divide by zero.');
+        }
+
+        // If the product fits in an int, use it directly.
+        $product = $a * $b;
+        // NB: phpstan thinks $product is always an int, but it could be a float.
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (is_int($product)) {
+            return $product % $m;
+        }
+
+        // Work with non-positive values, which can represent every magnitude up to |PHP_INT_MIN| = 2^63, so m can be
+        // PHP_INT_MIN. Each value is the negative of a magnitude in [0, |m|).
+        $negM = $m > 0 ? -$m : $m;
+        $x = $a % $m;
+        $x = $x > 0 ? -$x : $x;
+
+        // |b % m| is less than |m|, so at most 2^63 - 1, and can be made positive.
+        $y = abs($b % $m);
+
+        // Add up x × each set bit of y, doubling x at each step.
+        $result = 0;
+        while ($y > 0) {
+            if (($y & 1) === 1) {
+                $result = self::addModNegative($result, $x, $negM);
+            }
+            $x = self::addModNegative($x, $x, $negM);
+            $y >>= 1;
+        }
+
+        // The result is -(|a × b| % |m|). Give it the sign of the product. It's greater than -2^63, so negating it
+        // can't overflow.
+        return ($a < 0) === ($b < 0) ? -$result : $result;
     }
 
     #endregion
@@ -329,6 +384,21 @@ final class Integers
     #endregion
 
     #region Helper methods
+
+    /**
+     * Add two non-positive values modulo a negative modulus, without overflowing. Used by mulMod().
+     *
+     * @param int $x The first value, in (negM, 0].
+     * @param int $y The second value, in (negM, 0].
+     * @param int $negM The negative of the modulus's magnitude.
+     * @return int (x + y) reduced into (negM, 0].
+     */
+    private static function addModNegative(int $x, int $y, int $negM): int
+    {
+        // If x + y would reach negM or below, subtract negM. Checking against negM - y, which is in [negM, 0), means
+        // x + y is never calculated when it could overflow.
+        return $x <= $negM - $y ? $x - ($negM - $y) : $x + $y;
+    }
 
     /**
      * Shared implementation for fromSubscript() and fromSuperscript().

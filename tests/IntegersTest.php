@@ -6,10 +6,12 @@ namespace OceanMoon\Core\Tests;
 
 use BadMethodCallException;
 use DomainException;
+use OceanMoon\Core\Exceptions\ArithmeticException;
 use OceanMoon\Core\Exceptions\FormatException;
 use OceanMoon\Core\Integers;
 use OverflowException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -162,6 +164,68 @@ final class IntegersTest extends TestCase
         $this->expectException(OverflowException::class);
         $this->expectExceptionMessage('Overflow in integer multiplication.');
         Integers::mul(PHP_INT_MAX, -2);
+    }
+
+    #endregion
+
+    #region Method mulMod() tests.
+
+    /**
+     * Test mulMod() when the product fits in an int, where it matches PHP's * and %, including the signs.
+     */
+    public function testMulMod(): void
+    {
+        $this->assertSame(1, Integers::mulMod(3, 5, 7));
+        $this->assertSame(-1, Integers::mulMod(-3, 5, 7));
+        $this->assertSame(-1, Integers::mulMod(3, -5, 7));
+        $this->assertSame(1, Integers::mulMod(-3, -5, 7));
+        $this->assertSame(1, Integers::mulMod(3, 5, -7));
+        $this->assertSame(0, Integers::mulMod(0, 5, 7));
+        $this->assertSame(0, Integers::mulMod(PHP_INT_MIN, 1, -1));
+    }
+
+    /**
+     * Data provider for testMulModOverflowingProduct(). The expected values are from GMP.
+     *
+     * @return array<string, array{int, int, int, int}>
+     */
+    public static function mulModOverflowingProductProvider(): array
+    {
+        return [
+            'both positive'              => [PHP_INT_MAX, PHP_INT_MAX, 1000000007, 737564071],
+            'negative product'           => [PHP_INT_MAX, -PHP_INT_MAX, 1000000007, -737564071],
+            'negative modulus'           => [-PHP_INT_MAX, -PHP_INT_MAX, -1000000007, 737564071],
+            'just over PHP_INT_MAX'      => [3037000500, 3037000500, PHP_INT_MAX, 145474193],
+            'exact multiple'             => [PHP_INT_MAX, 2, PHP_INT_MAX, 0],
+            'PHP_INT_MIN factor'         => [
+                PHP_INT_MIN,
+                PHP_INT_MAX,
+                PHP_INT_MAX - 1,
+                -2,
+            ],
+            'PHP_INT_MIN modulus'        => [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MIN, 1],
+            'PHP_INT_MIN squared'        => [PHP_INT_MIN, PHP_INT_MIN, PHP_INT_MAX, 1],
+            'PHP_INT_MIN modulo minus 1' => [PHP_INT_MIN, 3, -1, 0],
+        ];
+    }
+
+    /**
+     * Test mulMod() when the product overflows an int, but the remainder doesn't.
+     */
+    #[DataProvider('mulModOverflowingProductProvider')]
+    public function testMulModOverflowingProduct(int $a, int $b, int $m, int $expected): void
+    {
+        $this->assertSame($expected, Integers::mulMod($a, $b, $m));
+    }
+
+    /**
+     * Test mulMod() with a modulus of zero throws ArithmeticException.
+     */
+    public function testMulModByZeroThrows(): void
+    {
+        $this->expectException(ArithmeticException::class);
+        $this->expectExceptionMessage('Cannot divide by zero.');
+        Integers::mulMod(2, 3, 0);
     }
 
     #endregion

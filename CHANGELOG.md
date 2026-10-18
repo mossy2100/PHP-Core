@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **`Integers::mulMod()`** calculates `(a × b) % m` without overflowing, even when `a × b` would, e.g.
+  `Integers::mulMod(PHP_INT_MAX, PHP_INT_MAX, 1000000007)` is `737564071`. The result has the sign of the product, like
+  PHP's `%`.
+
+---
+
 ## [4.0.1] - 2026-10-10
 
 ### Documentation
