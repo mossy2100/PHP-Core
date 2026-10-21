@@ -78,9 +78,9 @@ performs exact comparison. Provided by the trait, built on `approxEqual()` and `
 ## Example
 
 ```php
-use OceanMoon\Core\Floats;
-use OceanMoon\Core\Numbers;
-use OceanMoon\Core\Traits\Comparison\ApproxComparable;
+use Mossy2100\Core\Floats;
+use Mossy2100\Core\Numbers;
+use Mossy2100\Core\Traits\Comparison\ApproxComparable;
 
 class Rational
 {

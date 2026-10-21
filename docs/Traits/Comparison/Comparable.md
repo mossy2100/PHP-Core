@@ -80,8 +80,8 @@ All provided by the trait, built on `compare()`. Each propagates whatever `compa
 ## Example
 
 ```php
-use OceanMoon\Core\Numbers;
-use OceanMoon\Core\Traits\Comparison\Comparable;
+use Mossy2100\Core\Numbers;
+use Mossy2100\Core\Traits\Comparison\Comparable;
 
 class Version
 {

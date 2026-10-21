@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Stringify;
+namespace Mossy2100\Core\Tests\Stringify;
 
 use Closure;
 use DomainException;
 use InvalidArgumentException;
-use OceanMoon\Core\Stringify;
-use OceanMoon\Core\Tests\Fixtures\TestBackedEnum;
-use OceanMoon\Core\Tests\Fixtures\TestEnum;
+use Mossy2100\Core\Stringify;
+use Mossy2100\Core\Tests\Fixtures\TestBackedEnum;
+use Mossy2100\Core\Tests\Fixtures\TestEnum;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\RECURSION;
 
 /**
  * Test class for Stringify utility class - type-specific stringification methods.
@@ -417,7 +417,7 @@ final class StringifyTypeSpecificTest extends TestCase
     {
         // Test that stringify() dispatches enums correctly.
         $result = Stringify::stringify(TestEnum::Foo);
-        $this->assertSame('OceanMoon\Core\Tests\Fixtures\TestEnum::Foo', $result);
+        $this->assertSame('Mossy2100\Core\Tests\Fixtures\TestEnum::Foo', $result);
     }
 
     /**
@@ -425,8 +425,8 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyEnumDirect(): void
     {
-        $this->assertSame('OceanMoon\Core\Tests\Fixtures\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
-        $this->assertSame('OceanMoon\Core\Tests\Fixtures\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
+        $this->assertSame('Mossy2100\Core\Tests\Fixtures\TestEnum::Foo', Stringify::stringifyEnum(TestEnum::Foo));
+        $this->assertSame('Mossy2100\Core\Tests\Fixtures\TestEnum::Bar', Stringify::stringifyEnum(TestEnum::Bar));
     }
 
     /**
@@ -435,7 +435,7 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyBackedEnum(): void
     {
         $this->assertSame(
-            'OceanMoon\Core\Tests\Fixtures\TestBackedEnum::Alpha',
+            'Mossy2100\Core\Tests\Fixtures\TestBackedEnum::Alpha',
             Stringify::stringifyEnum(TestBackedEnum::Alpha)
         );
     }

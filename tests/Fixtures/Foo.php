@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 /**
  * Test fixture with properties of every visibility, for object-stringification tests.

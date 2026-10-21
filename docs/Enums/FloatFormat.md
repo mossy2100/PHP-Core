@@ -57,8 +57,8 @@ Whichever of `FixedPoint` or `Scientific` produces the more useful string. This 
 ## Usage Examples
 
 ```php
-use OceanMoon\Core\Enums\FloatFormat;
-use OceanMoon\Core\Floats;
+use Mossy2100\Core\Enums\FloatFormat;
+use Mossy2100\Core\Floats;
 
 Floats::format(1234.5, format: FloatFormat::FixedPoint);  // '1234.5'
 Floats::format(1234.5, format: FloatFormat::Scientific);  // '1.2345×10³'

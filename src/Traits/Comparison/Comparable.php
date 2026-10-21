@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Traits\Comparison;
+namespace Mossy2100\Core\Traits\Comparison;
 
 use Override;
 

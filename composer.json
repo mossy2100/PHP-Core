@@ -1,5 +1,5 @@
 {
-    "name": "oceanmoon/core",
+    "name": "mossy2100/core",
     "description": "Core PHP utilities for floats, integers, arrays, types, and string conversion with IEEE-754 support.",
     "type": "library",
     "license": "MIT",
@@ -37,11 +37,11 @@
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "oceanmoon/coding-standard": "^2.1"
+        "mossy2100/coding-standard": "^2.1"
     },
     "autoload": {
         "psr-4": {
-            "OceanMoon\\Core\\": "src/"
+            "Mossy2100\\Core\\": "src/"
         },
         "files": [
             "src/globals.php"
@@ -49,7 +49,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OceanMoon\\Core\\Tests\\": "tests/"
+            "Mossy2100\\Core\\Tests\\": "tests/"
         }
     },
     "scripts": {

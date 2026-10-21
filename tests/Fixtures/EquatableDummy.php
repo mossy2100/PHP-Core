@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 use InvalidArgumentException;
-use OceanMoon\Core\Traits\Comparison\Equatable;
+use Mossy2100\Core\Traits\Comparison\Equatable;
 
 /**
  * Minimal class using the Equatable trait, for exercising it in isolation.

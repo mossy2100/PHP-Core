@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Stringify;
+namespace Mossy2100\Core\Tests\Stringify;
 
 use ArgumentCountError;
 use BadMethodCallException;
 use DomainException;
-use OceanMoon\Core\Stringify;
-use OceanMoon\Core\Tests\Fixtures\Foo;
-use OceanMoon\Core\Tests\Fixtures\StringableThing;
-use OceanMoon\Core\Tests\Fixtures\StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed;
-use OceanMoon\Core\Tests\Fixtures\Suit;
+use Mossy2100\Core\Stringify;
+use Mossy2100\Core\Tests\Fixtures\Foo;
+use Mossy2100\Core\Tests\Fixtures\StringableThing;
+use Mossy2100\Core\Tests\Fixtures\StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed;
+use Mossy2100\Core\Tests\Fixtures\Suit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\RECURSION;
 
 /**
  * Test class for Stringify utility class - main stringification methods.
@@ -130,7 +130,7 @@ final class StringifyMainTest extends TestCase
      */
     public function testToStringWithEnum(): void
     {
-        $this->assertSame('OceanMoon\Core\Tests\Fixtures\Suit::Hearts', Stringify::toString(Suit::Hearts));
+        $this->assertSame('Mossy2100\Core\Tests\Fixtures\Suit::Hearts', Stringify::toString(Suit::Hearts));
     }
 
     /**
@@ -143,7 +143,7 @@ final class StringifyMainTest extends TestCase
         $result = Stringify::toString(new Foo());
 
         $this->assertMatchesRegularExpression(
-            '/^OceanMoon\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/',
+            '/^Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/',
             $result
         );
     }

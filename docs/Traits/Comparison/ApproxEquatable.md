@@ -56,8 +56,8 @@ for floating-point values.
 ## Example
 
 ```php
-use OceanMoon\Core\Floats;
-use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
+use Mossy2100\Core\Floats;
+use Mossy2100\Core\Traits\Comparison\ApproxEquatable;
 
 class Complex
 {

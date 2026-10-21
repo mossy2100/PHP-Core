@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Traits;
+namespace Mossy2100\Core\Tests\Traits;
 
 use InvalidArgumentException;
-use OceanMoon\Core\Tests\Fixtures\ApproxComparableDummy;
-use OceanMoon\Core\Traits\Comparison\ApproxComparable;
+use Mossy2100\Core\Tests\Fixtures\ApproxComparableDummy;
+use Mossy2100\Core\Traits\Comparison\ApproxComparable;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 

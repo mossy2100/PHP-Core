@@ -272,7 +272,7 @@ Types::getTraits(TraitC::class);   // ['TraitA']
 ### Using Types with Collections
 
 ```php
-use OceanMoon\Core\Types;
+use Mossy2100\Core\Types;
 
 // Generate unique keys for a custom dictionary that accepts any value type
 $dictionary = [];
@@ -289,7 +289,7 @@ $dictionary[$key3] = 'float value';
 ### Type Validation in Functions
 
 ```php
-use OceanMoon\Core\Types;
+use Mossy2100\Core\Types;
 
 function processItems(array $items): void
 {
@@ -305,8 +305,8 @@ function processItems(array $items): void
 ### Capability Detection with Traits
 
 ```php
-use OceanMoon\Core\Types;
-use OceanMoon\Core\Traits\Comparison\Comparable;
+use Mossy2100\Core\Types;
+use Mossy2100\Core\Traits\Comparison\Comparable;
 
 function sortIfComparable(array $items): array
 {

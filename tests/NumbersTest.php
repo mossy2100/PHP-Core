@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace Mossy2100\Core\Tests;
 
 use DomainException;
-use OceanMoon\Core\Numbers;
+use Mossy2100\Core\Numbers;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

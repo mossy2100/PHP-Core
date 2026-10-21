@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace Mossy2100\Core;
 
 use Closure;
 use DomainException;

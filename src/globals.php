@@ -7,14 +7,14 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace Mossy2100\Core;
 
 /**
  * The circle constant tau τ (tau) = 2π. Equal to the number of radians in a circle.
  *
  * To use it without requiring the namespace every time, include the following line:
  * ```php
- * use const OceanMoon\Core\M_TAU;
+ * use const Mossy2100\Core\M_TAU;
  * ```
  */
 const M_TAU = 2 * M_PI; // @codeCoverageIgnore

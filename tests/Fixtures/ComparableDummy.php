@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 use InvalidArgumentException;
-use OceanMoon\Core\Traits\Comparison\Comparable;
+use Mossy2100\Core\Traits\Comparison\Comparable;
 
 /**
  * Minimal class using the Comparable trait, for exercising it in isolation.

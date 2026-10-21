@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace Mossy2100\Core\Tests;
 
 use BadMethodCallException;
 use DomainException;
-use OceanMoon\Core\Exceptions\ArithmeticException;
-use OceanMoon\Core\Exceptions\FormatException;
-use OceanMoon\Core\Integers;
+use Mossy2100\Core\Exceptions\ArithmeticException;
+use Mossy2100\Core\Exceptions\FormatException;
+use Mossy2100\Core\Integers;
 use OverflowException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

@@ -6,7 +6,7 @@ Shared constants used by Core, Math, and other packages.
 
 ## Overview
 
-`src/globals.php` provides a small set of namespaced constants (`OceanMoon\Core`) that are more useful as globals than
+`src/globals.php` provides a small set of namespaced constants (`Mossy2100\Core`) that are more useful as globals than
 as class members. The number of items is deliberately kept small to minimise the number of `use const` statements, which
 aren't that common or well-known in PHP.
 
@@ -22,7 +22,7 @@ To use a constant without qualifying the namespace every time, add a `use const`
 **Example:**
 
 ```php
-use const OceanMoon\Core\M_TAU;
+use const Mossy2100\Core\M_TAU;
 ```
 
 ---
@@ -39,7 +39,7 @@ The circle constant tau τ = 2π (≈ 6.2831853). Equal to the number of radians
 naming pattern for mathematical constants, such as `M_PI`, `M_E`, etc.
 
 ```php
-use const OceanMoon\Core\M_TAU;
+use const Mossy2100\Core\M_TAU;
 
 $radius = 10;
 $circumference = M_TAU * $radius;  // ≈ 62.83185307179586
@@ -56,7 +56,7 @@ reference, in place of infinitely recursing. Intended to match the recursion mar
 uses.
 
 ```php
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\RECURSION;
 
 $arr = ['x' => 1];
 $arr['self'] = &$arr;

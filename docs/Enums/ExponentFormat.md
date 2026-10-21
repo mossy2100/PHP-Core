@@ -101,7 +101,7 @@ exponents and show only `'-'` for negative ones, matching how scientific notatio
 **Examples:**
 
 ```php
-use OceanMoon\Core\Enums\ExponentFormat;
+use Mossy2100\Core\Enums\ExponentFormat;
 
 ExponentFormat::AsciiLowerCaseE->format(42);   // 'e+42'
 ExponentFormat::AsciiUpperCaseE->format(-42);  // 'E-42'
@@ -118,9 +118,9 @@ ExponentFormat::HtmlMath->format(42);          // '&times;10<sup>42</sup>'
 `ExponentFormat` is normally passed to `Floats::format()`'s `$expFormat` parameter rather than called directly:
 
 ```php
-use OceanMoon\Core\Enums\ExponentFormat;
-use OceanMoon\Core\Enums\FloatFormat;
-use OceanMoon\Core\Floats;
+use Mossy2100\Core\Enums\ExponentFormat;
+use Mossy2100\Core\Enums\FloatFormat;
+use Mossy2100\Core\Floats;
 
 Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific);
 // '1.5×10³' (UnicodeMath, the default)

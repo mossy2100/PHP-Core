@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Traits;
+namespace Mossy2100\Core\Tests\Traits;
 
-use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use Mossy2100\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;

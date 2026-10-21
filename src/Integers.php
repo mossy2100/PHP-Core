@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace Mossy2100\Core;
 
 use BadMethodCallException;
 use DomainException;
-use OceanMoon\Core\Exceptions\ArithmeticException;
-use OceanMoon\Core\Exceptions\FormatException;
+use Mossy2100\Core\Exceptions\ArithmeticException;
+use Mossy2100\Core\Exceptions\FormatException;
 use OverflowException;
 
 /**

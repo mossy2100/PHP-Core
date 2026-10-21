@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Enums;
+namespace Mossy2100\Core\Enums;
 
-use OceanMoon\Core\Integers;
+use Mossy2100\Core\Integers;
 
 /**
  * Rendering styles for the exponential part of scientific-notation float output.

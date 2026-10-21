@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 /**
  * Child class that inherits trait usage from parent.

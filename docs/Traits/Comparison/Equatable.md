@@ -55,7 +55,7 @@ abstract public function equal(mixed $other): bool
 ## Example
 
 ```php
-use OceanMoon\Core\Traits\Comparison\Equatable;
+use Mossy2100\Core\Traits\Comparison\Equatable;
 
 class Point
 {

@@ -14,6 +14,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   `Integers::mulMod(PHP_INT_MAX, PHP_INT_MAX, 1000000007)` is `737564071`. The result has the sign of the product, like
   PHP's `%`.
 
+### Changed
+
+- **Renamed the package from `oceanmoon/core` to `mossy2100/core`, and the namespace from `OceanMoon\Core` to
+  `Mossy2100\Core` (breaking),** matching the author's GitHub and Packagist name. Update `composer.json` and any
+  `use` statements, including for the exceptions, e.g. `Mossy2100\Core\Exceptions\FormatException`.
+
 ---
 
 ## [4.0.1] - 2026-10-10

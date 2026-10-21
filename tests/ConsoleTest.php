@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace Mossy2100\Core\Tests;
 
 use ArgumentCountError;
 use DomainException;
-use OceanMoon\Core\Console;
-use OceanMoon\Core\Tests\Fixtures\Foo;
-use OceanMoon\Core\Tests\Fixtures\StringableThing;
+use Mossy2100\Core\Console;
+use Mossy2100\Core\Tests\Fixtures\Foo;
+use Mossy2100\Core\Tests\Fixtures\StringableThing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\RECURSION;
 
 /**
  * Test class for Console utility class.
@@ -634,7 +634,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithNonStringableObjectDoesNotThrow(): void
     {
         $this->expectOutputRegex(
-            '/^OceanMoon\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/'
+            '/^Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/'
         );
         $this->console->print(new Foo());
     }
@@ -755,7 +755,7 @@ final class ConsoleTest extends TestCase
     public function testDumpVarWithObject(): void
     {
         $this->expectOutputRegex(
-            '/^\033\[96m\033\[49mobject: OceanMoon\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\n'
+            '/^\033\[96m\033\[49mobject: Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\n'
             . '    \+a => 1,\n    #b => 2,\n    -c => 3,\n\}\n'
             . '\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/'
         );

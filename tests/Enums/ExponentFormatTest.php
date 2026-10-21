@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Enums;
+namespace Mossy2100\Core\Tests\Enums;
 
-use OceanMoon\Core\Enums\ExponentFormat;
+use Mossy2100\Core\Enums\ExponentFormat;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

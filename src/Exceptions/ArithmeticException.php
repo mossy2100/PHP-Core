@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Exceptions;
+namespace Mossy2100\Core\Exceptions;
 
 use DomainException;
 

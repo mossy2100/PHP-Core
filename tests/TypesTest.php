@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace Mossy2100\Core\Tests;
 
 use DateTime;
 use DomainException;
-use OceanMoon\Core\Tests\Fixtures\ChildClassUsingTrait;
-use OceanMoon\Core\Tests\Fixtures\ClassNotUsingTrait;
-use OceanMoon\Core\Tests\Fixtures\ClassUsingNestedTrait;
-use OceanMoon\Core\Tests\Fixtures\ClassUsingTrait;
-use OceanMoon\Core\Tests\Fixtures\NestedTrait;
-use OceanMoon\Core\Tests\Fixtures\TestColor;
-use OceanMoon\Core\Tests\Fixtures\TestSuit;
-use OceanMoon\Core\Tests\Fixtures\TestTrait;
-use OceanMoon\Core\Types;
+use Mossy2100\Core\Tests\Fixtures\ChildClassUsingTrait;
+use Mossy2100\Core\Tests\Fixtures\ClassNotUsingTrait;
+use Mossy2100\Core\Tests\Fixtures\ClassUsingNestedTrait;
+use Mossy2100\Core\Tests\Fixtures\ClassUsingTrait;
+use Mossy2100\Core\Tests\Fixtures\NestedTrait;
+use Mossy2100\Core\Tests\Fixtures\TestColor;
+use Mossy2100\Core\Tests\Fixtures\TestSuit;
+use Mossy2100\Core\Tests\Fixtures\TestTrait;
+use Mossy2100\Core\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -256,7 +256,7 @@ final class TypesTest extends TestCase
     {
         // Test that unit enums produce keys with class and case name.
         $key = Types::getUniqueString(TestSuit::Hearts);
-        $this->assertSame('e:OceanMoon\Core\Tests\Fixtures\TestSuit::Hearts', $key);
+        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestSuit::Hearts', $key);
 
         // Test that different cases produce different keys.
         $key2 = Types::getUniqueString(TestSuit::Diamonds);
@@ -268,7 +268,7 @@ final class TypesTest extends TestCase
 
         // Test with a backed enum.
         $key4 = Types::getUniqueString(TestColor::Red);
-        $this->assertSame('e:OceanMoon\Core\Tests\Fixtures\TestColor::Red', $key4);
+        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestColor::Red', $key4);
 
         // Test that enums from different classes are distinct.
         $this->assertNotSame($key, $key4);

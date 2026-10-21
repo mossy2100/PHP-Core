@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests;
+namespace Mossy2100\Core\Tests;
 
 use InvalidArgumentException;
 use LengthException;
-use OceanMoon\Core\Arrays;
+use Mossy2100\Core\Arrays;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\RECURSION;
 
 /**
  * Test class for Arrays utility class.

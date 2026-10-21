@@ -60,7 +60,7 @@ Relative difference: 0.13474387173374 (tolerance: 1.0e-9)
 ### Basic Usage
 
 ```php
-use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use Mossy2100\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\TestCase;
 
 class CalculationTest extends TestCase

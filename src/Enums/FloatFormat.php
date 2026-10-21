@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Enums;
+namespace Mossy2100\Core\Enums;
 
 /**
  * Notation styles for Floats::format().

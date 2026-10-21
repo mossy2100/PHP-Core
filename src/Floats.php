@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core;
+namespace Mossy2100\Core;
 
 use DomainException;
+use Mossy2100\Core\Enums\ExponentFormat;
+use Mossy2100\Core\Enums\FloatFormat;
 use NumberFormatter;
-use OceanMoon\Core\Enums\ExponentFormat;
-use OceanMoon\Core\Enums\FloatFormat;
 use Random\RandomException;
 use RoundingMode;
 use RuntimeException;
@@ -427,7 +427,7 @@ final class Floats
      *   - FloatFormat::FixedPoint: Does not include an exponential part.
      *   - FloatFormat::Scientific: Always includes an exponential part.
      *   - FloatFormat::Auto: Whichever of the above produces the more useful string (default).
-     * @see OceanMoon\Core\Enums\FloatFormat
+     * @see Mossy2100\Core\Enums\FloatFormat
      *
      * If $trimZeros is:
      *   - true:  Trailing zeros - and, if necessary, a trailing decimal point - are automatically removed.
@@ -435,7 +435,7 @@ final class Floats
      *   - false: All digits are preserved (default).
      *
      * $expFormat controls how an exponent, if present, is rendered.
-     * @see OceanMoon\Core\Enums\ExponentFormat
+     * @see Mossy2100\Core\Enums\ExponentFormat
      *
      * For example:
      * ```php

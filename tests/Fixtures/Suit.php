@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 /**
  * Test fixture enum, for testing enum handling in to_string().

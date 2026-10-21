@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Globals;
+namespace Mossy2100\Core\Tests\Globals;
 
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\M_TAU;
-use const OceanMoon\Core\RECURSION;
+use const Mossy2100\Core\M_TAU;
+use const Mossy2100\Core\RECURSION;
 
 /**
  * Tests the stuff in globals.php.

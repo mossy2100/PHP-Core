@@ -26,7 +26,7 @@ arithmetic overflow), not a recoverable domain-level operation failure.
 ## Class Definition
 
 ```php
-namespace OceanMoon\Core\Exceptions;
+namespace Mossy2100\Core\Exceptions;
 
 class ArithmeticException extends DomainException
 ```
@@ -36,7 +36,7 @@ class ArithmeticException extends DomainException
 ## Usage Example
 
 ```php
-use OceanMoon\Core\Exceptions\ArithmeticException;
+use Mossy2100\Core\Exceptions\ArithmeticException;
 
 class Fraction
 {
@@ -89,5 +89,5 @@ Use other exceptions when:
 
 - **[DomainException](https://www.php.net/manual/en/class.domainexception.php)** - Parent class
 - **[Exception Conventions](../../../../docs/guidelines/EXCEPTIONS.md)** - Project-wide exception usage guidelines
-- `OceanMoon\Math\Complex`, `OceanMoon\Math\Rational`, `OceanMoon\Math\Vector`, `OceanMoon\Math\Matrix` - all use
+- `Mossy2100\Math\Complex`, `Mossy2100\Math\Rational`, `Mossy2100\Math\Vector`, `Mossy2100\Math\Matrix` - all use
   `ArithmeticException` for undefined arithmetic operations

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Floats;
+namespace Mossy2100\Core\Tests\Floats;
 
 use DomainException;
-use OceanMoon\Core\Floats;
+use Mossy2100\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-use const OceanMoon\Core\M_TAU;
+use const Mossy2100\Core\M_TAU;
 
 /**
  * Test class for Floats utility class - transformation methods.

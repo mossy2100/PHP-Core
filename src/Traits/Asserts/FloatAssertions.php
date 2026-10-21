@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Traits\Asserts;
+namespace Mossy2100\Core\Traits\Asserts;
 
-use OceanMoon\Core\Floats;
+use Mossy2100\Core\Floats;
 use PHPUnit\Framework\AssertionFailedError;
 
 /**

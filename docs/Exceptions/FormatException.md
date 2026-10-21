@@ -20,7 +20,7 @@ numeric value being out of range.
 ## Class Definition
 
 ```php
-namespace OceanMoon\Core\Exceptions;
+namespace Mossy2100\Core\Exceptions;
 
 class FormatException extends DomainException
 ```
@@ -30,7 +30,7 @@ class FormatException extends DomainException
 ## Usage Example
 
 ```php
-use OceanMoon\Core\Exceptions\FormatException;
+use Mossy2100\Core\Exceptions\FormatException;
 
 class PhoneNumber
 {

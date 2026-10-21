@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Stringify;
+namespace Mossy2100\Core\Tests\Stringify;
 
 use DomainException;
-use OceanMoon\Core\Stringify;
+use Mossy2100\Core\Stringify;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

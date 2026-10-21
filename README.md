@@ -1,6 +1,6 @@
-# OceanMoon PHP Core
+# Mossy2100 PHP Core
 
-A general purpose package containing core PHP utility classes and methods for use by other OceanMoon PHP packages.
+A general purpose package containing core PHP utility classes and methods for use by other Mossy2100 PHP packages.
 
 **[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)**
 
@@ -43,7 +43,7 @@ documentation.
 ## Installation
 
 ```bash
-composer require oceanmoon/core
+composer require mossy2100/core
 ```
 
 ---
@@ -93,7 +93,7 @@ chaining, style snapshot/restore, and higher-level helpers like `dump()` and sev
 
 ## [Globals](docs/Globals.md)
 
-Useful constants (`M_TAU`, `RECURSION`) that are more convenient to use as globals (namespaced to `OceanMoon\Core`) than
+Useful constants (`M_TAU`, `RECURSION`) that are more convenient to use as globals (namespaced to `Mossy2100\Core`) than
 as class members.
 
 ---

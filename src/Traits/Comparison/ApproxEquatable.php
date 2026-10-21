@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Traits\Comparison;
+namespace Mossy2100\Core\Traits\Comparison;
 
-use OceanMoon\Core\Floats;
+use Mossy2100\Core\Floats;
 
 /**
  * Trait for objects that support approximate equality comparison with configurable tolerances.

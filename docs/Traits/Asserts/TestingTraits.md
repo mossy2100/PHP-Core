@@ -5,7 +5,7 @@
 The [FloatAssertions](FloatAssertions.md) trait provides PHPUnit assertions for testing floating-point values:
 
 ```php
-use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use Mossy2100\Core\Traits\Asserts\FloatAssertions;
 use PHPUnit\Framework\TestCase;
 
 class MyTest extends TestCase

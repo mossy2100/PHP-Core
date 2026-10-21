@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OceanMoon\Core\Tests\Fixtures;
+namespace Mossy2100\Core\Tests\Fixtures;
 
 use InvalidArgumentException;
-use OceanMoon\Core\Floats;
-use OceanMoon\Core\Traits\Comparison\ApproxEquatable;
+use Mossy2100\Core\Floats;
+use Mossy2100\Core\Traits\Comparison\ApproxEquatable;
 
 /**
  * Minimal class using the ApproxEquatable trait, for exercising it in isolation.
