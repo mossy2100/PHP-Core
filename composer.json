@@ -29,6 +29,18 @@
         "issues": "https://github.com/mossy2100/PHP-Core/issues",
         "source": "https://github.com/mossy2100/PHP-Core"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../CodingStandard",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "mossy2100/coding-standard": "2.2.0"
+                }
+            }
+        }
+    ],
     "require": {
         "php": "^8.4"
     },

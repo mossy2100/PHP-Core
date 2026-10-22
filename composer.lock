@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8418a533f1a5a3d483834e8608a89b4f",
+    "content-hash": "29c63d0b3f73836de1cf342035a90577",
     "packages": [],
     "packages-dev": [
         {
@@ -102,6 +102,80 @@
                 }
             ],
             "time": "2026-05-06T08:26:05+00:00"
+        },
+        {
+            "name": "mossy2100/coding-standard",
+            "version": "2.2.0",
+            "dist": {
+                "type": "path",
+                "url": "../CodingStandard",
+                "reference": "923687941597bb6e8986e8b35f5028295c26d163"
+            },
+            "require": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "php": "^8.4",
+                "slevomat/coding-standard": "^8.25",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "phpcodesniffer-standard",
+            "extra": {
+                "phpcodesniffer-search-depth": 3
+            },
+            "scripts": {
+                "fix": [
+                    "vendor/bin/phpcbf -vp"
+                ],
+                "check": [
+                    "vendor/bin/phpcs -s"
+                ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
+                "analyze": [
+                    "scripts/analyze"
+                ],
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "quality": [
+                    "@fix",
+                    "@check",
+                    "@analyze",
+                    "@test"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shaun Moss",
+                    "email": "mossy2100@gmail.com"
+                }
+            ],
+            "description": "PHP_CodeSniffer coding standard extending PSR-12 with lowerCamelCase naming and modern PHP 8.4+ rules.",
+            "homepage": "https://github.com/mossy2100/PHP-Coding-Standard",
+            "keywords": [
+                "code-style",
+                "codesniffer",
+                "coding-standard",
+                "linting",
+                "php",
+                "phpcs",
+                "psr-12"
+            ],
+            "support": {
+                "issues": "https://github.com/mossy2100/PHP-Coding-Standard/issues",
+                "source": "https://github.com/mossy2100/PHP-Coding-Standard"
+            },
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "myclabs/deep-copy",
@@ -219,61 +293,6 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.8.0"
             },
             "time": "2026-07-04T14:30:18+00:00"
-        },
-        {
-            "name": "oceanmoon/coding-standard",
-            "version": "v2.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mossy2100/PHP-Coding-Standard.git",
-                "reference": "9e1801e07ebe955ad72b5a7f75f7d26920d94ebd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mossy2100/PHP-Coding-Standard/zipball/9e1801e07ebe955ad72b5a7f75f7d26920d94ebd",
-                "reference": "9e1801e07ebe955ad72b5a7f75f7d26920d94ebd",
-                "shasum": ""
-            },
-            "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "php": "^8.4",
-                "slevomat/coding-standard": "^8.25",
-                "squizlabs/php_codesniffer": "^4.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "phpcodesniffer-standard",
-            "extra": {
-                "phpcodesniffer-search-depth": 3
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Shaun Moss",
-                    "email": "mossy2100@gmail.com"
-                }
-            ],
-            "description": "PHP_CodeSniffer coding standard extending PSR-12 with lowerCamelCase naming and modern PHP 8.4+ rules.",
-            "homepage": "https://github.com/mossy2100/PHP-Coding-Standard",
-            "keywords": [
-                "code-style",
-                "codesniffer",
-                "coding-standard",
-                "linting",
-                "php",
-                "phpcs",
-                "psr-12"
-            ],
-            "support": {
-                "issues": "https://github.com/mossy2100/PHP-Coding-Standard/issues",
-                "source": "https://github.com/mossy2100/PHP-Coding-Standard"
-            },
-            "time": "2026-08-23T06:46:26+00:00"
         },
         {
             "name": "phar-io/manifest",
