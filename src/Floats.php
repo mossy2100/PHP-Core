@@ -1088,11 +1088,19 @@ final class Floats
      */
     private static function formatFixed(float $value, int $precision, int $roundingMode): string
     {
+        // Building and configuring a formatter costs far more than using one, so cache them by their settings. There
+        // are at most 18 precisions x 8 rounding modes.
+        static $formatters = [];
+        $key = "$precision:$roundingMode";
+        if (!isset($formatters[$key])) {
+            $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::DECIMAL);
+            $nf->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
+            $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
+            $formatters[$key] = $nf;
+        }
+
         // Format the float.
-        $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::DECIMAL);
-        $nf->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
-        $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
-        $result = $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+        $result = $formatters[$key]->format($value, NumberFormatter::TYPE_DOUBLE);
 
         // Check for error.
         if ($result === false) {
@@ -1115,12 +1123,20 @@ final class Floats
      */
     private static function formatScientific(float $value, int $precision, int $roundingMode): string
     {
-        $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::SCIENTIFIC);
-        $nf->setAttribute(NumberFormatter::SIGNIFICANT_DIGITS_USED, 1);
-        $nf->setAttribute(NumberFormatter::MIN_SIGNIFICANT_DIGITS, $precision);
-        $nf->setAttribute(NumberFormatter::MAX_SIGNIFICANT_DIGITS, $precision);
-        $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
-        $result = $nf->format($value, NumberFormatter::TYPE_DOUBLE);
+        // Cache formatters by their settings, as in formatFixed(). There are at most 17 precisions x 8 rounding modes.
+        static $formatters = [];
+        $key = "$precision:$roundingMode";
+        if (!isset($formatters[$key])) {
+            $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::SCIENTIFIC);
+            $nf->setAttribute(NumberFormatter::SIGNIFICANT_DIGITS_USED, 1);
+            $nf->setAttribute(NumberFormatter::MIN_SIGNIFICANT_DIGITS, $precision);
+            $nf->setAttribute(NumberFormatter::MAX_SIGNIFICANT_DIGITS, $precision);
+            $nf->setAttribute(NumberFormatter::ROUNDING_MODE, $roundingMode);
+            $formatters[$key] = $nf;
+        }
+
+        // Format the float.
+        $result = $formatters[$key]->format($value, NumberFormatter::TYPE_DOUBLE);
 
         // Check for error.
         if ($result === false) {

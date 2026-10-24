@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   (breaking).** From PHP 8.4, the name says where the closure is defined, e.g. `{closure:App\Models\User::sorter():19}`.
   Reading the source back could show the wrong closure when two started on one line. First-class callables are shown in
   that syntax, e.g. `strlen(...)` or `App\Models\User::sorter(...)`.
+- **`Floats::format()`** is about 15 times faster, since it now reuses its configured `NumberFormatter`s.
 - **`Stringify::stringifyFloat()`** shows floats exactly, using `var_export()`: `0.1 + 0.2` is now
   `0.30000000000000004` rather than `0.3`, and the result converts back to the same float. This also changes floats
   in `stringify()`, `abbrev()`, `prepEx()` exception messages and `Console::dump()`. Large whole numbers are written
