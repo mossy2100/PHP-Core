@@ -74,6 +74,28 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
+     * Test stringifying floats gives the exact value, not one rounded to the `precision` ini setting.
+     */
+    public function testStringifyFloatIsExact(): void
+    {
+        $this->assertSame('0.30000000000000004', Stringify::stringifyFloat(0.1 + 0.2));
+        $this->assertSame('1.2345678901234568E+17', Stringify::stringifyFloat(123456789012345678.0));
+        $this->assertSame('1000000000000000.0', Stringify::stringifyFloat(1e15));
+
+        // The result converts back to the same float.
+        $values = [
+            0.1 + 0.2,
+            M_PI,
+            -1e-300,
+            5e-324,
+            PHP_FLOAT_MAX,
+        ];
+        foreach ($values as $value) {
+            $this->assertSame($value, (float) Stringify::stringifyFloat($value));
+        }
+    }
+
+    /**
      * Test stringifying special float values.
      */
     public function testStringifyFloatSpecial(): void

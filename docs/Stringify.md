@@ -17,9 +17,9 @@ It's for display, exception and log messages, not collection keys: the output fo
 
 - **Single-quoted strings**: Strings are wrapped in single quotes, with backslash and single quotes escaped. Unicode
   characters are preserved as-is.
-- **Clearer float representation**: Floats are always made distinguishable from integers by appending `.0` if no decimal
-  point or `E` is present in the string (e.g., `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled
-  correctly.
+- **Exact float representation**: Floats are shown with the shortest digits that convert back to the same value (e.g.,
+  `0.30000000000000004`), and always include a decimal point or exponent, so they never look like integers (e.g.,
+  `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled correctly.
 - **PHP-style array formatting**: Both list arrays and associative arrays use square brackets (`[...]`). List arrays
   omit keys; associative arrays show keys with thick arrows (`=>`).
 - **Smart pretty printing**: Simple list arrays use single-line, grid, or one-per-line layout depending on length.
@@ -347,8 +347,11 @@ Stringify::stringifyInt(-7);   // '-7'
 public static function stringifyFloat(float $value): string
 ```
 
-Format a float value as a string, ensuring it doesn't look like an integer. Non-finite values (`NAN`, `INF`, `-INF`) are
-returned as-is.
+Format a float value as a string, exactly, ensuring it doesn't look like an integer. Uses `var_export()`, which gives
+the shortest digits that convert back to the same float. Non-finite values (`NAN`, `INF`, `-INF`) are returned as their
+constant names.
+
+This relies on the `serialize_precision` ini setting being `-1`, which is PHP's default.
 
 **Parameters:**
 
@@ -363,6 +366,8 @@ returned as-is.
 ```php
 Stringify::stringifyFloat(3.14);     // '3.14'
 Stringify::stringifyFloat(5.0);      // '5.0' (ensures decimal point)
+Stringify::stringifyFloat(0.1 + 0.2); // '0.30000000000000004' (exact)
+Stringify::stringifyFloat(1e15);     // '1000000000000000.0'
 Stringify::stringifyFloat(1.5e100);  // '1.5E+100'
 Stringify::stringifyFloat(-0.0);     // '-0.0'
 Stringify::stringifyFloat(NAN);      // 'NAN'

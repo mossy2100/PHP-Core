@@ -366,28 +366,20 @@ final class Stringify
     }
 
     /**
-     * Encode a float in such a way that it doesn't look like an integer.
+     * Encode a float exactly, in such a way that it doesn't look like an integer.
+     *
+     * Uses var_export(), which gives the shortest string that converts back to the same float (e.g. 0.1 + 0.2 gives
+     * '0.30000000000000004'), and always includes a decimal point or exponent (e.g. '5.0'). A (string) cast would
+     * round to the `precision` ini setting (14 significant digits by default) and drop the '.0'.
+     *
+     * The shortest round-trip form depends on the `serialize_precision` ini setting being -1, which is the default.
      *
      * @param float $value The float value to encode.
      * @return string The string representation of the float.
      */
     public static function stringifyFloat(float $value): string
     {
-        // Handle non-finite values. Avoids warning thrown when casting NAN to string.
-        if (!is_finite($value)) {
-            return var_export($value, true);
-        }
-
-        // Cast float to a string.
-        $s = (string) $value;
-
-        // If the string representation of the float value has no decimal point or exponent (i.e. nothing to distinguish
-        // it from an integer), append a decimal point.
-        if (preg_match('/[.eE]/', $s) === 0) {
-            $s .= '.0';
-        }
-
-        return $s;
+        return var_export($value, true);
     }
 
     /**

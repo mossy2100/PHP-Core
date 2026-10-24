@@ -23,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Renamed `Floats::rand()` to `Floats::randRepresentable()` (breaking).** It can return any representable float, so
   its values cluster near zero rather than being uniform, which the name `rand()` suggested. For uniform values, use
   `Floats::randUniform()`.
+- **`Stringify::stringifyFloat()`** shows floats exactly, using `var_export()`: `0.1 + 0.2` is now
+  `0.30000000000000004` rather than `0.3`, and the result converts back to the same float. This also changes floats
+  in `stringify()`, `abbrev()`, `prepEx()` exception messages and `Console::dump()`. Large whole numbers are written
+  out in full, e.g. `1e15` is `1000000000000000.0` rather than `1.0E+15`.
 
 ### Fixed
 
