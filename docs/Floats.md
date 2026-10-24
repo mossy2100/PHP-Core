@@ -832,7 +832,8 @@ See [FloatFormat::Auto](Enums/FloatFormat.md#auto) for more detail.
 | `FloatFormat::Scientific` | Always includes an exponential part.                                 |
 | `FloatFormat::Auto`       | Whichever of the above produces the more useful string. **Default.** |
 
-- `$expFormat` (`ExponentFormat`) - Controls how the exponential part is rendered when `FloatFormat` is `Scientific`.
+- `$expFormat` (`ExponentFormat`) - Controls how the exponential part is rendered, for `FloatFormat::Scientific` and
+  whenever `FloatFormat::Auto` chooses scientific notation.
   Default `ExponentFormat::UnicodeMath`.
 
 | Case                              | Example                  |

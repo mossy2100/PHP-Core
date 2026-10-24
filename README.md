@@ -88,8 +88,8 @@ correctly handles mixed int/float comparisons, and sign operations with IEEE-754
 
 ### [Arrays](docs/Arrays.md)
 
-Array utility methods: value quoting, serial lists (`'a, b, and c'`), first/last element extraction, value removal,
-and circular reference removal.
+Array utility methods: value quoting, serial lists (`'a, b, and c'`), first/last element extraction, value removal, and
+circular reference removal.
 
 ### [Types](docs/Types.md)
 

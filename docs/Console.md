@@ -79,7 +79,7 @@ Maps each of `Types::getBasicType()`'s type names to a default `Console` color c
 color a value by its type; look it up directly if you want the same color scheme elsewhere.
 
 | Type       | Color            | Notes                         |
-| ---------- | ---------------- | ------------------------------ |
+| ---------- | ---------------- | ----------------------------- |
 | `null`     | `SILVER`         | Muted grey, for "absence".    |
 | `bool`     | `BRIGHT_YELLOW`  |                               |
 | `int`      | `BRIGHT_BLUE`    |                               |

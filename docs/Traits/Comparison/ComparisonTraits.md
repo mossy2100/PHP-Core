@@ -6,7 +6,7 @@ A hierarchical set of traits providing equality and ordering comparison operatio
 
 ## Trait Hierarchy
 
-```
+```text
         Equatable
         ↙     ↘
 Comparable   ApproxEquatable

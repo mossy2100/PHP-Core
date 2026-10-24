@@ -111,7 +111,8 @@ Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges']);    // 'apples and ora
 
 ```php
 $validUnits = ['kg', 'g', 'mg'];
-throw new DomainException('Invalid unit. Expected ' . Arrays::toSerialList(Arrays::quoteValues($validUnits), 'or') . '.');
+$expected = Arrays::toSerialList(Arrays::quoteValues($validUnits), 'or');
+throw new DomainException("Invalid unit. Expected $expected.");
 // "Invalid unit. Expected 'kg', 'g', or 'mg'."
 ```
 

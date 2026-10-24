@@ -47,7 +47,7 @@ tolerance.
 
 When the assertion fails, it produces an informative message:
 
-```
+```text
 Failed asserting that 2.71828 approximately equals 3.14159.
 Absolute difference: 0.42331 (tolerance: 2.22044604925031e-16)
 Relative difference: 0.13474387173374 (tolerance: 1.0e-9)
@@ -124,7 +124,7 @@ public function testPhysicsCalculation(): void
 
 This produces on failure:
 
-```
+```text
 Force calculation for 1kg at Earth gravity
 Failed asserting that 9.75 approximately equals 9.80665.
 Absolute difference: 0.0566499999999994 (tolerance: 0.0001)
