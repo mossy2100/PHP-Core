@@ -12,7 +12,8 @@ use RuntimeException;
 final class Environment
 {
     /**
-     * Invariant locale, matching the root locale in the Unix Common Locale Data Repository (CLDR).
+     * Invariant locale, for formatting that mustn't depend on the environment. It's the Unicode CLDR's POSIX locale,
+     * which formats numbers with '.' as the decimal separator and no grouping.
      */
     public const string INVARIANT_LOCALE = 'en_US_POSIX';
 

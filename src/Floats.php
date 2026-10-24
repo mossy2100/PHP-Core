@@ -287,7 +287,7 @@ final class Floats
      * - Floats::trunc(3.7) → 3.0
      * - Floats::trunc(-3.7) → -3.0
      * - Floats::trunc(3.0) → 3.0
-     * - Floats::trunc(-0.5) → 0.0
+     * - Floats::trunc(-0.5) → -0.0
      *
      * Special cases:
      * - Floats::trunc(NAN) returns NAN
@@ -309,7 +309,7 @@ final class Floats
      *
      * This method satisfies the identity x = Floats::trunc(x) + Floats::frac(x), even for non-finite numbers.
      *
-     * The result will have the same sign as the input value. For example:
+     * The result has the same sign as the input value, except that an integral value gives 0.0. For example:
      * - Floats::frac(3.7) → 0.7
      * - Floats::frac(-3.7) → -0.7
      *

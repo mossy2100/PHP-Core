@@ -102,7 +102,7 @@ final class Stringify
         try {
             return (string) $value; // @phpstan-ignore cast.string
         } catch (Throwable) {
-            // Fall through to the DateTimeInterface/Stringify handling below.
+            // Fall through to stringify() below.
         } finally {
             restore_error_handler();
         }

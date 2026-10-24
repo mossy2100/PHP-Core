@@ -19,7 +19,8 @@ is 64-bit. This is a static utility class and cannot be instantiated.
 public const string INVARIANT_LOCALE = 'en_US_POSIX';
 ```
 
-The invariant locale, matching the root locale in the Unix Common Locale Data Repository (CLDR).
+The invariant locale, for formatting that mustn't depend on the environment. It's the Unicode CLDR's POSIX locale,
+which formats numbers with `.` as the decimal separator and no grouping.
 
 Use this wherever number or date formatting must be stable and locale-independent - e.g. `Floats::format()` constructs
 its `NumberFormatter` with `INVARIANT_LOCALE`, so the default locale can't change whether a formatted float uses `.` or
