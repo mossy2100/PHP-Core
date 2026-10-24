@@ -439,6 +439,10 @@ final class Integers
             throw new FormatException("String '$intString' does not represent an integer.");
         }
 
+        // Strip leading zeros, which filter_var() rejects, keeping at least one digit. isSubscript() and
+        // isSuperscript() accept them, and so does an (int) cast of a plain string like '007'.
+        $intString = preg_replace('/^(-?)0+(?=\d)/', '$1', $intString) ?? $intString;
+
         // Convert to int and check for overflow.
         $result = filter_var($intString, FILTER_VALIDATE_INT);
         if ($result === false) {

@@ -684,6 +684,27 @@ final class IntegersTest extends TestCase
         $this->assertSame(PHP_INT_MIN, Integers::fromSubscript(Integers::toSubscript(PHP_INT_MIN)));
     }
 
+    /**
+     * Test fromSubscript() accepts leading zeros, as isSubscript() does.
+     */
+    public function testFromSubscriptWithLeadingZeros(): void
+    {
+        $this->assertTrue(Integers::isSubscript('₀₀₇'));
+        $this->assertSame(7, Integers::fromSubscript('₀₀₇'));
+        $this->assertSame(-5, Integers::fromSubscript('₋₀₀₅'));
+        $this->assertSame(0, Integers::fromSubscript('₀₀'));
+        $this->assertSame(PHP_INT_MAX, Integers::fromSubscript('₀' . Integers::toSubscript(PHP_INT_MAX)));
+    }
+
+    /**
+     * Test fromSubscript() still reports overflow for a value with leading zeros.
+     */
+    public function testFromSubscriptWithLeadingZerosOverflow(): void
+    {
+        $this->expectException(OverflowException::class);
+        Integers::fromSubscript('₀₉₂₂₃₃₇₂₀₃₆₈₅₄₇₇₅₈₀₈');
+    }
+
     #endregion
 
     #region Method fromSuperscript() tests.
@@ -772,6 +793,17 @@ final class IntegersTest extends TestCase
     {
         $this->assertSame(PHP_INT_MAX, Integers::fromSuperscript(Integers::toSuperscript(PHP_INT_MAX)));
         $this->assertSame(PHP_INT_MIN, Integers::fromSuperscript(Integers::toSuperscript(PHP_INT_MIN)));
+    }
+
+    /**
+     * Test fromSuperscript() accepts leading zeros, as isSuperscript() does.
+     */
+    public function testFromSuperscriptWithLeadingZeros(): void
+    {
+        $this->assertTrue(Integers::isSuperscript('⁰⁰⁷'));
+        $this->assertSame(7, Integers::fromSuperscript('⁰⁰⁷'));
+        $this->assertSame(-5, Integers::fromSuperscript('⁻⁰⁵'));
+        $this->assertSame(0, Integers::fromSuperscript('⁻⁰⁰'));
     }
 
     #endregion

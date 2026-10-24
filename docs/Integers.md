@@ -375,6 +375,7 @@ Convert a string of Unicode subscript characters to an integer.
 Integers::fromSubscript('₁₂₃');   // 123
 Integers::fromSubscript('₋₄₂');   // -42
 Integers::fromSubscript('₀');     // 0
+Integers::fromSubscript('₀₀₇');   // 7 (leading zeros are accepted)
 Integers::fromSubscript('₅');     // 5
 
 Integers::fromSubscript('123');   // throws FormatException
@@ -413,6 +414,7 @@ Convert a string of Unicode superscript characters to an integer.
 Integers::fromSuperscript('¹²³');   // 123
 Integers::fromSuperscript('⁻⁴²');   // -42
 Integers::fromSuperscript('⁰');     // 0
+Integers::fromSuperscript('⁰⁰⁷');   // 7 (leading zeros are accepted)
 Integers::fromSuperscript('⁵');     // 5
 
 Integers::fromSuperscript('123');   // throws FormatException
