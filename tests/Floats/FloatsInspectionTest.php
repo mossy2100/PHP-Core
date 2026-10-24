@@ -266,5 +266,27 @@ final class FloatsInspectionTest extends TestCase
         Floats::getExponent(-INF);
     }
 
+    /**
+     * Test getExponent() with subnormal values, where 10.0 ** $exp loses precision or underflows to 0.0.
+     */
+    public function testGetExponentWithSubnormals(): void
+    {
+        // The smallest subnormal, and values that used to throw DivisionByZeroError or be off by one.
+        $this->assertSame(-324, Floats::getExponent(5e-324));
+        $this->assertSame(-323, Floats::getExponent(1e-323));
+        $this->assertSame(-320, Floats::getExponent(1e-320));
+        $this->assertSame(-316, Floats::getExponent(1e-316));
+        $this->assertSame(-308, Floats::getExponent(PHP_FLOAT_MIN));
+
+        // Sweep every decade of the subnormal range, both signs.
+        for ($exp = -323; $exp <= -308; $exp++) {
+            foreach (['1', '2.5', '5', '9'] as $mantissa) {
+                $value = (float) "{$mantissa}e$exp";
+                $this->assertSame($exp, Floats::getExponent($value), "Value: {$mantissa}e$exp");
+                $this->assertSame($exp, Floats::getExponent(-$value), "Value: -{$mantissa}e$exp");
+            }
+        }
+    }
+
     #endregion
 }

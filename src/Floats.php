@@ -140,6 +140,10 @@ final class Floats
      * log10() rounding error at exact powers of 10 (e.g. some platforms return log10(1000) as 2.9999999999999996
      * rather than exactly 3.0, which would otherwise throw off the floor() result by one).
      *
+     * The check compares with the float nearest to each power of 10, so the result is the exponent of the value's
+     * shortest decimal representation (e.g. 1e23 gives 23, though the float is slightly below 10^23). It works for
+     * subnormal values too.
+     *
      * @param float $value The value to get the exponent of. Must be finite.
      * @return int The exponent. Returns 0 for a value of 0.0.
      * @throws DomainException If value is non-finite.
@@ -157,14 +161,12 @@ final class Floats
 
         $absValue = abs($value);
         $exp = (int) floor(log10($absValue));
-        $mantissa = $absValue / (10.0 ** $exp);
 
-        // Guard against log10() rounding error at exact powers of 10. The mantissa < 1.0 branch is reachable
-        // (log10() can overestimate the exponent for a value just below a power of 10); the mantissa >= 10.0
-        // branch is not observed to be reachable on this platform's libm, so it is excluded from coverage.
-        if ($mantissa >= 10.0) {
-            $exp++; // @codeCoverageIgnore
-        } elseif ($mantissa < 1.0) {
+        // Correct log10() rounding error by comparing with the powers of 10 either side. Parsing '1e<n>' gives the
+        // float nearest to 10^n, even for subnormals, where 10.0 ** $exp loses precision or underflows to 0.0.
+        if ($absValue >= (float) ('1e' . ($exp + 1))) {
+            $exp++;
+        } elseif ($absValue < (float) "1e$exp") {
             $exp--;
         }
 

@@ -239,6 +239,9 @@ before the decimal point). Computed via `floor(log10(abs($value)))`, then correc
 exact powers of 10 (e.g. some platforms return `log10(1000)` as `2.9999999999999996` rather than exactly `3.0`, which
 would otherwise throw off the result by one).
 
+The result is the exponent of the value's shortest decimal representation, e.g. `1e23` gives `23`, though the float is
+slightly below 10²³. Subnormal values work too.
+
 **Parameters:**
 
 - `$value` (float) - The value to get the exponent of. Must be finite.
@@ -256,6 +259,7 @@ Floats::getExponent(-1234.0);  // 3 (sign-independent)
 Floats::getExponent(0.001);    // -3
 Floats::getExponent(1000.0);   // 3 (exact power of 10)
 Floats::getExponent(0.0);      // 0
+Floats::getExponent(5e-324);   // -324 (smallest subnormal)
 ```
 
 **Use Case:** For magnitude-based decisions (e.g. choosing a unit prefix, or how many significant digits are
