@@ -21,6 +21,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   `use` statements, including for the exceptions, e.g. `Mossy2100\Core\Exceptions\FormatException`.
 - **`Console::hr()`** returns `$this`, like every other output method, so it can be chained.
 
+### Removed
+
+- **`Environment::getLocale()` (breaking).** No package used it. To detect a request's locale, call
+  `Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE'])` directly, falling back to `Locale::getDefault()`.
+
 ---
 
 ## [4.0.1] - 2026-10-10

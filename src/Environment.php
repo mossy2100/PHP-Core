@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Mossy2100\Core;
 
-use Locale;
 use RuntimeException;
 
 /**
@@ -54,27 +53,4 @@ final class Environment
     }
 
     // @codeCoverageIgnoreEnd
-
-    /**
-     * Get the locale.
-     *
-     * Auto-detects the locale from the HTTP Accept-Language header, falling back to PHP's current default.
-     *
-     * @return string The locale string.
-     */
-    public static function getLocale(): string
-    {
-        // Try to detect from the HTTP Accept-Language header.
-        // @codeCoverageIgnoreStart
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && is_string($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $detected = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            if ($detected !== false) {
-                return $detected;
-            }
-        }
-        // @codeCoverageIgnoreEnd
-
-        // Fall back to PHP's default.
-        return Locale::getDefault();
-    }
 }

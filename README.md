@@ -81,7 +81,7 @@ serves as the basis of the `Console::dump()` method.
 
 ### [Environment](docs/Environment.md)
 
-Runtime environment detection: 64-bit architecture checks, and locale detection from the HTTP `Accept-Language` header.
+Runtime environment detection: 64-bit architecture checks, and the invariant locale used for number formatting.
 
 ### [Console](docs/Console.md)
 
