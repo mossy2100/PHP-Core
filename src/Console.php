@@ -578,7 +578,7 @@ class Console
      * @param string $ch The substring to repeat.
      * @param int $length The total length.
      * @return self Returns $this for chaining.
-     * @throws DomainException If $ch is an empty string.
+     * @throws DomainException If $ch is an empty string, or $length is negative.
      */
     public function hr(string $ch = '-', int $length = 80): self
     {
@@ -586,6 +586,11 @@ class Console
         $chLen = mb_strlen($ch);
         if ($chLen === 0) {
             throw new DomainException('Horizontal rule character must not be empty.');
+        }
+
+        // Guard against a negative length, which str_repeat() would reject with a ValueError.
+        if ($length < 0) {
+            throw new DomainException("Invalid horizontal rule length: $length. Must not be negative.");
         }
 
         $n = (int) ceil($length / $chLen);

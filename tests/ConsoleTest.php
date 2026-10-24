@@ -851,6 +851,16 @@ final class ConsoleTest extends TestCase
     }
 
     /**
+     * Test $this->console->hr() with a negative length throws DomainException, not str_repeat()'s ValueError.
+     */
+    public function testHrWithNegativeLengthThrows(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid horizontal rule length: -1. Must not be negative.');
+        $this->console->hr('-', -1);
+    }
+
+    /**
      * Test $this->console->hr() with an empty string for $ch throws.
      */
     public function testHrWithEmptyStringThrows(): void

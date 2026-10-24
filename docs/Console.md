@@ -515,7 +515,7 @@ characters in `$ch`.
 
 **Throws:**
 
-- `DomainException` - If `$ch` is an empty string.
+- `DomainException` - If `$ch` is an empty string, or `$length` is negative.
 
 **Examples:**
 
