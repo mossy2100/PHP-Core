@@ -675,18 +675,7 @@ final class Floats
      */
     public static function randRepresentable(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
     {
-        // Validate parameters.
-        if (!is_finite($min)) {
-            throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
-        }
-        if (!is_finite($max)) {
-            throw new DomainException(Stringify::prepEx('Invalid maximum: ?. Must be finite.', $max));
-        }
-        if ($min > $max) {
-            throw new DomainException(
-                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
-            );
-        }
+        self::validateRange($min, $max);
 
         // Accept negative zero arguments but normalize to positive zero.
         $min = self::normalizeZero($min);
@@ -765,18 +754,7 @@ final class Floats
      */
     public static function randUniform(float $min, float $max): float
     {
-        // Validate parameters.
-        if (!is_finite($min)) {
-            throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
-        }
-        if (!is_finite($max)) {
-            throw new DomainException(Stringify::prepEx('Invalid maximum: ?. Must be finite.', $max));
-        }
-        if ($min > $max) {
-            throw new DomainException(
-                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
-            );
-        }
+        self::validateRange($min, $max);
 
         // If min and max are the same, there's only one possible value.
         if ($min === $max) {
@@ -1034,6 +1012,28 @@ final class Floats
     #endregion
 
     #region Helper methods
+
+    /**
+     * Check a range for randRepresentable() and randUniform() is valid.
+     *
+     * @param float $min The minimum value.
+     * @param float $max The maximum value.
+     * @throws DomainException If min or max are non-finite, or min > max.
+     */
+    private static function validateRange(float $min, float $max): void
+    {
+        if (!is_finite($min)) {
+            throw new DomainException(Stringify::prepEx('Invalid minimum: ?. Must be finite.', $min));
+        }
+        if (!is_finite($max)) {
+            throw new DomainException(Stringify::prepEx('Invalid maximum: ?. Must be finite.', $max));
+        }
+        if ($min > $max) {
+            throw new DomainException(
+                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
+            );
+        }
+    }
 
     /**
      * Check tolerances are valid.
