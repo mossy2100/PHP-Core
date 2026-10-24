@@ -31,6 +31,8 @@ use UnitEnum;
  *
  * The purpose of the class is to offer a somewhat more concise, readable, and informative alternative to the usual
  * options. This can be useful for exception, log, and debug messages.
+ *
+ * It's for display, not collection keys: the output format may change. Use Types::getUniqueString() for keys.
  */
 final class Stringify
 {

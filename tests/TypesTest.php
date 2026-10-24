@@ -16,6 +16,7 @@ use Mossy2100\Core\Tests\Fixtures\TestSuit;
 use Mossy2100\Core\Tests\Fixtures\TestTrait;
 use Mossy2100\Core\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -247,6 +248,94 @@ final class TypesTest extends TestCase
             'key' => 'value',
         ]);
         $this->assertStringStartsWith('a:1:', $key3);
+    }
+
+    /**
+     * Test getUniqueString builds an array's key from the unique strings of its keys and values.
+     */
+    public function testGetUniqueStringArrayFormat(): void
+    {
+        $this->assertSame('a:2:[i:0=>i:1,i:1=>s:1:x]', Types::getUniqueString([1, 'x']));
+        $this->assertSame('a:1:[s:1:k=>a:1:[i:0=>n]]', Types::getUniqueString([
+            'k' => [null],
+        ]));
+        $this->assertSame('a:0:[]', Types::getUniqueString([]));
+    }
+
+    /**
+     * Test getUniqueString gives different keys to arrays that differ in ways a display format can hide.
+     *
+     * @param array<array-key, mixed> $arr1 The first array.
+     * @param array<array-key, mixed> $arr2 The second array.
+     */
+    #[DataProvider('differentArraysProvider')]
+    public function testGetUniqueStringArrayDistinguishesArrays(array $arr1, array $arr2): void
+    {
+        $this->assertNotSame(Types::getUniqueString($arr1), Types::getUniqueString($arr2));
+    }
+
+    /**
+     * Pairs of different arrays that must get different keys.
+     *
+     * @return array<string, array{array<array-key, mixed>, array<array-key, mixed>}>
+     */
+    public static function differentArraysProvider(): array
+    {
+        return [
+            'floats equal to 14 digits' => [
+                [
+                    0.1 + 0.2,
+                ],
+                [0.3],
+            ],
+            'zero signs'                => [
+                [-0.0],
+                [0.0],
+            ],
+            'comma in a string'         => [
+                ['a,b'],
+                ['a', 'b'],
+            ],
+            'list vs keyed'             => [
+                ['a'],
+                [
+                    1 => 'a',
+                ],
+            ],
+            'int vs numeric string'     => [
+                [1],
+                ['1'],
+            ],
+            'nesting'                   => [
+                [
+                    [1, 2],
+                    3,
+                ],
+                [
+                    [1],
+                    2,
+                    3,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Test getUniqueString handles an array holding a string that isn't valid UTF-8.
+     */
+    public function testGetUniqueStringArrayWithBinaryString(): void
+    {
+        $this->assertSame("a:1:[i:0=>s:2:\xff\xfe]", Types::getUniqueString(["\xff\xfe"]));
+    }
+
+    /**
+     * Test getUniqueString handles a recursive array.
+     */
+    public function testGetUniqueStringArrayWithRecursion(): void
+    {
+        $arr = [1];
+        $arr[] = &$arr;
+        $this->assertSame('a:2:[i:0=>i:1,i:1=>s:11:*RECURSION*]', Types::getUniqueString($arr));
     }
 
     /**

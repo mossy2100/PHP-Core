@@ -65,6 +65,8 @@ public static function getUniqueString(mixed $value): string
 Convert any PHP value into a unique string suitable for use as a key in collections like sets or dictionaries. Every
 distinct value produces a unique string.
 
+It's for collection keys, not display. Use [Stringify](Stringify.md) for display, exception and log messages.
+
 **Parameters:**
 
 - `$value` (mixed) - The value to convert
@@ -80,7 +82,8 @@ distinct value produces a unique string.
 - `int`: `"i:{number}"` (e.g., `"i:42"`)
 - `float`: `"f:{hex}"` (hex representation for uniqueness)
 - `string`: `"s:{length}:{content}"` (e.g., `"s:5:hello"`)
-- `array`: `"a:{count}:{stringified}"` (e.g., `"a:3:[1, 2, 3]"`)
+- `array`: `"a:{count}:[{key}=>{value},...]"`, with each key and value in its own unique-string form (e.g.,
+  `"a:2:[i:0=>i:1,i:1=>s:1:x]"`)
 - `enum`: `"e:{ClassName}::{CaseName}"` (e.g., `"e:App\Enums\Suit::Hearts"`)
 - `closure`: `"c:{object_id}"` (e.g., `"c:7"`)
 - `object`: `"o:{object_id}"` (e.g., `"o:1"`)
@@ -100,7 +103,7 @@ Types::getUniqueString(false);             // "b:F"
 Types::getUniqueString(42);                // "i:42"
 Types::getUniqueString(3.14);              // "f:..." (hex representation)
 Types::getUniqueString("hello");           // "s:5:hello"
-Types::getUniqueString([1, 2, 3]);         // "a:3:[1, 2, 3]"
+Types::getUniqueString([1, 2, 3]);         // "a:3:[i:0=>i:1,i:1=>i:2,i:2=>i:3]"
 
 // Distinguishes between -0.0 and +0.0
 Types::getUniqueString(0.0);               // "f:0000000000000000"

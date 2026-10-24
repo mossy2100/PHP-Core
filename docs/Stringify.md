@@ -10,6 +10,9 @@ The `Stringify` class provides an alternative to PHP's built-in functions for co
 `echo()`, `print()`, `var_dump()`, `var_export()`, `print_r()`, `json_encode()`, and `serialize()`). This is a static
 utility class and cannot be instantiated.
 
+It's for display, exception and log messages, not collection keys: the output format may change. For keys, use
+[`Types::getUniqueString()`](Types.md#getuniquestring).
+
 ### Key Features
 
 - **Single-quoted strings**: Strings are wrapped in single quotes, with backslash and single quotes escaped. Unicode

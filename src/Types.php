@@ -71,11 +71,11 @@ final class Types
     /**
      * Convert any PHP value into a unique string.
      *
-     * The intended use case is a key in a collection like Set or Dictionary.
+     * The intended use case is a key in a collection like Set or Dictionary. It's for keys, not display: use Stringify
+     * for display, exception and log messages.
      *
      * @param mixed $value The value to convert.
      * @return string The unique string key.
-     * @throws DomainException If an array could not be converted into a unique string.
      * @throws UnexpectedValueException If the value has an unknown type.
      */
     public static function getUniqueString(mixed $value): string
@@ -101,7 +101,7 @@ final class Types
 
             case 'array':
                 /** @var array<array-key, mixed> $value */
-                return 'a:' . count($value) . ':' . Stringify::stringifyArray($value);
+                return self::getArrayUniqueString(Arrays::removeRecursion($value));
 
             case 'enum':
                 /** @var UnitEnum $value */
@@ -188,6 +188,27 @@ final class Types
     #endregion
 
     #region Helper methods
+
+    /**
+     * Build the unique string for an array whose recursion has already been removed, from the unique strings of its
+     * keys and values.
+     *
+     * Every part is self-delimiting (strings carry their length, floats are fixed-width hex, and nested arrays carry
+     * their count), so different arrays can't produce the same string.
+     *
+     * @param array<array-key, mixed> $arr The array, already passed through Arrays::removeRecursion().
+     * @return string The unique string, e.g. 'a:2:[i:0=>i:1,i:1=>s:1:x]'.
+     */
+    private static function getArrayUniqueString(array $arr): string
+    {
+        $parts = [];
+        foreach ($arr as $key => $value) {
+            // Nested arrays are already clean, so skip removing recursion again.
+            $valueString = is_array($value) ? self::getArrayUniqueString($value) : self::getUniqueString($value);
+            $parts[] = self::getUniqueString($key) . '=>' . $valueString;
+        }
+        return 'a:' . count($arr) . ':[' . implode(',', $parts) . ']';
+    }
 
     /**
      * Get all traits used by a class, interface, or trait, including parent classes and trait inheritance.

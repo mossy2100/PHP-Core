@@ -24,6 +24,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   its values cluster near zero rather than being uniform, which the name `rand()` suggested. For uniform values, use
   `Floats::randUniform()`.
 
+### Fixed
+
+- **`Types::getUniqueString()`** gave the same key to arrays of floats that differ beyond 14 significant digits, e.g.
+  `[0.1 + 0.2]` and `[0.3]`, so a `Set` could merge them. Array keys are now built from the unique strings of their keys
+  and values, rather than from `Stringify` output. This also stops arrays holding binary strings from throwing
+  `DomainException`.
+
 ### Removed
 
 - **`Environment::getLocale()` (breaking).** No package used it. To detect a request's locale, call
