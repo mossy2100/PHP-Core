@@ -7,6 +7,7 @@ namespace Mossy2100\Core\Tests\Floats;
 use DomainException;
 use Mossy2100\Core\Floats;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -352,6 +353,46 @@ final class FloatsRandomTest extends TestCase
             $this->assertGreaterThanOrEqual($avg * 0.9, $count);
             $this->assertLessThanOrEqual($avg * 1.1, $count);
         }
+    }
+
+    /**
+     * Test randUniform with ranges wide enough that max - min, or the ULP of the bounds, used to overflow to INF.
+     *
+     * @param float $min The minimum value.
+     * @param float $max The maximum value.
+     */
+    #[DataProvider('wideRangeProvider')]
+    public function testRandUniformWithWideRange(float $min, float $max): void
+    {
+        $belowMidpoint = 0;
+        $midpoint = $min / 2 + $max / 2;
+        for ($i = 0; $i < 1000; $i++) {
+            $f = Floats::randUniform($min, $max);
+            $this->assertTrue(is_finite($f), 'Value should be finite');
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+            if ($f < $midpoint) {
+                $belowMidpoint++;
+            }
+        }
+
+        // Values should land on both sides of the midpoint, roughly evenly.
+        $this->assertGreaterThan(400, $belowMidpoint);
+        $this->assertLessThan(600, $belowMidpoint);
+    }
+
+    /**
+     * Ranges that overflowed before.
+     *
+     * @return array<string, array{float, float}>
+     */
+    public static function wideRangeProvider(): array
+    {
+        return [
+            'full float range'          => [-PHP_FLOAT_MAX, PHP_FLOAT_MAX],
+            'zero to PHP_FLOAT_MAX'     => [0.0, PHP_FLOAT_MAX],
+            'symmetric, wider than max' => [-1e308, 1e308],
+        ];
     }
 
     #endregion

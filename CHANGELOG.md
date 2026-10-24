@@ -30,6 +30,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Floats::randUniform()`** threw `DivisionByZeroError` for ranges wider than `PHP_FLOAT_MAX`, e.g.
+  `[-PHP_FLOAT_MAX, PHP_FLOAT_MAX]`, and for a bound of `±PHP_FLOAT_MAX`.
 - **`Floats::ulp(±PHP_FLOAT_MAX)`** returned `INF`. It now returns `2^971`, the gap below `PHP_FLOAT_MAX`.
 - **`Types::getUniqueString()`** gave the same key to arrays of floats that differ beyond 14 significant digits, e.g.
   `[0.1 + 0.2]` and `[0.3]`, so a `Set` could merge them. Array keys are now built from the unique strings of their keys

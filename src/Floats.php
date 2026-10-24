@@ -774,13 +774,24 @@ final class Floats
         $maxMagnitude = max(abs($min), abs($max));
         $ulp = self::ulp($maxMagnitude);
 
-        // Calculate number of steps that ensures no collisions.
+        // Calculate number of steps that ensures no collisions. It's at most about 2^54, but keep it at least 1.
         $range = $max - $min;
-        $nValues = (int) round($range / $ulp);
+        $wide = !is_finite($range);
+        // The range overflows to INF when it's wider than PHP_FLOAT_MAX, e.g. [-PHP_FLOAT_MAX, PHP_FLOAT_MAX]. Half
+        // of it is always finite.
+        $halfRange = $max / 2 - $min / 2;
+        $nValues = max(1, (int) round($wide ? $halfRange / $ulp * 2 : $range / $ulp));
 
         // Generate uniform random value.
         $r = random_int(0, $nValues) / $nValues;
-        return $min + $r * $range;
+        if (!$wide) {
+            return $min + $r * $range;
+        }
+
+        // For a wide range, add the half range twice, which keeps every intermediate value finite. Clamp in case
+        // rounding steps outside the range.
+        $offset = $r * $halfRange;
+        return min($max, max($min, $min + $offset + $offset));
     }
 
     #endregion

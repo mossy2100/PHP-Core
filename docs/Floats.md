@@ -1293,6 +1293,9 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 3. Generates random integer from 0 to number of steps.
 4. Interpolates: `$min + ($randomStep / $numSteps) * $range`.
 
+When the range is wider than `PHP_FLOAT_MAX` (e.g. `[-PHP_FLOAT_MAX, PHP_FLOAT_MAX]`), `$range` would overflow to
+`INF`, so the method works with half the range instead, and adds the scaled half twice.
+
 **Use Cases:**
 
 - Monte Carlo simulations requiring uniform distribution
