@@ -25,41 +25,6 @@ final class Arrays
 
     #endregion
 
-    #region Inspection methods
-
-    /**
-     * Checks if an array contains recursion, i.e. an array that contains itself, directly or through other arrays.
-     *
-     * Only arrays are followed, not objects, so a cycle that passes through an object isn't reported. Strings and other
-     * values are never inspected, so invalid UTF-8, NAN and the like don't affect the result.
-     *
-     * This uses count() with COUNT_RECURSIVE, which detects recursion in the engine and warns when it finds some.
-     *
-     * @param array<array-key, mixed> $arr The array to check.
-     * @return bool True if the array contains recursion, false otherwise.
-     */
-    public static function hasRecursion(array $arr): bool
-    {
-        // For an array, the only warning count() can raise is "Recursion detected", so any warning means recursion.
-        $found = false;
-        set_error_handler(static function () use (&$found): bool {
-            $found = true;
-            return true;
-        }, E_WARNING);
-
-        try {
-            // Called only for its warning; the count itself isn't needed.
-            // @phpstan-ignore function.resultUnused
-            count($arr, COUNT_RECURSIVE);
-        } finally {
-            restore_error_handler();
-        }
-
-        return $found;
-    }
-
-    #endregion
-
     #region String methods
 
     /**
@@ -205,7 +170,7 @@ final class Arrays
      * $b = &$a;
      * $a[] = $b; // $a[0] is now $a itself.
      * ```
-     * Most arrays contain no recursion, which hasRecursion() checks cheaply. They're copied as they are.
+     * Most arrays contain no recursion, which is cheap to check. They're copied as they are.
      *
      * For an array that does contain recursion, the cycles have to be located, and userland code can't do that
      * reliably: array `===` compares by value, and an array can contain itself without any PHP reference involved, as
@@ -229,12 +194,52 @@ final class Arrays
             return self::copyArray($arr);
         }
 
-        return self::removeRecursionHelper($arr, trim(print_r($arr, true)));
+        // From PHP 8.5, print_r() warns when it prints NAN. The output ('NAN') is still fine to parse, so silence it.
+        set_error_handler(static fn (): bool => true, E_WARNING);
+        try {
+            $printR = print_r($arr, true);
+        } finally {
+            restore_error_handler();
+        }
+
+        return self::removeRecursionHelper($arr, trim($printR));
     }
 
     #endregion
 
     #region Helper methods
+
+    /**
+     * Check if an array contains recursion, i.e. an array that contains itself, directly or through other arrays. Used
+     * by removeRecursion() to decide whether print_r() parsing is needed.
+     *
+     * Only arrays are followed, not objects, since removeRecursion() doesn't follow objects either. Strings and other
+     * values are never inspected, so invalid UTF-8, NAN and the like don't affect the result.
+     *
+     * This uses count() with COUNT_RECURSIVE, which detects recursion in the engine and warns when it finds some.
+     *
+     * @param array<array-key, mixed> $arr The array to check.
+     * @return bool True if the array contains recursion, false otherwise.
+     */
+    private static function hasRecursion(array $arr): bool
+    {
+        // For an array, the only warning count() can raise is "Recursion detected", so any warning means recursion.
+        $found = false;
+        set_error_handler(static function () use (&$found): bool {
+            $found = true;
+            return true;
+        }, E_WARNING);
+
+        try {
+            // Called only for its warning; the count itself isn't needed.
+            // @phpstan-ignore function.resultUnused
+            count($arr, COUNT_RECURSIVE);
+        } finally {
+            restore_error_handler();
+        }
+
+        return $found;
+    }
 
     /**
      * Copy an array that contains no recursion, building fresh arrays at every level.

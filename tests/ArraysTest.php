@@ -19,273 +19,6 @@ use const Mossy2100\Core\RECURSION;
 #[CoversClass(Arrays::class)]
 final class ArraysTest extends TestCase
 {
-    #region Method hasRecursion() tests.
-
-    /**
-     * Test that simple arrays without recursion return false.
-     */
-    public function testContainsRecursionSimpleArray(): void
-    {
-        // Test empty array.
-        $this->assertFalse(Arrays::hasRecursion([]));
-
-        // Test simple flat array.
-        $this->assertFalse(Arrays::hasRecursion([1, 2, 3]));
-
-        // Test associative array.
-        $this->assertFalse(Arrays::hasRecursion([
-            'name' => 'John',
-            'age'  => 30,
-        ]));
-
-        // Test array with mixed types.
-        $this->assertFalse(Arrays::hasRecursion([1, 'hello', true, null, 3.14]));
-    }
-
-    /**
-     * Test that nested arrays without recursion return false.
-     */
-    public function testContainsRecursionNestedArray(): void
-    {
-        // Test nested array without recursion.
-        $this->assertFalse(Arrays::hasRecursion([
-            [1, 2],
-            [3, 4],
-        ]));
-
-        // Test deeply nested array without recursion.
-        $this->assertFalse(Arrays::hasRecursion([
-            'level1' => [
-                'level2' => [
-                    'level3' => [
-                        'value' => 42,
-                    ],
-                ],
-            ],
-
-        ]));
-
-        // Test array containing objects without recursion.
-        $obj = new stdClass();
-        $obj->name = 'test';
-        $this->assertFalse(Arrays::hasRecursion([
-            'object' => $obj,
-        ]));
-    }
-
-    /**
-     * Test that arrays with direct self-reference return true.
-     */
-    public function testContainsRecursionDirectReference(): void
-    {
-        // Create array with direct self-reference.
-        $arr = [
-            'foo' => 'bar',
-        ];
-        $arr['self'] = &$arr;
-
-        // Test that recursion is detected.
-        $this->assertTrue(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that arrays with indirect recursion return true.
-     */
-    public function testContainsRecursionIndirectReference(): void
-    {
-        // Create array with indirect recursion.
-        $arr1 = [
-            'name' => 'array1',
-        ];
-        $arr2 = [
-            'name' => 'array2',
-        ];
-        $arr1['child'] = &$arr2;
-        $arr2['parent'] = &$arr1;
-
-        // Test that recursion is detected in first array.
-        $this->assertTrue(Arrays::hasRecursion($arr1));
-
-        // Test that recursion is detected in second array.
-        $this->assertTrue(Arrays::hasRecursion($arr2));
-    }
-
-    /**
-     * Test that arrays with nested recursion return true.
-     */
-    public function testContainsRecursionNestedReference(): void
-    {
-        // Create array with recursion at a nested level.
-        $arr = [
-            'level1' => [
-                'level2' => [
-                    'level3' => [],
-                ],
-            ],
-
-        ];
-        $arr['level1']['level2']['level3']['back'] = &$arr;
-
-        // Test that nested recursion is detected.
-        $this->assertTrue(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that arrays with self-reference at different positions return true.
-     */
-    public function testContainsRecursionMultipleReferences(): void
-    {
-        // Create array with multiple references to itself.
-        $arr = [
-            'a' => 1,
-            'b' => 2,
-        ];
-        $arr['ref1'] = &$arr;
-        $arr['ref2'] = &$arr;
-
-        // Test that recursion is detected even with multiple references.
-        $this->assertTrue(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that arrays containing references to sub-arrays don't cause false positives.
-     */
-    public function testContainsRecursionSubArrayReference(): void
-    {
-        // Create array with reference to a sub-array (not recursion).
-        $subArray = [
-            'x' => 1,
-            'y' => 2,
-        ];
-        $arr = [
-            'original'  => $subArray,
-            'reference' => &$subArray,
-
-        ];
-
-        // Test that this is not detected as recursion (it's just a reference to a sub-array).
-        $result = Arrays::hasRecursion($arr);
-
-        $this->assertFalse($result);
-    }
-
-    /**
-     * Test with array containing various data types and no recursion.
-     */
-    public function testContainsRecursionComplexNonRecursive(): void
-    {
-        // Create complex array without recursion.
-        $arr = [
-            'null'   => null,
-            'bool'   => true,
-            'int'    => 42,
-            'float'  => 3.14,
-            'string' => 'hello',
-            'array'  => [1, 2, 3],
-            'nested' => [
-                'deep' => [
-                    'value' => 'test',
-                ],
-
-            ],
-            'object' => new stdClass(),
-
-        ];
-
-        // Test that no recursion is detected.
-        $this->assertFalse(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that an array containing itself without a PHP reference element is detected.
-     */
-    public function testHasRecursionSelfContainingWithoutReference(): void
-    {
-        // After this, $arr[0] is $arr itself, but it isn't a reference element.
-        $arr = [
-            'x' => 1,
-        ];
-        $alias = &$arr;
-        $arr[] = $alias;
-
-        $this->assertTrue(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that invalid UTF-8 and NAN values don't hide recursion, or cause a false positive.
-     */
-    public function testHasRecursionIgnoresInvalidUtf8AndNan(): void
-    {
-        $plain = [
-            "\xff\xfe",
-            NAN,
-            [1, 2],
-        ];
-        $this->assertFalse(Arrays::hasRecursion($plain));
-
-        $recursive = ["\xff\xfe", NAN];
-        $recursive[] = &$recursive;
-        $this->assertTrue(Arrays::hasRecursion($recursive));
-    }
-
-    /**
-     * Test that a deeply nested array without recursion isn't reported, even past json_encode()'s default depth.
-     */
-    public function testHasRecursionDeepNestingNotRecursive(): void
-    {
-        $arr = [1];
-        for ($i = 0; $i < 600; $i++) {
-            $arr = [$arr];
-        }
-
-        $this->assertFalse(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that objects aren't followed, so a cycle through an object isn't reported as array recursion.
-     */
-    public function testHasRecursionIgnoresObjectCycles(): void
-    {
-        // An object that contains itself.
-        $obj = new stdClass();
-        $obj->self = $obj;
-        $this->assertFalse(Arrays::hasRecursion([$obj]));
-
-        // A cycle from an array, through an object, back to the array.
-        $arr = [
-            'k' => 1,
-        ];
-        $holder = new stdClass();
-        $holder->arr = &$arr;
-        $arr['o'] = $holder;
-        $this->assertFalse(Arrays::hasRecursion($arr));
-    }
-
-    /**
-     * Test that hasRecursion() restores the caller's error handler.
-     */
-    public function testHasRecursionRestoresErrorHandler(): void
-    {
-        $arr = [
-            'foo' => 'bar',
-        ];
-        $arr['self'] = &$arr;
-
-        $handler = static fn (): bool => true;
-        set_error_handler($handler);
-        try {
-            Arrays::hasRecursion($arr);
-
-            // set_error_handler() returns the handler it replaces.
-            $this->assertSame($handler, set_error_handler(null));
-        } finally {
-            restore_error_handler();
-            restore_error_handler();
-        }
-    }
-
-    #endregion
-
     #region Method quoteValues() tests.
 
     /**
@@ -1055,8 +788,71 @@ final class ArraysTest extends TestCase
 
         Arrays::removeRecursion($arr);
 
-        // The original is still genuinely recursive.
-        $this->assertTrue(Arrays::hasRecursion($arr));
+        // The original is still genuinely recursive: writing through 'self' changes the array itself.
+        $arr['self']['foo'] = 'baz';
+        $this->assertSame('baz', $arr['foo']);
+    }
+
+    /**
+     * Test that an empty sub-array in an array with recursion is kept as an empty array.
+     */
+    public function testRemoveRecursionKeepsEmptySubArrayWithRecursion(): void
+    {
+        $arr = [
+            'empty' => [],
+        ];
+        $arr['self'] = &$arr;
+
+        $expected = [
+            'empty' => [],
+            'self'  => RECURSION,
+        ];
+        $this->assertSame($expected, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that invalid UTF-8 and NAN values don't hide recursion, or cause a false positive.
+     */
+    public function testRemoveRecursionWithInvalidUtf8AndNan(): void
+    {
+        $plain = [
+            "\xff\xfe",
+            NAN,
+            [1, 2],
+        ];
+        $result = Arrays::removeRecursion($plain);
+        $this->assertSame("\xff\xfe", $result[0]);
+        $this->assertNan($result[1]);
+        $this->assertSame([1, 2], $result[2]);
+
+        $recursive = ["\xff\xfe", NAN];
+        $recursive[] = &$recursive;
+        $result = Arrays::removeRecursion($recursive);
+        $this->assertSame("\xff\xfe", $result[0]);
+        $this->assertSame(RECURSION, $result[2]);
+    }
+
+    /**
+     * Test that removeRecursion() restores the caller's error handler. It temporarily sets its own to detect recursion.
+     */
+    public function testRemoveRecursionRestoresErrorHandler(): void
+    {
+        $arr = [
+            'foo' => 'bar',
+        ];
+        $arr['self'] = &$arr;
+
+        $handler = static fn (): bool => true;
+        set_error_handler($handler);
+        try {
+            Arrays::removeRecursion($arr);
+
+            // set_error_handler() returns the handler it replaces.
+            $this->assertSame($handler, set_error_handler(null));
+        } finally {
+            restore_error_handler();
+            restore_error_handler();
+        }
     }
 
     /**

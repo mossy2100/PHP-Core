@@ -34,16 +34,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   `[0.1 + 0.2]` and `[0.3]`, so a `Set` could merge them. Array keys are now built from the unique strings of their keys
   and values, rather than from `Stringify` output. This also stops arrays holding binary strings from throwing
   `DomainException`.
-- **`Arrays::hasRecursion()`** missed recursion when the array also held a string that isn't valid UTF-8, or when the
-  cycle was nested more than 512 levels deep. It now uses `count()`, which only follows arrays, so it also no longer
-  reports a cycle that passes through an object (breaking).
 - **`Arrays::removeRecursion()`** could replace a non-recursive sub-array with the `RECURSION` marker when a string in
   the array looked like `print_r()` output. It now only parses `print_r()` output for arrays that contain recursion, and
   simply copies the rest, which is about 5 to 14 times faster. This also speeds up `Stringify::stringify()`,
-  `Types::getUniqueString()` and `Console::dump()`.
+  `Types::getUniqueString()` and `Console::dump()`. It also no longer triggers PHP 8.5's warning for printing `NAN`,
+  which reached `stringify()` and `prepEx()` for any array containing `NAN`.
 
 ### Removed
 
+- **`Arrays::hasRecursion()` (breaking).** No package used it. Recursion in an array can be handled with
+  `Arrays::removeRecursion()`.
 - **`Environment::getLocale()` (breaking).** No package used it. To detect a request's locale, call
   `Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE'])` directly, falling back to `Locale::getDefault()`.
 

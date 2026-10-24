@@ -660,4 +660,4 @@ Stringify::stringifyResource($file);  // 'resource #5 (closed)'
 ## See Also
 
 - **[Types](Types.md)** - Type checking and inspection utilities.
-- **[Arrays](Arrays.md)** - Array utility methods including `hasRecursion()`.
+- **[Arrays](Arrays.md)** - Array utility methods including `removeRecursion()`.

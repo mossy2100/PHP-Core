@@ -11,70 +11,9 @@ instantiated.
 
 Methods are organized into:
 
-- **Inspection methods** - Analyze array properties (e.g., detect circular references).
 - **String methods** - Convert arrays to or format arrays as strings (e.g., quote values, serial lists).
 - **Extraction methods** - Extract values from arrays (e.g., first/last element).
-- **Transformation methods** - Transform arrays (e.g., remove values).
-
----
-
-## Inspection Methods
-
-### hasRecursion()
-
-```php
-public static function hasRecursion(array $arr): bool
-```
-
-Checks if an array contains circular references (recursion). This occurs when an array contains a reference to itself,
-either directly or indirectly through nested arrays.
-
-**Parameters:**
-
-- `$arr` (array) - The array to check for circular references.
-
-**Returns:**
-
-- `bool` - Returns `true` if recursion is detected, `false` otherwise.
-
-**Examples:**
-
-Direct recursion:
-
-```php
-$arr = ['foo' => 'bar'];
-$arr['self'] = &$arr;
-Arrays::hasRecursion($arr); // true
-```
-
-Indirect recursion:
-
-```php
-$arr1 = ['name' => 'array1'];
-$arr2 = ['name' => 'array2'];
-$arr1['child'] = &$arr2;
-$arr2['parent'] = &$arr1;
-Arrays::hasRecursion($arr1); // true
-```
-
-No recursion:
-
-```php
-$arr = [[1, 2], [3, 4]];
-Arrays::hasRecursion($arr); // false
-```
-
-Objects aren't followed, so a cycle that passes through an object isn't reported:
-
-```php
-$obj = new stdClass();
-$obj->self = $obj;
-Arrays::hasRecursion([$obj]); // false
-```
-
-**Note:** This method calls `count($arr, COUNT_RECURSIVE)`, which detects recursion in the engine and warns when it
-finds some. Only arrays are followed, and string and float values are never inspected, so invalid UTF-8 or `NAN`
-values don't affect the result.
+- **Transformation methods** - Transform arrays (e.g., remove values, replace circular references).
 
 ---
 
@@ -329,10 +268,10 @@ Arrays::removeRecursion($arr); // [[1, 2], [3, 4]] (unchanged; no recursion)
 
 Objects are kept as the same instances, and aren't followed.
 
-**How it works:** an array without recursion, checked with `hasRecursion()`, is simply copied, which is fast. For an
-array with recursion, userland code can't locate the cycles reliably: an array can even contain itself without any PHP
-reference involved (`$b = &$a; $a[] = $b;`). So the method parses `print_r()` output, which marks each cycle where it
-occurs.
+**How it works:** the method first checks whether the array contains recursion at all, which is cheap. If not, the
+array is simply copied. For an array with recursion, userland code can't locate the cycles reliably: an array can even
+contain itself without any PHP reference involved (`$b = &$a; $a[] = $b;`). So the method parses `print_r()` output,
+which marks each cycle where it occurs.
 
 **Known limitation:** when the array does contain recursion, a string value whose text looks like `print_r()` output
 can make an unrelated, non-recursive sub-array be replaced with the marker too.

@@ -67,7 +67,7 @@ correctly handles mixed int/float comparisons, and sign operations with IEEE-754
 
 ### [Arrays](docs/Arrays.md)
 
-Array utility methods including circular reference detection, value quoting, and first/last element extraction.
+Array utility methods including circular reference removal, value quoting, and first/last element extraction.
 
 ### [Types](docs/Types.md)
 
