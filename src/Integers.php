@@ -293,13 +293,7 @@ final class Integers
      */
     public static function toSubscript(int $n): string
     {
-        $s = (string) $n;
-        $len = strlen($s);
-        $result = '';
-        for ($i = 0; $i < $len; $i++) {
-            $result .= self::SUBSCRIPT_CHARACTERS[$s[$i]];
-        }
-        return $result;
+        return self::toSubSuper($n, self::SUBSCRIPT_CHARACTERS);
     }
 
     /**
@@ -310,13 +304,7 @@ final class Integers
      */
     public static function toSuperscript(int $n): string
     {
-        $s = (string) $n;
-        $len = strlen($s);
-        $result = '';
-        for ($i = 0; $i < $len; $i++) {
-            $result .= self::SUPERSCRIPT_CHARACTERS[$s[$i]];
-        }
-        return $result;
+        return self::toSubSuper($n, self::SUPERSCRIPT_CHARACTERS);
     }
 
     /**
@@ -327,14 +315,7 @@ final class Integers
      */
     public static function isSubscript(string $s): bool
     {
-        // Cache the compiled pattern, since SUBSCRIPT_CHARACTERS never changes between calls.
-        static $pattern = null;
-        if ($pattern === null) {
-            $minus = self::SUBSCRIPT_CHARACTERS['-'];
-            $digits = implode('', array_slice(self::SUBSCRIPT_CHARACTERS, 1));
-            $pattern = "/^$minus?[$digits]+$/u";
-        }
-        return (bool) preg_match($pattern, $s);
+        return self::isSubSuper($s, 'subscript', self::SUBSCRIPT_CHARACTERS);
     }
 
     /**
@@ -345,14 +326,7 @@ final class Integers
      */
     public static function isSuperscript(string $s): bool
     {
-        // Cache the compiled pattern, since SUPERSCRIPT_CHARACTERS never changes between calls.
-        static $pattern = null;
-        if ($pattern === null) {
-            $minus = self::SUPERSCRIPT_CHARACTERS['-'];
-            $digits = implode('', array_slice(self::SUPERSCRIPT_CHARACTERS, 1));
-            $pattern = "/^$minus?[$digits]+$/u";
-        }
-        return (bool) preg_match($pattern, $s);
+        return self::isSubSuper($s, 'superscript', self::SUPERSCRIPT_CHARACTERS);
     }
 
     /**
@@ -398,6 +372,46 @@ final class Integers
         // If x + y would reach negM or below, subtract negM. Checking against negM - y, which is in [negM, 0), means
         // x + y is never calculated when it could overflow.
         return $x <= $negM - $y ? $x - ($negM - $y) : $x + $y;
+    }
+
+    /**
+     * Shared implementation for toSubscript() and toSuperscript().
+     *
+     * @param int $n The integer to convert.
+     * @param array<array-key, string> $charMap The character map to use (SUBSCRIPT_CHARACTERS or
+     *   SUPERSCRIPT_CHARACTERS).
+     * @return string The integer in the given characters.
+     */
+    private static function toSubSuper(int $n, array $charMap): string
+    {
+        $s = (string) $n;
+        $len = strlen($s);
+        $result = '';
+        for ($i = 0; $i < $len; $i++) {
+            $result .= $charMap[$s[$i]];
+        }
+        return $result;
+    }
+
+    /**
+     * Shared implementation for isSubscript() and isSuperscript().
+     *
+     * @param string $s The string to check.
+     * @param string $style Either 'subscript' or 'superscript'; used to cache the pattern for each style.
+     * @param array<array-key, string> $charMap The character map to use (SUBSCRIPT_CHARACTERS or
+     *   SUPERSCRIPT_CHARACTERS).
+     * @return bool True if the string is an integer in the given characters.
+     */
+    private static function isSubSuper(string $s, string $style, array $charMap): bool
+    {
+        // Cache the compiled pattern per style, since the character maps never change between calls.
+        static $patterns = [];
+        if (!isset($patterns[$style])) {
+            $minus = $charMap['-'];
+            $digits = implode('', array_slice($charMap, 1));
+            $patterns[$style] = "/^$minus?[$digits]+$/u";
+        }
+        return (bool) preg_match($patterns[$style], $s);
     }
 
     /**
