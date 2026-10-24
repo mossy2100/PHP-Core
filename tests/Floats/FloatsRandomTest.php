@@ -15,16 +15,16 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsRandomTest extends TestCase
 {
-    #region Method rand() tests.
+    #region Method randRepresentable() tests.
 
     /**
-     * Test rand returns finite floats.
+     * Test randRepresentable returns finite floats.
      */
-    public function testRandReturnsFiniteFloats(): void
+    public function testRandRepresentableReturnsFiniteFloats(): void
     {
         // Generate multiple random floats and verify they're all finite
         for ($i = 0; $i < 100; $i++) {
-            $f = Floats::rand();
+            $f = Floats::randRepresentable();
             $this->assertTrue(is_finite($f), 'Random float should be finite');
             $this->assertFalse(is_nan($f), 'Random float should not be NAN');
             $this->assertFalse(Floats::isSpecial($f), 'Random float should not be special');
@@ -32,14 +32,14 @@ final class FloatsRandomTest extends TestCase
     }
 
     /**
-     * Test rand returns different values.
+     * Test randRepresentable returns different values.
      */
-    public function testRandReturnsDifferentValues(): void
+    public function testRandRepresentableReturnsDifferentValues(): void
     {
         // Generate multiple random floats and verify they're not all the same
         $values = [];
         for ($i = 0; $i < 10; $i++) {
-            $values[] = Floats::rand();
+            $values[] = Floats::randRepresentable();
         }
 
         // Check that we got at least 2 different values (extremely unlikely to fail)
@@ -48,16 +48,16 @@ final class FloatsRandomTest extends TestCase
     }
 
     /**
-     * Test rand with valid positive range.
+     * Test randRepresentable with valid positive range.
      */
-    public function testRandWithRangeWithPositiveRange(): void
+    public function testRandRepresentableWithRangeWithPositiveRange(): void
     {
         $min = 10.0;
         $max = 20.0;
 
         // Generate multiple values and verify they're all in range
         for ($i = 0; $i < 100; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f, 'Value should be >= min');
             $this->assertLessThanOrEqual($max, $f, 'Value should be <= max');
             $this->assertTrue(is_finite($f), 'Value should be finite');
@@ -65,101 +65,101 @@ final class FloatsRandomTest extends TestCase
     }
 
     /**
-     * Test rand with negative range.
+     * Test randRepresentable with negative range.
      */
-    public function testRandWithRangeWithNegativeRange(): void
+    public function testRandRepresentableWithRangeWithNegativeRange(): void
     {
         $min = -50.0;
         $max = -10.0;
 
         for ($i = 0; $i < 50; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
         }
     }
 
     /**
-     * Test rand with range crossing zero.
+     * Test randRepresentable with range crossing zero.
      */
-    public function testRandWithRangeWithRangeCrossingZero(): void
+    public function testRandRepresentableWithRangeWithRangeCrossingZero(): void
     {
         $min = -10.0;
         $max = 10.0;
 
         for ($i = 0; $i < 50; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
         }
     }
 
     /**
-     * Test rand with narrow range (e.g., [0, 1]).
+     * Test randRepresentable with narrow range (e.g., [0, 1]).
      */
-    public function testRandWithRangeWithNarrowRange(): void
+    public function testRandRepresentableWithRangeWithNarrowRange(): void
     {
         $min = 0.0;
         $max = 1.0;
 
         for ($i = 0; $i < 50; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
         }
     }
 
     /**
-     * Test rand with min equal to max returns that value.
+     * Test randRepresentable with min equal to max returns that value.
      */
-    public function testRandWithRangeWithMinEqualToMax(): void
+    public function testRandRepresentableWithRangeWithMinEqualToMax(): void
     {
         $value = 42.5;
-        $f = Floats::rand($value, $value);
+        $f = Floats::randRepresentable($value, $value);
         $this->assertSame($value, $f);
     }
 
     /**
-     * Test rand with min > max throws DomainException.
+     * Test randRepresentable with min > max throws DomainException.
      */
-    public function testRandWithRangeWithMinGreaterThanMaxThrows(): void
+    public function testRandRepresentableWithRangeWithMinGreaterThanMaxThrows(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid range: [20.0, 10.0]. Minimum must not exceed maximum.');
-        Floats::rand(20.0, 10.0);
+        Floats::randRepresentable(20.0, 10.0);
     }
 
     /**
-     * Test rand with NAN throws DomainException.
+     * Test randRepresentable with NAN throws DomainException.
      */
-    public function testRandWithRangeWithNanThrows(): void
+    public function testRandRepresentableWithRangeWithNanThrows(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid minimum: NAN. Must be finite.');
-        Floats::rand(NAN, 10.0);
+        Floats::randRepresentable(NAN, 10.0);
     }
 
     /**
-     * Test rand with INF throws DomainException.
+     * Test randRepresentable with INF throws DomainException.
      */
-    public function testRandWithRangeWithInfThrows(): void
+    public function testRandRepresentableWithRangeWithInfThrows(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid maximum: INF. Must be finite.');
-        Floats::rand(0.0, INF);
+        Floats::randRepresentable(0.0, INF);
     }
 
     /**
-     * Test rand returns different values (statistical test).
+     * Test randRepresentable returns different values (statistical test).
      */
-    public function testRandWithRangeReturnsDifferentValues(): void
+    public function testRandRepresentableWithRangeReturnsDifferentValues(): void
     {
         $min = 0.0;
         $max = 100.0;
         $values = [];
 
         for ($i = 0; $i < 20; $i++) {
-            $values[] = Floats::rand($min, $max);
+            $values[] = Floats::randRepresentable($min, $max);
         }
 
         // Should have at least 2 different values
@@ -168,30 +168,30 @@ final class FloatsRandomTest extends TestCase
     }
 
     /**
-     * Test rand with very small range.
+     * Test randRepresentable with very small range.
      */
-    public function testRandWithRangeWithVerySmallRange(): void
+    public function testRandRepresentableWithRangeWithVerySmallRange(): void
     {
         $min = 1.0;
         $max = 1.0 + 1e-10;
 
         for ($i = 0; $i < 20; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
         }
     }
 
     /**
-     * Test rand with large range.
+     * Test randRepresentable with large range.
      */
-    public function testRandWithRangeWithLargeRange(): void
+    public function testRandRepresentableWithRangeWithLargeRange(): void
     {
         $min = -1e100;
         $max = 1e100;
 
         for ($i = 0; $i < 20; $i++) {
-            $f = Floats::rand($min, $max);
+            $f = Floats::randRepresentable($min, $max);
             $this->assertGreaterThanOrEqual($min, $f);
             $this->assertLessThanOrEqual($max, $f);
             $this->assertTrue(is_finite($f));

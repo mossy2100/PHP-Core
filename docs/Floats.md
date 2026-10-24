@@ -50,8 +50,8 @@ understanding float precision.
 
 Two methods provide random floats for different use cases:
 
-- `rand()` generates random floats within a specified range (or the full float space by default) using IEEE-754
-  component assembly.
+- `randRepresentable()` generates random floats within a specified range (or the full float space by default) using
+  IEEE-754 component assembly. Any representable float can be returned, so values cluster near zero.
 - `randUniform()` generates uniformly distributed values within specific bounds using linear interpolation with
   automatic ULP-based step calculation.
 
@@ -1177,10 +1177,10 @@ represented exactly up to much larger values.
 
 ## Random Methods
 
-### rand()
+### randRepresentable()
 
 ```php
-public static function rand(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
+public static function randRepresentable(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
 ```
 
 Generate a random float in the specified range by constructing IEEE-754 components. This method can return any
@@ -1205,16 +1205,16 @@ representable float within the given range except -0.0, which is specifically ex
 
 ```php
 // Random float across the entire finite float space
-$f = Floats::rand();
+$f = Floats::randRepresentable();
 
 // Random float in a specific range
-$f = Floats::rand(0.0, 100.0);
+$f = Floats::randRepresentable(0.0, 100.0);
 
 // Random float between -1 and 1
-$f = Floats::rand(-1.0, 1.0);
+$f = Floats::randRepresentable(-1.0, 1.0);
 
 // When min equals max, returns that value
-$f = Floats::rand(5.0, 5.0);  // 5.0
+$f = Floats::randRepresentable(5.0, 5.0);  // 5.0
 ```
 
 **Characteristics:**
@@ -1300,9 +1300,9 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 - Random sampling for statistical analysis
 - Cases where uniform distribution is more important than full float coverage
 
-**Comparison with `rand()`:**
+**Comparison with `randRepresentable()`:**
 
-| Feature      | `rand()`                          | `randUniform()`             |
+| Feature      | `randRepresentable()`             | `randUniform()`             |
 | ------------ | --------------------------------- | --------------------------- |
 | Distribution | IEEE-754 density (more near zero) | Uniform                     |
 | Precision    | Any representable float           | ULP-based steps             |
@@ -1312,7 +1312,7 @@ $f = Floats::randUniform(5.0, 5.0);  // 5.0
 
 **See Also:**
 
-- `rand()` - For non-uniform distribution with full float coverage
+- `randRepresentable()` - For non-uniform distribution with full float coverage
 - `ulp()` - Underlying calculation for step size
 
 ---

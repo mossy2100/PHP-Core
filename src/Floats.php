@@ -660,7 +660,7 @@ final class Floats
      *
      * @see randUniform() For uniformly distributed random floats (faster but limited precision)
      */
-    public static function rand(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
+    public static function randRepresentable(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
     {
         // Validate parameters.
         if (!is_finite($min)) {
@@ -748,7 +748,7 @@ final class Floats
      * @throws DomainException If min or max are non-finite or min > max.
      * @throws RandomException If an appropriate source of randomness is unavailable.
      * @throws RuntimeException If the system is not a 64-bit system.
-     * @see rand() For non-uniform distribution across all representable floats.
+     * @see randRepresentable() For non-uniform distribution across all representable floats.
      */
     public static function randUniform(float $min, float $max): float
     {
