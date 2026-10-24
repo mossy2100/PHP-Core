@@ -457,8 +457,8 @@ final class Floats
      * @param FloatFormat $format If the value should be formatted using FixedPoint or Scientific notation, or Auto
      *     to choose the best one (default).
      * @param ExponentFormat $expFormat The exponent format to use. (default UnicodeMath)
-     * @param RoundingMode $roundingMode The rounding mode to use. (default HalfAwayFromZero, matching round(),
-     *     Rational::round(), and Complex::round(), rather than sprintf()'s round-half-to-even behavior).
+     * @param RoundingMode $roundingMode The rounding mode to use. (default HalfAwayFromZero, matching round(), rather
+     *     than sprintf()'s round-half-to-even behavior).
      * @return string The formatted value string.
      * @throws DomainException If the precision is outside the valid range.
      */

@@ -11,8 +11,7 @@ use DomainException;
  *
  * Covers cases like division by zero, logarithm of a non-positive number or with base 0 or 1, and other operations
  * that are undefined for specific inputs. This is the checked-exception equivalent of what a float would signal by
- * returning NAN or ±INF: value types like Complex, Rational, Vector, and Matrix have no such sentinel to fall back
- * on, so they throw instead.
+ * returning NAN or ±INF: a value type with no such sentinel value to fall back on throws this instead.
  *
  * Use this exception instead of DivisionByZeroError. "Error" types should in principle never be thrown from userland
  * code.

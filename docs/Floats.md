@@ -844,7 +844,7 @@ See [FloatFormat::Auto](Enums/FloatFormat.md#auto) for more detail.
 | `ExponentFormat::HtmlMath`        | `&times;10<sup>42</sup>` |
 
 - `$roundingMode` (`RoundingMode`) - The rounding mode to use. Default `RoundingMode::HalfAwayFromZero`, matching
-  `round()`, `Rational::round()`, and `Complex::round()`, rather than `sprintf()`'s round-half-to-even behavior.
+  `round()`, rather than `sprintf()`'s round-half-to-even behavior.
 
 **Returns:** `string` - The formatted value string.
 

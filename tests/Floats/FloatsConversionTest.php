@@ -233,8 +233,8 @@ final class FloatsConversionTest extends TestCase
     }
 
     /**
-     * Test format() with RoundingMode. Defaults to HalfAwayFromZero (matching round(), Rational::round(), and
-     * Complex::round()), not sprintf()'s round-half-to-even.
+     * Test format() with RoundingMode. Defaults to HalfAwayFromZero (matching round()), not sprintf()'s
+     * round-half-to-even.
      */
     public function testFormatRoundingMode(): void
     {
