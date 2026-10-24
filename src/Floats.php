@@ -973,6 +973,7 @@ final class Floats
      * - ulp(NAN) returns NAN
      * - ulp(±INF) returns INF
      * - ulp(±0.0) returns the smallest positive subnormal (≈ 4.9e-324)
+     * - ulp(±PHP_FLOAT_MAX) returns 2^971 (≈ 2.0e292), the gap below it, since there's no finite float above it
      * - ulp(-x) == ulp(x) for all non-NAN values
      *
      * @param float $value The value to calculate ULP for.
@@ -994,8 +995,13 @@ final class Floats
             return INF;
         }
 
-        // Handle ordinary values.
+        // Handle PHP_FLOAT_MAX. The next float up is INF, but the gap below is the same as the spacing in its range.
         $abs = abs($value);
+        if ($abs === PHP_FLOAT_MAX) {
+            return $abs - self::previous($abs);
+        }
+
+        // Handle ordinary values.
         return self::next($abs) - $abs;
     }
 

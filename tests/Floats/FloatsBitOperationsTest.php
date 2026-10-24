@@ -790,6 +790,19 @@ final class FloatsBitOperationsTest extends TestCase
     }
 
     /**
+     * Test ULP of ±PHP_FLOAT_MAX is the gap below it (2^971), not INF.
+     */
+    public function testUlpWithFloatMax(): void
+    {
+        $expected = 2.0 ** 971;
+        $this->assertSame($expected, Floats::ulp(PHP_FLOAT_MAX));
+        $this->assertSame($expected, Floats::ulp(-PHP_FLOAT_MAX));
+
+        // It's the same spacing as just below PHP_FLOAT_MAX.
+        $this->assertSame(Floats::ulp(Floats::previous(PHP_FLOAT_MAX)), Floats::ulp(PHP_FLOAT_MAX));
+    }
+
+    /**
      * Test ULP with small values.
      */
     public function testUlpWithSmallValues(): void

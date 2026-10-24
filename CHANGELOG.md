@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Floats::ulp(±PHP_FLOAT_MAX)`** returned `INF`. It now returns `2^971`, the gap below `PHP_FLOAT_MAX`.
 - **`Types::getUniqueString()`** gave the same key to arrays of floats that differ beyond 14 significant digits, e.g.
   `[0.1 + 0.2]` and `[0.3]`, so a `Set` could merge them. Array keys are now built from the unique strings of their keys
   and values, rather than from `Stringify` output. This also stops arrays holding binary strings from throwing

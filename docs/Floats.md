@@ -1665,6 +1665,7 @@ represents the gap between a float and the next largest representable float valu
 **Behavior:**
 
 - For finite values: returns `next(abs($value)) - abs($value)`.
+- For `±PHP_FLOAT_MAX`: returns `2^971`, the gap below it, since the next float up is `INF`.
 - Larger magnitude numbers have larger ULP values.
 - Uses absolute value, so ULP is the same for positive and negative values of the same magnitude.
 
@@ -1680,6 +1681,9 @@ Floats::ulp(0.001);   // ~2.17e-19
 
 // Large values have large ULP
 Floats::ulp(1e20);  // ~16384.0
+
+// The largest finite float has the largest ULP
+Floats::ulp(PHP_FLOAT_MAX);  // 1.99584030953472e+292 (2^971)
 
 // Zero returns the smallest positive subnormal
 Floats::ulp(0.0);   // ~4.94e-324
