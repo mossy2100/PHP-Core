@@ -288,5 +288,33 @@ final class FloatsInspectionTest extends TestCase
         }
     }
 
+    /**
+     * Test getExponent() across every decade of the float range, both signs. Each power of 10 gives its own exponent,
+     * and the float just below it gives one less, which is where log10() rounding goes wrong.
+     */
+    public function testGetExponentDecadeSweep(): void
+    {
+        $failures = [];
+        $check = static function (float $value, int $expected) use (&$failures): void {
+            foreach ([$value, -$value] as $signed) {
+                $actual = Floats::getExponent($signed);
+                if ($actual !== $expected) {
+                    $failures[] = var_export($signed, true) . " gave $actual, expected $expected";
+                }
+            }
+        };
+
+        for ($exp = -323; $exp <= 308; $exp++) {
+            $power = (float) "1e$exp";
+            $check($power, $exp);
+            $check(Floats::nextDown($power), $exp - 1);
+            if ($exp < 308) {
+                $check((float) "5e$exp", $exp);
+            }
+        }
+
+        $this->assertSame([], $failures);
+    }
+
     #endregion
 }

@@ -386,24 +386,36 @@ final class FloatsTransformationTest extends TestCase
     }
 
     /**
-     * Test wrap() keeps results in range across a sweep of magnitudes, in both modes.
+     * Test wrap() keeps results in range for every binade of the float range, both signs, in both modes.
      */
-    public function testWrapSweepStaysInRange(): void
+    public function testWrapBinadeSweepStaysInRange(): void
     {
-        foreach ([360.0, M_TAU, 7.5] as $unitsPerTurn) {
+        $failures = [];
+        foreach ([360.0, M_TAU, 7.5, 1.0] as $unitsPerTurn) {
             $half = $unitsPerTurn / 2.0;
-            for ($exp = -320; $exp <= 300; $exp += 4) {
-                foreach ([1.0, -1.0, 3.7, -3.7] as $mantissa) {
-                    $value = $mantissa * 10.0 ** $exp;
-                    $signed = Floats::wrap($value, $unitsPerTurn);
-                    $this->assertGreaterThan(-$half, $signed);
-                    $this->assertLessThanOrEqual($half, $signed);
-                    $unsigned = Floats::wrap($value, $unitsPerTurn, false);
-                    $this->assertGreaterThanOrEqual(0.0, $unsigned);
-                    $this->assertLessThan($unitsPerTurn, $unsigned);
+            for ($exp = -1074; $exp <= 1023; $exp++) {
+                // A power of 2, and a value in the middle of its binade, which overflows to INF at the top.
+                $power = 2.0 ** $exp;
+                $middle = 1.5 * $power;
+                foreach ([$power, $middle] as $magnitude) {
+                    if (!is_finite($magnitude)) {
+                        continue;
+                    }
+                    foreach ([$magnitude, -$magnitude] as $value) {
+                        $signed = Floats::wrap($value, $unitsPerTurn);
+                        if ($signed <= -$half || $signed > $half) {
+                            $failures[] = 'signed wrap(' . var_export($value, true) . ", $unitsPerTurn) = $signed";
+                        }
+                        $unsigned = Floats::wrap($value, $unitsPerTurn, false);
+                        if ($unsigned < 0.0 || $unsigned >= $unitsPerTurn) {
+                            $failures[] = 'unsigned wrap(' . var_export($value, true) . ", $unitsPerTurn) = $unsigned";
+                        }
+                    }
                 }
             }
         }
+
+        $this->assertSame([], $failures);
     }
 
     #endregion
