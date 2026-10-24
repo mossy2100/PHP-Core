@@ -36,27 +36,7 @@ use UnitEnum;
  */
 final class Stringify
 {
-    #region Constants
-
-    /**
-     * The default number of spaces to indent each level.
-     */
-    public const int DEFAULT_INDENT = 4;
-
-    /**
-     * The default maximum line length for pretty-printed output.
-     */
-    public const int DEFAULT_MAX_LINE_LENGTH = 120;
-
-    /**
-     * The current number of spaces to indent each level.
-     */
-    private static int $indent = self::DEFAULT_INDENT;
-
-    /**
-     * The current maximum line length for pretty-printed output.
-     */
-    private static int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
+    #region Properties
 
     /**
      * Object IDs (via spl_object_id()) currently being stringified by stringifyObject(), forming a
@@ -71,67 +51,6 @@ final class Stringify
      * @var array<int, true>
      */
     private static array $objectsBeingStringified = [];
-
-    #endregion
-
-    #region Configuration
-
-    /**
-     * Set the number of spaces used for each indentation level.
-     *
-     * @param int $indent The number of spaces (must be >= 0).
-     * @throws DomainException If the indent is negative.
-     */
-    public static function setIndent(int $indent): void
-    {
-        if ($indent < 0) {
-            throw new DomainException("Invalid indent: $indent. Must not be negative.");
-        }
-        self::$indent = $indent;
-    }
-
-    /**
-     * Get the current number of spaces used for each indentation level.
-     *
-     * @return int The current indent value.
-     */
-    public static function getIndent(): int
-    {
-        return self::$indent;
-    }
-
-    /**
-     * Set the maximum line length for pretty-printed output.
-     *
-     * @param int $maxLineLength The maximum line length (must be > 0).
-     * @throws DomainException If the max line length is not positive.
-     */
-    public static function setMaxLineLength(int $maxLineLength): void
-    {
-        if ($maxLineLength <= 0) {
-            throw new DomainException("Invalid max line length: $maxLineLength. Must be positive.");
-        }
-        self::$maxLineLength = $maxLineLength;
-    }
-
-    /**
-     * Get the current maximum line length for pretty-printed output.
-     *
-     * @return int The current max line length value.
-     */
-    public static function getMaxLineLength(): int
-    {
-        return self::$maxLineLength;
-    }
-
-    /**
-     * Reset indent and max line length to their default values.
-     */
-    public static function resetDefaults(): void
-    {
-        self::$indent = self::DEFAULT_INDENT;
-        self::$maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
-    }
 
     #endregion
 
@@ -154,60 +73,15 @@ final class Stringify
      * Convert a value to a readable string representation.
      *
      * @param mixed $value The value to encode.
-     * @param bool $prettyPrint Whether to use pretty printing with indentation (default false).
-     * @param int $indentLevel The level of indentation for this structure (default 0).
+     * @param ?StringifyOptions $options The options, e.g. StringifyOptions::pretty(). Null (default) gives compact
+     *     output.
      * @return string The string representation of the value.
      * @throws UnexpectedValueException If the value has an unknown type. Defensive only: every type
-     * Types::getBasicType() can currently return is handled above, so this isn't reachable in practice.
+     * Types::getBasicType() can currently return is handled, so this isn't reachable in practice.
      */
-    public static function stringify(mixed $value, bool $prettyPrint = false, int $indentLevel = 0): string
+    public static function stringify(mixed $value, ?StringifyOptions $options = null): string
     {
-        // Call the relevant method.
-        switch (Types::getBasicType($value)) {
-            case 'null':
-                assert($value === null);
-                return 'null';
-
-            case 'bool':
-                assert(is_bool($value));
-                return self::stringifyBool($value);
-
-            case 'int':
-                assert(is_int($value));
-                return self::stringifyInt($value);
-
-            case 'float':
-                assert(is_float($value));
-                return self::stringifyFloat($value);
-
-            case 'string':
-                assert(is_string($value));
-                return self::stringifyString($value);
-
-            case 'array':
-                assert(is_array($value));
-                return self::stringifyArray($value, $prettyPrint, $indentLevel);
-
-            case 'enum':
-                assert($value instanceof UnitEnum);
-                return self::stringifyEnum($value);
-
-            case 'closure':
-                assert($value instanceof Closure);
-                return self::stringifyClosure($value);
-
-            case 'object':
-                assert(is_object($value));
-                return self::stringifyObject($value, $prettyPrint, $indentLevel);
-
-            case 'resource':
-                return self::stringifyResource($value);
-
-            default:
-                // @codeCoverageIgnoreStart
-                throw new UnexpectedValueException('Value has unknown type.');
-                // @codeCoverageIgnoreEnd
-        }
+        return self::stringifyAtLevel($value, $options ?? StringifyOptions::compact(), 0);
     }
 
     /**
@@ -424,32 +298,13 @@ final class Stringify
      * (as much as possible) rather than failing outright.
      *
      * @param array<array-key, mixed> $arr The array to encode.
-     * @param bool $prettyPrint Whether to use pretty printing (default false).
-     * @param int $indentLevel The level of indentation for this structure (default 0).
-     * @param bool $alreadyCleaned Whether $arr is already known to be free of circular references -
-     * e.g. because it's a nested array within a value that an ancestor call already cleaned via
-     * Arrays::removeRecursion(), which cleans the entire subtree in one pass. Sub-arrays discovered
-     * while stringifying $arr's own values are always passed down as already cleaned; this only
-     * needs to be set explicitly by internal callers, since Arrays::removeRecursion() is otherwise
-     * safe (but redundant) to run again on data that's already clean.
+     * @param ?StringifyOptions $options The options, e.g. StringifyOptions::pretty(). Null (default) gives compact
+     *     output.
      * @return string The string representation of the array.
      */
-    public static function stringifyArray(
-        array $arr,
-        bool $prettyPrint = false,
-        int $indentLevel = 0,
-        bool $alreadyCleaned = false
-    ): string {
-        // Replace any circular references with the RECURSION marker so the rest of the array can still be
-        // stringified. Skipped if the caller already knows $arr is clean, to avoid redundantly re-scanning a
-        // subtree that an ancestor's Arrays::removeRecursion() call already cleaned in full.
-        if (!$alreadyCleaned) {
-            $arr = Arrays::removeRecursion($arr);
-        }
-
-        return array_is_list($arr)
-            ? self::stringifyListArray($arr, $prettyPrint, $indentLevel)
-            : self::stringifyAssociativeArray($arr, $prettyPrint, $indentLevel);
+    public static function stringifyArray(array $arr, ?StringifyOptions $options = null): string
+    {
+        return self::stringifyArrayAtLevel($arr, $options ?? StringifyOptions::compact(), 0, false);
     }
 
     /**
@@ -508,11 +363,139 @@ final class Stringify
      * repeated object with the RECURSION marker instead of recursing forever.
      *
      * @param object $obj The object to encode.
-     * @param bool $prettyPrint Whether to use pretty printing (default false).
-     * @param int $indentLevel The level of indentation for this structure (default 0).
+     * @param ?StringifyOptions $options The options, e.g. StringifyOptions::pretty(). Null (default) gives compact
+     *     output.
      * @return string The string representation of the object.
      */
-    public static function stringifyObject(object $obj, bool $prettyPrint = false, int $indentLevel = 0): string
+    public static function stringifyObject(object $obj, ?StringifyOptions $options = null): string
+    {
+        return self::stringifyObjectAtLevel($obj, $options ?? StringifyOptions::compact(), 0);
+    }
+
+    /**
+     * Stringify a resource.
+     *
+     * Result combines the result of casting the resource to string with the resource type.
+     * Example: 'Resource id #15 (stream)'
+     *
+     * @param mixed $value The resource to stringify.
+     * @return string The string representation of the resource.
+     * @throws InvalidArgumentException If the value is not a resource.
+     */
+    public static function stringifyResource(mixed $value): string
+    {
+        // We can't type hint for resource, and is_resource() returns false for a closed resource.
+        // So, check the debug type.
+        $type = get_debug_type($value);
+        if (!str_starts_with($type, 'resource (')) {
+            throw new InvalidArgumentException("Invalid value type: $type. Must be a resource.");
+        }
+
+        /** @var resource $value */
+        return 'resource #' . get_resource_id($value) . substr($type, 8);
+    }
+
+    #endregion
+
+    #region Helper methods
+
+    /**
+     * Implementation of stringify(), for a value at a given nesting depth.
+     *
+     * @param mixed $value The value to encode.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this value (0 for the outermost).
+     * @return string The string representation of the value.
+     * @throws UnexpectedValueException If the value has an unknown type. Defensive only.
+     */
+    private static function stringifyAtLevel(mixed $value, StringifyOptions $options, int $indentLevel): string
+    {
+        // Call the relevant method.
+        switch (Types::getBasicType($value)) {
+            case 'null':
+                assert($value === null);
+                return 'null';
+
+            case 'bool':
+                assert(is_bool($value));
+                return self::stringifyBool($value);
+
+            case 'int':
+                assert(is_int($value));
+                return self::stringifyInt($value);
+
+            case 'float':
+                assert(is_float($value));
+                return self::stringifyFloat($value);
+
+            case 'string':
+                assert(is_string($value));
+                return self::stringifyString($value);
+
+            case 'array':
+                assert(is_array($value));
+                return self::stringifyArrayAtLevel($value, $options, $indentLevel, false);
+
+            case 'enum':
+                assert($value instanceof UnitEnum);
+                return self::stringifyEnum($value);
+
+            case 'closure':
+                assert($value instanceof Closure);
+                return self::stringifyClosure($value);
+
+            case 'object':
+                assert(is_object($value));
+                return self::stringifyObjectAtLevel($value, $options, $indentLevel);
+
+            case 'resource':
+                return self::stringifyResource($value);
+
+            default:
+                // @codeCoverageIgnoreStart
+                throw new UnexpectedValueException('Value has unknown type.');
+                // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * Implementation of stringifyArray(), for an array at a given nesting depth.
+     *
+     * @param array<array-key, mixed> $arr The array to encode.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this array (0 for the outermost).
+     * @param bool $alreadyCleaned Whether $arr is already known to be free of circular references, because it's
+     *     nested in an array that an ancestor call already passed through Arrays::removeRecursion(), which cleans the
+     *     whole subtree in one pass.
+     * @return string The string representation of the array.
+     */
+    private static function stringifyArrayAtLevel(
+        array $arr,
+        StringifyOptions $options,
+        int $indentLevel,
+        bool $alreadyCleaned
+    ): string {
+        // Replace any circular references with the RECURSION marker so the rest of the array can still be
+        // stringified. Skipped if the caller already knows $arr is clean, to avoid redundantly re-scanning a
+        // subtree that an ancestor's Arrays::removeRecursion() call already cleaned in full.
+        if (!$alreadyCleaned) {
+            $arr = Arrays::removeRecursion($arr);
+        }
+
+        return array_is_list($arr)
+            ? self::stringifyListArray($arr, $options, $indentLevel)
+            : self::stringifyAssociativeArray($arr, $options, $indentLevel);
+    }
+
+    /**
+     * Implementation of stringifyObject(), for an object at a given nesting depth.
+     *
+     * @param object $obj The object to encode.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this object (0 for the outermost).
+     * @return string The string representation of the object.
+     */
+    private static function stringifyObjectAtLevel(object $obj, StringifyOptions $options, int $indentLevel): string
     {
         // Detect a reference cycle: this exact object is already being stringified further up the call chain.
         $objectId = spl_object_id($obj);
@@ -535,7 +518,7 @@ final class Stringify
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
             [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-                self::prepareIndents($indentLevel, $prettyPrint);
+                self::prepareIndents($indentLevel, $options);
 
             $keys = array_keys($arr);
             $values = array_values($arr);
@@ -571,14 +554,14 @@ final class Stringify
             $pairs = [];
             foreach ($propNames as $i => $propName) {
                 assert(is_string($propName));
-                $paddedPropName = $prettyPrint ? mb_str_pad($propName, $maxPropNameLen) : $propName;
-                $valueStr = self::stringifyCleanedValue($values[$i], $prettyPrint, $indentLevel + 1);
+                $paddedPropName = $options->prettyPrint ? mb_str_pad($propName, $maxPropNameLen) : $propName;
+                $valueStr = self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1);
                 $pairs[] = $viz[$i] . $paddedPropName . ' => ' . $valueStr;
             }
 
             // If pretty print, return string formatted with new lines and indentation. Include trailing comma
             // after every pair (including the last), matching stringifyListArray()/stringifyAssociativeArray().
-            if ($prettyPrint) {
+            if ($options->prettyPrint) {
                 $result = "$classWithId {\n";
                 foreach ($pairs as $pair) {
                     $result .= $itemIndent . $pair . ",\n";
@@ -592,33 +575,6 @@ final class Stringify
             unset(self::$objectsBeingStringified[$objectId]);
         }
     }
-
-    /**
-     * Stringify a resource.
-     *
-     * Result combines the result of casting the resource to string with the resource type.
-     * Example: 'Resource id #15 (stream)'
-     *
-     * @param mixed $value The resource to stringify.
-     * @return string The string representation of the resource.
-     * @throws InvalidArgumentException If the value is not a resource.
-     */
-    public static function stringifyResource(mixed $value): string
-    {
-        // We can't type hint for resource, and is_resource() returns false for a closed resource.
-        // So, check the debug type.
-        $type = get_debug_type($value);
-        if (!str_starts_with($type, 'resource (')) {
-            throw new InvalidArgumentException("Invalid value type: $type. Must be a resource.");
-        }
-
-        /** @var resource $value */
-        return 'resource #' . get_resource_id($value) . substr($type, 8);
-    }
-
-    #endregion
-
-    #region Helper methods
 
     /**
      * Render a string that isn't valid UTF-8 as a parseable double-quoted string.
@@ -659,19 +615,19 @@ final class Stringify
     /**
      * Stringify a value that is an element of an array whose own recursion has already been removed
      * via Arrays::removeRecursion(). Array values are guaranteed clean by that ancestor call, so
-     * they're routed to stringifyArray() with $alreadyCleaned = true to skip re-scanning an
-     * already-clean subtree; everything else goes through the normal stringify() dispatch.
+     * they're routed to stringifyArrayAtLevel() with $alreadyCleaned = true to skip re-scanning an
+     * already-clean subtree; everything else goes through the normal stringifyAtLevel() dispatch.
      *
      * @param mixed $value The value to stringify.
-     * @param bool $prettyPrint Whether to use pretty printing.
-     * @param int $indentLevel The level of indentation for this structure.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this value.
      * @return string The string representation of the value.
      */
-    private static function stringifyCleanedValue(mixed $value, bool $prettyPrint, int $indentLevel): string
+    private static function stringifyCleanedValue(mixed $value, StringifyOptions $options, int $indentLevel): string
     {
         return is_array($value)
-            ? self::stringifyArray($value, $prettyPrint, $indentLevel, true)
-            : self::stringify($value, $prettyPrint, $indentLevel);
+            ? self::stringifyArrayAtLevel($value, $options, $indentLevel, true)
+            : self::stringifyAtLevel($value, $options, $indentLevel);
     }
 
     /**
@@ -681,23 +637,23 @@ final class Stringify
      * With pretty printing, uses compact, grid, or one-per-line format, depending on content.
      *
      * @param list<mixed> $arr The list to stringify.
-     * @param bool $prettyPrint Whether to use pretty printing.
-     * @param int $indentLevel The level of indentation for this structure.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this list.
      * @return string The string representation of the list.
      */
-    private static function stringifyListArray(array $arr, bool $prettyPrint, int $indentLevel): string
+    private static function stringifyListArray(array $arr, StringifyOptions $options, int $indentLevel): string
     {
         $values = array_values($arr);
 
         // Without pretty printing, use the compact (single-line) format. No trailing comma.
-        if (!$prettyPrint) {
-            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, false, 0), $values);
+        if (!$options->prettyPrint) {
+            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
             return '[' . implode(', ', $valueStrings) . ']';
         }
 
         // Set up for multi-line pretty printing.
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-            self::prepareIndents($indentLevel, $prettyPrint);
+            self::prepareIndents($indentLevel, $options);
 
         // If any value isn't simple (null or scalar), use the multiline format. Each value is stringified once, at its
         // own indent; stringifying it at another indent first would double the work at every level of nesting.
@@ -705,18 +661,18 @@ final class Stringify
             $multilineList = "[\n";
             foreach ($values as $value) {
                 // Pretty print each value. Include trailing comma.
-                $multilineList .= $itemIndent . self::stringifyCleanedValue($value, true, $indentLevel + 1) . ",\n";
+                $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1) . ",\n";
             }
             return $multilineList . $bracketIndent . ']';
         }
 
         // All values are simple, so use the compact or grid format.
-        $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, true, 0), $values);
+        $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
         $compactList = '[' . implode(', ', $valueStrings) . ']';
         $nItems = count($arr);
 
         // If the compact format fits on one line, return it.
-        if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
+        if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent) {
             return $compactList;
         }
 
@@ -730,7 +686,7 @@ final class Stringify
         }
 
         // Calculate the number of items per line.
-        $nItemsPerLine = (int) floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
+        $nItemsPerLine = (int) floor(($options->maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
         if ($nItemsPerLine <= 0) {
             $nItemsPerLine = 1;
         }
@@ -766,11 +722,11 @@ final class Stringify
      * With pretty printing, uses one pair per line with aligned keys.
      *
      * @param array<array-key, mixed> $arr The dictionary to stringify.
-     * @param bool $prettyPrint Whether to use pretty printing.
-     * @param int $indentLevel The level of indentation for this structure.
+     * @param StringifyOptions $options The options.
+     * @param int $indentLevel The nesting depth of this array.
      * @return string The string representation of the associative array.
      */
-    private static function stringifyAssociativeArray(array $arr, bool $prettyPrint, int $indentLevel): string
+    private static function stringifyAssociativeArray(array $arr, StringifyOptions $options, int $indentLevel): string
     {
         // Get keys as strings.
         $keyStrings = [];
@@ -782,17 +738,17 @@ final class Stringify
         $nItems = count($arr);
 
         // Unpretty format. No newlines or extra spaces.
-        if (!$prettyPrint) {
+        if (!$options->prettyPrint) {
             $pairs = [];
             for ($i = 0; $i < $nItems; $i++) {
-                $pairs[] = $keyStrings[$i] . ' => ' . self::stringifyCleanedValue($values[$i], false, 0);
+                $pairs[] = $keyStrings[$i] . ' => ' . self::stringifyCleanedValue($values[$i], $options, 0);
             }
             return '[' . implode(', ', $pairs) . ']';
         }
 
         // Set up for pretty printing.
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-            self::prepareIndents($indentLevel, $prettyPrint);
+            self::prepareIndents($indentLevel, $options);
 
         // Get the maximum key width.
         $maxKeyWidth = 0;
@@ -807,7 +763,7 @@ final class Stringify
         $result = "[\n";
         for ($i = 0; $i < $nItems; $i++) {
             $result .= $itemIndent . mb_str_pad($keyStrings[$i], $maxKeyWidth) . ' => ' .
-                self::stringifyCleanedValue($values[$i], true, $indentLevel + 1) . ",\n";
+                self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1) . ",\n";
         }
         return $result . $bracketIndent . ']';
     }
@@ -815,21 +771,21 @@ final class Stringify
     /**
      * Prepare indent values for pretty printing.
      *
-     * The two indent strings are empty when $prettyPrint is false, so callers can use them unconditionally
+     * The two indent strings are empty when pretty printing is off, so callers can use them unconditionally
      * without an extra branch; the two indent widths are still computed either way.
      *
      * @param int $indentLevel The current nesting depth (0 for the outermost structure).
-     * @param bool $prettyPrint Whether pretty printing is enabled.
+     * @param StringifyOptions $options The options, which give the indent and whether pretty printing is on.
      * @return array{0: int, 1: string, 2: int, 3: string} [$nSpacesBracketIndent, $bracketIndent,
      * $nSpacesItemIndent, $itemIndent]: the number of spaces to indent a closing bracket and that many spaces as
      * a string, followed by the number of spaces to indent an item and that many spaces as a string.
      */
-    private static function prepareIndents(int $indentLevel, bool $prettyPrint): array
+    private static function prepareIndents(int $indentLevel, StringifyOptions $options): array
     {
-        $nSpacesBracketIndent = $indentLevel * self::$indent;
-        $bracketIndent = $prettyPrint ? str_repeat(' ', $nSpacesBracketIndent) : '';
-        $nSpacesItemIndent = $nSpacesBracketIndent + self::$indent;
-        $itemIndent = $prettyPrint ? str_repeat(' ', $nSpacesItemIndent) : '';
+        $nSpacesBracketIndent = $indentLevel * $options->indent;
+        $bracketIndent = $options->prettyPrint ? str_repeat(' ', $nSpacesBracketIndent) : '';
+        $nSpacesItemIndent = $nSpacesBracketIndent + $options->indent;
+        $itemIndent = $options->prettyPrint ? str_repeat(' ', $nSpacesItemIndent) : '';
         return [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent];
     }
 

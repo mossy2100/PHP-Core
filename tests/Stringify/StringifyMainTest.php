@@ -8,6 +8,7 @@ use ArgumentCountError;
 use BadMethodCallException;
 use DomainException;
 use Mossy2100\Core\Stringify;
+use Mossy2100\Core\StringifyOptions;
 use Mossy2100\Core\Tests\Fixtures\Foo;
 use Mossy2100\Core\Tests\Fixtures\StringableThing;
 use Mossy2100\Core\Tests\Fixtures\StringifyAbbrevAnObjectWithAVeryVeryLongClassNameIndeed;
@@ -48,7 +49,7 @@ final class StringifyMainTest extends TestCase
             ];
         }
 
-        $lines = explode("\n", Stringify::stringify($arr, true));
+        $lines = explode("\n", Stringify::stringify($arr, StringifyOptions::pretty()));
 
         // Each level adds an opening line, a [2] line and a closing line around the [1] at the centre.
         $this->assertCount(61, $lines);

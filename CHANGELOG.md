@@ -10,12 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- **`StringifyOptions`** - per-call options for `Stringify`: `prettyPrint`, `indent` and `maxLineLength`, with
+  `StringifyOptions::compact()` and `StringifyOptions::pretty()`.
 - **`Integers::mulMod()`** calculates `(a × b) % m` without overflowing, even when `a × b` would, e.g.
   `Integers::mulMod(PHP_INT_MAX, PHP_INT_MAX, 1000000007)` is `737564071`. The result has the sign of the product, like
   PHP's `%`.
 
 ### Changed
 
+- **`Stringify::stringify()`, `stringifyArray()` and `stringifyObject()` take `?StringifyOptions` instead of
+  `bool $prettyPrint` and `int $indentLevel` (breaking).** Replace `stringify($x, true)` with
+  `stringify($x, StringifyOptions::pretty())`. The options apply to one call, rather than to the whole process.
 - **Renamed the package from `oceanmoon/core` to `mossy2100/core`, and the namespace from `OceanMoon\Core` to
   `Mossy2100\Core` (breaking),** matching the author's GitHub and Packagist name. Update `composer.json` and any
   `use` statements, including for the exceptions, e.g. `Mossy2100\Core\Exceptions\FormatException`.
@@ -70,6 +75,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Removed
 
+- **`Stringify::setIndent()`, `getIndent()`, `setMaxLineLength()`, `getMaxLineLength()` and `resetDefaults()`, and
+  the `Stringify::DEFAULT_INDENT` and `DEFAULT_MAX_LINE_LENGTH` constants (breaking).** Use `StringifyOptions`, where
+  the constants now live.
 - **`Arrays::hasRecursion()` (breaking).** No package used it. Recursion in an array can be handled with
   `Arrays::removeRecursion()`.
 - **`Types::same()` (breaking).** It treated every anonymous class as the same type, and only `Numbers::equal()` used

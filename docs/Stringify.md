@@ -37,83 +37,25 @@ parseable, but is designed for readability.
 
 ---
 
-## Constants
+## Options
 
-| Constant                  | Value | Description                                                                                     |
-| ------------------------- | ----- | ----------------------------------------------------------------------------------------------- |
-| `DEFAULT_INDENT`          | `4`   | Default number of spaces per indentation level in pretty-printed output.                        |
-| `DEFAULT_MAX_LINE_LENGTH` | `120` | Default maximum line length before pretty-printed list arrays wrap to grid or multiline format. |
-
----
-
-## Configuration Methods
-
-The indent and max line length are configurable via static properties. Changes persist for the lifetime of the process
-and affect all subsequent calls.
-
-### setIndent() / getIndent()
+Output is compact by default. Pass a [StringifyOptions](StringifyOptions.md) object for pretty printing, and to change
+its layout. The options apply to that one call only.
 
 ```php
-public static function setIndent(int $indent): void
-public static function getIndent(): int
-```
+Stringify::stringify(['a' => 1, 'b' => 2]);                       // "['a' => 1, 'b' => 2]"
 
-Set or get the number of spaces used for each indentation level in pretty-printed output.
+Stringify::stringify(['a' => 1, 'b' => 2], StringifyOptions::pretty());
+// [
+//     'a' => 1,
+//     'b' => 2,
+// ]
 
-**Throws:**
-
-- `DomainException` - If the supplied indent is negative.
-
-**Example:**
-
-```php
-Stringify::setIndent(2);
-Stringify::stringify(['a' => 1, 'b' => 2], true);
+Stringify::stringify(['a' => 1, 'b' => 2], StringifyOptions::pretty(indent: 2, maxLineLength: 80));
 // [
 //   'a' => 1,
 //   'b' => 2,
 // ]
-```
-
-### setMaxLineLength() / getMaxLineLength()
-
-```php
-public static function setMaxLineLength(int $maxLineLength): void
-public static function getMaxLineLength(): int
-```
-
-Set or get the maximum line length for pretty-printed output. This only affects when list arrays wrap from a compact,
-single-line format to a grid or one-value-per-line format. Other long values (strings, etc.) aren't chopped down to this
-length.
-
-**Throws:**
-
-- `DomainException` - If the max line length is not greater than 0.
-
-**Example:**
-
-```php
-Stringify::setMaxLineLength(60);
-Stringify::stringify(range(1, 20), true);
-// Grid layout will wrap earlier due to shorter max line length.
-```
-
-### resetDefaults()
-
-```php
-public static function resetDefaults(): void
-```
-
-Reset both indent and max line length to their default constant values. Useful in test teardown to avoid leaking state
-between tests.
-
-**Example:**
-
-```php
-Stringify::setIndent(2);
-Stringify::setMaxLineLength(80);
-// ... do work ...
-Stringify::resetDefaults(); // Back to 4 spaces and 120 chars.
 ```
 
 ---
@@ -123,7 +65,7 @@ Stringify::resetDefaults(); // Back to 4 spaces and 120 chars.
 ### stringify()
 
 ```php
-public static function stringify(mixed $value, bool $prettyPrint = false, int $indentLevel = 0): string
+public static function stringify(mixed $value, ?StringifyOptions $options = null): string
 ```
 
 Convert any PHP value to a readable string representation. This is the main entry point that dispatches to the
@@ -132,8 +74,8 @@ appropriate type-specific method.
 **Parameters:**
 
 - `$value` (mixed) - The value to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing with indentation (default: `false`).
-- `$indentLevel` (int) - The level of indentation for nested structures (default: `0`).
+- `$options` (`?StringifyOptions`) - The options, e.g. `StringifyOptions::pretty()`. `null` (default) gives compact
+  output. See [Options](#options).
 
 **Returns:**
 
@@ -411,12 +353,7 @@ Stringify::stringifyString("\xff\xfe");   // '"\xFF\xFE"' (binary data)
 ### stringifyArray()
 
 ```php
-public static function stringifyArray(
-    array $arr,
-    bool $prettyPrint = false,
-    int $indentLevel = 0,
-    bool $alreadyCleaned = false,
-): string
+public static function stringifyArray(array $arr, ?StringifyOptions $options = null): string
 ```
 
 Stringify a PHP array as concise, parseable code. List arrays (sequential integer keys starting at 0) show values only.
@@ -433,16 +370,12 @@ List arrays of complex items are always one value per line when pretty printing.
 
 Associative arrays are always one pair per line with aligned keys when pretty printing.
 
-The max line length is controlled by `setMaxLineLength()` (default: `120`).
+The max line length is set by the options' `maxLineLength` (default: `120`).
 
 **Parameters:**
 
 - `$arr` (array) - The array to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing (default: `false`).
-- `$indentLevel` (int) - The level of indentation (default: `0`).
-- `$alreadyCleaned` (bool) - Whether `$arr` is already known to be free of circular references, e.g. because an ancestor
-  call already cleaned it via `Arrays::removeRecursion()`. Internal callers pass this to avoid a redundant pass; you
-  shouldn't normally need to set it yourself (default: `false`).
+- `$options` (`?StringifyOptions`) - The options. `null` (default) gives compact output. See [Options](#options).
 
 **Returns:**
 
@@ -466,7 +399,7 @@ Stringify::stringifyArray(['a' => 1, 'b' => 2]); // "['a' => 1, 'b' => 2]"
 Pretty-printed grid (scalar list exceeding max line length):
 
 ```php
-Stringify::stringifyArray(range(1, 50), true);
+Stringify::stringifyArray(range(1, 50), StringifyOptions::pretty());
 // [
 //     1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 //     30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
@@ -476,7 +409,7 @@ Stringify::stringifyArray(range(1, 50), true);
 Pretty-printed associative array (aligned keys):
 
 ```php
-Stringify::stringifyArray(['name' => 'John', 'age' => 30], true);
+Stringify::stringifyArray(['name' => 'John', 'age' => 30], StringifyOptions::pretty());
 // [
 //     'name' => 'John',
 //     'age'  => 30,
@@ -546,7 +479,7 @@ Two closures that start on the same line get the same name.
 ### stringifyObject()
 
 ```php
-public static function stringifyObject(object $obj, bool $prettyPrint = false, int $indentLevel = 0): string
+public static function stringifyObject(object $obj, ?StringifyOptions $options = null): string
 ```
 
 Stringify an object using a custom format with the class name, curly braces, and UML visibility symbols.
@@ -558,8 +491,7 @@ directly, before `stringifyObject()` is ever reached.
 **Parameters:**
 
 - `$obj` (object) - The object to encode.
-- `$prettyPrint` (bool) - Whether to use pretty printing (default: `false`).
-- `$indentLevel` (int) - The level of indentation (default: `0`).
+- `$options` (`?StringifyOptions`) - The options. `null` (default) gives compact output. See [Options](#options).
 
 **Returns:**
 
@@ -597,7 +529,7 @@ Stringify::stringifyObject($obj);  // 'stdClass #2 {}'
 With pretty printing, property names are aligned:
 
 ```php
-Stringify::stringifyObject($user, true);
+Stringify::stringifyObject($user, StringifyOptions::pretty());
 // User #1 {
 //     +name => 'John',
 //     +age  => 30,

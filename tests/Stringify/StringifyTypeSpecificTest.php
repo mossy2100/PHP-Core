@@ -7,10 +7,12 @@ namespace Mossy2100\Core\Tests\Stringify;
 use Closure;
 use InvalidArgumentException;
 use Mossy2100\Core\Stringify;
+use Mossy2100\Core\StringifyOptions;
 use Mossy2100\Core\Tests\Fixtures\TestBackedEnum;
 use Mossy2100\Core\Tests\Fixtures\TestEnum;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 use const Mossy2100\Core\RECURSION;
 
@@ -300,7 +302,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayPrettyPrintShortList(): void
     {
-        $this->assertSame('[1, 2, 3]', Stringify::stringify([1, 2, 3], true));
+        $this->assertSame('[1, 2, 3]', Stringify::stringify([1, 2, 3], StringifyOptions::pretty()));
     }
 
     /**
@@ -308,11 +310,11 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayPrettyPrintGrid(): void
     {
-        $maxLineLength = Stringify::getMaxLineLength();
+        $maxLineLength = StringifyOptions::DEFAULT_MAX_LINE_LENGTH;
 
         // Create a list long enough to exceed 120 chars and trigger grid format.
         $list = range(1, 50);
-        $result = Stringify::stringify($list, true);
+        $result = Stringify::stringify($list, StringifyOptions::pretty());
 
         // Should be multiline.
         $this->assertStringContainsString("\n", $result);
@@ -337,7 +339,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $result = Stringify::stringify([
             'name' => 'John',
             'age'  => 30,
-        ], true);
+        ], StringifyOptions::pretty());
 
         $expected = "[\n    'name' => 'John',\n    'age'  => 30,\n]";
         $this->assertSame($expected, $result);
@@ -351,7 +353,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $result = Stringify::stringify([
             [1, 2],
             [3, 4],
-        ], true);
+        ], StringifyOptions::pretty());
 
         // Should be single-line.
         $this->assertSame("[\n    [1, 2],\n    [3, 4],\n]", $result);
@@ -368,7 +370,7 @@ final class StringifyTypeSpecificTest extends TestCase
                 'age'  => 30,
             ],
             42,
-        ], true);
+        ], StringifyOptions::pretty());
 
         $expected = "[\n"
             . "    [\n"
@@ -391,19 +393,14 @@ final class StringifyTypeSpecificTest extends TestCase
         ];
 
         // maxLineLength of 40 - items are too wide for 2 per line, so grid is skipped.
-        Stringify::setMaxLineLength(40);
-        try {
-            $result = Stringify::stringifyArray($uuids, true);
+        $result = Stringify::stringifyArray($uuids, StringifyOptions::pretty(maxLineLength: 40));
 
-            $expected = "[\n"
-                . "    'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',\n"
-                . "    'd2aee4c5-a7f7-4018-a635-c3f4c317033e',\n"
-                . "    'd266963a-c4e0-4255-a97d-f070e51fcb5e',\n"
-                . ']';
-            $this->assertSame($expected, $result);
-        } finally {
-            Stringify::resetDefaults();
-        }
+        $expected = "[\n"
+            . "    'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',\n"
+            . "    'd2aee4c5-a7f7-4018-a635-c3f4c317033e',\n"
+            . "    'd266963a-c4e0-4255-a97d-f070e51fcb5e',\n"
+            . ']';
+        $this->assertSame($expected, $result);
     }
 
     /**
@@ -643,7 +640,7 @@ final class StringifyTypeSpecificTest extends TestCase
             public int $age = 30;
         };
 
-        $result = Stringify::stringify($obj, true);
+        $result = Stringify::stringify($obj, StringifyOptions::pretty());
 
         $this->assertMatchesRegularExpression(
             '/^class@anonymous #\d+ \{\n\s+\+name\s+=> \'John\',\n\s+\+age\s+=> 30,\n\}$/',
@@ -753,6 +750,23 @@ final class StringifyTypeSpecificTest extends TestCase
 
         $this->assertStringNotContainsString(RECURSION, $result);
         $this->assertSame(2, substr_count($result, '+value => 42'));
+    }
+
+    /**
+     * Test calling stringifyObject() directly, compact by default and pretty with options.
+     */
+    public function testStringifyObjectDirect(): void
+    {
+        $obj = new stdClass();
+        $obj->a = 1;
+        $obj->b = 'x';
+        $prefix = 'stdClass #' . spl_object_id($obj);
+
+        $this->assertSame("$prefix {+a => 1, +b => 'x'}", Stringify::stringifyObject($obj));
+        $this->assertSame(
+            "$prefix {\n    +a => 1,\n    +b => 'x',\n}",
+            Stringify::stringifyObject($obj, StringifyOptions::pretty())
+        );
     }
 
     #endregion

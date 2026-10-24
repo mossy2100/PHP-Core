@@ -79,6 +79,10 @@ unique string keys.
 Advanced value-to-string conversion with pretty printing, supporting all PHP types with improved readability. This class
 serves as the basis of the `Console::dump()` method.
 
+### [StringifyOptions](docs/StringifyOptions.md)
+
+Per-call options for `Stringify`: pretty printing, indent and maximum line length.
+
 ### [Environment](docs/Environment.md)
 
 Runtime environment detection: 64-bit architecture checks, and the invariant locale used for number formatting.
