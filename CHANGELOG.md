@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Stringify`** threw `DomainException` for a string that isn't valid UTF-8 and couldn't be converted, e.g. binary
+  data or Latin-1 text. That included `prepEx()`, so building an exception message could hide the original error. Such
+  a string is now rendered as a parseable double-quoted string, with `\xNN` escapes for the invalid bytes.
 - **`Integers::fromSubscript()`** and **`fromSuperscript()`** threw `OverflowException` for a string with leading
   zeros, e.g. `'₀₀₇'`, though `isSubscript()` and `isSuperscript()` accept it. Leading zeros are now accepted.
 - **`Floats::format()`** gave `'-0'` for a negative value that rounds to zero in fixed-point notation, e.g.

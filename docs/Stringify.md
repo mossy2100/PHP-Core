@@ -16,7 +16,8 @@ It's for display, exception and log messages, not collection keys: the output fo
 ### Key Features
 
 - **Single-quoted strings**: Strings are wrapped in single quotes, with backslash and single quotes escaped. Unicode
-  characters are preserved as-is.
+  characters are preserved as-is. A string that isn't valid UTF-8, and can't be converted, is double-quoted with
+  `\xNN` escapes instead.
 - **Exact float representation**: Floats are shown with the shortest digits that convert back to the same value (e.g.,
   `0.30000000000000004`), and always include a decimal point or exponent, so they never look like integers (e.g.,
   `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled correctly.
@@ -141,8 +142,6 @@ appropriate type-specific method.
 
 **Throws:**
 
-- `DomainException` - If the value cannot be stringified (e.g., a string whose encoding can't be detected or converted
-  to UTF-8).
 - `UnexpectedValueException` - If the value has an unknown type. Defensive only: every type `Types::getBasicType()` can
   currently return is handled, so this isn't reachable in practice.
 
@@ -237,7 +236,7 @@ error messages and logs where space is limited.
 
 **Throws:**
 
-- `DomainException` - If the maximum length is less than 3, or if the value cannot be stringified.
+- `DomainException` - If the maximum length is less than 3.
 - `UnexpectedValueException` - If the value's type cannot be inferred. Defensive only - see `stringify()`, which this
   method calls internally; not reachable in practice.
 
@@ -382,7 +381,12 @@ public static function stringifyString(string $value): string
 ```
 
 Convert a string to a parseable single-quoted string representation. Backslashes and single quotes are escaped.
-Non-UTF-8 input is converted to UTF-8. Unicode characters are preserved as-is (not escaped to `\uXXXX`).
+Unicode characters are preserved as-is (not escaped to `\uXXXX`).
+
+A string that isn't valid UTF-8 is converted to UTF-8 if its encoding can be detected, using the encodings in
+`mb_detect_order()` (by default only ASCII and UTF-8). Otherwise, e.g. for binary data, it's rendered as a parseable
+double-quoted string: valid UTF-8 sequences are kept, other bytes and control characters are escaped as `\xNN`, and
+`\`, `"` and `$` are escaped with a backslash.
 
 **Parameters:**
 
@@ -390,12 +394,8 @@ Non-UTF-8 input is converted to UTF-8. Unicode characters are preserved as-is (n
 
 **Returns:**
 
-- `string` - The single-quoted, escaped string representation.
-
-**Throws:**
-
-- `DomainException` - If the string is not UTF-8 and the encoding could not be detected or the string could not be
-  converted to UTF-8.
+- `string` - The single-quoted, escaped string representation, or double-quoted for a string that can't be converted
+  to UTF-8.
 
 **Examples:**
 
@@ -404,6 +404,7 @@ Stringify::stringifyString('hello');      // "'hello'"
 Stringify::stringifyString("it's");       // "'it\\'s'"
 Stringify::stringifyString('foo\\bar');   // "'foo\\\\bar'"
 Stringify::stringifyString('café');       // "'café'"
+Stringify::stringifyString("\xff\xfe");   // '"\xFF\xFE"' (binary data)
 ```
 
 ### stringifyArray()
@@ -445,10 +446,6 @@ The max line length is controlled by `setMaxLineLength()` (default: `120`).
 **Returns:**
 
 - `string` - The string representation of the array.
-
-**Throws:**
-
-- `DomainException` - If a value cannot be stringified.
 
 **Examples:**
 
@@ -571,10 +568,6 @@ directly, before `stringifyObject()` is ever reached.
 **Returns:**
 
 - `string` - The string representation of the object.
-
-**Throws:**
-
-- `DomainException` - If a value cannot be stringified.
 
 **Visibility Symbols (UML notation):**
 

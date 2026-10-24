@@ -19,7 +19,7 @@ use UnitEnum;
  * options of echo(), print(), var_dump(), var_export(), print_r(), json_encode(), and serialize().
  *
  * - Floats never look like integers.
- * - Strings are single-quoted.
+ * - Strings are single-quoted, or double-quoted with escapes if they aren't valid UTF-8 and can't be converted.
  * - Arrays are rendered as parseable PHP code using modern square bracket syntax.
  * - Arrays that are lists will not show keys; associative arrays will show keys.
  * - Objects are rendered like arrays but with a class name and curly braces instead of square brackets.
@@ -157,7 +157,6 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing with indentation (default false).
      * @param int $indentLevel The level of indentation for this structure (default 0).
      * @return string The string representation of the value.
-     * @throws DomainException If the value cannot be stringified.
      * @throws UnexpectedValueException If the value has an unknown type. Defensive only: every type
      * Types::getBasicType() can currently return is handled above, so this isn't reachable in practice.
      */
@@ -244,7 +243,7 @@ final class Stringify
      * @param mixed $value The value to get the string representation for.
      * @param int $maxLen The maximum length of the result. The minimum value is 3.
      * @return string The short string representation.
-     * @throws DomainException If the maximum length is less than the minimum, or if the value cannot be stringified.
+     * @throws DomainException If the maximum length is less than the minimum.
      * @throws UnexpectedValueException If the type cannot be inferred. Defensive only - see stringify(), which this
      * method calls internally; not reachable in practice.
      */
@@ -274,8 +273,9 @@ final class Stringify
                 }
             }
 
+            // A string is single-quoted, or double-quoted if it isn't valid UTF-8, so close it with its own quote.
             $result = mb_substr($result, 0, $truncateAt) . '…' . match ($type) {
-                'string' => "'",
+                'string' => $result[0],
                 'array' => ']',
                 'object' => '}'
             };
@@ -384,10 +384,11 @@ final class Stringify
     /**
      * Convert a string to a parseable single-quoted string.
      *
+     * A string that isn't valid UTF-8 is converted to UTF-8 if its encoding can be detected (see mb_detect_order()).
+     * Otherwise, e.g. for binary data, it's rendered as a double-quoted string, with escapes for the invalid bytes.
+     *
      * @param string $value The string value to encode.
      * @return string The single-quoted, escaped string representation.
-     * @throws DomainException If the string is not UTF-8 and the encoding could not be detected or the string could not
-     * be converted to UTF-8.
      */
     public static function stringifyString(string $value): string
     {
@@ -397,19 +398,16 @@ final class Stringify
 
         // Get the string as UTF-8 if not already.
         if (!mb_check_encoding($value, 'UTF-8')) {
-            // Try to detect the encoding.
+            // Try to detect the encoding and convert to UTF-8. Detection only tries the encodings in mb_detect_order(),
+            // which by default are ASCII and UTF-8, so it usually fails for a string that isn't valid UTF-8.
             $encoding = mb_detect_encoding($value, mb_detect_order(), true);
-            if ($encoding === false) {
-                throw new DomainException('String encoding cannot be detected.');
-            }
+            $converted = $encoding === false ? false : mb_convert_encoding($value, 'UTF-8', $encoding);
 
-            // Convert the string to UTF-8.
-            $value = mb_convert_encoding($value, 'UTF-8', $encoding);
-            if ($value === false) {
-                // @codeCoverageIgnoreStart
-                throw new DomainException('String cannot be converted to UTF-8.');
-                // @codeCoverageIgnoreEnd
+            // If that fails, e.g. for binary data, render the bytes with escapes instead.
+            if ($converted === false) {
+                return self::stringifyBinaryString($value);
             }
+            $value = $converted;
         }
 
         // Replace special characters with escape codes. The backslash must be escaped first: str_replace() with
@@ -442,7 +440,6 @@ final class Stringify
      * needs to be set explicitly by internal callers, since Arrays::removeRecursion() is otherwise
      * safe (but redundant) to run again on data that's already clean.
      * @return string The string representation of the array.
-     * @throws DomainException If a value cannot be stringified.
      */
     public static function stringifyArray(
         array $arr,
@@ -545,7 +542,6 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing (default false).
      * @param int $indentLevel The level of indentation for this structure (default 0).
      * @return string The string representation of the object.
-     * @throws DomainException If a value cannot be stringified.
      */
     public static function stringifyObject(object $obj, bool $prettyPrint = false, int $indentLevel = 0): string
     {
@@ -656,6 +652,42 @@ final class Stringify
     #region Helper methods
 
     /**
+     * Render a string that isn't valid UTF-8 as a parseable double-quoted string.
+     *
+     * Valid UTF-8 sequences are kept as they are. Invalid bytes and control characters are escaped as \xNN, and \, "
+     * and $ are escaped with a backslash, so the result parses back to the original bytes.
+     *
+     * @param string $value The string to render.
+     * @return string The double-quoted string.
+     */
+    private static function stringifyBinaryString(string $value): string
+    {
+        $result = '';
+        $n = strlen($value);
+        for ($i = 0; $i < $n;) {
+            // Keep a complete, valid multibyte sequence as it is. A lead byte 0xC2-0xF4 says how long it should be.
+            $byte = ord($value[$i]);
+            $len = $byte >= 0xC2 && $byte <= 0xF4 ? ($byte < 0xE0 ? 2 : ($byte < 0xF0 ? 3 : 4)) : 1;
+            $seq = substr($value, $i, $len);
+            if ($len > 1 && strlen($seq) === $len && mb_check_encoding($seq, 'UTF-8')) {
+                $result .= $seq;
+                $i += $len;
+                continue;
+            }
+
+            // Otherwise, escape the single byte if necessary.
+            $ch = $value[$i];
+            $result .= match (true) {
+                $ch === '\\', $ch === '"', $ch === '$' => '\\' . $ch,
+                $byte < 0x20 || $byte >= 0x7F => sprintf('\\x%02X', $byte),
+                default => $ch,
+            };
+            $i++;
+        }
+        return '"' . $result . '"';
+    }
+
+    /**
      * Stringify a value that is an element of an array whose own recursion has already been removed
      * via Arrays::removeRecursion(). Array values are guaranteed clean by that ancestor call, so
      * they're routed to stringifyArray() with $alreadyCleaned = true to skip re-scanning an
@@ -665,7 +697,6 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing.
      * @param int $indentLevel The level of indentation for this structure.
      * @return string The string representation of the value.
-     * @throws DomainException If the value cannot be stringified.
      */
     private static function stringifyCleanedValue(mixed $value, bool $prettyPrint, int $indentLevel): string
     {
@@ -684,7 +715,6 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing.
      * @param int $indentLevel The level of indentation for this structure.
      * @return string The string representation of the list.
-     * @throws DomainException If a value cannot be stringified.
      */
     private static function stringifyListArray(array $arr, bool $prettyPrint, int $indentLevel): string
     {
@@ -774,7 +804,6 @@ final class Stringify
      * @param bool $prettyPrint Whether to use pretty printing.
      * @param int $indentLevel The level of indentation for this structure.
      * @return string The string representation of the associative array.
-     * @throws DomainException If a value cannot be stringified.
      */
     private static function stringifyAssociativeArray(array $arr, bool $prettyPrint, int $indentLevel): string
     {

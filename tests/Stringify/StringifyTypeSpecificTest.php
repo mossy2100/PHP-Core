@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Mossy2100\Core\Tests\Stringify;
 
 use Closure;
-use DomainException;
 use InvalidArgumentException;
 use Mossy2100\Core\Stringify;
 use Mossy2100\Core\Tests\Fixtures\TestBackedEnum;
@@ -173,13 +172,51 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
-     * Test stringifyString() throws DomainException when encoding cannot be detected.
+     * Test stringifyString() renders a string it can't convert to UTF-8 as a double-quoted string with escapes.
      */
-    public function testStringifyStringUndetectableEncoding(): void
+    public function testStringifyStringBinary(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('String encoding cannot be detected.');
-        Stringify::stringifyString("\xfe\xff");
+        $this->assertSame('"\xFE\xFF"', Stringify::stringifyString("\xfe\xff"));
+
+        // Latin-1 'café', with the default detect order, which can't identify it.
+        $this->assertSame('"caf\xE9"', Stringify::stringifyString("caf\xe9"));
+
+        // Valid UTF-8 sequences are kept; a truncated one is escaped byte by byte.
+        $this->assertSame('"Ω\xFF\xE2\x82"', Stringify::stringifyString("Ω\xff\xe2\x82"));
+
+        // Backslashes, double quotes, dollar signs and control characters are escaped.
+        $this->assertSame('"a\\\\b\"c\$d\x0A\x00\xFF"', Stringify::stringifyString("a\\b\"c\$d\n\0\xff"));
+    }
+
+    /**
+     * Test the double-quoted rendering of a binary string parses back to the original bytes.
+     */
+    public function testStringifyStringBinaryRoundTrip(): void
+    {
+        $values = [
+            "\xfe\xff",
+            "caf\xe9 \$x \"q\" \\ Ω \xe2\x82",
+            "line1\nline2\t\x7f\xff",
+            random_bytes(64) . "\xff",
+        ];
+        foreach ($values as $value) {
+            $rendered = Stringify::stringifyString($value);
+            $this->assertSame($value, eval("return $rendered;"));
+        }
+    }
+
+    /**
+     * Test stringify(), prepEx() and abbrev() handle binary strings without throwing.
+     */
+    public function testStringifyStringBinaryInOtherMethods(): void
+    {
+        $this->assertSame('"\xFF\x81"', Stringify::stringify("\xff\x81"));
+        $this->assertSame('Bad: "\xFF\x81".', Stringify::prepEx('Bad: ?.', "\xff\x81"));
+
+        // A truncated binary string closes with its own double quote. Truncation can split an escape, as abbreviated
+        // output isn't meant to be parseable.
+        $result = Stringify::abbrev(str_repeat("\xff", 20), 10);
+        $this->assertSame('"\xFF\xF…"', $result);
     }
 
     /**
