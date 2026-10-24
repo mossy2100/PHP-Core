@@ -64,6 +64,11 @@ public static function getUniqueString(mixed $value): string
 Convert any PHP value into a unique string suitable for use as a key in collections like sets or dictionaries. Every
 distinct value produces a unique string.
 
+> [!NOTE]
+> The one exception is a recursive array. Its recursion is replaced with the `RECURSION` marker string (see
+> [Arrays::removeRecursion()](Arrays.md#removerecursion)), so it gets the same key as an array holding the literal
+> string `'*RECURSION*'` in that position.
+
 It's for collection keys, not display. Use [Stringify](Stringify.md) for display, exception and log messages.
 
 **Parameters:**
