@@ -78,8 +78,8 @@ navigation (nextUp/nextDown), random generation, and IEEE-754 component assembly
 
 ### [Integers](docs/Integers.md)
 
-Integer arithmetic operations with overflow checking (add, subtract, multiply, power), GCD calculation, and Unicode
-subscript/superscript conversion.
+Integer arithmetic with overflow checking (add, subtract, multiply, power), overflow-safe modular multiplication
+(`mulMod()`), GCD calculation, and Unicode subscript/superscript conversion.
 
 ### [Numbers](docs/Numbers.md)
 
@@ -88,12 +88,13 @@ correctly handles mixed int/float comparisons, and sign operations with IEEE-754
 
 ### [Arrays](docs/Arrays.md)
 
-Array utility methods including circular reference removal, value quoting, and first/last element extraction.
+Array utility methods: value quoting, serial lists (`'a, b, and c'`), first/last element extraction, value removal,
+and circular reference removal.
 
 ### [Types](docs/Types.md)
 
-Type checking and inspection utilities with methods for identifying numbers, unsigned integers, traits, and generating
-unique string keys.
+Type inspection utilities: canonical basic type names, unique string keys for collections, and trait detection,
+including inherited and nested traits.
 
 ### [Stringify](docs/Stringify.md)
 
