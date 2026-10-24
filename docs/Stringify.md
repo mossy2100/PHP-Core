@@ -27,12 +27,12 @@ It's for display, exception and log messages, not collection keys: the output fo
 - **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#`
   protected, `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
-- **Closure support**: Closures are rendered as their original source code, obtained from the file they were declared
-  in.
+- **Closure support**: Closures are rendered by name, which says where they're defined, e.g.
+  `{closure:App\Models\User::sorter():19}`.
 - **Resource formatting**: Resources show both the id (via `get_resource_id()`) and the resource type from
   `get_debug_type()`, e.g. `resource #5 (stream)`.
 
-The output for scalars, strings, enums, arrays, and closures is parseable PHP code. Object and resource output is not
+The output for scalars, strings, enums and arrays is parseable PHP code. Object, resource and closure output is not
 parseable, but is designed for readability.
 
 ---
@@ -173,7 +173,8 @@ Stringify::stringify(Suit::Hearts); // 'App\Enums\Suit::Hearts'
 Closures:
 
 ```php
-Stringify::stringify(static fn (float $x): float => $x * $x); // 'static fn (float $x): float => $x * $x'
+// Defined inside App\Models\User::sorter(), on line 19.
+Stringify::stringify(static fn (int $a, int $b): int => $a <=> $b); // '{closure:App\Models\User::sorter():19}'
 ```
 
 ### toString()
@@ -514,9 +515,11 @@ plain object instead.
 public static function stringifyClosure(Closure $value): string
 ```
 
-Get a string representation of a closure by reading back its original source code from the file it was declared in. The
-code is returned exactly as written, including its original whitespace and comments; the surrounding
-assignment/statement (e.g. a trailing `;`) is not included.
+Get a string representation of a closure, by its name. From PHP 8.4, an anonymous closure's name says where it's
+defined. A first-class callable is shown in that syntax, with the class for a method.
+
+The closure's source code isn't shown: reading it back from the file can't reliably tell apart two closures that start
+on the same line.
 
 **Parameters:**
 
@@ -524,28 +527,21 @@ assignment/statement (e.g. a trailing `;`) is not included.
 
 **Returns:**
 
-- `string` - The closure's original source code, or `''` if unavailable (e.g. the closure has no file, such as one
-  created via `Closure::fromCallable()` wrapping an internal function, or the file has changed on disk since the closure
-  was declared).
+- `string` - The closure's name.
 
 **Examples:**
 
-```php
-$sqr = static fn (float $x): float => $x * $x;
-Stringify::stringifyClosure($sqr);  // 'static fn (float $x): float => $x * $x'
+| Closure                            | Result                                              |
+| ---------------------------------- | --------------------------------------------------- |
+| Defined at the top level of a file | `{closure:/full/path/to/file.php:6}`                |
+| Defined inside a function          | `{closure:App\Models\helper():11}`                  |
+| Defined inside a method            | `{closure:App\Models\User::sorter():19}`            |
+| Defined inside another closure     | `{closure:{closure:App\Models\User::make():24}:25}` |
+| `strlen(...)`                      | `strlen(...)`                                       |
+| `helper(...)`                      | `App\Models\helper(...)`                            |
+| `$user->sorter(...)`               | `App\Models\User::sorter(...)`                      |
 
-$cube = function (float $x): float {
-    return $x ** 3;
-};
-Stringify::stringifyClosure($cube);
-// "function (float \$x): float {\n    return \$x ** 3;\n}"
-```
-
-A closure embedded inline (e.g. passed directly as a call argument) is captured without the surrounding code:
-
-```php
-Stringify::stringifyClosure((fn ($x) => $x * 2));  // 'fn ($x) => $x * 2'
-```
+Two closures that start on the same line get the same name.
 
 ### stringifyObject()
 

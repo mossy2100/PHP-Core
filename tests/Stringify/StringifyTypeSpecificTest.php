@@ -503,119 +503,78 @@ final class StringifyTypeSpecificTest extends TestCase
     #region Method stringifyClosure() tests.
 
     /**
-     * Test that stringify() dispatches closures correctly, reading back the original source.
+     * Test stringifyClosure() returns an anonymous closure's name, which gives the method and line it's defined on.
      */
     public function testStringifyClosure(): void
     {
-        $sqr = static fn (float $x): float => $x * $x;
-        $this->assertSame('static fn (float $x): float => $x * $x', Stringify::stringify($sqr));
+        $closure = static function (int $x): int {
+            $doubled = $x * 2;
+            return $doubled + 1;
+        };
+        $expected = '{closure:' . __METHOD__ . '():' . (__LINE__ - 4) . '}';
+
+        $this->assertSame($expected, Stringify::stringifyClosure($closure));
     }
 
     /**
-     * Test stringifyClosure() directly, with a non-static arrow function and no return type.
+     * Test stringifyClosure() with an arrow function.
      */
     public function testStringifyClosureArrow(): void
     {
-        // Deliberately non-static; the test asserts stringifyClosure() omits the "static " prefix.
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $add = fn (int $a, int $b) => $a + $b;
-        $this->assertSame('fn (int $a, int $b) => $a + $b', Stringify::stringifyClosure($add));
+        $arrow = static fn (float $x): float => $x * $x;
+        $expected = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
+
+        $this->assertSame($expected, Stringify::stringifyClosure($arrow));
     }
 
     /**
-     * Test stringifyClosure() with an arrow function whose body contains its own nested brackets (a call within a
-     * call). This exercises findArrowBodyEnd()'s bracket depth-tracking: the inner brackets must be opened and
-     * closed (incrementing and decrementing depth) without being mistaken for the arrow body's own terminator,
-     * which only applies at depth 0.
+     * Test two closures that start on one line both get that line's name, without an error. Reading their source
+     * couldn't tell them apart.
      */
-    public function testStringifyClosureArrowWithNestedBrackets(): void
+    public function testStringifyClosureTwoOnOneLine(): void
     {
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $closure = fn ($x) => strlen(trim($x));
-        $this->assertSame('fn ($x) => strlen(trim($x))', Stringify::stringifyClosure($closure));
+        $pair = static fn (Closure ...$closures): array => $closures;
+        $closures = $pair(static fn (int $x): int => $x + 1, static fn (int $x): int => $x * 2);
+        $expected = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
+
+        $this->assertSame($expected, Stringify::stringifyClosure($closures[0]));
+        $this->assertSame($expected, Stringify::stringifyClosure($closures[1]));
     }
 
     /**
-     * Test stringifyClosure() with a brace-style closure prints the code exactly as written, including its
-     * original whitespace and indentation.
+     * Test a closure defined inside another closure is named after the outer one.
      */
-    public function testStringifyClosureBraceStyle(): void
+    public function testStringifyClosureNested(): void
     {
-        // Deliberately brace-style (not arrow) and non-static, to exercise that code path specifically.
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure, SlevomatCodingStandard.Functions.RequireArrowFunction
-        $cube = function (float $x): float {
-            return $x ** 3;
-        };
+        $outer = static fn (): Closure => static fn (): int => 1;
+        $line = __LINE__ - 1;
+        $outerName = '{closure:' . __METHOD__ . "():$line}";
 
-        $expected = "function (float \$x): float {\n"
-            . "            return \$x ** 3;\n"
-            . '        }';
-        $this->assertSame($expected, Stringify::stringifyClosure($cube));
+        $this->assertSame($outerName, Stringify::stringifyClosure($outer));
+        $this->assertSame("{closure:$outerName:$line}", Stringify::stringifyClosure($outer()));
     }
 
     /**
-     * Test stringifyClosure() with a closure embedded as a non-last argument excludes the trailing comma, since
-     * it belongs to the surrounding call, not the closure itself.
+     * Test first-class callables are shown in that syntax, with the class for a method.
      */
-    public function testStringifyClosureEmbeddedAsNonLastArgument(): void
+    public function testStringifyClosureFirstClassCallable(): void
     {
-        // Deliberately non-static, matching the other embedded-argument closure tests below.
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $closure = self::first(fn ($x) => $x + 1, 'ignored');
-        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
+        $this->assertSame('strlen(...)', Stringify::stringifyClosure(strlen(...)));
+        $this->assertSame('Mossy2100\Core\Stringify::abbrev(...)', Stringify::stringifyClosure(Stringify::abbrev(...)));
     }
 
     /**
-     * Test stringifyClosure() with a closure embedded as a sole/last argument excludes the trailing closing
-     * parenthesis, since it belongs to the surrounding call, not the closure itself.
+     * Test stringify(), abbrev() and prepEx() show a closure by its name.
      */
-    public function testStringifyClosureEmbeddedAsLastArgument(): void
+    public function testStringifyClosureInOtherMethods(): void
     {
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $closure = self::identity(fn ($x) => $x + 1);
-        $this->assertSame('fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
-    }
+        $closure = static fn (): int => 1;
+        $name = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
 
-    /**
-     * Test stringifyClosure() with a closure embedded as the last value in an array literal excludes the trailing
-     * closing bracket, since it belongs to the surrounding array, not the closure itself.
-     */
-    public function testStringifyClosureEmbeddedAsArrayValue(): void
-    {
-        // phpcs:ignore SlevomatCodingStandard.Functions.StaticClosure
-        $closure = [
-            'ignored',
-            static fn ($x) => $x + 1,
-        ][1];
-        $this->assertSame('static fn ($x) => $x + 1', Stringify::stringifyClosure($closure));
-    }
-
-    /**
-     * Test stringifyClosure() returns '' for a closure with no available source, e.g. one wrapping an internal
-     * function (ReflectionFunction::getFileName() returns false for those).
-     */
-    public function testStringifyClosureNoSource(): void
-    {
-        $closure = strlen(...);
-        $this->assertSame('', Stringify::stringifyClosure($closure));
-    }
-
-    /**
-     * Returns its first argument unchanged. Used to capture a closure while it's still embedded inline as a
-     * non-last call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
-     */
-    private static function first(Closure $a, mixed $b): Closure
-    {
-        return $a;
-    }
-
-    /**
-     * Returns its argument unchanged. Used to capture a closure while it's still embedded inline as a sole/last
-     * call argument, so stringifyClosure()'s boundary detection can be exercised for that case.
-     */
-    private static function identity(Closure $value): Closure
-    {
-        return $value;
+        $this->assertSame($name, Stringify::stringify($closure));
+        $this->assertSame("[$name]", Stringify::stringify([$closure]));
+        $this->assertSame($name, Stringify::abbrev($closure, 200));
+        $this->assertSame("Bad: $name.", Stringify::prepEx('Bad: ?.', $closure));
     }
 
     #endregion
