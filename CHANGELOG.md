@@ -30,6 +30,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Floats::format()`** gave `'-0'` for a negative value that rounds to zero in fixed-point notation, e.g.
+  `-0.4` to 0 places. It now gives `'0'`, as it already did for `-0.0`.
 - **`Floats::getExponent()`** threw `DivisionByZeroError` for the smallest subnormal values, e.g. `5e-324`, and
   was off by one for some others, e.g. `1e-316`.
 - **`Floats::wrap()`** in unsigned mode returned `$unitsPerTurn` itself for a tiny negative value, e.g.

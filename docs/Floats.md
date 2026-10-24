@@ -873,8 +873,9 @@ Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat:
 // Auto prefers scientific notation for small numbers with excessive leading zeros.
 Floats::format(0.0001234);   // "1.234×10⁻⁴"
 
-// -0.0 is normalized to 0.
+// -0.0 is normalized to 0, and so is a negative value that rounds to zero.
 Floats::format(-0.0);        // "0"
+Floats::format(-0.4, precision: 0, format: FloatFormat::FixedPoint); // "0"
 
 // NAN/±INF pass through as PHP's own string representations, regardless of other parameters.
 Floats::format(NAN);         // "NAN"

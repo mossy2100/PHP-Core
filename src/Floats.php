@@ -525,6 +525,12 @@ final class Floats
 
         // Handle fixed point.
         if ($ePos === false) {
+            // A negative value that rounds to zero keeps its sign (e.g. -0.4 to 0 places gives '-0'). Drop it, as for
+            // -0.0 itself.
+            if (preg_match('/^-0(\.0*)?$/', $valueStr) === 1) {
+                $valueStr = substr($valueStr, 1);
+            }
+
             // Trim zeros if requested.
             if ($trimZeros && str_contains($valueStr, '.')) {
                 $valueStr = rtrim(rtrim($valueStr, '0'), '.');

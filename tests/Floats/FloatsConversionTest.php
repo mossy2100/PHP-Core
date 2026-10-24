@@ -95,6 +95,27 @@ final class FloatsConversionTest extends TestCase
     }
 
     /**
+     * Test format() drops the sign from a negative value that rounds to zero, trimmed and untrimmed.
+     */
+    public function testFormatDropsSignWhenNegativeValueRoundsToZero(): void
+    {
+        $this->assertSame('0', Floats::format(-0.4, 0, format: FloatFormat::FixedPoint));
+        $this->assertSame('0', Floats::format(-0.0001, 2, format: FloatFormat::FixedPoint));
+        $this->assertSame('0.00', Floats::format(-0.0001, 2, false, FloatFormat::FixedPoint));
+        $this->assertSame('0.000000', Floats::format(-1e-20, 6, false, FloatFormat::FixedPoint));
+
+        // A rounding mode that rounds toward positive infinity also gives zero for small negatives.
+        $this->assertSame(
+            '0',
+            Floats::format(-0.4, 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::PositiveInfinity)
+        );
+
+        // Values that don't round to zero keep their sign.
+        $this->assertSame('-1', Floats::format(-0.5, 0, format: FloatFormat::FixedPoint));
+        $this->assertSame('-0.01', Floats::format(-0.005, 2, format: FloatFormat::FixedPoint));
+    }
+
+    /**
      * Test format() with NAN/±INF returns the default PHP string representation, regardless of other
      * parameters, and without triggering the warning a direct (string) cast on NAN would emit.
      */
@@ -226,7 +247,7 @@ final class FloatsConversionTest extends TestCase
             Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfEven)
         );
         $this->assertSame(
-            '-0',
+            '0',
             Floats::format(
                 -0.5,
                 precision: 0,
@@ -268,7 +289,7 @@ final class FloatsConversionTest extends TestCase
             )
         );
         $this->assertSame(
-            '-0',
+            '0',
             Floats::format(
                 -0.5,
                 precision: 0,
