@@ -577,9 +577,10 @@ class Console
      *
      * @param string $ch The substring to repeat.
      * @param int $length The total length.
+     * @return self Returns $this for chaining.
      * @throws DomainException If $ch is an empty string.
      */
-    public function hr(string $ch = '-', int $length = 80): void
+    public function hr(string $ch = '-', int $length = 80): self
     {
         // Guard against zero-length substring.
         $chLen = mb_strlen($ch);
@@ -588,7 +589,7 @@ class Console
         }
 
         $n = (int) ceil($length / $chLen);
-        $this->println(mb_substr(str_repeat($ch, $n), 0, $length));
+        return $this->println(mb_substr(str_repeat($ch, $n), 0, $length));
     }
 
     #endregion

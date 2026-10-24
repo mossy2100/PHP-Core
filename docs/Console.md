@@ -498,7 +498,7 @@ process.
 ### hr()
 
 ```php
-public function hr(string $ch = '-', int $length = 80): void
+public function hr(string $ch = '-', int $length = 80): self
 ```
 
 Print a horizontal rule: `$ch` repeated to fill `$length` characters, followed by a newline. Supports multibyte
@@ -508,6 +508,10 @@ characters in `$ch`.
 
 - `$ch` (`string`) - The substring to repeat. Defaults to `'-'`.
 - `$length` (`int`) - The total length of the rule, in characters. Defaults to `80`.
+
+**Returns:**
+
+- `self` - Returns `$this` for chaining.
 
 **Throws:**
 

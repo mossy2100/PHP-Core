@@ -841,6 +841,16 @@ final class ConsoleTest extends TestCase
     }
 
     /**
+     * Test $this->console->hr() returns the same instance, so it can be chained.
+     */
+    public function testHrReturnsSelfForChaining(): void
+    {
+        $this->expectOutputString('---' . PHP_EOL . 'x' . PHP_EOL);
+        $result = $this->console->hr(length: 3)->println('x');
+        $this->assertSame($this->console, $result);
+    }
+
+    /**
      * Test $this->console->hr() with an empty string for $ch throws.
      */
     public function testHrWithEmptyStringThrows(): void

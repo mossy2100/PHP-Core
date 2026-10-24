@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Renamed the package from `oceanmoon/core` to `mossy2100/core`, and the namespace from `OceanMoon\Core` to
   `Mossy2100\Core` (breaking),** matching the author's GitHub and Packagist name. Update `composer.json` and any
   `use` statements, including for the exceptions, e.g. `Mossy2100\Core\Exceptions\FormatException`.
+- **`Console::hr()`** returns `$this`, like every other output method, so it can be chained.
 
 ---
 
