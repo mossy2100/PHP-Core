@@ -437,9 +437,9 @@ final class Floats
      * @see Mossy2100\Core\Enums\FloatFormat
      *
      * If $trimZeros is:
-     *   - true:  Trailing zeros - and, if necessary, a trailing decimal point - are automatically removed.
+     *   - true:  Trailing zeros - and, if necessary, a trailing decimal point - are automatically removed (default).
      *            For scientific notation this applies to the mantissa.
-     *   - false: All digits are preserved (default).
+     *   - false: All digits are preserved.
      *
      * $expFormat controls how an exponent, if present, is rendered.
      * @see Mossy2100\Core\Enums\ExponentFormat
@@ -651,8 +651,8 @@ final class Floats
     /**
      * Generate a random float in the specified range by constructing random IEEE-754 components.
      *
-     * This method can return any representable float in the given range, unlike randUniform() which is limited by
-     * mt_rand()'s 2^31 distinct values.
+     * This method can return any representable float in the given range, unlike randUniform(), which only returns
+     * evenly spaced values.
      * Also unlike randUniform(), the possible resulting values are not evenly distributed within the range, but will
      * increase in density closer to zero.
      *
