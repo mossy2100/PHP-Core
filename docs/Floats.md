@@ -43,7 +43,7 @@ absorb accumulated floating-point error.
 
 ### Navigating the Float Space
 
-The `next()` and `previous()` methods allow traversal of the IEEE-754 number line, useful for testing edge cases and
+The `nextUp()` and `nextDown()` methods allow traversal of the IEEE-754 number line, useful for testing edge cases and
 understanding float precision.
 
 ### Random Float Generation
@@ -1369,7 +1369,7 @@ $original === $restored;  // true
 
 - Low-level float manipulation
 - Extracting individual IEEE-754 components (sign, exponent, fraction)
-- Implementing `next()` and `previous()` methods
+- Implementing `nextUp()` and `nextDown()` methods
 - Understanding IEEE-754 representation
 - Custom serialization of floats
 
@@ -1421,7 +1421,7 @@ signed 64-bit. Use the signed int equivalents or `PHP_INT_MIN` for the sign-bit-
 **Use Cases:**
 
 - Constructing specific float values for testing
-- Implementing `next()` and `previous()` methods
+- Implementing `nextUp()` and `nextDown()` methods
 - Low-level IEEE-754 manipulation
 
 **See Also:**
@@ -1546,20 +1546,20 @@ $original === $reassembled;  // true
 - Implementing custom random float generators
 - Low-level float manipulation
 
-### next()
+### nextUp()
 
 ```php
-public static function next(float $f): float
+public static function nextUp(float $f): float
 ```
 
-Returns the next representable floating-point number after the given value. This performs bit-level manipulation to move
-to the adjacent float in the IEEE-754 number line.
+Get the smallest float greater than the given one, as defined by IEEE 754's `nextUp` operation. Matches Python's
+`math.nextafter(x, math.inf)` and Java's `Math.nextUp()`.
 
 **Parameters:**
 
 - `$f` (float) - The given number
 
-**Returns:** `float` - The next floating-point number after the given number
+**Returns:** `float` - The smallest float greater than `$f`
 
 **Throws:** `RuntimeException` - If the system is not 64-bit
 
@@ -1567,7 +1567,9 @@ to the adjacent float in the IEEE-754 number line.
 
 - For positive numbers: returns the next larger float.
 - For negative numbers: returns a float closer to zero.
-- `-0.0` → `+0.0`
+- `-0.0` and `+0.0` → the smallest positive subnormal (`5e-324`). The two zeros are equal, so stepping from one to the
+  other wouldn't be a step up.
+- `-5e-324` → `-0.0`
 - `PHP_FLOAT_MAX` → `INF`
 - `INF` → `INF`
 - `-INF` → `-PHP_FLOAT_MAX`
@@ -1576,17 +1578,11 @@ to the adjacent float in the IEEE-754 number line.
 **Examples:**
 
 ```php
-$f = 1.0;
-$next = Floats::next($f);
-// $next > $f (next representable float after 1.0)
-
-// Navigate from negative zero to smallest positive number
-$f = -0.0;
-$next = Floats::next($f);  // 0.0
-$next2 = Floats::next($next);  // smallest positive float
-
-// At the boundary
-$next = Floats::next(PHP_FLOAT_MAX);  // INF
+Floats::nextUp(1.0);            // 1.0000000000000002
+Floats::nextUp(-1.0);           // -0.9999999999999999
+Floats::nextUp(0.0);            // 5.0E-324
+Floats::nextUp(-0.0);           // 5.0E-324
+Floats::nextUp(PHP_FLOAT_MAX);  // INF
 ```
 
 **Use Cases:**
@@ -1595,20 +1591,20 @@ $next = Floats::next(PHP_FLOAT_MAX);  // INF
 - Testing floating-point edge cases
 - Exploring the floating-point number space
 
-### previous()
+### nextDown()
 
 ```php
-public static function previous(float $f): float
+public static function nextDown(float $f): float
 ```
 
-Returns the previous representable floating-point number before the given value. This performs bit-level manipulation to
-move to the adjacent float in the IEEE-754 number line.
+Get the largest float less than the given one, as defined by IEEE 754's `nextDown` operation. It's the mirror image of
+`nextUp()`: `nextDown($x)` is `-nextUp(-$x)`.
 
 **Parameters:**
 
 - `$f` (float) - The given number
 
-**Returns:** `float` - The previous floating-point number before the given number
+**Returns:** `float` - The largest float less than `$f`
 
 **Throws:** `RuntimeException` - If the system is not 64-bit
 
@@ -1616,7 +1612,8 @@ move to the adjacent float in the IEEE-754 number line.
 
 - For positive numbers: returns a float closer to zero.
 - For negative numbers: returns the next smaller (more negative) float.
-- `+0.0` → `-0.0`
+- `+0.0` and `-0.0` → the largest negative subnormal (`-5e-324`)
+- `5e-324` → `0.0`
 - `-PHP_FLOAT_MAX` → `-INF`
 - `-INF` → `-INF`
 - `INF` → `PHP_FLOAT_MAX`
@@ -1625,27 +1622,19 @@ move to the adjacent float in the IEEE-754 number line.
 **Examples:**
 
 ```php
-$f = 1.0;
-$prev = Floats::previous($f);
-// $prev < $f (previous representable float before 1.0)
-
-// Navigate from positive zero to smallest negative number
-$f = 0.0;
-$prev = Floats::previous($f);  // -0.0
-$prev2 = Floats::previous($prev);  // smallest negative float
-
-// At the boundary
-$prev = Floats::previous(-PHP_FLOAT_MAX);  // -INF
+Floats::nextDown(1.0);             // 0.9999999999999999
+Floats::nextDown(0.0);             // -5.0E-324
+Floats::nextDown(-PHP_FLOAT_MAX);  // -INF
 ```
 
 **Round-trip Property:**
 
-For regular floats (not at boundaries):
+For regular floats (not at boundaries or zero):
 
 ```php
 $f = 42.5;
-Floats::next(Floats::previous($f)) === $f;  // true
-Floats::previous(Floats::next($f)) === $f;  // true
+Floats::nextUp(Floats::nextDown($f)) === $f;  // true
+Floats::nextDown(Floats::nextUp($f)) === $f;  // true
 ```
 
 **Use Cases:**
@@ -1707,15 +1696,15 @@ Floats::ulp(-INF);  // INF
 Floats::ulp(NAN);   // NAN
 ```
 
-**Relationship with next():**
+**Relationship with nextUp():**
 
 The ULP is computed by taking the absolute value, then finding the gap to the next float:
 
 ```php
 $value = -42.0;
-$abs = abs($value);                // 42.0
-$ulp = Floats::next($abs) - $abs;  // Gap from 42.0 to next float
-Floats::ulp($value) === $ulp;      // true
+$abs = abs($value);                  // 42.0
+$ulp = Floats::nextUp($abs) - $abs;  // Gap from 42.0 to next float
+Floats::ulp($value) === $ulp;        // true
 ```
 
 **Understanding ULP:**
@@ -1743,8 +1732,8 @@ Floats::ulp(1e12);  // 0.0001220703125
 
 **See Also:**
 
-- `next()` - Get the next representable float
-- `previous()` - Get the previous representable float
+- `nextUp()` - Get the next representable float up
+- `nextDown()` - Get the next representable float down
 - `randUniform()` - Uses ULP for collision-free random generation
 - [FloatWithError](https://github.com/mossy2100/PHP-Units/blob/main/docs/FloatWithError.md) - Uses ULP for the estimated increase in error resulting from arithmetic operations with floats
 

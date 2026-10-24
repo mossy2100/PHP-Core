@@ -53,7 +53,7 @@ composer require mossy2100/core
 ### [Floats](docs/Floats.md)
 
 Float-specific utilities for handling IEEE-754 special values (-0.0, ±INF, NAN), approximate comparison, float space
-navigation (next/previous), random generation, and IEEE-754 component assembly/disassembly.
+navigation (nextUp/nextDown), random generation, and IEEE-754 component assembly/disassembly.
 
 ### [Integers](docs/Integers.md)
 

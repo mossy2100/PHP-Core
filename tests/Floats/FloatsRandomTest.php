@@ -332,7 +332,7 @@ final class FloatsRandomTest extends TestCase
             Floats::toHex($min) => 0,
         ];
         for ($i = 0; $i < $nValues - 1; $i++) {
-            $f = Floats::next($max);
+            $f = Floats::nextUp($max);
             $counts[Floats::toHex($f)] = 0;
             $max = $f;
         }

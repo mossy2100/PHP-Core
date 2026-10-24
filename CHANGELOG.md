@@ -23,6 +23,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Renamed `Floats::rand()` to `Floats::randRepresentable()` (breaking).** It can return any representable float, so
   its values cluster near zero rather than being uniform, which the name `rand()` suggested. For uniform values, use
   `Floats::randUniform()`.
+- **Renamed `Floats::next()` and `Floats::previous()` to `Floats::nextUp()` and `Floats::nextDown()` (breaking),**
+  matching IEEE 754's operations. They now follow the standard at zero: both zeros step to `±5e-324`, so the result is
+  always strictly greater (or less) than the input. Previously `next(-0.0)` gave `0.0` and `previous(0.0)` gave `-0.0`.
 - **`Stringify::stringifyClosure()`, and so `stringify()`, show a closure's name instead of its source code
   (breaking).** From PHP 8.4, the name says where the closure is defined, e.g. `{closure:App\Models\User::sorter():19}`.
   Reading the source back could show the wrong closure when two started on one line. First-class callables are shown in

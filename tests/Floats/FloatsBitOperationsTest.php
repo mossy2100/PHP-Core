@@ -15,195 +15,189 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Floats::class)]
 final class FloatsBitOperationsTest extends TestCase
 {
-    #region Method next() tests.
+    #region Method nextUp() tests.
 
     /**
-     * Test next with regular positive numbers.
+     * Test nextUp with regular positive numbers.
      */
-    public function testNextWithPositiveNumbers(): void
+    public function testNextUpWithPositiveNumbers(): void
     {
         $f = 1.0;
-        $next = Floats::next($f);
+        $next = Floats::nextUp($f);
         $this->assertGreaterThan($f, $next);
         $this->assertNotSame($f, $next);
     }
 
     /**
-     * Test next with regular negative numbers.
+     * Test nextUp with regular negative numbers.
      */
-    public function testNextWithNegativeNumbers(): void
+    public function testNextUpWithNegativeNumbers(): void
     {
         $f = -1.0;
-        $next = Floats::next($f);
+        $next = Floats::nextUp($f);
         $this->assertGreaterThan($f, $next);
         $this->assertLessThan(0.0, $next);
     }
 
     /**
-     * Test next with positive zero.
+     * Test nextUp with positive zero.
      */
-    public function testNextWithPositiveZero(): void
+    public function testNextUpWithPositiveZero(): void
     {
         $f = 0.0;
-        $next = Floats::next($f);
+        $next = Floats::nextUp($f);
         $this->assertGreaterThan(0.0, $next);
         $this->assertTrue(Floats::isPositive($next));
     }
 
     /**
-     * Test next with negative zero returns positive zero.
+     * Test nextUp with negative zero returns the smallest positive subnormal, as for positive zero.
      */
-    public function testNextWithNegativeZero(): void
+    public function testNextUpWithNegativeZero(): void
     {
-        $f = -0.0;
-        $next = Floats::next($f);
-        $this->assertSame(0.0, $next);
-        $this->assertTrue(Floats::isPositiveZero($next));
+        $this->assertSame(5e-324, Floats::nextUp(-0.0));
     }
 
     /**
-     * Test next with NAN returns NAN.
+     * Test nextUp with NAN returns NAN.
      */
-    public function testNextWithNan(): void
+    public function testNextUpWithNan(): void
     {
-        $next = Floats::next(NAN);
+        $next = Floats::nextUp(NAN);
         $this->assertTrue(is_nan($next));
     }
 
     /**
-     * Test next with PHP_FLOAT_MAX returns INF.
+     * Test nextUp with PHP_FLOAT_MAX returns INF.
      */
-    public function testNextWithMaxFloat(): void
+    public function testNextUpWithMaxFloat(): void
     {
-        $next = Floats::next(PHP_FLOAT_MAX);
+        $next = Floats::nextUp(PHP_FLOAT_MAX);
         $this->assertSame(INF, $next);
     }
 
     /**
-     * Test next with INF returns INF.
+     * Test nextUp with INF returns INF.
      */
-    public function testNextWithInf(): void
+    public function testNextUpWithInf(): void
     {
-        $next = Floats::next(INF);
+        $next = Floats::nextUp(INF);
         $this->assertSame(INF, $next);
     }
 
     /**
-     * Test next with -INF returns -PHP_FLOAT_MAX.
+     * Test nextUp with -INF returns -PHP_FLOAT_MAX.
      */
-    public function testNextWithNegativeInf(): void
+    public function testNextUpWithNegativeInf(): void
     {
-        $next = Floats::next(-INF);
+        $next = Floats::nextUp(-INF);
         $this->assertSame(-PHP_FLOAT_MAX, $next);
     }
 
     /**
-     * Test next with very small positive number.
+     * Test nextUp with very small positive number.
      */
-    public function testNextWithSmallPositiveNumber(): void
+    public function testNextUpWithSmallPositiveNumber(): void
     {
         $f = 1e-100;
-        $next = Floats::next($f);
+        $next = Floats::nextUp($f);
         $this->assertGreaterThan($f, $next);
     }
 
     #endregion
 
-    #region Method previous() tests.
+    #region Method nextDown() tests.
 
     /**
-     * Test previous with regular positive numbers.
+     * Test nextDown with regular positive numbers.
      */
-    public function testPreviousWithPositiveNumbers(): void
+    public function testNextDownWithPositiveNumbers(): void
     {
         $f = 1.0;
-        $prev = Floats::previous($f);
+        $prev = Floats::nextDown($f);
         $this->assertLessThan($f, $prev);
         $this->assertGreaterThan(0.0, $prev);
     }
 
     /**
-     * Test previous with regular negative numbers.
+     * Test nextDown with regular negative numbers.
      */
-    public function testPreviousWithNegativeNumbers(): void
+    public function testNextDownWithNegativeNumbers(): void
     {
         $f = -1.0;
-        $prev = Floats::previous($f);
+        $prev = Floats::nextDown($f);
         $this->assertLessThan($f, $prev);
         $this->assertNotSame($f, $prev);
     }
 
     /**
-     * Test previous with positive zero returns negative zero.
+     * Test nextDown with positive zero returns the largest negative subnormal, as for negative zero.
      */
-    public function testPreviousWithPositiveZero(): void
+    public function testNextDownWithPositiveZero(): void
     {
-        $f = 0.0;
-        $prev = Floats::previous($f);
-        $this->assertSame(-0.0, $prev);
-        $this->assertTrue(Floats::isNegativeZero($prev));
+        $this->assertSame(-5e-324, Floats::nextDown(0.0));
     }
 
     /**
-     * Test previous with negative zero.
+     * Test nextDown with negative zero.
      */
-    public function testPreviousWithNegativeZero(): void
+    public function testNextDownWithNegativeZero(): void
     {
         $f = -0.0;
-        $prev = Floats::previous($f);
+        $prev = Floats::nextDown($f);
         $this->assertLessThan(0.0, $prev);
         $this->assertTrue(Floats::isNegative($prev));
     }
 
     /**
-     * Test previous with NAN returns NAN.
+     * Test nextDown with NAN returns NAN.
      */
-    public function testPreviousWithNan(): void
+    public function testNextDownWithNan(): void
     {
-        $prev = Floats::previous(NAN);
+        $prev = Floats::nextDown(NAN);
         $this->assertTrue(is_nan($prev));
     }
 
     /**
-     * Test previous with -PHP_FLOAT_MAX returns -INF.
+     * Test nextDown with -PHP_FLOAT_MAX returns -INF.
      */
-    public function testPreviousWithMinFloat(): void
+    public function testNextDownWithMinFloat(): void
     {
-        $prev = Floats::previous(-PHP_FLOAT_MAX);
+        $prev = Floats::nextDown(-PHP_FLOAT_MAX);
         $this->assertSame(-INF, $prev);
     }
 
     /**
-     * Test previous with -INF returns -INF.
+     * Test nextDown with -INF returns -INF.
      */
-    public function testPreviousWithNegativeInf(): void
+    public function testNextDownWithNegativeInf(): void
     {
-        $prev = Floats::previous(-INF);
+        $prev = Floats::nextDown(-INF);
         $this->assertSame(-INF, $prev);
     }
 
     /**
-     * Test previous with INF returns PHP_FLOAT_MAX.
+     * Test nextDown with INF returns PHP_FLOAT_MAX.
      */
-    public function testPreviousWithInf(): void
+    public function testNextDownWithInf(): void
     {
-        $prev = Floats::previous(INF);
+        $prev = Floats::nextDown(INF);
         $this->assertSame(PHP_FLOAT_MAX, $prev);
     }
 
     #endregion
 
-    #region next()/previous() round-trip and consistency tests.
+    #region nextUp()/nextDown() round-trip and consistency tests.
 
     /**
      * Test round-trip: next(previous(x)) should equal x for regular floats.
      */
-    public function testNextPreviousRoundTrip(): void
+    public function testNextUpNextDownRoundTrip(): void
     {
         $testValues = [1.0, -1.0, 42.5, -99.9, 1e10, -1e-10];
 
         foreach ($testValues as $value) {
-            $result = Floats::next(Floats::previous($value));
+            $result = Floats::nextUp(Floats::nextDown($value));
             $this->assertSame($value, $result, "Round trip failed for $value");
         }
     }
@@ -211,12 +205,12 @@ final class FloatsBitOperationsTest extends TestCase
     /**
      * Test round-trip: previous(next(x)) should equal x for regular floats.
      */
-    public function testPreviousNextRoundTrip(): void
+    public function testNextDownNextUpRoundTrip(): void
     {
         $testValues = [1.0, -1.0, 42.5, -99.9, 1e10, -1e-10];
 
         foreach ($testValues as $value) {
-            $result = Floats::previous(Floats::next($value));
+            $result = Floats::nextDown(Floats::nextUp($value));
             $this->assertSame($value, $result, "Round trip failed for $value");
         }
     }
@@ -224,65 +218,62 @@ final class FloatsBitOperationsTest extends TestCase
     /**
      * Test that next produces unique hex values.
      */
-    public function testNextProducesUniqueHexValues(): void
+    public function testNextUpProducesUniqueHexValues(): void
     {
         $f = 1.0;
-        $next = Floats::next($f);
+        $next = Floats::nextUp($f);
 
         $hex1 = Floats::toHex($f);
         $hex2 = Floats::toHex($next);
 
-        $this->assertNotSame($hex1, $hex2, 'next() should produce different binary representation');
+        $this->assertNotSame($hex1, $hex2, 'nextUp() should produce different binary representation');
     }
 
     /**
      * Test that previous produces unique hex values.
      */
-    public function testPreviousProducesUniqueHexValues(): void
+    public function testNextDownProducesUniqueHexValues(): void
     {
         $f = 1.0;
-        $prev = Floats::previous($f);
+        $prev = Floats::nextDown($f);
 
         $hex1 = Floats::toHex($f);
         $hex2 = Floats::toHex($prev);
 
-        $this->assertNotSame($hex1, $hex2, 'previous() should produce different binary representation');
+        $this->assertNotSame($hex1, $hex2, 'nextDown() should produce different binary representation');
     }
 
     /**
-     * Test next across zero boundary.
+     * Test nextUp across zero boundary.
      */
-    public function testNextAcrossZero(): void
+    public function testNextUpAcrossZero(): void
     {
-        // Start with negative zero
-        $f = -0.0;
-        $next = Floats::next($f);
+        // The largest negative subnormal steps to -0.0, which then steps straight to the smallest positive
+        // subnormal, as IEEE 754 requires: -0.0 and 0.0 are equal, so stepping between them isn't a step up.
+        $zero = Floats::nextUp(-5e-324);
+        $this->assertTrue(Floats::isNegativeZero($zero));
+        $this->assertSame(5e-324, Floats::nextUp($zero));
 
-        // Should get positive zero
-        $this->assertSame(0.0, $next);
-        $this->assertTrue(Floats::isPositiveZero($next));
-
-        // Next from positive zero should be smallest positive number
-        $next2 = Floats::next($next);
-        $this->assertGreaterThan(0.0, $next2);
+        // nextUp() always returns a greater value.
+        foreach ([-5e-324, -0.0, 0.0, 5e-324] as $f) {
+            $this->assertGreaterThan($f, Floats::nextUp($f));
+        }
     }
 
     /**
-     * Test previous across zero boundary.
+     * Test nextDown across zero boundary.
      */
-    public function testPreviousAcrossZero(): void
+    public function testNextDownAcrossZero(): void
     {
-        // Start with positive zero
-        $f = 0.0;
-        $prev = Floats::previous($f);
+        // The smallest positive subnormal steps to 0.0, which then steps straight to the largest negative subnormal.
+        $zero = Floats::nextDown(5e-324);
+        $this->assertTrue(Floats::isPositiveZero($zero));
+        $this->assertSame(-5e-324, Floats::nextDown($zero));
 
-        // Should get negative zero
-        $this->assertSame(-0.0, $prev);
-        $this->assertTrue(Floats::isNegativeZero($prev));
-
-        // Previous from negative zero should be smallest negative number
-        $prev2 = Floats::previous($prev);
-        $this->assertLessThan(0.0, $prev2);
+        // nextDown() always returns a lesser value.
+        foreach ([5e-324, 0.0, -0.0, -5e-324] as $f) {
+            $this->assertLessThan($f, Floats::nextDown($f));
+        }
     }
 
     #endregion
@@ -741,8 +732,8 @@ final class FloatsBitOperationsTest extends TestCase
 
         // ULP is defined as the gap to the next representable float.
         // For non-powers-of-2, the formula `value * PHP_FLOAT_EPSILON` is only approximate.
-        $this->assertSame(Floats::next(1000.0) - 1000.0, Floats::ulp(1000.0));
-        $this->assertSame(Floats::next(0.001) - 0.001, Floats::ulp(0.001));
+        $this->assertSame(Floats::nextUp(1000.0) - 1000.0, Floats::ulp(1000.0));
+        $this->assertSame(Floats::nextUp(0.001) - 0.001, Floats::ulp(0.001));
     }
 
     /**
@@ -782,7 +773,7 @@ final class FloatsBitOperationsTest extends TestCase
         $ulp = Floats::ulp($large);
 
         // ULP is defined as the gap to the next representable float.
-        $this->assertSame(Floats::next($large) - $large, $ulp);
+        $this->assertSame(Floats::nextUp($large) - $large, $ulp);
 
         // Verify it's actually the spacing.
         $next = $large + $ulp;
@@ -799,7 +790,7 @@ final class FloatsBitOperationsTest extends TestCase
         $this->assertSame($expected, Floats::ulp(-PHP_FLOAT_MAX));
 
         // It's the same spacing as just below PHP_FLOAT_MAX.
-        $this->assertSame(Floats::ulp(Floats::previous(PHP_FLOAT_MAX)), Floats::ulp(PHP_FLOAT_MAX));
+        $this->assertSame(Floats::ulp(Floats::nextDown(PHP_FLOAT_MAX)), Floats::ulp(PHP_FLOAT_MAX));
     }
 
     /**
@@ -811,7 +802,7 @@ final class FloatsBitOperationsTest extends TestCase
         $ulp = Floats::ulp($small);
 
         // ULP is defined as the gap to the next representable float.
-        $this->assertSame(Floats::next($small) - $small, $ulp);
+        $this->assertSame(Floats::nextUp($small) - $small, $ulp);
     }
 
     /**
@@ -832,13 +823,13 @@ final class FloatsBitOperationsTest extends TestCase
     }
 
     /**
-     * Test ULP relationship with next().
+     * Test ULP relationship with nextUp().
      */
     public function testUlpRelationshipWithNext(): void
     {
         $value = 42.0;
         $ulp = Floats::ulp($value);
-        $next = Floats::next($value);
+        $next = Floats::nextUp($value);
 
         // The difference should approximately equal the ULP
         // (may have rounding in floating-point subtraction)

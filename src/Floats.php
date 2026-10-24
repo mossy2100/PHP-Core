@@ -928,63 +928,65 @@ final class Floats
     }
 
     /**
-     * Returns the next floating-point number after the given one.
+     * Get the smallest float greater than the given one, as defined by IEEE 754's nextUp operation.
+     *
+     * Special cases:
+     * - nextUp(±0.0) returns the smallest positive subnormal (≈ 4.9e-324)
+     * - nextUp(-4.9e-324) returns -0.0
+     * - nextUp(PHP_FLOAT_MAX) returns INF
+     * - nextUp(-INF) returns -PHP_FLOAT_MAX
+     * - nextUp(INF) returns INF
+     * - nextUp(NAN) returns NAN
      *
      * @param float $f The given number.
-     * @return float The next floating-point number after the given number.
+     * @return float The smallest float greater than $f.
      * @throws RuntimeException If the system is not a 64-bit system.
      */
-    public static function next(float $f): float
+    public static function nextUp(float $f): float
     {
         Environment::require64Bit();
 
         // Handle special cases.
-        if (is_nan($f)) {
-            return NAN;
-        }
-        if ($f === PHP_FLOAT_MAX || $f === INF) {
-            return INF;
+        if (is_nan($f) || $f === INF) {
+            return $f;
         }
         if ($f === -INF) {
             return -PHP_FLOAT_MAX;
         }
-        if (self::isNegativeZero($f)) {
-            return 0.0;
+
+        // Both zeros step to the smallest positive subnormal. The bit arithmetic below can't handle -0.0, whose bits
+        // are PHP_INT_MIN, since subtracting 1 would overflow.
+        if ($f === 0.0) {
+            return self::bitsToFloat(1);
         }
 
+        // For a positive float, a larger bit pattern is a larger value. For a negative one, it's further from zero, so
+        // step the bits the other way. PHP_FLOAT_MAX steps to INF's bit pattern.
         $bits = self::floatToBits($f);
-        $bits += $bits >= 0 ? 1 : -1;
+        $bits += $bits > 0 ? 1 : -1;
         return self::bitsToFloat($bits);
     }
 
     /**
-     * Returns the previous floating-point number before the given one.
+     * Get the largest float less than the given one, as defined by IEEE 754's nextDown operation.
+     *
+     * This is the mirror image of nextUp(): nextDown(x) is -nextUp(-x).
+     *
+     * Special cases:
+     * - nextDown(±0.0) returns the largest negative subnormal (≈ -4.9e-324)
+     * - nextDown(4.9e-324) returns 0.0
+     * - nextDown(-PHP_FLOAT_MAX) returns -INF
+     * - nextDown(INF) returns PHP_FLOAT_MAX
+     * - nextDown(-INF) returns -INF
+     * - nextDown(NAN) returns NAN
      *
      * @param float $f The given number.
-     * @return float The previous floating-point number before the given number.
+     * @return float The largest float less than $f.
      * @throws RuntimeException If the system is not a 64-bit system.
      */
-    public static function previous(float $f): float
+    public static function nextDown(float $f): float
     {
-        Environment::require64Bit();
-
-        // Handle special cases.
-        if (is_nan($f)) {
-            return NAN;
-        }
-        if ($f === -PHP_FLOAT_MAX || $f === -INF) {
-            return -INF;
-        }
-        if ($f === INF) {
-            return PHP_FLOAT_MAX;
-        }
-        if (self::isPositiveZero($f)) {
-            return -0.0;
-        }
-
-        $bits = self::floatToBits($f);
-        $bits += $bits >= 0 ? -1 : 1;
-        return self::bitsToFloat($bits);
+        return -self::nextUp(-$f);
     }
 
     /**
@@ -1004,8 +1006,8 @@ final class Floats
      * @return float The ULP spacing.
      * @throws RuntimeException If the system is not a 64-bit system.
      *
-     * @see next() Get the next representable float
-     * @see previous() Get the previous representable float
+     * @see nextUp() Get the next representable float up
+     * @see nextDown() Get the next representable float down
      */
     public static function ulp(float $value): float
     {
@@ -1022,11 +1024,11 @@ final class Floats
         // Handle PHP_FLOAT_MAX. The next float up is INF, but the gap below is the same as the spacing in its range.
         $abs = abs($value);
         if ($abs === PHP_FLOAT_MAX) {
-            return $abs - self::previous($abs);
+            return $abs - self::nextDown($abs);
         }
 
         // Handle ordinary values.
-        return self::next($abs) - $abs;
+        return self::nextUp($abs) - $abs;
     }
 
     #endregion
