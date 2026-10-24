@@ -687,80 +687,76 @@ final class Stringify
      */
     private static function stringifyListArray(array $arr, bool $prettyPrint, int $indentLevel): string
     {
-        // Get the values as strings.
         $values = array_values($arr);
-        $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $prettyPrint, 0), $values);
 
-        // Generate the compact (single-line) format. No trailing comma.
-        $compactList = '[' . implode(', ', $valueStrings) . ']';
-
-        // If we don't want pretty printing, return the compact format.
+        // Without pretty printing, use the compact (single-line) format. No trailing comma.
         if (!$prettyPrint) {
-            return $compactList;
+            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, false, 0), $values);
+            return '[' . implode(', ', $valueStrings) . ']';
         }
 
         // Set up for multi-line pretty printing.
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
             self::prepareIndents($indentLevel, $prettyPrint);
 
+        // If any value isn't simple (null or scalar), use the multiline format. Each value is stringified once, at its
+        // own indent; stringifying it at another indent first would double the work at every level of nesting.
+        if (!array_all($arr, static fn ($value) => $value === null || is_scalar($value))) {
+            $multilineList = "[\n";
+            foreach ($values as $value) {
+                // Pretty print each value. Include trailing comma.
+                $multilineList .= $itemIndent . self::stringifyCleanedValue($value, true, $indentLevel + 1) . ",\n";
+            }
+            return $multilineList . $bracketIndent . ']';
+        }
+
+        // All values are simple, so use the compact or grid format.
+        $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, true, 0), $values);
+        $compactList = '[' . implode(', ', $valueStrings) . ']';
         $nItems = count($arr);
 
-        // Check if all values are simple (nulls or scalars).
-        $allSimple = array_all($arr, static fn ($value) => $value === null || is_scalar($value));
-
-        // If all values are simple, use compact or grid format.
-        if ($allSimple) {
-            // If the compact format fits on one line, return it.
-            if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
-                return $compactList;
-            }
-
-            // Get the max item width.
-            $maxValueWidth = 0;
-            foreach ($valueStrings as $valueString) {
-                $len = mb_strlen($valueString);
-                if ($len > $maxValueWidth) {
-                    $maxValueWidth = $len;
-                }
-            }
-
-            // Calculate the number of items per line.
-            $nItemsPerLine = (int) floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
-            if ($nItemsPerLine <= 0) {
-                $nItemsPerLine = 1;
-            }
-
-            // Generate the grid.
-            $gridList = "[\n";
-            $itemCountThisLine = 0;
-            foreach ($valueStrings as $i => $valueString) {
-                // Indent the first item on the line.
-                if ($itemCountThisLine === 0) {
-                    $gridList .= $itemIndent;
-                }
-
-                $itemCountThisLine++;
-                $isLastOnRow = $itemCountThisLine === $nItemsPerLine || $i === $nItems - 1;
-
-                if ($isLastOnRow) {
-                    // Last item on row: no padding to avoid trailing whitespace.
-                    $gridList .= $valueString . ",\n";
-                    $itemCountThisLine = 0;
-                } else {
-                    // Non-last item: pad to uniform width, then space.
-                    $gridList .= mb_str_pad($valueString . ',', $maxValueWidth + 1) . ' ';
-                }
-            }
-            return $gridList . $bracketIndent . ']';
+        // If the compact format fits on one line, return it.
+        if (mb_strlen($compactList) <= self::$maxLineLength - $nSpacesBracketIndent) {
+            return $compactList;
         }
 
-        // Multiline format.
-        $multilineList = "[\n";
-        foreach ($values as $value) {
-            // Pretty print each value. Include trailing comma.
-            $multilineList .= $itemIndent . self::stringifyCleanedValue($value, true, $indentLevel + 1) . ",\n";
+        // Get the max item width.
+        $maxValueWidth = 0;
+        foreach ($valueStrings as $valueString) {
+            $len = mb_strlen($valueString);
+            if ($len > $maxValueWidth) {
+                $maxValueWidth = $len;
+            }
         }
-        return $multilineList . $bracketIndent . ']';
+
+        // Calculate the number of items per line.
+        $nItemsPerLine = (int) floor((self::$maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
+        if ($nItemsPerLine <= 0) {
+            $nItemsPerLine = 1;
+        }
+
+        // Generate the grid.
+        $gridList = "[\n";
+        $itemCountThisLine = 0;
+        foreach ($valueStrings as $i => $valueString) {
+            // Indent the first item on the line.
+            if ($itemCountThisLine === 0) {
+                $gridList .= $itemIndent;
+            }
+
+            $itemCountThisLine++;
+            $isLastOnRow = $itemCountThisLine === $nItemsPerLine || $i === $nItems - 1;
+
+            if ($isLastOnRow) {
+                // Last item on row: no padding to avoid trailing whitespace.
+                $gridList .= $valueString . ",\n";
+                $itemCountThisLine = 0;
+            } else {
+                // Non-last item: pad to uniform width, then space.
+                $gridList .= mb_str_pad($valueString . ',', $maxValueWidth + 1) . ' ';
+            }
+        }
+        return $gridList . $bracketIndent . ']';
     }
 
     /**

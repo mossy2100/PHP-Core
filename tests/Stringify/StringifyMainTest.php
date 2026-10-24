@@ -34,6 +34,30 @@ final class StringifyMainTest extends TestCase
         $this->assertSame('null', Stringify::stringify(null));
     }
 
+    /**
+     * Test pretty-printing a deeply nested list. Each value must be stringified only once, or the time doubles with
+     * every level of nesting.
+     */
+    public function testStringifyPrettyDeeplyNestedList(): void
+    {
+        $arr = [1];
+        for ($i = 0; $i < 20; $i++) {
+            $arr = [
+                $arr,
+                [2],
+            ];
+        }
+
+        $lines = explode("\n", Stringify::stringify($arr, true));
+
+        // Each level adds an opening line, a [2] line and a closing line around the [1] at the centre.
+        $this->assertCount(61, $lines);
+        $this->assertSame('[', $lines[0]);
+        $this->assertSame(str_repeat(' ', 80) . '[1],', $lines[20]);
+        $this->assertSame(str_repeat(' ', 80) . '[2],', $lines[21]);
+        $this->assertSame(']', $lines[60]);
+    }
+
     #endregion
 
     #region Method toString() tests.

@@ -37,6 +37,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Stringify::stringify()`** with pretty printing took time exponential in the depth of nested lists, since
+  each level stringified its values twice.
 - **`Console::hr()`** with a negative length threw `str_repeat()`'s `ValueError`. It now throws `DomainException`.
 - **`Stringify`** threw `DomainException` for a string that isn't valid UTF-8, e.g. binary data or Latin-1 text, unless
   `mb_detect_order()` could identify its encoding. That included `prepEx()`, so building an exception message could
