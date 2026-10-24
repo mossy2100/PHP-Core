@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **`composer.json` now requires the `intl` and `mbstring` extensions,** which the package already needed at runtime
+  (`Floats::format()` uses `NumberFormatter`). Composer now reports a missing extension at install time.
 - **`Stringify::stringify()`, `stringifyArray()` and `stringifyObject()` take `?StringifyOptions` instead of
   `bool $prettyPrint` and `int $indentLevel` (breaking).** Replace `stringify($x, true)` with
   `stringify($x, StringifyOptions::pretty())`. The options apply to one call, rather than to the whole process.

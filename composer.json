@@ -42,7 +42,9 @@
         }
     ],
     "require": {
-        "php": "^8.4"
+        "php": "^8.4",
+        "ext-intl": "*",
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
@@ -50,6 +52,9 @@
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "mossy2100/coding-standard": "^2.1"
+    },
+    "suggest": {
+        "phpunit/phpunit": "Required to use the FloatAssertions trait in your tests."
     },
     "autoload": {
         "psr-4": {
