@@ -69,6 +69,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **`Arrays::hasRecursion()` (breaking).** No package used it. Recursion in an array can be handled with
   `Arrays::removeRecursion()`.
+- **`Types::same()` (breaking).** It treated every anonymous class as the same type, and only `Numbers::equal()` used
+  it. Compare `get_debug_type()` results, or `$a::class === $b::class` for objects.
 - **`Environment::getLocale()` (breaking).** No package used it. To detect a request's locale, call
   `Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE'])` directly, falling back to `Locale::getDefault()`.
 

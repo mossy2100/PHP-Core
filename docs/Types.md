@@ -14,7 +14,6 @@ This is a static utility class and cannot be instantiated.
 
 - **Basic type identification**: Get canonical type names for any value
 - **Unique string keys**: Convert any PHP value to a unique string for use as collection keys
-- **Type comparison**: Check if two values have the same type
 - **Trait introspection**: Detect trait usage including inherited and nested traits
 
 ---
@@ -123,37 +122,6 @@ Types::getUniqueString($obj);              // "o:1" (based on object ID)
 ```
 
 **Use Case:** Implementing collections that can use any PHP value as a key, or generating unique identifiers for values.
-
----
-
-## Type Checking Methods
-
-### same()
-
-```php
-public static function same(mixed $obj1, mixed $obj2): bool
-```
-
-Check if two values have the same type using `get_debug_type()` for comparison.
-
-**Parameters:**
-
-- `$obj1` (mixed) - The first value to compare
-- `$obj2` (mixed) - The second value to compare
-
-**Returns:** `bool` - True if the types are the same, false otherwise
-
-**Examples:**
-
-```php
-Types::same(1, 2);                    // true (both int)
-Types::same(1, 1.0);                  // false (int vs float)
-Types::same('hello', 'world');        // true (both string)
-Types::same(new Foo(), new Foo());    // true (same class)
-Types::same(new Foo(), new Bar());    // false (different classes)
-```
-
-**Use Case:** Type comparison for equality checks or conditional logic based on type matching.
 
 ---
 

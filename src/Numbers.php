@@ -81,7 +81,7 @@ final class Numbers
     public static function equal(int|float $a, int|float $b): bool
     {
         // If they have the same type, compare using strict equality.
-        if (Types::same($a, $b)) {
+        if (is_int($a) === is_int($b)) {
             return $a === $b;
         }
 

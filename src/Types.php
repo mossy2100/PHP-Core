@@ -128,25 +128,6 @@ final class Types
 
     #endregion
 
-    #region Type checking methods
-
-    /**
-     * Check if two values have the same type (i.e. same scalar type or same class).
-     *
-     * Uses get_debug_type() for type comparison. This is preferable to comparing using `instanceof`, which will return
-     * true for subclasses, or get_class(), which doesn't work for scalars.
-     *
-     * @param mixed $obj1 The first value to compare.
-     * @param mixed $obj2 The second value to compare.
-     * @return bool True if the types are the same, false otherwise.
-     */
-    public static function same(mixed $obj1, mixed $obj2): bool
-    {
-        return get_debug_type($obj1) === get_debug_type($obj2);
-    }
-
-    #endregion
-
     #region Trait-related methods
 
     /**
