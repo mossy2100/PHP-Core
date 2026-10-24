@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Mossy2100\Core;
 
 use InvalidArgumentException;
-use JsonException;
 use LengthException;
 
 /**
@@ -29,22 +28,34 @@ final class Arrays
     #region Inspection methods
 
     /**
-     * Checks if an array contains recursion.
+     * Checks if an array contains recursion, i.e. an array that contains itself, directly or through other arrays.
+     *
+     * Only arrays are followed, not objects, so a cycle that passes through an object isn't reported. Strings and other
+     * values are never inspected, so invalid UTF-8, NAN and the like don't affect the result.
+     *
+     * This uses count() with COUNT_RECURSIVE, which detects recursion in the engine and warns when it finds some.
      *
      * @param array<array-key, mixed> $arr The array to check.
      * @return bool True if the array contains recursion, false otherwise.
      */
     public static function hasRecursion(array $arr): bool
     {
+        // For an array, the only warning count() can raise is "Recursion detected", so any warning means recursion.
+        $found = false;
+        set_error_handler(static function () use (&$found): bool {
+            $found = true;
+            return true;
+        }, E_WARNING);
+
         try {
-            json_encode($arr, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            if ($e->getCode() === JSON_ERROR_RECURSION) {
-                return true;
-            }
+            // Called only for its warning; the count itself isn't needed.
+            // @phpstan-ignore function.resultUnused
+            count($arr, COUNT_RECURSIVE);
+        } finally {
+            restore_error_handler();
         }
 
-        return false;
+        return $found;
     }
 
     #endregion
@@ -192,19 +203,21 @@ final class Arrays
      * ```php
      * $a = ['x' => 1];
      * $b = &$a;
-     * $a[] = $b; // $a now contains a real reference cycle back to itself.
+     * $a[] = $b; // $a[0] is now $a itself.
      * ```
-     * self::hasRecursion() can already tell you that some recursion exists, using json_encode() and catching its
-     * JSON_ERROR_RECURSION error - but that only answers a yes/no question for the whole array; it doesn't say where
-     * the recursive reference is, so it isn't enough on its own to know which value to replace. Array `===` compares by
-     * value, not by reference identity, so there's no built-in way to ask "is this the same array instance as an
-     * ancestor?" either. print_r() performs the same underlying cycle detection internally (implemented in C, with
-     * access to the engine's reference-counted array structures), but - usefully here - its text output preserves the
-     * position of each recursive reference within the printed structure. This method detects recursion by parsing that
-     * positional output, rather than reimplementing cycle detection from scratch.
+     * Most arrays contain no recursion, which hasRecursion() checks cheaply. They're copied as they are.
      *
-     * Only genuine reference cycles are detected and replaced; two unrelated sub-arrays that happen to have identical
-     * contents are left untouched, since print_r() itself does not flag them as recursive.
+     * For an array that does contain recursion, the cycles have to be located, and userland code can't do that
+     * reliably: array `===` compares by value, and an array can contain itself without any PHP reference involved, as
+     * above, so tracking references isn't enough either. print_r() detects cycles in the engine and marks the position
+     * of each one in its output, so this method parses that output instead.
+     *
+     * Only genuine cycles are replaced; two unrelated sub-arrays that happen to have identical contents are left
+     * untouched, since print_r() itself does not flag them as recursive. Objects are not followed, so an object in the
+     * array is kept as it is.
+     *
+     * Known limitation: when the array does contain recursion, a string value whose text looks like print_r() output
+     * can make an unrelated, non-recursive sub-array be replaced with the marker too.
      *
      * @param array<array-key, mixed> $arr The array to clean.
      * @return array<array-key, mixed> A copy of $arr with any circular sub-arrays replaced by the
@@ -212,12 +225,35 @@ final class Arrays
      */
     public static function removeRecursion(array $arr): array
     {
+        if (!self::hasRecursion($arr)) {
+            return self::copyArray($arr);
+        }
+
         return self::removeRecursionHelper($arr, trim(print_r($arr, true)));
     }
 
     #endregion
 
     #region Helper methods
+
+    /**
+     * Copy an array that contains no recursion, building fresh arrays at every level.
+     *
+     * A plain copy would keep any PHP reference bindings in the elements, so writing to the copy could change
+     * variables elsewhere in the caller's scope. Building fresh arrays detaches the copy, as removeRecursionHelper()
+     * does.
+     *
+     * @param array<array-key, mixed> $arr The array to copy. Must not contain recursion.
+     * @return array<array-key, mixed> The copy.
+     */
+    private static function copyArray(array $arr): array
+    {
+        $result = [];
+        foreach ($arr as $key => $value) {
+            $result[$key] = is_array($value) ? self::copyArray($value) : $value;
+        }
+        return $result;
+    }
 
     /**
      * Recursive helper for removeRecursion().

@@ -64,8 +64,17 @@ $arr = [[1, 2], [3, 4]];
 Arrays::hasRecursion($arr); // false
 ```
 
-**Note:** This method uses `json_encode()` internally to detect recursion, as circular references cannot be
-JSON-encoded.
+Objects aren't followed, so a cycle that passes through an object isn't reported:
+
+```php
+$obj = new stdClass();
+$obj->self = $obj;
+Arrays::hasRecursion([$obj]); // false
+```
+
+**Note:** This method calls `count($arr, COUNT_RECURSIVE)`, which detects recursion in the engine and warns when it
+finds some. Only arrays are followed, and string and float values are never inspected, so invalid UTF-8 or `NAN`
+values don't affect the result.
 
 ---
 
@@ -318,10 +327,15 @@ $arr = [[1, 2], [3, 4]];
 Arrays::removeRecursion($arr); // [[1, 2], [3, 4]] (unchanged; no recursion)
 ```
 
-**Note:** `hasRecursion()` only answers a yes/no question, using `json_encode()` and catching its `JSON_ERROR_RECURSION`
-error - it doesn't say *where* the recursive reference is. This method takes a different approach: it locates each
-recursive reference by parsing `print_r()`'s recursion-aware output, rather than reimplementing cycle detection from
-scratch.
+Objects are kept as the same instances, and aren't followed.
+
+**How it works:** an array without recursion, checked with `hasRecursion()`, is simply copied, which is fast. For an
+array with recursion, userland code can't locate the cycles reliably: an array can even contain itself without any PHP
+reference involved (`$b = &$a; $a[] = $b;`). So the method parses `print_r()` output, which marks each cycle where it
+occurs.
+
+**Known limitation:** when the array does contain recursion, a string value whose text looks like `print_r()` output
+can make an unrelated, non-recursive sub-array be replaced with the marker too.
 
 ---
 

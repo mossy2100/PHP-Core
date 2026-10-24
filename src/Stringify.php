@@ -63,11 +63,10 @@ final class Stringify
      * stack that mirrors the call chain of nested calls. Used to detect genuine object-to-object
      * reference cycles.
      *
-     * Arrays::removeRecursion() can't see this kind of cycle: it only inspects array values, and an
-     * object property is never an array. Array recursion detection has to lean on print_r()'s own
-     * cycle detection because plain PHP arrays have no reliable identity check from userland code -
-     * but objects do, via spl_object_id(), so a simple visited-set here is enough; there's no need
-     * to involve print_r() for this case.
+     * Arrays::removeRecursion() can't see this kind of cycle, because it doesn't follow objects. Locating
+     * array cycles has to lean on print_r()'s own cycle detection, because plain PHP arrays have no
+     * reliable identity check from userland code. Objects do, via spl_object_id(), so a simple
+     * visited-set here is enough.
      *
      * @var array<int, true>
      */

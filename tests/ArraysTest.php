@@ -196,6 +196,94 @@ final class ArraysTest extends TestCase
         $this->assertFalse(Arrays::hasRecursion($arr));
     }
 
+    /**
+     * Test that an array containing itself without a PHP reference element is detected.
+     */
+    public function testHasRecursionSelfContainingWithoutReference(): void
+    {
+        // After this, $arr[0] is $arr itself, but it isn't a reference element.
+        $arr = [
+            'x' => 1,
+        ];
+        $alias = &$arr;
+        $arr[] = $alias;
+
+        $this->assertTrue(Arrays::hasRecursion($arr));
+    }
+
+    /**
+     * Test that invalid UTF-8 and NAN values don't hide recursion, or cause a false positive.
+     */
+    public function testHasRecursionIgnoresInvalidUtf8AndNan(): void
+    {
+        $plain = [
+            "\xff\xfe",
+            NAN,
+            [1, 2],
+        ];
+        $this->assertFalse(Arrays::hasRecursion($plain));
+
+        $recursive = ["\xff\xfe", NAN];
+        $recursive[] = &$recursive;
+        $this->assertTrue(Arrays::hasRecursion($recursive));
+    }
+
+    /**
+     * Test that a deeply nested array without recursion isn't reported, even past json_encode()'s default depth.
+     */
+    public function testHasRecursionDeepNestingNotRecursive(): void
+    {
+        $arr = [1];
+        for ($i = 0; $i < 600; $i++) {
+            $arr = [$arr];
+        }
+
+        $this->assertFalse(Arrays::hasRecursion($arr));
+    }
+
+    /**
+     * Test that objects aren't followed, so a cycle through an object isn't reported as array recursion.
+     */
+    public function testHasRecursionIgnoresObjectCycles(): void
+    {
+        // An object that contains itself.
+        $obj = new stdClass();
+        $obj->self = $obj;
+        $this->assertFalse(Arrays::hasRecursion([$obj]));
+
+        // A cycle from an array, through an object, back to the array.
+        $arr = [
+            'k' => 1,
+        ];
+        $holder = new stdClass();
+        $holder->arr = &$arr;
+        $arr['o'] = $holder;
+        $this->assertFalse(Arrays::hasRecursion($arr));
+    }
+
+    /**
+     * Test that hasRecursion() restores the caller's error handler.
+     */
+    public function testHasRecursionRestoresErrorHandler(): void
+    {
+        $arr = [
+            'foo' => 'bar',
+        ];
+        $arr['self'] = &$arr;
+
+        $handler = static fn (): bool => true;
+        set_error_handler($handler);
+        try {
+            Arrays::hasRecursion($arr);
+
+            // set_error_handler() returns the handler it replaces.
+            $this->assertSame($handler, set_error_handler(null));
+        } finally {
+            restore_error_handler();
+            restore_error_handler();
+        }
+    }
+
     #endregion
 
     #region Method quoteValues() tests.
@@ -969,6 +1057,125 @@ final class ArraysTest extends TestCase
 
         // The original is still genuinely recursive.
         $this->assertTrue(Arrays::hasRecursion($arr));
+    }
+
+    /**
+     * Test that a string that looks like print_r() output doesn't affect an array without recursion. This was a false
+     * positive of the print_r() parser, which now only runs for arrays that contain recursion.
+     */
+    public function testRemoveRecursionLookalikeStringWithoutRecursion(): void
+    {
+        $arr = [
+            'c' => [1, 2],
+            'a' => "text\n    [c] => Array\n *RECURSION*",
+        ];
+
+        $this->assertSame($arr, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that an array containing itself without a PHP reference element has the cycle replaced.
+     */
+    public function testRemoveRecursionSelfContainingWithoutReference(): void
+    {
+        // After this, $arr[0] is $arr itself, but it isn't a reference element.
+        $arr = [
+            'x' => 1,
+        ];
+        $alias = &$arr;
+        $arr[] = $alias;
+
+        $expected = [
+            'x' => 1,
+            0   => RECURSION,
+        ];
+        $this->assertSame($expected, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that a deeply nested array without recursion is copied unchanged.
+     */
+    public function testRemoveRecursionDeepNestingNotRecursive(): void
+    {
+        $arr = [1];
+        for ($i = 0; $i < 300; $i++) {
+            $arr = [$arr];
+        }
+
+        $this->assertSame($arr, Arrays::removeRecursion($arr));
+    }
+
+    /**
+     * Test that objects are kept as the same instances, with and without recursion in the array.
+     */
+    public function testRemoveRecursionKeepsObjects(): void
+    {
+        $obj = new stdClass();
+
+        // No recursion.
+        $result = Arrays::removeRecursion([
+            'o' => $obj,
+            'n' => [1, 2],
+        ]);
+        $this->assertSame($obj, $result['o']);
+
+        // With recursion elsewhere in the array.
+        $arr = [
+            'o' => $obj,
+        ];
+        $arr['self'] = &$arr;
+        $result = Arrays::removeRecursion($arr);
+        $this->assertSame($obj, $result['o']);
+        $this->assertSame(RECURSION, $result['self']);
+    }
+
+    /**
+     * Test that cycles through objects are left alone, since objects aren't followed.
+     */
+    public function testRemoveRecursionLeavesObjectCycles(): void
+    {
+        // An object that contains itself.
+        $obj = new stdClass();
+        $obj->self = $obj;
+        $result = Arrays::removeRecursion([$obj]);
+        $this->assertSame($obj, $result[0]);
+
+        // A cycle from an array, through an object, back to the array.
+        $arr = [
+            'k' => 1,
+        ];
+        $holder = new stdClass();
+        $holder->arr = &$arr;
+        $arr['o'] = $holder;
+        $result = Arrays::removeRecursion($arr);
+        $this->assertSame(1, $result['k']);
+        $this->assertSame($holder, $result['o']);
+    }
+
+    /**
+     * Test that the result of an array without recursion is detached from the original's references, so writing to it
+     * doesn't change the referenced variables.
+     */
+    public function testRemoveRecursionResultIsDetachedFromReferences(): void
+    {
+        $value = 1;
+        $arr = [
+            'ref'    => &$value,
+            'nested' => [
+                'ref' => &$value,
+            ],
+        ];
+
+        $result = Arrays::removeRecursion($arr);
+        $result['ref'] = 99;
+
+        // Copying an array keeps its reference elements, so writing to this copy would still reach $value if the
+        // result weren't detached.
+        $nested = $result['nested'];
+        $this->assertIsArray($nested);
+        $nested['ref'] = 98;
+
+        $this->assertSame(1, $value);
     }
 
     #endregion
