@@ -51,6 +51,41 @@ Types::getBasicType(new stdClass()); // "object"
 
 **Use Case:** Getting consistent type names for logging, error messages, or switch statements.
 
+### identical()
+
+```php
+public static function identical(mixed $a, mixed $b): bool
+```
+
+Check if two values are identical. This is strict equality (`===`), except that floats are compared by bit pattern,
+including floats nested in arrays:
+
+- `NAN` is identical to `NAN`.
+- `-0.0` is not identical to `0.0`.
+
+Two values are identical exactly when [getUniqueString()](#getuniquestring) gives them the same key.
+
+**Parameters:**
+
+- `$a` (mixed) - The first value
+- `$b` (mixed) - The second value
+
+**Returns:** `bool` - True if the values are identical, false otherwise.
+
+**Examples:**
+
+```php
+Types::identical(1, 1);           // true
+Types::identical(1, 1.0);         // false
+Types::identical(NAN, NAN);       // true  (NAN === NAN is false)
+Types::identical(0.0, -0.0);      // false (0.0 === -0.0 is true)
+Types::identical([NAN], [NAN]);   // true
+Types::identical(['a' => 1, 'b' => 2], ['b' => 2, 'a' => 1]); // false (order matters)
+```
+
+**Use Case:** Comparing values the same way as a collection keyed on `getUniqueString()`, e.g. searching a list so the
+results agree with a Set.
+
 ---
 
 ## Formatting Methods

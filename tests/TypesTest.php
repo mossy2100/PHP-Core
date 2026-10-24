@@ -148,6 +148,172 @@ final class TypesTest extends TestCase
 
     #endregion
 
+    #region Method identical() tests.
+
+    /**
+     * Test identical matches === for non-float scalars and null.
+     */
+    public function testIdenticalScalars(): void
+    {
+        $this->assertTrue(Types::identical(null, null));
+        $this->assertTrue(Types::identical(true, true));
+        $this->assertTrue(Types::identical(42, 42));
+        $this->assertTrue(Types::identical('abc', 'abc'));
+        $this->assertFalse(Types::identical(true, false));
+        $this->assertFalse(Types::identical(42, 43));
+        $this->assertFalse(Types::identical('abc', 'abd'));
+    }
+
+    /**
+     * Test identical distinguishes values of different types.
+     */
+    public function testIdenticalDistinguishesTypes(): void
+    {
+        $this->assertFalse(Types::identical(1, 1.0));
+        $this->assertFalse(Types::identical(1.0, 1));
+        $this->assertFalse(Types::identical(1, '1'));
+        $this->assertFalse(Types::identical(1, true));
+        $this->assertFalse(Types::identical(null, false));
+        $this->assertFalse(Types::identical('', null));
+        $this->assertFalse(Types::identical([1], [1.0]));
+    }
+
+    /**
+     * Test identical compares ordinary floats by value.
+     */
+    public function testIdenticalFloats(): void
+    {
+        $this->assertTrue(Types::identical(1.5, 1.5));
+        $this->assertTrue(Types::identical(0.1 + 0.2, 0.1 + 0.2));
+        $this->assertTrue(Types::identical(INF, INF));
+        $this->assertFalse(Types::identical(INF, -INF));
+        $this->assertFalse(Types::identical(0.1 + 0.2, 0.3));
+    }
+
+    /**
+     * Test identical treats NAN as identical to NAN.
+     */
+    public function testIdenticalNan(): void
+    {
+        $this->assertTrue(Types::identical(NAN, NAN));
+        $this->assertFalse(Types::identical(NAN, 0.0));
+        $this->assertFalse(Types::identical(1.0, NAN));
+    }
+
+    /**
+     * Test identical distinguishes -0.0 from 0.0.
+     */
+    public function testIdenticalNegativeZero(): void
+    {
+        $this->assertTrue(Types::identical(-0.0, -0.0));
+        $this->assertFalse(Types::identical(0.0, -0.0));
+        $this->assertFalse(Types::identical(-0.0, 0.0));
+    }
+
+    /**
+     * Test identical compares arrays by keys, values and order, including nested floats.
+     */
+    public function testIdenticalArrays(): void
+    {
+        // Separate but equal inner arrays.
+        $inner1 = [2.5];
+        $inner2 = [2.5];
+        $innerNan1 = [NAN];
+        $innerNan2 = [NAN];
+        $ab = [
+            'a' => 1,
+            'b' => 2,
+        ];
+        $ba = [
+            'b' => 2,
+            'a' => 1,
+        ];
+
+        $this->assertTrue(Types::identical([], []));
+        $this->assertTrue(Types::identical([1, 'a', $inner1], [1, 'a', $inner2]));
+        $this->assertTrue(Types::identical([NAN, $innerNan1], [NAN, $innerNan2]));
+        $this->assertFalse(Types::identical([0.0], [-0.0]));
+        $this->assertFalse(Types::identical($ab, $ba));
+        $this->assertFalse(Types::identical([1, 2], [2, 1]));
+        $this->assertFalse(Types::identical([1], 1));
+        $this->assertFalse(Types::identical(1, [1]));
+    }
+
+    /**
+     * Test identical compares objects and closures by identity.
+     */
+    public function testIdenticalObjects(): void
+    {
+        $a = new stdClass();
+        $b = new stdClass();
+        $fn = static fn (): null => null;
+
+        $this->assertTrue(Types::identical($a, $a));
+        $this->assertFalse(Types::identical($a, $b));
+        $this->assertTrue(Types::identical($fn, $fn));
+        $this->assertFalse(Types::identical($fn, static fn (): null => null));
+        $this->assertTrue(Types::identical([$a], [$a]));
+        $this->assertFalse(Types::identical([$a], [$b]));
+    }
+
+    /**
+     * Test identical compares enums by case.
+     */
+    public function testIdenticalEnums(): void
+    {
+        $this->assertTrue(Types::identical(TestSuit::Hearts, TestSuit::Hearts));
+        $this->assertFalse(Types::identical(TestSuit::Hearts, TestSuit::Spades));
+    }
+
+    /**
+     * Test identical agrees with comparing getUniqueString() keys, for every pair from a mixed set of values.
+     */
+    public function testIdenticalMatchesGetUniqueString(): void
+    {
+        $obj = new stdClass();
+        $values = [
+            null,
+            true,
+            false,
+            0,
+            1,
+            -1,
+            0.0,
+            -0.0,
+            1.0,
+            NAN,
+            INF,
+            -INF,
+            '',
+            '0',
+            '1',
+            [],
+            [0],
+            [0.0],
+            [-0.0],
+            [NAN],
+            [
+                'a' => 1,
+            ],
+            [
+                [1.0],
+            ],
+            TestSuit::Hearts,
+            $obj,
+            [$obj],
+            new stdClass(),
+        ];
+
+        foreach ($values as $i => $a) {
+            foreach ($values as $j => $b) {
+                $expected = Types::getUniqueString($a) === Types::getUniqueString($b);
+                $this->assertSame($expected, Types::identical($a, $b), "Values at indexes $i and $j.");
+            }
+        }
+    }
+
+    #endregion
+
     #region Method getUniqueString() tests.
 
     /**

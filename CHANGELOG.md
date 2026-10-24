@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **`Integers::mulMod()`** calculates `(a × b) % m` without overflowing, even when `a × b` would, e.g.
   `Integers::mulMod(PHP_INT_MAX, PHP_INT_MAX, 1000000007)` is `737564071`. The result has the sign of the product, like
   PHP's `%`.
+- **`Types::identical()`** checks if two values are identical: strict equality (`===`), except that floats are compared
+  by bit pattern, so `NAN` matches `NAN` and `-0.0` doesn't match `0.0`. It agrees with `Types::getUniqueString()`
+  keys.
 
 ### Changed
 

@@ -64,6 +64,28 @@ final class Types
         };
     }
 
+    /**
+     * Check if two values are identical.
+     *
+     * This is the same as strict equality (===), except that floats are compared by bit pattern, so NAN matches NAN
+     * and -0.0 doesn't match 0.0. This also applies to floats nested in arrays.
+     *
+     * Two values are identical exactly when getUniqueString() gives them the same key, so this is the equality used by
+     * collections keyed on getUniqueString(), such as Set and Dictionary.
+     *
+     * @param mixed $a The first value.
+     * @param mixed $b The second value.
+     * @return bool True if the values are identical, false otherwise.
+     */
+    public static function identical(mixed $a, mixed $b): bool
+    {
+        // For other types, === gives the same result as comparing unique strings, and is faster.
+        if (is_float($a) || is_array($a)) {
+            return self::getUniqueString($a) === self::getUniqueString($b);
+        }
+        return $a === $b;
+    }
+
     #endregion
 
     #region Formatting methods
