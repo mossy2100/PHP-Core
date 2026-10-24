@@ -51,6 +51,24 @@ composer require mossy2100/core
 
 ---
 
+## Quick Start
+
+```php
+use Mossy2100\Core\Floats;
+use Mossy2100\Core\Integers;
+use Mossy2100\Core\Stringify;
+
+Floats::approxEqual(0.1 + 0.2, 0.3);               // true
+Floats::format(0.0001234);                         // '1.234×10⁻⁴'
+Integers::mul(PHP_INT_MAX, 2);                     // throws OverflowException
+Integers::toSuperscript(-42);                      // '⁻⁴²'
+Stringify::stringify(['a' => 1.0, 'b' => [1, 2]]); // "['a' => 1.0, 'b' => [1, 2]]"
+```
+
+See [Classes](#classes) below for what each class does, with links to its full documentation.
+
+---
+
 ## Classes
 
 ### [Floats](docs/Floats.md)
