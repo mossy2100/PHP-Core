@@ -536,11 +536,11 @@ Floats::trunc(-3.0);    // -3.0
 
 // Values between -1 and 1
 Floats::trunc(0.9);     // 0.0
-Floats::trunc(-0.9);    // 0.0
+Floats::trunc(-0.9);    // -0.0 (the sign is kept, as for ceil())
 
 // Zero values
 Floats::trunc(0.0);     // 0.0
-Floats::trunc(-0.0);    // 0.0
+Floats::trunc(-0.0);    // -0.0
 
 // Non-finite values pass through unchanged
 Floats::trunc(INF);     // INF
@@ -555,7 +555,7 @@ Floats::trunc(NAN);     // NAN
 | 3.7   | 3.0               | 3.0       |
 | -3.7  | -3.0              | -4.0      |
 | 0.9   | 0.0               | 0.0       |
-| -0.9  | 0.0               | -1.0      |
+| -0.9  | -0.0              | -1.0      |
 
 **Identity Property:**
 
