@@ -345,7 +345,7 @@ final class TypesTest extends TestCase
     {
         // Test that unit enums produce keys with class and case name.
         $key = Types::getUniqueString(TestSuit::Hearts);
-        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestSuit::Hearts', $key);
+        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestSuit:Hearts', $key);
 
         // Test that different cases produce different keys.
         $key2 = Types::getUniqueString(TestSuit::Diamonds);
@@ -357,7 +357,7 @@ final class TypesTest extends TestCase
 
         // Test with a backed enum.
         $key4 = Types::getUniqueString(TestColor::Red);
-        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestColor::Red', $key4);
+        $this->assertSame('e:Mossy2100\Core\Tests\Fixtures\TestColor:Red', $key4);
 
         // Test that enums from different classes are distinct.
         $this->assertNotSame($key, $key4);

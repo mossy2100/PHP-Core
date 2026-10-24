@@ -105,7 +105,7 @@ final class Types
 
             case 'enum':
                 /** @var UnitEnum $value */
-                return 'e:' . $value::class . '::' . $value->name;
+                return 'e:' . $value::class . ':' . $value->name;
 
             case 'closure':
                 /** @var Closure $value */

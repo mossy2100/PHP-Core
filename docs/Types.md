@@ -84,7 +84,7 @@ It's for collection keys, not display. Use [Stringify](Stringify.md) for display
 - `string`: `"s:{length}:{content}"` (e.g., `"s:5:hello"`)
 - `array`: `"a:{count}:[{key}=>{value},...]"`, with each key and value in its own unique-string form (e.g.,
   `"a:2:[i:0=>i:1,i:1=>s:1:x]"`)
-- `enum`: `"e:{ClassName}::{CaseName}"` (e.g., `"e:App\Enums\Suit::Hearts"`)
+- `enum`: `"e:{ClassName}:{CaseName}"` (e.g., `"e:App\Enums\Suit:Hearts"`)
 - `closure`: `"c:{object_id}"` (e.g., `"c:7"`)
 - `object`: `"o:{object_id}"` (e.g., `"o:1"`)
 - `resource`: `"r:{resource_id}"` (e.g., `"r:5"`)
@@ -110,7 +110,7 @@ Types::getUniqueString(0.0);               // "f:0000000000000000"
 Types::getUniqueString(-0.0);              // "f:8000000000000000" (different!)
 
 // Enums use class name and case name
-Types::getUniqueString(Suit::Hearts);      // "e:App\Enums\Suit::Hearts"
+Types::getUniqueString(Suit::Hearts);      // "e:App\Enums\Suit:Hearts"
 
 // Closures use object ID, so two structurally identical closures still get different keys
 $add1 = fn ($x) => $x + 1;
