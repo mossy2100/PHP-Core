@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Floats::wrap()`** in unsigned mode returned `$unitsPerTurn` itself for a tiny negative value, e.g.
+  `wrap(-1e-20, 360.0, signed: false)` gave `360.0`, outside the documented range `[0, $unitsPerTurn)`. It now gives
+  `0.0`.
 - **`Floats::randUniform()`** threw `DivisionByZeroError` for ranges wider than `PHP_FLOAT_MAX`, e.g.
   `[-PHP_FLOAT_MAX, PHP_FLOAT_MAX]`, and for a bound of `±PHP_FLOAT_MAX`.
 - **`Floats::ulp(±PHP_FLOAT_MAX)`** returned `INF`. It now returns `2^971`, the gap below `PHP_FLOAT_MAX`.

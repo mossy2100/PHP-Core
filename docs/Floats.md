@@ -693,6 +693,7 @@ Floats::wrap(270.0, 360.0, signed: false);   // 270.0 (in range)
 Floats::wrap(-90.0, 360.0, signed: false);   // 270.0 (negative wraps to positive)
 Floats::wrap(360.0, 360.0, signed: false);   // 0.0 (upper bound excluded)
 Floats::wrap(450.0, 360.0, signed: false);   // 90.0
+Floats::wrap(-1e-20, 360.0, signed: false);  // 0.0 (-1e-20 + 360.0 rounds to 360.0, which is excluded)
 ```
 
 **Examples with Radians (default):**

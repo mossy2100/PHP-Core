@@ -367,5 +367,44 @@ final class FloatsTransformationTest extends TestCase
         Floats::wrap(5.0, INF);
     }
 
+    /**
+     * Test wrap() in unsigned mode keeps tiny negative values inside [0, $unitsPerTurn). Adding $unitsPerTurn to one
+     * rounds up to exactly $unitsPerTurn, which the range excludes.
+     */
+    public function testWrapUnsignedWithTinyNegativeValues(): void
+    {
+        foreach ([360.0, M_TAU, 1.0] as $unitsPerTurn) {
+            foreach ([-5e-324, -PHP_FLOAT_MIN, -1e-20, -1e-17] as $value) {
+                $result = Floats::wrap($value, $unitsPerTurn, false);
+                $this->assertGreaterThanOrEqual(0.0, $result);
+                $this->assertLessThan($unitsPerTurn, $result);
+            }
+        }
+
+        // Results that round to $unitsPerTurn wrap to 0.0.
+        $this->assertSame(0.0, Floats::wrap(-1e-20, 360.0, false));
+    }
+
+    /**
+     * Test wrap() keeps results in range across a sweep of magnitudes, in both modes.
+     */
+    public function testWrapSweepStaysInRange(): void
+    {
+        foreach ([360.0, M_TAU, 7.5] as $unitsPerTurn) {
+            $half = $unitsPerTurn / 2.0;
+            for ($exp = -320; $exp <= 300; $exp += 4) {
+                foreach ([1.0, -1.0, 3.7, -3.7] as $mantissa) {
+                    $value = $mantissa * 10.0 ** $exp;
+                    $signed = Floats::wrap($value, $unitsPerTurn);
+                    $this->assertGreaterThan(-$half, $signed);
+                    $this->assertLessThanOrEqual($half, $signed);
+                    $unsigned = Floats::wrap($value, $unitsPerTurn, false);
+                    $this->assertGreaterThanOrEqual(0.0, $unsigned);
+                    $this->assertLessThan($unitsPerTurn, $unsigned);
+                }
+            }
+        }
+    }
+
     #endregion
 }

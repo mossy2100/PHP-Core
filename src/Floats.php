@@ -379,6 +379,11 @@ final class Floats
             // Unsigned range is [0, $unitsPerTurn)
             if ($r < 0.0) {
                 $r += $unitsPerTurn;
+
+                // A tiny negative $r can round up to exactly $unitsPerTurn, which is outside the range.
+                if ($r >= $unitsPerTurn) {
+                    $r = 0.0;
+                }
             }
         }
 
