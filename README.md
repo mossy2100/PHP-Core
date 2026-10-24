@@ -37,6 +37,9 @@ documentation.
 ## Requirements
 
 - PHP ^8.4
+- The `intl` extension, for `NumberFormatter` in `Floats::format()`
+- The `mbstring` extension
+- PHPUnit, only if you use the `FloatAssertions` trait in your tests
 
 ---
 
