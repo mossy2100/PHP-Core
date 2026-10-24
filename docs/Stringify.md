@@ -16,8 +16,7 @@ It's for display, exception and log messages, not collection keys: the output fo
 ### Key Features
 
 - **Single-quoted strings**: Strings are wrapped in single quotes, with backslash and single quotes escaped. Unicode
-  characters are preserved as-is. A string that isn't valid UTF-8, and can't be converted, is double-quoted with
-  `\xNN` escapes instead.
+  characters are preserved as-is. A string that isn't valid UTF-8 is double-quoted with `\xNN` escapes instead.
 - **Exact float representation**: Floats are shown with the shortest digits that convert back to the same value (e.g.,
   `0.30000000000000004`), and always include a decimal point or exponent, so they never look like integers (e.g.,
   `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled correctly.
@@ -383,10 +382,12 @@ public static function stringifyString(string $value): string
 Convert a string to a parseable single-quoted string representation. Backslashes and single quotes are escaped.
 Unicode characters are preserved as-is (not escaped to `\uXXXX`).
 
-A string that isn't valid UTF-8 is converted to UTF-8 if its encoding can be detected, using the encodings in
-`mb_detect_order()` (by default only ASCII and UTF-8). Otherwise, e.g. for binary data, it's rendered as a parseable
-double-quoted string: valid UTF-8 sequences are kept, other bytes and control characters are escaped as `\xNN`, and
-`\`, `"` and `$` are escaped with a backslash.
+A string that isn't valid UTF-8, e.g. binary data or text in another encoding, is rendered as a parseable double-quoted
+string instead: valid UTF-8 sequences are kept, other bytes and control characters are escaped as `\xNN`, and `\`, `"`
+and `$` are escaped with a backslash. The result parses back to the original bytes.
+
+The encoding isn't guessed. Single-byte encodings like ISO-8859-1 accept any bytes, so a guess would never fail, and a
+wrong guess would show the wrong characters.
 
 **Parameters:**
 
@@ -394,8 +395,7 @@ double-quoted string: valid UTF-8 sequences are kept, other bytes and control ch
 
 **Returns:**
 
-- `string` - The single-quoted, escaped string representation, or double-quoted for a string that can't be converted
-  to UTF-8.
+- `string` - The single-quoted, escaped string representation, or double-quoted for a string that isn't valid UTF-8.
 
 **Examples:**
 

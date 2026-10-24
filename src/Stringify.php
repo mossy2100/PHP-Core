@@ -19,7 +19,7 @@ use UnitEnum;
  * options of echo(), print(), var_dump(), var_export(), print_r(), json_encode(), and serialize().
  *
  * - Floats never look like integers.
- * - Strings are single-quoted, or double-quoted with escapes if they aren't valid UTF-8 and can't be converted.
+ * - Strings are single-quoted, or double-quoted with escapes if they aren't valid UTF-8.
  * - Arrays are rendered as parseable PHP code using modern square bracket syntax.
  * - Arrays that are lists will not show keys; associative arrays will show keys.
  * - Objects are rendered like arrays but with a class name and curly braces instead of square brackets.
@@ -384,8 +384,8 @@ final class Stringify
     /**
      * Convert a string to a parseable single-quoted string.
      *
-     * A string that isn't valid UTF-8 is converted to UTF-8 if its encoding can be detected (see mb_detect_order()).
-     * Otherwise, e.g. for binary data, it's rendered as a double-quoted string, with escapes for the invalid bytes.
+     * A string that isn't valid UTF-8, e.g. binary data or text in another encoding, is rendered as a double-quoted
+     * string instead, with escapes for the invalid bytes, so it parses back to the original bytes.
      *
      * @param string $value The string value to encode.
      * @return string The single-quoted, escaped string representation.
@@ -396,18 +396,11 @@ final class Stringify
             return RECURSION;
         }
 
-        // Get the string as UTF-8 if not already.
+        // A string that isn't valid UTF-8 (e.g. binary data, or text in another encoding) is rendered with escapes. Its
+        // encoding isn't guessed: single-byte encodings like ISO-8859-1 accept any bytes, so a guess can't fail, and a
+        // wrong one would show the wrong characters.
         if (!mb_check_encoding($value, 'UTF-8')) {
-            // Try to detect the encoding and convert to UTF-8. Detection only tries the encodings in mb_detect_order(),
-            // which by default are ASCII and UTF-8, so it usually fails for a string that isn't valid UTF-8.
-            $encoding = mb_detect_encoding($value, mb_detect_order(), true);
-            $converted = $encoding === false ? false : mb_convert_encoding($value, 'UTF-8', $encoding);
-
-            // If that fails, e.g. for binary data, render the bytes with escapes instead.
-            if ($converted === false) {
-                return self::stringifyBinaryString($value);
-            }
-            $value = $converted;
+            return self::stringifyBinaryString($value);
         }
 
         // Replace special characters with escape codes. The backslash must be escaped first: str_replace() with

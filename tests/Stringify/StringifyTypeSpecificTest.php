@@ -151,21 +151,20 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
-     * Test stringifyString() converts non-UTF-8 input to UTF-8 when encoding is detectable.
+     * Test stringifyString() doesn't guess the encoding of a non-UTF-8 string, even when mb_detect_order() would
+     * identify it. The bytes are escaped, so the output is the same whatever the detect order.
      */
-    public function testStringifyStringNonUtf8Conversion(): void
+    public function testStringifyStringIgnoresDetectOrder(): void
     {
-        // Add ISO-8859-1 to the detect order so mb_detect_encoding can find it.
         $originalOrder = mb_detect_order();
-        if (empty($originalOrder)) {
-            $originalOrder = ['ASCII', 'UTF-8', 'ISO-8859-1'];
+        if ($originalOrder === []) {
+            $originalOrder = ['ASCII', 'UTF-8'];
         }
         mb_detect_order(['ASCII', 'UTF-8', 'ISO-8859-1']);
 
         try {
             // 'café' encoded as Latin-1 (0xe9 is é in ISO-8859-1).
-            $latin1 = "caf\xe9";
-            $this->assertSame("'café'", Stringify::stringifyString($latin1));
+            $this->assertSame('"caf\xE9"', Stringify::stringifyString("caf\xe9"));
         } finally {
             mb_detect_order($originalOrder);
         }
