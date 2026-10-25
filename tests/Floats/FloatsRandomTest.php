@@ -328,9 +328,7 @@ final class FloatsRandomTest extends TestCase
         $nValues = 10;
         $min = 1.0;
         $max = $min;
-        $counts = [
-            Floats::toHex($min) => 0,
-        ];
+        $counts = [Floats::toHex($min) => 0];
         for ($i = 0; $i < $nValues - 1; $i++) {
             $f = Floats::nextUp($max);
             $counts[Floats::toHex($f)] = 0;
@@ -389,8 +387,8 @@ final class FloatsRandomTest extends TestCase
     public static function wideRangeProvider(): array
     {
         return [
-            'full float range'          => [-PHP_FLOAT_MAX, PHP_FLOAT_MAX],
-            'zero to PHP_FLOAT_MAX'     => [0.0, PHP_FLOAT_MAX],
+            'full float range' => [-PHP_FLOAT_MAX, PHP_FLOAT_MAX],
+            'zero to PHP_FLOAT_MAX' => [0.0, PHP_FLOAT_MAX],
             'symmetric, wider than max' => [-1e308, 1e308],
         ];
     }

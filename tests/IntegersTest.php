@@ -192,19 +192,14 @@ final class IntegersTest extends TestCase
     public static function mulModOverflowingProductProvider(): array
     {
         return [
-            'both positive'              => [PHP_INT_MAX, PHP_INT_MAX, 1000000007, 737564071],
-            'negative product'           => [PHP_INT_MAX, -PHP_INT_MAX, 1000000007, -737564071],
-            'negative modulus'           => [-PHP_INT_MAX, -PHP_INT_MAX, -1000000007, 737564071],
-            'just over PHP_INT_MAX'      => [3037000500, 3037000500, PHP_INT_MAX, 145474193],
-            'exact multiple'             => [PHP_INT_MAX, 2, PHP_INT_MAX, 0],
-            'PHP_INT_MIN factor'         => [
-                PHP_INT_MIN,
-                PHP_INT_MAX,
-                PHP_INT_MAX - 1,
-                -2,
-            ],
-            'PHP_INT_MIN modulus'        => [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MIN, 1],
-            'PHP_INT_MIN squared'        => [PHP_INT_MIN, PHP_INT_MIN, PHP_INT_MAX, 1],
+            'both positive' => [PHP_INT_MAX, PHP_INT_MAX, 1000000007, 737564071],
+            'negative product' => [PHP_INT_MAX, -PHP_INT_MAX, 1000000007, -737564071],
+            'negative modulus' => [-PHP_INT_MAX, -PHP_INT_MAX, -1000000007, 737564071],
+            'just over PHP_INT_MAX' => [3037000500, 3037000500, PHP_INT_MAX, 145474193],
+            'exact multiple' => [PHP_INT_MAX, 2, PHP_INT_MAX, 0],
+            'PHP_INT_MIN factor' => [PHP_INT_MIN, PHP_INT_MAX, PHP_INT_MAX - 1, -2],
+            'PHP_INT_MIN modulus' => [PHP_INT_MAX, PHP_INT_MAX, PHP_INT_MIN, 1],
+            'PHP_INT_MIN squared' => [PHP_INT_MIN, PHP_INT_MIN, PHP_INT_MAX, 1],
             'PHP_INT_MIN modulo minus 1' => [PHP_INT_MIN, 3, -1, 0],
         ];
     }

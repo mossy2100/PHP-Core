@@ -84,13 +84,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $this->assertSame('1000000000000000.0', Stringify::stringifyFloat(1e15));
 
         // The result converts back to the same float.
-        $values = [
-            0.1 + 0.2,
-            M_PI,
-            -1e-300,
-            5e-324,
-            PHP_FLOAT_MAX,
-        ];
+        $values = [0.1 + 0.2, M_PI, -1e-300, 5e-324, PHP_FLOAT_MAX];
         foreach ($values as $value) {
             $this->assertSame($value, (float) Stringify::stringifyFloat($value));
         }
@@ -194,12 +188,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyStringBinaryRoundTrip(): void
     {
-        $values = [
-            "\xfe\xff",
-            "caf\xe9 \$x \"q\" \\ Ω \xe2\x82",
-            "line1\nline2\t\x7f\xff",
-            random_bytes(64) . "\xff",
-        ];
+        $values = ["\xfe\xff", "caf\xe9 \$x \"q\" \\ Ω \xe2\x82", "line1\nline2\t\x7f\xff", random_bytes(64) . "\xff"];
         foreach ($values as $value) {
             $rendered = Stringify::stringifyString($value);
             $this->assertSame($value, eval("return $rendered;"));
@@ -251,23 +240,13 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyAssociativeArray(): void
     {
         // Simple dictionary.
-        $this->assertSame("['name' => 'John', 'age' => 30]", Stringify::stringify([
-            'name' => 'John',
-            'age'  => 30,
-        ]));
+        $this->assertSame("['name' => 'John', 'age' => 30]", Stringify::stringify(['name' => 'John', 'age' => 30]));
 
         // Non-sequential integer keys.
-        $this->assertSame("[1 => 'a', 3 => 'b', 5 => 'c']", Stringify::stringify([
-            1 => 'a',
-            3 => 'b',
-            5 => 'c',
-        ]));
+        $this->assertSame("[1 => 'a', 3 => 'b', 5 => 'c']", Stringify::stringify([1 => 'a', 3 => 'b', 5 => 'c']));
 
         // Mixed key types.
-        $this->assertSame("['key' => 'value', 0 => 42]", Stringify::stringify([
-            'key' => 'value',
-            0     => 42,
-        ]));
+        $this->assertSame("['key' => 'value', 0 => 42]", Stringify::stringify(['key' => 'value', 0 => 42]));
     }
 
     /**
@@ -276,25 +255,15 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyNestedArray(): void
     {
         // Nested list.
-        $this->assertSame('[[1, 2], [3, 4]]', Stringify::stringify([
-            [1, 2],
-            [3, 4],
-        ]));
+        $this->assertSame('[[1, 2], [3, 4]]', Stringify::stringify([[1, 2], [3, 4]]));
 
         // Nested dictionary.
         $this->assertSame("['user' => ['name' => 'John', 'age' => 30]]", Stringify::stringify([
-            'user' => [
-                'name' => 'John',
-                'age'  => 30,
-            ],
+            'user' => ['name' => 'John', 'age' => 30],
         ]));
 
         // Mixed nesting.
-        $this->assertSame("[1, ['a', 'b'], 3]", Stringify::stringify([
-            1,
-            ['a', 'b'],
-            3,
-        ]));
+        $this->assertSame("[1, ['a', 'b'], 3]", Stringify::stringify([1, ['a', 'b'], 3]));
     }
 
     /**
@@ -336,10 +305,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayPrettyPrintDictionary(): void
     {
-        $result = Stringify::stringify([
-            'name' => 'John',
-            'age'  => 30,
-        ], StringifyOptions::pretty());
+        $result = Stringify::stringify(['name' => 'John', 'age' => 30], StringifyOptions::pretty());
 
         $expected = "[\n    'name' => 'John',\n    'age'  => 30,\n]";
         $this->assertSame($expected, $result);
@@ -350,10 +316,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayPrettyPrintListOfArrays(): void
     {
-        $result = Stringify::stringify([
-            [1, 2],
-            [3, 4],
-        ], StringifyOptions::pretty());
+        $result = Stringify::stringify([[1, 2], [3, 4]], StringifyOptions::pretty());
 
         // Should be single-line.
         $this->assertSame("[\n    [1, 2],\n    [3, 4],\n]", $result);
@@ -364,13 +327,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayPrettyPrintMultilineItem(): void
     {
-        $result = Stringify::stringify([
-            [
-                'name' => 'John',
-                'age'  => 30,
-            ],
-            42,
-        ], StringifyOptions::pretty());
+        $result = Stringify::stringify([['name' => 'John', 'age' => 30], 42], StringifyOptions::pretty());
 
         $expected = "[\n"
             . "    [\n"
@@ -388,7 +345,8 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyArrayPrettyPrintLongItems(): void
     {
         $uuids = [
-            'c9e35c00-0f1e-4804-b5fe-6c4c9718db60', 'd2aee4c5-a7f7-4018-a635-c3f4c317033e',
+            'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',
+            'd2aee4c5-a7f7-4018-a635-c3f4c317033e',
             'd266963a-c4e0-4255-a97d-f070e51fcb5e',
         ];
 
@@ -408,9 +366,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyArrayCircularReference(): void
     {
-        $array = [
-            'foo' => 'bar',
-        ];
+        $array = ['foo' => 'bar'];
         $array['self'] = &$array;
 
         $result = Stringify::stringify($array);
@@ -660,10 +616,7 @@ final class StringifyTypeSpecificTest extends TestCase
             public string $name = 'test';
         };
 
-        $array = [
-            'object'  => $obj,
-            'numbers' => [4, 5, 6],
-        ];
+        $array = ['object' => $obj, 'numbers' => [4, 5, 6]];
 
         $result = Stringify::stringify($array);
         $this->assertStringContainsString("'object' => class@anonymous", $result);
@@ -719,9 +672,7 @@ final class StringifyTypeSpecificTest extends TestCase
             /** @var array<string, mixed> */
             public array $items = [];
         };
-        $obj->items = [
-            'self' => $obj,
-        ];
+        $obj->items = ['self' => $obj];
 
         $result = Stringify::stringify($obj);
 

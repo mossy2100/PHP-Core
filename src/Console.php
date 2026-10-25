@@ -95,17 +95,17 @@ class Console
 
     /** PHP type => Console color. */
     public const array TYPE_COLOR = [
-        'null'     => self::SILVER, // muted grey - "absence"
-        'bool'     => self::BRIGHT_YELLOW,
-        'int'      => self::BRIGHT_BLUE,
-        'float'    => self::BRIGHT_RED,
-        'string'   => self::BRIGHT_GREEN, // strings = green, the classic
-        'array'    => self::BRIGHT_MAGENTA,
-        'enum'     => self::YELLOW,
-        'closure'  => self::GREEN,
-        'object'   => self::BRIGHT_CYAN,
+        'null' => self::SILVER, // muted grey - "absence"
+        'bool' => self::BRIGHT_YELLOW,
+        'int' => self::BRIGHT_BLUE,
+        'float' => self::BRIGHT_RED,
+        'string' => self::BRIGHT_GREEN, // strings = green, the classic
+        'array' => self::BRIGHT_MAGENTA,
+        'enum' => self::YELLOW,
+        'closure' => self::GREEN,
+        'object' => self::BRIGHT_CYAN,
         'resource' => self::RED,
-        'unknown'  => self::GRAY,
+        'unknown' => self::GRAY,
     ];
 
     #endregion
@@ -113,21 +113,21 @@ class Console
     #region Properties
 
     /* Tracked style state. Colors stored in foreground space. */
-    private int $foreground     = self::DEFAULT;
+    private int $foreground = self::DEFAULT;
 
-    private int $background     = self::DEFAULT;
+    private int $background = self::DEFAULT;
 
-    private bool $bold          = false;
+    private bool $bold = false;
 
-    private bool $dim           = false;
+    private bool $dim = false;
 
-    private bool $italic        = false;
+    private bool $italic = false;
 
-    private bool $underline     = false;
+    private bool $underline = false;
 
     private bool $strikethrough = false;
 
-    private bool $reverse       = false;
+    private bool $reverse = false;
 
     #endregion
 
@@ -303,14 +303,14 @@ class Console
     public function getStyle(): array
     {
         return [
-            'foreground'    => $this->foreground,
-            'background'    => $this->background,
-            'bold'          => $this->bold,
-            'dim'           => $this->dim,
-            'italic'        => $this->italic,
-            'underline'     => $this->underline,
+            'foreground' => $this->foreground,
+            'background' => $this->background,
+            'bold' => $this->bold,
+            'dim' => $this->dim,
+            'italic' => $this->italic,
+            'underline' => $this->underline,
             'strikethrough' => $this->strikethrough,
-            'reverse'       => $this->reverse,
+            'reverse' => $this->reverse,
         ];
     }
 

@@ -93,9 +93,7 @@ final class TypesTest extends TestCase
         // Test that arrays return 'array'.
         $this->assertSame('array', Types::getBasicType([]));
         $this->assertSame('array', Types::getBasicType([1, 2, 3]));
-        $this->assertSame('array', Types::getBasicType([
-            'key' => 'value',
-        ]));
+        $this->assertSame('array', Types::getBasicType(['key' => 'value']));
     }
 
     /**
@@ -220,14 +218,8 @@ final class TypesTest extends TestCase
         $inner2 = [2.5];
         $innerNan1 = [NAN];
         $innerNan2 = [NAN];
-        $ab = [
-            'a' => 1,
-            'b' => 2,
-        ];
-        $ba = [
-            'b' => 2,
-            'a' => 1,
-        ];
+        $ab = ['a' => 1, 'b' => 2];
+        $ba = ['b' => 2, 'a' => 1];
 
         $this->assertTrue(Types::identical([], []));
         $this->assertTrue(Types::identical([1, 'a', $inner1], [1, 'a', $inner2]));
@@ -292,12 +284,8 @@ final class TypesTest extends TestCase
             [0.0],
             [-0.0],
             [NAN],
-            [
-                'a' => 1,
-            ],
-            [
-                [1.0],
-            ],
+            ['a' => 1],
+            [[1.0]],
             TestSuit::Hearts,
             $obj,
             [$obj],
@@ -410,9 +398,7 @@ final class TypesTest extends TestCase
         $this->assertNotSame(Types::getUniqueString([1, 2]), Types::getUniqueString([3, 4]));
 
         // Test associative array.
-        $key3 = Types::getUniqueString([
-            'key' => 'value',
-        ]);
+        $key3 = Types::getUniqueString(['key' => 'value']);
         $this->assertStringStartsWith('a:1:', $key3);
     }
 
@@ -422,9 +408,7 @@ final class TypesTest extends TestCase
     public function testGetUniqueStringArrayFormat(): void
     {
         $this->assertSame('a:2:[i:0=>i:1,i:1=>s:1:x]', Types::getUniqueString([1, 'x']));
-        $this->assertSame('a:1:[s:1:k=>a:1:[i:0=>n]]', Types::getUniqueString([
-            'k' => [null],
-        ]));
+        $this->assertSame('a:1:[s:1:k=>a:1:[i:0=>n]]', Types::getUniqueString(['k' => [null]]));
         $this->assertSame('a:0:[]', Types::getUniqueString([]));
     }
 
@@ -448,41 +432,12 @@ final class TypesTest extends TestCase
     public static function differentArraysProvider(): array
     {
         return [
-            'floats equal to 14 digits' => [
-                [
-                    0.1 + 0.2,
-                ],
-                [0.3],
-            ],
-            'zero signs'                => [
-                [-0.0],
-                [0.0],
-            ],
-            'comma in a string'         => [
-                ['a,b'],
-                ['a', 'b'],
-            ],
-            'list vs keyed'             => [
-                ['a'],
-                [
-                    1 => 'a',
-                ],
-            ],
-            'int vs numeric string'     => [
-                [1],
-                ['1'],
-            ],
-            'nesting'                   => [
-                [
-                    [1, 2],
-                    3,
-                ],
-                [
-                    [1],
-                    2,
-                    3,
-                ],
-            ],
+            'floats equal to 14 digits' => [[0.1 + 0.2], [0.3]],
+            'zero signs' => [[-0.0], [0.0]],
+            'comma in a string' => [['a,b'], ['a', 'b']],
+            'list vs keyed' => [['a'], [1 => 'a']],
+            'int vs numeric string' => [[1], ['1']],
+            'nesting' => [[[1, 2], 3], [[1], 2, 3]],
         ];
     }
 

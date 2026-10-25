@@ -866,8 +866,8 @@ final class Floats
 
         // Extract components.
         return [
-            'bits'     => $bits,
-            'sign'     => ($bits >> 63) & 0x1,
+            'bits' => $bits,
+            'sign' => ($bits >> 63) & 0x1,
             'exponent' => ($bits >> 52) & 0x7FF,
             'fraction' => $bits & 0xFFFFFFFFFFFFF,
         ];

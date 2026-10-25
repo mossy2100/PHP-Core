@@ -43,10 +43,7 @@ final class StringifyMainTest extends TestCase
     {
         $arr = [1];
         for ($i = 0; $i < 20; $i++) {
-            $arr = [
-                $arr,
-                [2],
-            ];
+            $arr = [$arr, [2]];
         }
 
         $lines = explode("\n", Stringify::stringify($arr, StringifyOptions::pretty()));
@@ -124,9 +121,7 @@ final class StringifyMainTest extends TestCase
     public function testToStringWithArray(): void
     {
         $this->assertSame('[1, 2, 3]', Stringify::toString([1, 2, 3]));
-        $this->assertSame("['a' => 1]", Stringify::toString([
-            'a' => 1,
-        ]));
+        $this->assertSame("['a' => 1]", Stringify::toString(['a' => 1]));
     }
 
     /**
@@ -134,9 +129,7 @@ final class StringifyMainTest extends TestCase
      */
     public function testToStringWithRecursiveArray(): void
     {
-        $arr = [
-            'x' => 1,
-        ];
+        $arr = ['x' => 1];
         $arr['self'] = &$arr;
 
         $this->assertSame("['x' => 1, 'self' => " . RECURSION . ']', Stringify::toString($arr));

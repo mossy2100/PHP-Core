@@ -71,10 +71,7 @@ final class StringifyOptionsTest extends TestCase
      */
     public function testCompact(): void
     {
-        $value = [
-            1,
-            [2, 3],
-        ];
+        $value = [1, [2, 3]];
 
         $this->assertFalse(StringifyOptions::compact()->prettyPrint);
         $this->assertSame('[1, [2, 3]]', Stringify::stringify($value, StringifyOptions::compact()));
@@ -101,9 +98,7 @@ final class StringifyOptionsTest extends TestCase
      */
     public function testPrettyCustomLayout(): void
     {
-        $value = [
-            'a' => [1, 2],
-        ];
+        $value = ['a' => [1, 2]];
 
         $this->assertSame("[\n  'a' => [1, 2],\n]", Stringify::stringify($value, StringifyOptions::pretty(indent: 2)));
         $this->assertSame("[\n    'a' => [1, 2],\n]", Stringify::stringify($value, StringifyOptions::pretty()));

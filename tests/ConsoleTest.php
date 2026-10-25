@@ -260,14 +260,14 @@ final class ConsoleTest extends TestCase
         ob_end_clean();
 
         $this->assertSame([
-            'foreground'    => Console::GREEN,
-            'background'    => Console::BLACK,
-            'bold'          => true,
-            'dim'           => false,
-            'italic'        => false,
-            'underline'     => true,
+            'foreground' => Console::GREEN,
+            'background' => Console::BLACK,
+            'bold' => true,
+            'dim' => false,
+            'italic' => false,
+            'underline' => true,
             'strikethrough' => false,
-            'reverse'       => false,
+            'reverse' => false,
         ], $this->console->getStyle());
     }
 
@@ -301,9 +301,7 @@ final class ConsoleTest extends TestCase
         ob_end_clean();
 
         ob_start();
-        $this->console->setStyle([
-            'italic' => true,
-        ]);
+        $this->console->setStyle(['italic' => true]);
         ob_end_clean();
 
         $this->assertTrue(
@@ -324,9 +322,7 @@ final class ConsoleTest extends TestCase
         ob_end_clean();
 
         ob_start();
-        $this->console->setStyle([
-            'bold' => false,
-        ]);
+        $this->console->setStyle(['bold' => false]);
         ob_end_clean();
 
         $this->assertFalse($this->console->getStyle()['bold']);
@@ -349,14 +345,14 @@ final class ConsoleTest extends TestCase
         $this->console->resetStyle();
 
         $this->assertSame([
-            'foreground'    => Console::DEFAULT,
-            'background'    => Console::DEFAULT,
-            'bold'          => false,
-            'dim'           => false,
-            'italic'        => false,
-            'underline'     => false,
+            'foreground' => Console::DEFAULT,
+            'background' => Console::DEFAULT,
+            'bold' => false,
+            'dim' => false,
+            'italic' => false,
+            'underline' => false,
             'strikethrough' => false,
-            'reverse'       => false,
+            'reverse' => false,
         ], $this->console->getStyle());
     }
 
@@ -734,9 +730,7 @@ final class ConsoleTest extends TestCase
      */
     public function testDumpVarHandlesRecursion(): void
     {
-        $arr = [
-            'x' => 1,
-        ];
+        $arr = ['x' => 1];
         $arr['self'] = &$arr;
 
         $this->expectOutputString(

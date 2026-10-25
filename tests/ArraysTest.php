@@ -72,16 +72,8 @@ final class ArraysTest extends TestCase
      */
     public function testQuoteValuesPreservesKeys(): void
     {
-        $input = [
-            'first'  => 'apple',
-            'second' => 'banana',
-            'third'  => 'cherry',
-        ];
-        $expected = [
-            'first'  => "'apple'",
-            'second' => "'banana'",
-            'third'  => "'cherry'",
-        ];
+        $input = ['first' => 'apple', 'second' => 'banana', 'third' => 'cherry'];
+        $expected = ['first' => "'apple'", 'second' => "'banana'", 'third' => "'cherry'"];
         $result = Arrays::quoteValues($input);
 
         $this->assertEquals($expected, $result);
@@ -218,11 +210,7 @@ final class ArraysTest extends TestCase
      */
     public function testQuoteValuesThrowsExceptionForArrays(): void
     {
-        $input = [
-            'foo',
-            ['nested'],
-            'bar',
-        ];
+        $input = ['foo', ['nested'], 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid array value type: array. Must be string.');
@@ -235,11 +223,7 @@ final class ArraysTest extends TestCase
      */
     public function testQuoteValuesThrowsExceptionForObjects(): void
     {
-        $input = [
-            'foo',
-            new stdClass(),
-            'bar',
-        ];
+        $input = ['foo', new stdClass(), 'bar'];
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid array value type: stdClass. Must be string.');
@@ -364,25 +348,16 @@ final class ArraysTest extends TestCase
      */
     public function testToSerialListAssociativeArray(): void
     {
-        $this->assertSame('apples', Arrays::toSerialList([
-            'a' => 'apples',
-        ]));
+        $this->assertSame('apples', Arrays::toSerialList(['a' => 'apples']));
 
         $this->assertSame(
             'apples and oranges',
-            Arrays::toSerialList([
-                'a' => 'apples',
-                'b' => 'oranges',
-            ])
+            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges'])
         );
 
         $this->assertSame(
             'apples, oranges, and bananas',
-            Arrays::toSerialList([
-                'a' => 'apples',
-                'b' => 'oranges',
-                'c' => 'bananas',
-            ])
+            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges', 'c' => 'bananas'])
         );
     }
 
@@ -404,11 +379,7 @@ final class ArraysTest extends TestCase
      */
     public function testFirstWithAssociativeArray(): void
     {
-        $arr = [
-            'a' => 'alpha',
-            'b' => 'beta',
-            'c' => 'gamma',
-        ];
+        $arr = ['a' => 'alpha', 'b' => 'beta', 'c' => 'gamma'];
         $this->assertEquals('alpha', Arrays::first($arr));
     }
 
@@ -418,9 +389,7 @@ final class ArraysTest extends TestCase
     public function testFirstWithSingleElement(): void
     {
         $this->assertEquals(42, Arrays::first([42]));
-        $this->assertEquals('only', Arrays::first([
-            'key' => 'only',
-        ]));
+        $this->assertEquals('only', Arrays::first(['key' => 'only']));
     }
 
     /**
@@ -465,11 +434,7 @@ final class ArraysTest extends TestCase
      */
     public function testLastWithAssociativeArray(): void
     {
-        $arr = [
-            'a' => 'alpha',
-            'b' => 'beta',
-            'c' => 'gamma',
-        ];
+        $arr = ['a' => 'alpha', 'b' => 'beta', 'c' => 'gamma'];
         $this->assertEquals('gamma', Arrays::last($arr));
     }
 
@@ -479,9 +444,7 @@ final class ArraysTest extends TestCase
     public function testLastWithSingleElement(): void
     {
         $this->assertEquals(42, Arrays::last([42]));
-        $this->assertEquals('only', Arrays::last([
-            'key' => 'only',
-        ]));
+        $this->assertEquals('only', Arrays::last(['key' => 'only']));
     }
 
     /**
@@ -513,9 +476,7 @@ final class ArraysTest extends TestCase
      */
     public function testFirstAndLastSameForSingleElement(): void
     {
-        $arr = [
-            'only' => 'value',
-        ];
+        $arr = ['only' => 'value'];
         $this->assertEquals(Arrays::first($arr), Arrays::last($arr));
     }
 
@@ -528,10 +489,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveValueExisting(): void
     {
-        $this->assertSame([
-            0 => 1,
-            2 => 3,
-        ], Arrays::removeValue([1, 2, 3], 2));
+        $this->assertSame([0 => 1, 2 => 3], Arrays::removeValue([1, 2, 3], 2));
     }
 
     /**
@@ -539,10 +497,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveValueMultipleInstances(): void
     {
-        $this->assertSame([
-            1 => 'b',
-            3 => 'b',
-        ], Arrays::removeValue(['a', 'b', 'a', 'b'], 'a'));
+        $this->assertSame([1 => 'b', 3 => 'b'], Arrays::removeValue(['a', 'b', 'a', 'b'], 'a'));
     }
 
     /**
@@ -550,11 +505,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveValueNotPresent(): void
     {
-        $this->assertSame([
-            0 => 1,
-            1 => 2,
-            2 => 3,
-        ], Arrays::removeValue([1, 2, 3], 99));
+        $this->assertSame([0 => 1, 1 => 2, 2 => 3], Arrays::removeValue([1, 2, 3], 99));
     }
 
     /**
@@ -570,15 +521,8 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveValuePreservesKeys(): void
     {
-        $input = [
-            'a' => 1,
-            'b' => 2,
-            'c' => 3,
-        ];
-        $this->assertSame([
-            'a' => 1,
-            'c' => 3,
-        ], Arrays::removeValue($input, 2));
+        $input = ['a' => 1, 'b' => 2, 'c' => 3];
+        $this->assertSame(['a' => 1, 'c' => 3], Arrays::removeValue($input, 2));
     }
 
     /**
@@ -588,11 +532,7 @@ final class ArraysTest extends TestCase
     {
         // '0' (string) should not match 0 (int).
         $result = Arrays::removeValue([0, '0', false, null], 0);
-        $this->assertSame([
-            1 => '0',
-            2 => false,
-            3 => null,
-        ], $result);
+        $this->assertSame([1 => '0', 2 => false, 3 => null], $result);
     }
 
     /**
@@ -600,10 +540,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveValueNull(): void
     {
-        $this->assertSame([
-            0 => 1,
-            2 => 3,
-        ], Arrays::removeValue([1, null, 3], null));
+        $this->assertSame([0 => 1, 2 => 3], Arrays::removeValue([1, null, 3], null));
     }
 
     #endregion
@@ -615,11 +552,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionSimpleArray(): void
     {
-        $arr = [
-            'a' => 1,
-            'b' => 2,
-            'c' => [1, 2, 3],
-        ];
+        $arr = ['a' => 1, 'b' => 2, 'c' => [1, 2, 3]];
         $this->assertSame($arr, Arrays::removeRecursion($arr));
     }
 
@@ -636,9 +569,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionDirectReference(): void
     {
-        $arr = [
-            'foo' => 'bar',
-        ];
+        $arr = ['foo' => 'bar'];
         $arr['self'] = &$arr;
 
         $result = Arrays::removeRecursion($arr);
@@ -653,12 +584,8 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionIndirectReference(): void
     {
-        $arr1 = [
-            'name' => 'array1',
-        ];
-        $arr2 = [
-            'name' => 'array2',
-        ];
+        $arr1 = ['name' => 'array1'];
+        $arr2 = ['name' => 'array2'];
         $arr1['child'] = &$arr2;
         $arr2['parent'] = &$arr1;
 
@@ -682,13 +609,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionNestedReference(): void
     {
-        $arr = [
-            'level1' => [
-                'level2' => [
-                    'level3' => [],
-                ],
-            ],
-        ];
+        $arr = ['level1' => ['level2' => ['level3' => []]]];
         $arr['level1']['level2']['level3']['back'] = &$arr;
 
         $result = Arrays::removeRecursion($arr);
@@ -708,14 +629,8 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionSubArrayReferenceNotRecursive(): void
     {
-        $subArray = [
-            'x' => 1,
-            'y' => 2,
-        ];
-        $arr = [
-            'original'  => $subArray,
-            'reference' => &$subArray,
-        ];
+        $subArray = ['x' => 1, 'y' => 2];
+        $arr = ['original' => $subArray, 'reference' => &$subArray];
 
         $this->assertSame($arr, Arrays::removeRecursion($arr));
     }
@@ -725,10 +640,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionIdenticalButUnrelatedSubArrays(): void
     {
-        $arr = [
-            'a' => [1, 2, 3],
-            'b' => [1, 2, 3],
-        ];
+        $arr = ['a' => [1, 2, 3], 'b' => [1, 2, 3]];
 
         $this->assertSame($arr, Arrays::removeRecursion($arr));
     }
@@ -739,12 +651,12 @@ final class ArraysTest extends TestCase
     public function testRemoveRecursionComplexArray(): void
     {
         $arr = [
-            'null'   => null,
-            'bool'   => true,
-            'int'    => 42,
-            'float'  => 3.14,
+            'null' => null,
+            'bool' => true,
+            'int' => 42,
+            'float' => 3.14,
             'string' => 'hello',
-            'array'  => [1, 2, 3],
+            'array' => [1, 2, 3],
         ];
         $arr['self'] = &$arr;
 
@@ -765,9 +677,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionResultIsJsonEncodable(): void
     {
-        $arr = [
-            'foo' => 'bar',
-        ];
+        $arr = ['foo' => 'bar'];
         $arr['self'] = &$arr;
 
         $result = Arrays::removeRecursion($arr);
@@ -781,9 +691,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionDoesNotModifyOriginal(): void
     {
-        $arr = [
-            'foo' => 'bar',
-        ];
+        $arr = ['foo' => 'bar'];
         $arr['self'] = &$arr;
 
         Arrays::removeRecursion($arr);
@@ -798,15 +706,10 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionKeepsEmptySubArrayWithRecursion(): void
     {
-        $arr = [
-            'empty' => [],
-        ];
+        $arr = ['empty' => []];
         $arr['self'] = &$arr;
 
-        $expected = [
-            'empty' => [],
-            'self'  => RECURSION,
-        ];
+        $expected = ['empty' => [], 'self' => RECURSION];
         $this->assertSame($expected, Arrays::removeRecursion($arr));
     }
 
@@ -815,11 +718,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionWithInvalidUtf8AndNan(): void
     {
-        $plain = [
-            "\xff\xfe",
-            NAN,
-            [1, 2],
-        ];
+        $plain = ["\xff\xfe", NAN, [1, 2]];
         $result = Arrays::removeRecursion($plain);
         $this->assertSame("\xff\xfe", $result[0]);
         $this->assertNan($result[1]);
@@ -837,9 +736,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionRestoresErrorHandler(): void
     {
-        $arr = [
-            'foo' => 'bar',
-        ];
+        $arr = ['foo' => 'bar'];
         $arr['self'] = &$arr;
 
         $handler = static fn (): bool => true;
@@ -861,10 +758,7 @@ final class ArraysTest extends TestCase
      */
     public function testRemoveRecursionLookalikeStringWithoutRecursion(): void
     {
-        $arr = [
-            'c' => [1, 2],
-            'a' => "text\n    [c] => Array\n *RECURSION*",
-        ];
+        $arr = ['c' => [1, 2], 'a' => "text\n    [c] => Array\n *RECURSION*"];
 
         $this->assertSame($arr, Arrays::removeRecursion($arr));
     }
@@ -875,16 +769,11 @@ final class ArraysTest extends TestCase
     public function testRemoveRecursionSelfContainingWithoutReference(): void
     {
         // After this, $arr[0] is $arr itself, but it isn't a reference element.
-        $arr = [
-            'x' => 1,
-        ];
+        $arr = ['x' => 1];
         $alias = &$arr;
         $arr[] = $alias;
 
-        $expected = [
-            'x' => 1,
-            0   => RECURSION,
-        ];
+        $expected = ['x' => 1, 0 => RECURSION];
         $this->assertSame($expected, Arrays::removeRecursion($arr));
     }
 
@@ -909,16 +798,11 @@ final class ArraysTest extends TestCase
         $obj = new stdClass();
 
         // No recursion.
-        $result = Arrays::removeRecursion([
-            'o' => $obj,
-            'n' => [1, 2],
-        ]);
+        $result = Arrays::removeRecursion(['o' => $obj, 'n' => [1, 2]]);
         $this->assertSame($obj, $result['o']);
 
         // With recursion elsewhere in the array.
-        $arr = [
-            'o' => $obj,
-        ];
+        $arr = ['o' => $obj];
         $arr['self'] = &$arr;
         $result = Arrays::removeRecursion($arr);
         $this->assertSame($obj, $result['o']);
@@ -937,9 +821,7 @@ final class ArraysTest extends TestCase
         $this->assertSame($obj, $result[0]);
 
         // A cycle from an array, through an object, back to the array.
-        $arr = [
-            'k' => 1,
-        ];
+        $arr = ['k' => 1];
         $holder = new stdClass();
         $holder->arr = &$arr;
         $arr['o'] = $holder;
@@ -955,12 +837,7 @@ final class ArraysTest extends TestCase
     public function testRemoveRecursionResultIsDetachedFromReferences(): void
     {
         $value = 1;
-        $arr = [
-            'ref'    => &$value,
-            'nested' => [
-                'ref' => &$value,
-            ],
-        ];
+        $arr = ['ref' => &$value, 'nested' => ['ref' => &$value]];
 
         $result = Arrays::removeRecursion($arr);
         $result['ref'] = 99;
