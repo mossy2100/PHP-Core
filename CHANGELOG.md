@@ -54,6 +54,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **`Floats::randRepresentable()`** (formerly `Floats::rand()`) never returned for some narrow ranges, such as one that
+  crosses a power of two (`[Floats::nextDown(1.0), 1.0]`) or zero (`[-5e-324, 5e-324]`). It now picks a random
+  position among the floats in the range, so it returns at once for any range. Every representable float in the range
+  is still equally likely.
 - **`Stringify::stringify()`** with pretty printing took time exponential in the depth of nested lists, since
   each level stringified its values twice.
 - **`Console::hr()`** with a negative length threw `str_repeat()`'s `ValueError`. It now throws `DomainException`.

@@ -50,8 +50,8 @@ understanding float precision.
 
 Two methods provide random floats for different use cases:
 
-- `randRepresentable()` generates random floats within a specified range (or the full float space by default) using
-  IEEE-754 component assembly. Any representable float can be returned, so values cluster near zero.
+- `randRepresentable()` generates random floats within a specified range (or the full float space by default). Every
+  representable float in the range is equally likely, so values cluster near zero.
 - `randUniform()` generates uniformly distributed values within specific bounds using linear interpolation with
   automatic ULP-based step calculation.
 
@@ -1190,8 +1190,9 @@ represented exactly up to much larger values.
 public static function randRepresentable(float $min = -PHP_FLOAT_MAX, float $max = PHP_FLOAT_MAX): float
 ```
 
-Generate a random float in the specified range by constructing IEEE-754 components. This method can return any
-representable float within the given range except -0.0, which is specifically excluded for two reasons:
+Generate a random float in the specified range, with every representable float in the range equally likely. This
+method can return any representable float within the given range except -0.0, which is specifically excluded for two
+reasons:
 
 - It's usually not a wanted value.
 - To avoid a zero-equivalent value (-0.0 or +0.0) having twice the probability of being returned as any non-zero value.
@@ -1228,16 +1229,18 @@ $f = Floats::randRepresentable(5.0, 5.0);  // 5.0
 
 - Can return **any representable float** in the given range.
 - Will not return a special value (NAN, ±INF, or -0.0).
-- Uses IEEE-754 component assembly (sign, exponent, fraction).
-- Distribution is **not uniform** - there will be more values near zero due to IEEE-754 density.
+- Every representable float in the range is equally likely, so the distribution of values is **not uniform** - there
+  will be more values near zero due to IEEE-754 density.
 - Handles ranges spanning zero correctly.
 
 **How it works:**
 
-1. Determines valid sign values based on min/max.
-2. Determines valid exponent range based on min/max.
-3. Generates random fraction bits.
-4. Assembles components and validates result is in range and non-special.
+1. Maps each bound to its ordinal: its position among all floats, with 0.0 at 0 and negative floats at negative
+   positions. Consecutive floats have consecutive ordinals.
+2. Chooses a random integer between the two ordinals.
+3. Maps it back to a float.
+
+There's no retry loop, so it returns quickly for any range, and NAN, ±INF and -0.0 can never come up.
 
 **Use Cases:**
 

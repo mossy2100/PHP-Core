@@ -649,20 +649,15 @@ final class Floats
     #region Random methods
 
     /**
-     * Generate a random float in the specified range by constructing random IEEE-754 components.
+     * Generate a random float in the specified range, with every representable float in the range equally likely.
      *
      * This method can return any representable float in the given range, unlike randUniform(), which only returns
-     * evenly spaced values.
-     * Also unlike randUniform(), the possible resulting values are not evenly distributed within the range, but will
-     * increase in density closer to zero.
+     * evenly spaced values. Also unlike randUniform(), the results are not evenly distributed within the range, but
+     * increase in density closer to zero, as floats do.
      *
-     * The method works by:
-     * 1. Determining valid sign bit values based on min/max
-     * 2. Determining valid exponent range based on min/max
-     * 3. Determining valid fraction range based on min/max
-     * 4. Generating random components
-     * 5. Assembling the result
-     * 6. Looping until a valid float within the defined range is generated
+     * The method maps each bound to its ordinal (its position among all floats, with 0.0 at 0), chooses a random
+     * integer between them, and maps it back. Consecutive floats have consecutive ordinals, so this never needs to
+     * retry, and NAN, ±INF and -0.0 are never produced.
      *
      * @param float $min The minimum value (inclusive).
      * @param float $max The maximum value (inclusive).
@@ -686,56 +681,7 @@ final class Floats
             return $min;
         }
 
-        // If the default range is specified, use a faster method.
-        if ($min === -PHP_FLOAT_MAX && $max === PHP_FLOAT_MAX) {
-            do {
-                // Get 64 random bits.
-                $bytes = random_bytes(8);
-
-                // Unpack into a float.
-                /** @var list<float> $unpacked */
-                $unpacked = unpack('d', $bytes);
-                $f = $unpacked[1];
-
-                // Continue until we find a non-special value.
-            } while (self::isSpecial($f));
-            return $f;
-        }
-
-        // Disassemble min and max into their IEEE-754 components.
-        $minParts = self::disassemble($min);
-        $maxParts = self::disassemble($max);
-
-        // Get the min and max exponents and fractions.
-        $minExp = min($minParts['exponent'], $maxParts['exponent']);
-        $maxExp = max($minParts['exponent'], $maxParts['exponent']);
-        $minFrac = min($minParts['fraction'], $maxParts['fraction']);
-        $maxFrac = max($minParts['fraction'], $maxParts['fraction']);
-
-        // Cache these comparisons.
-        $sameSign = $minParts['sign'] === $maxParts['sign'];
-        $sameExp = $minParts['exponent'] === $maxParts['exponent'];
-
-        // Generate random floats with constrained components until one falls in range.
-        do {
-            // Get the random sign and exponent.
-            if ($sameSign) {
-                $sign = $minParts['sign'];
-                // If the signs are the same, we can constrain the random exponent range to save time.
-                $exp = random_int($minExp, $maxExp);
-            } else {
-                $sign = random_int(0, 1);
-                $exp = random_int(0, $maxExp);
-            }
-
-            // If the signs and exponents are the same, we can constrain the random fraction range to save time.
-            $fraction = $sameSign && $sameExp ? random_int($minFrac, $maxFrac) : random_int(0, 0xFFFFFFFFFFFFF);
-
-            // Convert components to float.
-            $f = self::assemble($sign, $exp, $fraction);
-        } while (self::isSpecial($f) || $f < $min || $f > $max);
-
-        return $f;
+        return self::ordinalToFloat(random_int(self::floatToOrdinal($min), self::floatToOrdinal($max)));
     }
 
     /**
@@ -1201,6 +1147,33 @@ final class Floats
         $nSigDigits = $length - $nLeading0s - $nTrailing0s;
 
         return [$nLeading0s, $nSigDigits, $nTrailing0s];
+    }
+
+    /**
+     * Get a float's ordinal: its position among all floats, with 0.0 at 0 and negative floats at negative positions.
+     *
+     * Consecutive floats have consecutive ordinals, so the ordinals of finite floats run without gaps from
+     * -0x7FEFFFFFFFFFFFFF (-PHP_FLOAT_MAX) to 0x7FEFFFFFFFFFFFFF (PHP_FLOAT_MAX).
+     *
+     * @param float $f A finite float, not -0.0.
+     * @return int The ordinal.
+     * @throws RuntimeException If the system is not a 64-bit system.
+     */
+    private static function floatToOrdinal(float $f): int
+    {
+        return $f >= 0.0 ? self::floatToBits($f) : -self::floatToBits(-$f);
+    }
+
+    /**
+     * Get the float at an ordinal. The inverse of floatToOrdinal().
+     *
+     * @param int $ordinal The ordinal of a finite float.
+     * @return float The float.
+     * @throws RuntimeException If the system is not a 64-bit system.
+     */
+    private static function ordinalToFloat(int $ordinal): float
+    {
+        return $ordinal >= 0 ? self::bitsToFloat($ordinal) : -self::bitsToFloat(-$ordinal);
     }
 
     #endregion

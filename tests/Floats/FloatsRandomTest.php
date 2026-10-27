@@ -111,6 +111,57 @@ final class FloatsRandomTest extends TestCase
     }
 
     /**
+     * Test randRepresentable with narrow ranges across a power of two or zero, which used to never return.
+     *
+     * @param float $min The minimum value.
+     * @param float $max The maximum value.
+     * @param list<float> $expected Values that should all appear in 200 draws.
+     */
+    #[DataProvider('rangeAcrossBinadesProvider')]
+    public function testRandRepresentableWithRangeAcrossBinades(float $min, float $max, array $expected): void
+    {
+        $seen = [];
+        for ($i = 0; $i < 200; $i++) {
+            $f = Floats::randRepresentable($min, $max);
+            $this->assertGreaterThanOrEqual($min, $f);
+            $this->assertLessThanOrEqual($max, $f);
+            $this->assertFalse(Floats::isNegativeZero($f), 'Should never return -0.0');
+            $seen[] = $f;
+        }
+
+        foreach ($expected as $value) {
+            $this->assertContains($value, $seen);
+        }
+    }
+
+    /**
+     * Narrow ranges whose bounds have different exponents or signs.
+     *
+     * @return array<string, array{float, float, list<float>}>
+     */
+    public static function rangeAcrossBinadesProvider(): array
+    {
+        $tiny = Floats::nextUp(0.0);
+        return [
+            'just below 1 to 1' => [Floats::nextDown(1.0), 1.0, [Floats::nextDown(1.0), 1.0]],
+            'around 2' => [1.9999999, 2.0000001, []],
+            'smallest subnormals around zero' => [-$tiny, $tiny, [-$tiny, 0.0, $tiny]],
+            'negative to zero' => [-1.0, 0.0, []],
+        ];
+    }
+
+    /**
+     * Test randRepresentable gives every representable float the same chance, so a bound at a power of two, alone in
+     * its binade, is no more likely than any other value.
+     */
+    public function testRandRepresentableWithPowerOfTwoBoundIsRare(): void
+    {
+        for ($i = 0; $i < 1000; $i++) {
+            $this->assertNotSame(4.0, Floats::randRepresentable(1.0, 4.0));
+        }
+    }
+
+    /**
      * Test randRepresentable with min equal to max returns that value.
      */
     public function testRandRepresentableWithRangeWithMinEqualToMax(): void
