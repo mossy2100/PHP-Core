@@ -51,6 +51,17 @@ final class ConsoleTest extends TestCase
         $this->assertSame($this->console, $this->console->foreground(Console::WHITE));
     }
 
+    /**
+     * Test foreground() with a value that isn't a color constant throws, and emits nothing.
+     */
+    public function testForegroundWithInvalidColorThrows(): void
+    {
+        $this->expectOutputString('');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid color: 1. Must be one of the Console color constants.');
+        $this->console->foreground(1);
+    }
+
     #endregion
 
     #region Method background() tests.
@@ -74,6 +85,17 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputRegex('/.+/');
         $this->assertSame($this->console, $this->console->background(Console::RED));
+    }
+
+    /**
+     * Test background() with a value that isn't a color constant throws, and emits nothing.
+     */
+    public function testBackgroundWithInvalidColorThrows(): void
+    {
+        $this->expectOutputString('');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid color: 1. Must be one of the Console color constants.');
+        $this->console->background(1);
     }
 
     #endregion
@@ -100,6 +122,17 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputRegex('/.+/');
         $this->assertSame($this->console, $this->console->colors(Console::WHITE, Console::DEFAULT));
+    }
+
+    /**
+     * Test colors() with an invalid background throws before changing the foreground.
+     */
+    public function testColorsWithInvalidBackgroundThrows(): void
+    {
+        $this->expectOutputString('');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid color: 1. Must be one of the Console color constants.');
+        $this->console->colors(Console::RED, 1);
     }
 
     #endregion
@@ -328,6 +361,17 @@ final class ConsoleTest extends TestCase
         $this->assertFalse($this->console->getStyle()['bold']);
     }
 
+    /**
+     * Test setStyle() with an invalid background throws before applying anything.
+     */
+    public function testSetStyleWithInvalidColorThrows(): void
+    {
+        $this->expectOutputString('');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid color: 1. Must be one of the Console color constants.');
+        $this->console->setStyle(['foreground' => Console::RED, 'bold' => true, 'background' => 1]);
+    }
+
     #endregion
 
     #region Method resetStyle() tests.
@@ -439,6 +483,17 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputRegex('/.+/');
         $this->assertSame($this->console, $this->console->message('hi'));
+    }
+
+    /**
+     * Test message() with an invalid foreground throws before changing the style or printing.
+     */
+    public function testMessageWithInvalidColorThrows(): void
+    {
+        $this->expectOutputString('');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Invalid color: 1. Must be one of the Console color constants.');
+        $this->console->message('hi', 1, null, true);
     }
 
     #endregion

@@ -67,6 +67,27 @@ class Console
     /** Sentinel meaning "the console's default color". */
     public const int DEFAULT = 39;
 
+    /** Every valid color argument: the color constants above. */
+    private const array COLORS = [
+        self::BLACK,
+        self::RED,
+        self::GREEN,
+        self::YELLOW,
+        self::BLUE,
+        self::MAGENTA,
+        self::CYAN,
+        self::SILVER,
+        self::GRAY,
+        self::BRIGHT_RED,
+        self::BRIGHT_GREEN,
+        self::BRIGHT_YELLOW,
+        self::BRIGHT_BLUE,
+        self::BRIGHT_MAGENTA,
+        self::BRIGHT_CYAN,
+        self::WHITE,
+        self::DEFAULT,
+    ];
+
     /** Added to a foreground color code to get its background counterpart (e.g. 31 -> 41, 91 -> 101). */
     private const int BACKGROUND_OFFSET = 10;
 
@@ -138,9 +159,11 @@ class Console
      *
      * @param int $foreground The foreground color constant.
      * @return self Returns $this for chaining.
+     * @throws DomainException If the color isn't one of the color constants.
      */
     public function foreground(int $foreground): self
     {
+        self::validateColor($foreground);
         $this->foreground = $foreground;
         return $this->emit($foreground);
     }
@@ -150,9 +173,11 @@ class Console
      *
      * @param int $background The background color constant.
      * @return self Returns $this for chaining.
+     * @throws DomainException If the color isn't one of the color constants.
      */
     public function background(int $background): self
     {
+        self::validateColor($background);
         $this->background = $background;
         return $this->emit($background + self::BACKGROUND_OFFSET);
     }
@@ -163,9 +188,14 @@ class Console
      * @param int $foreground The foreground color constant.
      * @param int $background The background color constant.
      * @return self Returns $this for chaining.
+     * @throws DomainException If either color isn't one of the color constants.
      */
     public function colors(int $foreground, int $background): self
     {
+        // Validate both first, so an invalid background doesn't leave the foreground changed.
+        self::validateColor($foreground);
+        self::validateColor($background);
+
         $this->foreground($foreground);
         $this->background($background);
 
@@ -330,9 +360,18 @@ class Console
      * } $style
      * The style to apply.
      * @return self Returns $this for chaining.
+     * @throws DomainException If a color isn't one of the color constants.
      */
     public function setStyle(array $style): self
     {
+        // Validate the colors first, so an invalid one doesn't leave the style partly applied.
+        if (isset($style['foreground'])) {
+            self::validateColor($style['foreground']);
+        }
+        if (isset($style['background'])) {
+            self::validateColor($style['background']);
+        }
+
         if (isset($style['foreground'])) {
             $this->foreground($style['foreground']);
         }
@@ -466,9 +505,18 @@ class Console
      * @param ?int $background The message's background color. Null (default) leaves it unchanged.
      * @param ?bool $bold The message's bold state. Null (default) leaves it unchanged.
      * @return self Returns $this for chaining.
+     * @throws DomainException If a color isn't one of the color constants.
      */
     public function message(string $text, ?int $foreground = null, ?int $background = null, ?bool $bold = null): self
     {
+        // Validate the colors first, so an invalid one doesn't leave the style changed.
+        if ($foreground !== null) {
+            self::validateColor($foreground);
+        }
+        if ($background !== null) {
+            self::validateColor($background);
+        }
+
         // Remember the current style.
         $style = $this->getStyle();
 
@@ -622,6 +670,19 @@ class Console
     {
         echo $this->sgr(...$params);
         return $this;
+    }
+
+    /**
+     * Check that a color argument is one of the color constants.
+     *
+     * @param int $color The color to check.
+     * @throws DomainException If the color isn't one of the color constants.
+     */
+    private static function validateColor(int $color): void
+    {
+        if (!in_array($color, self::COLORS, true)) {
+            throw new DomainException("Invalid color: $color. Must be one of the Console color constants.");
+        }
     }
 
     #endregion

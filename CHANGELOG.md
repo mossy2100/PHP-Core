@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   `Mossy2100\Core` (breaking),** matching the author's GitHub and Packagist name. Update `composer.json` and any
   `use` statements, including for the exceptions, e.g. `Mossy2100\Core\Exceptions\FormatException`.
 - **`Console::hr()`** returns `$this`, like every other output method, so it can be chained.
+- **`Console`'s color methods throw `DomainException` for a value that isn't a color constant (breaking).** This
+  applies to `foreground()`, `background()`, `colors()`, `setStyle()` and `message()`. Previously any int was emitted
+  as-is, so `foreground(1)` turned on bold. Nothing is emitted when a color is invalid.
 - **Renamed `Floats::rand()` to `Floats::randRepresentable()` (breaking).** It can return any representable float, so
   its values cluster near zero rather than being uniform, which the name `rand()` suggested. For uniform values, use
   `Floats::randUniform()`.

@@ -69,6 +69,8 @@ Each names one of the terminal's 16 standard palette slots (the "normal intensit
 All constants are foreground-space values. `background()` applies the `+10` offset (e.g. `31` → `41`) internally at emit
 time - you never need to add it yourself.
 
+The color methods accept only these constants. Any other value, such as a raw SGR code, throws `DomainException`.
+
 ### TYPE_COLOR
 
 ```php
@@ -112,6 +114,10 @@ Set just the foreground color.
 
 - `self` - Returns `$this` for chaining.
 
+**Throws:**
+
+- `DomainException` - If `$foreground` isn't a `Console` color constant.
+
 ### background()
 
 ```php
@@ -127,6 +133,10 @@ Set just the background color.
 **Returns:**
 
 - `self` - Returns `$this` for chaining.
+
+**Throws:**
+
+- `DomainException` - If `$background` isn't a `Console` color constant.
 
 ### colors()
 
@@ -144,6 +154,10 @@ Set the foreground and background colors together.
 **Returns:**
 
 - `self` - Returns `$this` for chaining.
+
+**Throws:**
+
+- `DomainException` - If either color isn't a `Console` color constant. Neither color is changed.
 
 **Examples:**
 
@@ -307,6 +321,10 @@ value is `false`.
 
 - `self` - Returns `$this` for chaining.
 
+**Throws:**
+
+- `DomainException` - If `foreground` or `background` isn't a `Console` color constant. Nothing is applied.
+
 **Examples:**
 
 ```php
@@ -419,6 +437,10 @@ helpers below (`success()`, `error()`, `warn()`, `info()`) are all thin wrappers
 **Returns:**
 
 - `self` - Returns `$this` for chaining.
+
+**Throws:**
+
+- `DomainException` - If `$foreground` or `$background` isn't a `Console` color constant. Nothing is printed.
 
 ### success() / error() / warn() / info()
 
