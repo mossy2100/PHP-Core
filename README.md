@@ -96,8 +96,8 @@ circular reference removal.
 
 ### [Types](docs/Types.md)
 
-Type inspection utilities: canonical basic type names, unique string keys for collections, and trait detection,
-including inherited and nested traits.
+Type inspection utilities: canonical basic type names, identity comparison (`identical()`), unique string keys for
+collections, and trait detection, including inherited and nested traits.
 
 ### [Stringify](docs/Stringify.md)
 

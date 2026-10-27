@@ -447,8 +447,7 @@ Floats::approxCompare(NAN, 1.0);      // throws DomainException
 - Throws `DomainException` if either argument is NAN (NAN cannot be meaningfully compared).
 - First checks approximate equality using `approxEqual()` with the specified tolerances.
 - If approximately equal, returns `0`.
-- Otherwise uses spaceship operator (`<=>`) to determine ordering, normalized to exactly -1 or 1 using
-  `Numbers::sign()`.
+- Otherwise uses the spaceship operator (`<=>`) to determine ordering, which gives exactly -1 or 1.
 - Infinities are handled by `approxEqual()` using exact equality.
 
 **Use Cases:**

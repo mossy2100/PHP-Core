@@ -79,7 +79,6 @@ performs exact comparison. Provided by the trait, built on `approxEqual()` and `
 
 ```php
 use Mossy2100\Core\Floats;
-use Mossy2100\Core\Numbers;
 use Mossy2100\Core\Traits\Comparison\ApproxComparable;
 
 class Rational
@@ -97,7 +96,7 @@ class Rational
         $left = $this->num * $other->den;
         $right = $other->num * $this->den;
 
-        return Numbers::sign($left <=> $right);
+        return $left <=> $right;
     }
 
     public function approxEqual(

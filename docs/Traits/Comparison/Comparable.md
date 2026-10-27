@@ -46,7 +46,7 @@ abstract public function compare(mixed $other): int
 **Implementation Guidelines:**
 
 - Must return **exactly** -1, 0, or 1 (not just negative/zero/positive). The convenience methods use strict equality
-  checks. Use `Numbers::sign()` to normalize the spaceship operator's result.
+  checks. The spaceship operator `<=>` already returns exactly -1, 0 or 1.
 - Check the type of `$other` explicitly (typically `instanceof self`). Don't attempt to convert or coerce it.
 - Throw (typically `InvalidArgumentException`) for any type that isn't a deliberate, documented exception to
   same-type-only comparison. See [Equatable.md](Equatable.md) for the reasoning.
@@ -80,7 +80,6 @@ All provided by the trait, built on `compare()`. Each propagates whatever `compa
 ## Example
 
 ```php
-use Mossy2100\Core\Numbers;
 use Mossy2100\Core\Traits\Comparison\Comparable;
 
 class Version
@@ -103,7 +102,7 @@ class Version
             ?: $this->minor <=> $other->minor
             ?: $this->patch <=> $other->patch;
 
-        return Numbers::sign($result);
+        return $result;
     }
 
     // equal(), lessThan(), etc. automatically provided

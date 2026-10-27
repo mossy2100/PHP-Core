@@ -311,7 +311,7 @@ final class Stringify
      * Get a string representation of an enum case in the form "Fully\Qualified\ClassName::CaseName".
      *
      * @param UnitEnum $value The enum case to stringify.
-     * @return string The string representation (e.g. "UnitSystem::Financial").
+     * @return string The string representation (e.g. "App\Enums\Suit::Hearts").
      */
     public static function stringifyEnum(UnitEnum $value): string
     {
@@ -376,7 +376,7 @@ final class Stringify
      * Stringify a resource.
      *
      * Result combines the result of casting the resource to string with the resource type.
-     * Example: 'Resource id #15 (stream)'
+     * Example: 'resource #15 (stream)'
      *
      * @param mixed $value The resource to stringify.
      * @return string The string representation of the resource.

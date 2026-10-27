@@ -164,7 +164,7 @@ class Version
             ?: $this->minor <=> $other->minor
             ?: $this->patch <=> $other->patch;
 
-        return Numbers::sign($result);
+        return $result;
     }
 
     // equal(), lessThan(), etc. automatically provided
@@ -222,7 +222,7 @@ class Rational
         $left = $this->num * $other->den;
         $right = $other->num * $this->den;
 
-        return Numbers::sign($left <=> $right);
+        return $left <=> $right;
     }
 
     public function approxEqual(
