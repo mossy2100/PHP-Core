@@ -467,13 +467,16 @@ final class Stringify
      * @param bool $alreadyCleaned Whether $arr is already known to be free of circular references, because it's
      *     nested in an array that an ancestor call already passed through Arrays::removeRecursion(), which cleans the
      *     whole subtree in one pass.
+     * @param int $surroundingLength The number of other characters on the line where the value starts, apart from
+     *     its indent, such as a key and ' => ' before it and a comma after it.
      * @return string The string representation of the array.
      */
     private static function stringifyArrayAtLevel(
         array $arr,
         StringifyOptions $options,
         int $indentLevel,
-        bool $alreadyCleaned
+        bool $alreadyCleaned,
+        int $surroundingLength = 0
     ): string {
         // Replace any circular references with the RECURSION marker so the rest of the array can still be
         // stringified. Skipped if the caller already knows $arr is clean, to avoid redundantly re-scanning a
@@ -483,7 +486,7 @@ final class Stringify
         }
 
         return array_is_list($arr)
-            ? self::stringifyListArray($arr, $options, $indentLevel)
+            ? self::stringifyListArray($arr, $options, $indentLevel, $surroundingLength)
             : self::stringifyAssociativeArray($arr, $options, $indentLevel);
     }
 
@@ -546,8 +549,11 @@ final class Stringify
             $pairs = [];
             foreach ($propNames as $i => $propName) {
                 assert(is_string($propName));
-                $valueStr = self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1);
-                $pairs[] = $viz[$i] . $propName . ' => ' . $valueStr;
+                $name = $viz[$i] . $propName;
+                // The name, ' => ' and the trailing comma share the line with the value.
+                $surroundingLength = mb_strlen($name) + 5;
+                $valueStr = self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength);
+                $pairs[] = $name . ' => ' . $valueStr;
             }
 
             // If pretty print, return string formatted with new lines and indentation. Include trailing comma
@@ -612,12 +618,18 @@ final class Stringify
      * @param mixed $value The value to stringify.
      * @param StringifyOptions $options The options.
      * @param int $indentLevel The nesting depth of this value.
+     * @param int $surroundingLength The number of other characters on the line where the value starts, apart from
+     *     its indent, such as a key and ' => ' before it and a comma after it.
      * @return string The string representation of the value.
      */
-    private static function stringifyCleanedValue(mixed $value, StringifyOptions $options, int $indentLevel): string
-    {
+    private static function stringifyCleanedValue(
+        mixed $value,
+        StringifyOptions $options,
+        int $indentLevel,
+        int $surroundingLength = 0
+    ): string {
         return is_array($value)
-            ? self::stringifyArrayAtLevel($value, $options, $indentLevel, true)
+            ? self::stringifyArrayAtLevel($value, $options, $indentLevel, true, $surroundingLength)
             : self::stringifyAtLevel($value, $options, $indentLevel);
     }
 
@@ -631,10 +643,16 @@ final class Stringify
      * @param list<mixed> $arr The list to stringify.
      * @param StringifyOptions $options The options.
      * @param int $indentLevel The nesting depth of this list.
+     * @param int $surroundingLength The number of other characters on the line where the value starts, apart from
+     *     its indent, such as a key and ' => ' before it and a comma after it.
      * @return string The string representation of the list.
      */
-    private static function stringifyListArray(array $arr, StringifyOptions $options, int $indentLevel): string
-    {
+    private static function stringifyListArray(
+        array $arr,
+        StringifyOptions $options,
+        int $indentLevel,
+        int $surroundingLength = 0
+    ): string {
         $values = array_values($arr);
 
         // Without pretty printing, use the compact (single-line) format. No trailing comma.
@@ -647,11 +665,11 @@ final class Stringify
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
             self::prepareIndents($indentLevel, $options);
 
-        // If every value is simple (null or scalar), use the compact format if it fits on one line.
+        // If every value is simple (null or scalar), use the compact format if the whole line fits.
         if (array_all($arr, static fn ($value) => $value === null || is_scalar($value))) {
             $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
             $compactList = '[' . implode(', ', $valueStrings) . ']';
-            if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent) {
+            if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent - $surroundingLength) {
                 return $compactList;
             }
         }
@@ -661,7 +679,7 @@ final class Stringify
         $multilineList = "[\n";
         foreach ($values as $value) {
             // Pretty print each value. Include trailing comma.
-            $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1) . ",\n";
+            $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1, 1) . ",\n";
         }
         return $multilineList . $bracketIndent . ']';
     }
@@ -704,8 +722,10 @@ final class Stringify
         // Generate the result string.
         $result = "[\n";
         for ($i = 0; $i < $nItems; $i++) {
+            // The key, ' => ' and the trailing comma share the line with the value.
+            $surroundingLength = mb_strlen($keyStrings[$i]) + 5;
             $result .= $itemIndent . $keyStrings[$i] . ' => ' .
-                self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1) . ",\n";
+                self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength) . ",\n";
         }
         return $result . $bracketIndent . ']';
     }

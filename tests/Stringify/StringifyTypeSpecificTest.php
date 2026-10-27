@@ -349,6 +349,33 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
+     * Test that a nested list counts its trailing comma when deciding whether it fits on one line.
+     */
+    public function testStringifyArrayPrettyPrintNestedListCountsComma(): void
+    {
+        $options = StringifyOptions::pretty(maxLineLength: 20);
+
+        // '    [1, 22222, 333],' is exactly 20 characters, so it fits.
+        $this->assertSame("[\n    [1, 22222, 333],\n    0,\n]", Stringify::stringify([[1, 22222, 333], 0], $options));
+
+        // '    [1, 22222, 3333],' would be 21 characters, so the list wraps.
+        $expected = "[\n    [\n        1,\n        22222,\n        3333,\n    ],\n    0,\n]";
+        $this->assertSame($expected, Stringify::stringify([[1, 22222, 3333], 0], $options));
+    }
+
+    /**
+     * Test that a list after a key counts the key when deciding whether it fits on one line.
+     */
+    public function testStringifyArrayPrettyPrintListAfterKey(): void
+    {
+        // "    'k' => [1, 22222, 3333]," would be 28 characters.
+        $result = Stringify::stringify(['k' => [1, 22222, 3333]], StringifyOptions::pretty(maxLineLength: 20));
+
+        $expected = "[\n    'k' => [\n        1,\n        22222,\n        3333,\n    ],\n]";
+        $this->assertSame($expected, $result);
+    }
+
+    /**
      * Test that circular references in arrays.
      */
     public function testStringifyArrayCircularReference(): void
@@ -688,6 +715,22 @@ final class StringifyTypeSpecificTest extends TestCase
 
         $this->assertStringNotContainsString(RECURSION, $result);
         $this->assertSame(2, substr_count($result, '+value => 42'));
+    }
+
+    /**
+     * Test that a list after a property name counts the name when deciding whether it fits on one line.
+     */
+    public function testStringifyObjectPrettyPrintListAfterProperty(): void
+    {
+        $obj = new stdClass();
+        $obj->name = [1, 22222, 3];
+        $prefix = 'stdClass #' . spl_object_id($obj);
+
+        // '    +name => [1, 22222, 3],' would be 27 characters.
+        $result = Stringify::stringify($obj, StringifyOptions::pretty(maxLineLength: 20));
+
+        $expected = "$prefix {\n    +name => [\n        1,\n        22222,\n        3,\n    ],\n}";
+        $this->assertSame($expected, $result);
     }
 
     /**
