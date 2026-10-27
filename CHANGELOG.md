@@ -44,6 +44,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   keys and object property names have a single space before `=>`. A list of simple values that doesn't fit on one line
   now has one value per line, like other lists. The output now follows the Mossy2100 coding standard, so generated code
   needs no reformatting.
+- **`Arrays::removeValue()` compares values with `Types::identical()` (breaking),** matching the collections. It can
+  now remove `NAN`, and removing `0.0` no longer removes `-0.0`.
 - **`Floats::format()`** is about 15 times faster, since it now reuses its configured `NumberFormatter`s.
 - **`Stringify::stringifyFloat()`** shows floats exactly, using `var_export()`: `0.1 + 0.2` is now
   `0.30000000000000004` rather than `0.3`, and the result converts back to the same float. This also changes floats

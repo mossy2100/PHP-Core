@@ -7,6 +7,7 @@ namespace Mossy2100\Core\Tests;
 use InvalidArgumentException;
 use LengthException;
 use Mossy2100\Core\Arrays;
+use Mossy2100\Core\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -526,9 +527,9 @@ final class ArraysTest extends TestCase
     }
 
     /**
-     * Test removeValue uses strict comparison.
+     * Test removeValue requires types to match.
      */
-    public function testRemoveValueStrictComparison(): void
+    public function testRemoveValueTypesMustMatch(): void
     {
         // '0' (string) should not match 0 (int).
         $result = Arrays::removeValue([0, '0', false, null], 0);
@@ -541,6 +542,22 @@ final class ArraysTest extends TestCase
     public function testRemoveValueNull(): void
     {
         $this->assertSame([0 => 1, 2 => 3], Arrays::removeValue([1, null, 3], null));
+    }
+
+    /**
+     * Test removeValue can remove NAN.
+     */
+    public function testRemoveValueNan(): void
+    {
+        $this->assertSame([0 => 1.0, 2 => 2.0], Arrays::removeValue([1.0, NAN, 2.0], NAN));
+    }
+
+    /**
+     * Test removeValue distinguishes 0.0 from -0.0.
+     */
+    public function testRemoveValueSignedZero(): void
+    {
+        $this->assertTrue(Types::identical([1 => -0.0], Arrays::removeValue([0.0, -0.0], 0.0)));
     }
 
     #endregion

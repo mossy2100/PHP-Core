@@ -204,7 +204,10 @@ arrays rather than returning `false`.
 public static function removeValue(array $arr, mixed $valueToRemove): array
 ```
 
-Remove all instances of a value from an array. Uses strict comparison (`!==`), so types must match. Keys are preserved.
+Remove all instances of a value from an array. Keys are preserved.
+
+Values are compared with [`Types::identical()`](Types.md#identical). Types must match, as with `===`, but floats are
+compared by bit pattern: `NAN` matches `NAN`, and `-0.0` doesn't match `0.0`.
 
 **Parameters:**
 
@@ -222,9 +225,10 @@ Arrays::removeValue([1, 2, 3, 2, 4], 2);        // [0 => 1, 2 => 3, 4 => 4]
 Arrays::removeValue(['a', 'b', 'a', 'c'], 'a');  // [1 => 'b', 3 => 'c']
 Arrays::removeValue([1, 2, 3], 99);              // [0 => 1, 1 => 2, 2 => 3]
 Arrays::removeValue([], 'anything');             // []
+Arrays::removeValue([1.0, NAN, 2.0], NAN);       // [0 => 1.0, 2 => 2.0]
 ```
 
-Strict comparison means types must match:
+Types must match:
 
 ```php
 Arrays::removeValue([0, '0', false, null], 0);   // [1 => '0', 2 => false, 3 => null]

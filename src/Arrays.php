@@ -148,7 +148,8 @@ final class Arrays
     /**
      * Remove all instances of a value from an array.
      *
-     * Keys are preserved.
+     * Values are compared with Types::identical(). Types must match, as with ===, but floats are compared by bit
+     * pattern: NAN matches NAN, and -0.0 doesn't match 0.0. Keys are preserved.
      *
      * @param array<array-key, mixed> $arr The original array.
      * @param mixed $valueToRemove The value to remove.
@@ -156,7 +157,7 @@ final class Arrays
      */
     public static function removeValue(array $arr, mixed $valueToRemove): array
     {
-        return array_filter($arr, static fn ($value) => $value !== $valueToRemove);
+        return array_filter($arr, static fn ($value) => !Types::identical($value, $valueToRemove));
     }
 
     /**
