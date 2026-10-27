@@ -275,39 +275,26 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
-     * Test that a long scalar list uses grid format when pretty printing.
+     * Test that a scalar list too long for one line uses one-per-line format when pretty printing.
      */
-    public function testStringifyArrayPrettyPrintGrid(): void
+    public function testStringifyArrayPrettyPrintTooLongList(): void
     {
-        $maxLineLength = StringifyOptions::DEFAULT_MAX_LINE_LENGTH;
-
-        // Create a list long enough to exceed 120 chars and trigger grid format.
+        // A list long enough to exceed 120 chars.
         $list = range(1, 50);
         $result = Stringify::stringify($list, StringifyOptions::pretty());
 
-        // Should be multiline.
-        $this->assertStringContainsString("\n", $result);
-
-        // Should start with [ and end with ].
-        $this->assertStringStartsWith('[', $result);
-        $this->assertStringEndsWith(']', $result);
-
-        // Each line (except first/last) should be indented and less than max length.
-        $lines = explode("\n", $result);
-        for ($i = 1; $i < count($lines) - 1; $i++) {
-            $this->assertStringStartsWith('    ', $lines[$i]);
-            $this->assertLessThanOrEqual($maxLineLength, strlen($lines[$i]));
-        }
+        $expected = "[\n" . implode('', array_map(static fn (int $n) => "    $n,\n", $list)) . ']';
+        $this->assertSame($expected, $result);
     }
 
     /**
-     * Test pretty-printed dictionary with aligned keys.
+     * Test pretty-printed dictionary, with keys not aligned.
      */
     public function testStringifyArrayPrettyPrintDictionary(): void
     {
         $result = Stringify::stringify(['name' => 'John', 'age' => 30], StringifyOptions::pretty());
 
-        $expected = "[\n    'name' => 'John',\n    'age'  => 30,\n]";
+        $expected = "[\n    'name' => 'John',\n    'age' => 30,\n]";
         $this->assertSame($expected, $result);
     }
 
@@ -332,7 +319,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $expected = "[\n"
             . "    [\n"
             . "        'name' => 'John',\n"
-            . "        'age'  => 30,\n"
+            . "        'age' => 30,\n"
             . "    ],\n"
             . "    42,\n"
             . ']';
@@ -340,7 +327,7 @@ final class StringifyTypeSpecificTest extends TestCase
     }
 
     /**
-     * Test that a list with long items falls back to one-per-line format (no grid padding).
+     * Test that a list of long items that doesn't fit on one line uses one-per-line format.
      */
     public function testStringifyArrayPrettyPrintLongItems(): void
     {
@@ -350,7 +337,7 @@ final class StringifyTypeSpecificTest extends TestCase
             'd266963a-c4e0-4255-a97d-f070e51fcb5e',
         ];
 
-        // maxLineLength of 40 - items are too wide for 2 per line, so grid is skipped.
+        // maxLineLength of 40, so the list doesn't fit on one line.
         $result = Stringify::stringifyArray($uuids, StringifyOptions::pretty(maxLineLength: 40));
 
         $expected = "[\n"
@@ -599,7 +586,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $result = Stringify::stringify($obj, StringifyOptions::pretty());
 
         $this->assertMatchesRegularExpression(
-            '/^class@anonymous #\d+ \{\n\s+\+name\s+=> \'John\',\n\s+\+age\s+=> 30,\n\}$/',
+            '/^class@anonymous #\d+ \{\n    \+name => \'John\',\n    \+age => 30,\n\}$/',
             $result
         );
     }

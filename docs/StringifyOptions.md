@@ -46,8 +46,8 @@ The number of spaces to indent each level when pretty printing. Ignored for comp
 public int $maxLineLength
 ```
 
-The maximum line length when pretty printing. It decides when a list of simple values wraps from a single line to a grid
-or to one value per line. Other long values, such as strings, aren't shortened to fit. Ignored for compact output.
+The maximum line length when pretty printing. It decides when a list of simple values wraps from a single line to one
+value per line. Other long values, such as strings, aren't shortened to fit. Ignored for compact output.
 
 ---
 

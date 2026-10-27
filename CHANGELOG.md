@@ -40,6 +40,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   (breaking).** From PHP 8.4, the name says where the closure is defined, e.g. `{closure:App\Models\User::sorter():19}`.
   Reading the source back could show the wrong closure when two started on one line. First-class callables are shown in
   that syntax, e.g. `strlen(...)` or `App\Models\User::sorter(...)`.
+- **Pretty-printed `Stringify` output no longer aligns keys or lays out lists in a grid (breaking).** Associative array
+  keys and object property names have a single space before `=>`. A list of simple values that doesn't fit on one line
+  now has one value per line, like other lists. The output now follows the Mossy2100 coding standard, so generated code
+  needs no reformatting.
 - **`Floats::format()`** is about 15 times faster, since it now reuses its configured `NumberFormatter`s.
 - **`Stringify::stringifyFloat()`** shows floats exactly, using `var_export()`: `0.1 + 0.2` is now
   `0.30000000000000004` rather than `0.3`, and the result converts back to the same float. This also changes floats

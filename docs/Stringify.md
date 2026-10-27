@@ -22,8 +22,9 @@ It's for display, exception and log messages, not collection keys: the output fo
   `5.0` instead of `5`). Special values (`NAN`, `INF`, `-INF`) are handled correctly.
 - **PHP-style array formatting**: Both list arrays and associative arrays use square brackets (`[...]`). List arrays
   omit keys; associative arrays show keys with thick arrows (`=>`).
-- **Smart pretty printing**: Simple list arrays use single-line, grid, or one-per-line layout depending on length.
-  Associative arrays and objects align keys/property names.
+- **Smart pretty printing**: A list of simple values stays on one line if it fits; otherwise, it has one value per
+  line. Associative arrays and objects have one pair per line. Keys and property names aren't aligned, matching the
+  Mossy2100 coding standard.
 - **UML-style visibility notation**: Objects use `ClassName #id {...}` with UML visibility symbols (`+` public, `#`
   protected, `-` private).
 - **Enum support**: Enums are rendered as `Fully\Qualified\ClassName::CaseName`.
@@ -359,16 +360,11 @@ public static function stringifyArray(array $arr, ?StringifyOptions $options = n
 Stringify a PHP array as concise, parseable code. List arrays (sequential integer keys starting at 0) show values only.
 Associative arrays show keys and values with fat arrows (`=>`).
 
-When pretty printing is enabled, three layout strategies are used for list arrays of "simple" items (i.e. nulls and
-scalars):
+When pretty printing is enabled:
 
-1. **Single line** - if the result fits within the configured max line length.
-2. **Grid** - items padded to equal width and arranged in columns.
-3. **One per line** - for list arrays containing non-scalar values.
-
-List arrays of complex items are always one value per line when pretty printing.
-
-Associative arrays are always one pair per line with aligned keys when pretty printing.
+- A list of "simple" items (nulls and scalars) is written on one line if it fits within the max line length.
+- Any other list has one value per line.
+- An associative array has one pair per line, with a single space before each `=>`. Keys aren't aligned.
 
 The max line length is set by the options' `maxLineLength` (default: `120`).
 
@@ -396,24 +392,24 @@ Associative arrays:
 Stringify::stringifyArray(['a' => 1, 'b' => 2]); // "['a' => 1, 'b' => 2]"
 ```
 
-Pretty-printed grid (scalar list exceeding max line length):
+Pretty-printed list that doesn't fit on one line:
 
 ```php
-Stringify::stringifyArray(range(1, 50), StringifyOptions::pretty(maxLineLength: 80));
+Stringify::stringifyArray([1000, 2000, 3000], StringifyOptions::pretty(maxLineLength: 16));
 // [
-//     1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-//     20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-//     39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+//     1000,
+//     2000,
+//     3000,
 // ]
 ```
 
-Pretty-printed associative array (aligned keys):
+Pretty-printed associative array:
 
 ```php
 Stringify::stringifyArray(['name' => 'John', 'age' => 30], StringifyOptions::pretty());
 // [
 //     'name' => 'John',
-//     'age'  => 30,
+//     'age' => 30,
 // ]
 ```
 
@@ -527,14 +523,14 @@ $obj = new stdClass();
 Stringify::stringifyObject($obj);  // 'stdClass #2 {}'
 ```
 
-With pretty printing, property names are aligned:
+With pretty printing, each property goes on its own line:
 
 ```php
 Stringify::stringifyObject($user, StringifyOptions::pretty());
 // User #1 {
 //     +name => 'John',
-//     +age  => 30,
-//     -id   => 'abc123',
+//     +age => 30,
+//     -id => 'abc123',
 // }
 ```
 

@@ -524,7 +524,6 @@ final class Stringify
             $values = array_values($arr);
             $propNames = [];
             $viz = [];
-            $maxPropNameLen = 0;
 
             foreach ($values as $i => $value) {
                 // Split the array key on null bytes to get the property name.
@@ -541,22 +540,14 @@ final class Stringify
                     // property is protected; otherwise, it's private.
                     $viz[$i] = $nameParts[1] === '*' ? '#' : '-';
                 }
-
-                // Track the maximum property name length.
-                assert(is_string($propNames[$i]));
-                $propNameLen = mb_strlen($propNames[$i]);
-                if ($propNameLen > $maxPropNameLen) {
-                    $maxPropNameLen = $propNameLen;
-                }
             }
 
             // Generate the property => value pairs.
             $pairs = [];
             foreach ($propNames as $i => $propName) {
                 assert(is_string($propName));
-                $paddedPropName = $options->prettyPrint ? mb_str_pad($propName, $maxPropNameLen) : $propName;
                 $valueStr = self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1);
-                $pairs[] = $viz[$i] . $paddedPropName . ' => ' . $valueStr;
+                $pairs[] = $viz[$i] . $propName . ' => ' . $valueStr;
             }
 
             // If pretty print, return string formatted with new lines and indentation. Include trailing comma
@@ -633,8 +624,9 @@ final class Stringify
     /**
      * Stringify a list (sequential integer keys starting at 0).
      *
-     * Without pretty printing, values are comma-separated on one line (compact format)
-     * With pretty printing, uses compact, grid, or one-per-line format, depending on content.
+     * Without pretty printing, values are comma-separated on one line (compact format).
+     * With pretty printing, a list of simple values uses the compact format if it fits on one line; otherwise, each
+     * value goes on its own line.
      *
      * @param list<mixed> $arr The list to stringify.
      * @param StringifyOptions $options The options.
@@ -655,71 +647,30 @@ final class Stringify
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
             self::prepareIndents($indentLevel, $options);
 
-        // If any value isn't simple (null or scalar), use the multiline format. Each value is stringified once, at its
-        // own indent; stringifying it at another indent first would double the work at every level of nesting.
-        if (!array_all($arr, static fn ($value) => $value === null || is_scalar($value))) {
-            $multilineList = "[\n";
-            foreach ($values as $value) {
-                // Pretty print each value. Include trailing comma.
-                $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1) . ",\n";
-            }
-            return $multilineList . $bracketIndent . ']';
-        }
-
-        // All values are simple, so use the compact or grid format.
-        $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
-        $compactList = '[' . implode(', ', $valueStrings) . ']';
-        $nItems = count($arr);
-
-        // If the compact format fits on one line, return it.
-        if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent) {
-            return $compactList;
-        }
-
-        // Get the max item width.
-        $maxValueWidth = 0;
-        foreach ($valueStrings as $valueString) {
-            $len = mb_strlen($valueString);
-            if ($len > $maxValueWidth) {
-                $maxValueWidth = $len;
+        // If every value is simple (null or scalar), use the compact format if it fits on one line.
+        if (array_all($arr, static fn ($value) => $value === null || is_scalar($value))) {
+            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
+            $compactList = '[' . implode(', ', $valueStrings) . ']';
+            if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent) {
+                return $compactList;
             }
         }
 
-        // Calculate the number of items per line.
-        $nItemsPerLine = (int) floor(($options->maxLineLength + 1 - $nSpacesItemIndent) / ($maxValueWidth + 2));
-        if ($nItemsPerLine <= 0) {
-            $nItemsPerLine = 1;
+        // Otherwise, use one value per line. Each non-simple value is stringified once, at its own indent; stringifying
+        // it at another indent first would double the work at every level of nesting.
+        $multilineList = "[\n";
+        foreach ($values as $value) {
+            // Pretty print each value. Include trailing comma.
+            $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1) . ",\n";
         }
-
-        // Generate the grid.
-        $gridList = "[\n";
-        $itemCountThisLine = 0;
-        foreach ($valueStrings as $i => $valueString) {
-            // Indent the first item on the line.
-            if ($itemCountThisLine === 0) {
-                $gridList .= $itemIndent;
-            }
-
-            $itemCountThisLine++;
-            $isLastOnRow = $itemCountThisLine === $nItemsPerLine || $i === $nItems - 1;
-
-            if ($isLastOnRow) {
-                // Last item on row: no padding to avoid trailing whitespace.
-                $gridList .= $valueString . ",\n";
-                $itemCountThisLine = 0;
-            } else {
-                // Non-last item: pad to uniform width, then space.
-                $gridList .= mb_str_pad($valueString . ',', $maxValueWidth + 1) . ' ';
-            }
-        }
-        return $gridList . $bracketIndent . ']';
+        return $multilineList . $bracketIndent . ']';
     }
 
     /**
      * Stringify a dictionary (non-sequential or string keys).
      *
      * Without pretty printing, key-value pairs are comma-separated on one line.
-     * With pretty printing, uses one pair per line with aligned keys.
+     * With pretty printing, uses one pair per line.
      *
      * @param array<array-key, mixed> $arr The dictionary to stringify.
      * @param StringifyOptions $options The options.
@@ -750,19 +701,10 @@ final class Stringify
         [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
             self::prepareIndents($indentLevel, $options);
 
-        // Get the maximum key width.
-        $maxKeyWidth = 0;
-        foreach ($keyStrings as $keyString) {
-            $keyStrLen = mb_strlen($keyString);
-            if ($keyStrLen > $maxKeyWidth) {
-                $maxKeyWidth = $keyStrLen;
-            }
-        }
-
         // Generate the result string.
         $result = "[\n";
         for ($i = 0; $i < $nItems; $i++) {
-            $result .= $itemIndent . mb_str_pad($keyStrings[$i], $maxKeyWidth) . ' => ' .
+            $result .= $itemIndent . $keyStrings[$i] . ' => ' .
                 self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1) . ",\n";
         }
         return $result . $bracketIndent . ']';
