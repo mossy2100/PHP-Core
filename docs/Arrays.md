@@ -206,8 +206,8 @@ public static function removeValue(array $arr, mixed $valueToRemove): array
 
 Remove all instances of a value from an array. Keys are preserved.
 
-Values are compared with [`Types::identical()`](Types.md#identical). Types must match, as with `===`, but floats are
-compared by bit pattern: `NAN` matches `NAN`, and `-0.0` doesn't match `0.0`.
+Values are compared with [`Types::identical()`](Types.md#identical), which is strict equality (`===`), except that
+floats are compared by bit pattern. So `NAN` matches `NAN`, and `-0.0` doesn't match `0.0`.
 
 **Parameters:**
 
