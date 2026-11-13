@@ -162,7 +162,7 @@ final class StringifyMainTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '/^Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/',
-            $result
+            $result,
         );
     }
 
@@ -280,7 +280,7 @@ final class StringifyMainTest extends TestCase
     {
         $this->assertSame(
             'Invalid range: [-5, -10]. Min must not exceed max.',
-            Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', -5, -10)
+            Stringify::prepEx('Invalid range: [?, ?]. Min must not exceed max.', -5, -10),
         );
     }
 
@@ -299,7 +299,7 @@ final class StringifyMainTest extends TestCase
     {
         $this->assertSame(
             "Value: 'contains a ? mark'",
-            Stringify::prepEx('Value: ?', 'contains a ? mark')
+            Stringify::prepEx('Value: ?', 'contains a ? mark'),
         );
     }
 

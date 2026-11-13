@@ -399,7 +399,7 @@ final class FloatsIntegerTest extends TestCase
             $this->assertSame(
                 $expected,
                 $result,
-                sprintf('isSafeInt(%s) should be %s', $value, $expected ? 'true' : 'false')
+                sprintf('isSafeInt(%s) should be %s', $value, $expected ? 'true' : 'false'),
             );
         }
     }

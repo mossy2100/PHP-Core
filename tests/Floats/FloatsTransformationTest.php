@@ -167,7 +167,7 @@ final class FloatsTransformationTest extends TestCase
                 $value,
                 Floats::trunc($value) + Floats::frac($value),
                 1e-10,
-                "Identity x = Floats::trunc(x) + Floats::frac(x) failed for x = $value"
+                "Identity x = Floats::trunc(x) + Floats::frac(x) failed for x = $value",
             );
         }
     }

@@ -299,7 +299,7 @@ final class ArraysTest extends TestCase
     {
         $this->assertSame(
             'apples, oranges, bananas, and grapes',
-            Arrays::toSerialList(['apples', 'oranges', 'bananas', 'grapes'])
+            Arrays::toSerialList(['apples', 'oranges', 'bananas', 'grapes']),
         );
     }
 
@@ -311,7 +311,7 @@ final class ArraysTest extends TestCase
         $this->assertSame('apples or oranges', Arrays::toSerialList(['apples', 'oranges'], 'or'));
         $this->assertSame(
             'apples, oranges, or bananas',
-            Arrays::toSerialList(['apples', 'oranges', 'bananas'], 'or')
+            Arrays::toSerialList(['apples', 'oranges', 'bananas'], 'or'),
         );
     }
 
@@ -333,11 +333,11 @@ final class ArraysTest extends TestCase
     {
         $this->assertSame(
             'apples, oranges and bananas',
-            Arrays::toSerialList(['apples', 'oranges', 'bananas'], oxford: false)
+            Arrays::toSerialList(['apples', 'oranges', 'bananas'], oxford: false),
         );
         $this->assertSame(
             'apples, oranges, bananas and grapes',
-            Arrays::toSerialList(['apples', 'oranges', 'bananas', 'grapes'], oxford: false)
+            Arrays::toSerialList(['apples', 'oranges', 'bananas', 'grapes'], oxford: false),
         );
 
         // Oxford comma has no effect with fewer than three items.
@@ -353,12 +353,12 @@ final class ArraysTest extends TestCase
 
         $this->assertSame(
             'apples and oranges',
-            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges'])
+            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges']),
         );
 
         $this->assertSame(
             'apples, oranges, and bananas',
-            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges', 'c' => 'bananas'])
+            Arrays::toSerialList(['a' => 'apples', 'b' => 'oranges', 'c' => 'bananas']),
         );
     }
 
@@ -756,7 +756,7 @@ final class ArraysTest extends TestCase
         $arr = ['foo' => 'bar'];
         $arr['self'] = &$arr;
 
-        $handler = static fn (): bool => true;
+        $handler = static fn(): bool => true;
         set_error_handler($handler);
         try {
             Arrays::removeRecursion($arr);

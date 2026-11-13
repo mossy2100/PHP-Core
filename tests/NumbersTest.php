@@ -110,7 +110,7 @@ final class NumbersTest extends TestCase
         $this->assertTrue(Numbers::isFiniteNumber(PHP_FLOAT_MAX)); // @phpstan-ignore staticMethod.alreadyNarrowedType
         $this->assertTrue(Numbers::isFiniteNumber(PHP_FLOAT_MIN)); // @phpstan-ignore staticMethod.alreadyNarrowedType
         $this->assertTrue(
-            Numbers::isFiniteNumber(PHP_FLOAT_EPSILON) // @phpstan-ignore staticMethod.alreadyNarrowedType
+            Numbers::isFiniteNumber(PHP_FLOAT_EPSILON), // @phpstan-ignore staticMethod.alreadyNarrowedType
         );
         $this->assertTrue(Numbers::isFiniteNumber(-0.0)); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }

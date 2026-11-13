@@ -283,7 +283,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $list = range(1, 50);
         $result = Stringify::stringify($list, StringifyOptions::pretty());
 
-        $expected = "[\n" . implode('', array_map(static fn (int $n) => "    $n,\n", $list)) . ']';
+        $expected = "[\n" . implode('', array_map(static fn(int $n) => "    $n,\n", $list)) . ']';
         $this->assertSame($expected, $result);
     }
 
@@ -417,7 +417,7 @@ final class StringifyTypeSpecificTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '/^resource #\d+ \(closed\)$/',
-            Stringify::stringifyResource($resource)
+            Stringify::stringifyResource($resource),
         );
     }
 
@@ -461,7 +461,7 @@ final class StringifyTypeSpecificTest extends TestCase
     {
         $this->assertSame(
             'Mossy2100\Core\Tests\Fixtures\TestBackedEnum::Alpha',
-            Stringify::stringifyEnum(TestBackedEnum::Alpha)
+            Stringify::stringifyEnum(TestBackedEnum::Alpha),
         );
     }
 
@@ -488,7 +488,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyClosureArrow(): void
     {
-        $arrow = static fn (float $x): float => $x * $x;
+        $arrow = static fn(float $x): float => $x * $x;
         $expected = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
 
         $this->assertSame($expected, Stringify::stringifyClosure($arrow));
@@ -500,8 +500,8 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyClosureTwoOnOneLine(): void
     {
-        $pair = static fn (Closure ...$closures): array => $closures;
-        $closures = $pair(static fn (int $x): int => $x + 1, static fn (int $x): int => $x * 2);
+        $pair = static fn(Closure ...$closures): array => $closures;
+        $closures = $pair(static fn(int $x): int => $x + 1, static fn(int $x): int => $x * 2);
         $expected = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
 
         $this->assertSame($expected, Stringify::stringifyClosure($closures[0]));
@@ -513,7 +513,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyClosureNested(): void
     {
-        $outer = static fn (): Closure => static fn (): int => 1;
+        $outer = static fn(): Closure => static fn(): int => 1;
         $line = __LINE__ - 1;
         $outerName = '{closure:' . __METHOD__ . "():$line}";
 
@@ -535,7 +535,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyClosureInOtherMethods(): void
     {
-        $closure = static fn (): int => 1;
+        $closure = static fn(): int => 1;
         $name = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
 
         $this->assertSame($name, Stringify::stringify($closure));
@@ -592,8 +592,7 @@ final class StringifyTypeSpecificTest extends TestCase
      */
     public function testStringifyEmptyObject(): void
     {
-        $obj = new class {
-        };
+        $obj = new class {};
 
         $result = Stringify::stringify($obj);
         $this->assertMatchesRegularExpression('/^class@anonymous #\d+ {}$/', $result);
@@ -614,7 +613,7 @@ final class StringifyTypeSpecificTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '/^class@anonymous #\d+ \{\n    \+name => \'John\',\n    \+age => 30,\n\}$/',
-            $result
+            $result,
         );
     }
 
@@ -746,7 +745,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $this->assertSame("$prefix {+a => 1, +b => 'x'}", Stringify::stringifyObject($obj));
         $this->assertSame(
             "$prefix {\n    +a => 1,\n    +b => 'x',\n}",
-            Stringify::stringifyObject($obj, StringifyOptions::pretty())
+            Stringify::stringifyObject($obj, StringifyOptions::pretty()),
         );
     }
 

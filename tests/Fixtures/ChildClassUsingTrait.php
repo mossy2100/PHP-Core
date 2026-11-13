@@ -7,6 +7,4 @@ namespace Mossy2100\Core\Tests\Fixtures;
 /**
  * Child class that inherits trait usage from parent.
  */
-class ChildClassUsingTrait extends ClassUsingTrait
-{
-}
+class ChildClassUsingTrait extends ClassUsingTrait {}

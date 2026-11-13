@@ -25,7 +25,7 @@ final class FloatFormatTest extends TestCase
     {
         $this->assertSame(
             ['FixedPoint', 'Scientific', 'Auto'],
-            array_map(static fn (FloatFormat $case) => $case->name, FloatFormat::cases())
+            array_map(static fn(FloatFormat $case) => $case->name, FloatFormat::cases()),
         );
     }
 

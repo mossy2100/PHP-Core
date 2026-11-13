@@ -15,15 +15,13 @@ final class ApproxEquatableDummy
 {
     use ApproxEquatable;
 
-    public function __construct(private readonly float $value)
-    {
-    }
+    public function __construct(private readonly float $value) {}
 
     public function equal(mixed $other): bool
     {
         if (!$other instanceof self) {
             throw new InvalidArgumentException(
-                'Cannot compare ApproxEquatableDummy with ' . get_debug_type($other) . '.'
+                'Cannot compare ApproxEquatableDummy with ' . get_debug_type($other) . '.',
             );
         }
 
@@ -33,11 +31,11 @@ final class ApproxEquatableDummy
     public function approxEqual(
         mixed $other,
         float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE,
     ): bool {
         if (!$other instanceof self) {
             throw new InvalidArgumentException(
-                'Cannot compare ApproxEquatableDummy with ' . get_debug_type($other) . '.'
+                'Cannot compare ApproxEquatableDummy with ' . get_debug_type($other) . '.',
             );
         }
 

@@ -14,15 +14,13 @@ final class ComparableDummy
 {
     use Comparable;
 
-    public function __construct(private readonly int $value)
-    {
-    }
+    public function __construct(private readonly int $value) {}
 
     public function compare(mixed $other): int
     {
         if (!$other instanceof self) {
             throw new InvalidArgumentException(
-                'Cannot compare ComparableDummy with ' . get_debug_type($other) . '.'
+                'Cannot compare ComparableDummy with ' . get_debug_type($other) . '.',
             );
         }
 

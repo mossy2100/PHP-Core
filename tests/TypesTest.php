@@ -114,9 +114,8 @@ final class TypesTest extends TestCase
     public function testGetBasicTypeClosure(): void
     {
         // Test that closures return 'closure'.
-        $this->assertSame('closure', Types::getBasicType(static fn (int $x): int => $x * 2));
-        $this->assertSame('closure', Types::getBasicType(static function (): void {
-        }));
+        $this->assertSame('closure', Types::getBasicType(static fn(int $x): int => $x * 2));
+        $this->assertSame('closure', Types::getBasicType(static function (): void {}));
         $this->assertSame('closure', Types::getBasicType(strlen(...)));
     }
 
@@ -128,8 +127,7 @@ final class TypesTest extends TestCase
         // Test that objects return 'object'.
         $this->assertSame('object', Types::getBasicType(new stdClass()));
         $this->assertSame('object', Types::getBasicType(new DateTime()));
-        $this->assertSame('object', Types::getBasicType(new class {
-        }));
+        $this->assertSame('object', Types::getBasicType(new class {}));
     }
 
     /**
@@ -238,12 +236,12 @@ final class TypesTest extends TestCase
     {
         $a = new stdClass();
         $b = new stdClass();
-        $fn = static fn (): null => null;
+        $fn = static fn(): null => null;
 
         $this->assertTrue(Types::identical($a, $a));
         $this->assertFalse(Types::identical($a, $b));
         $this->assertTrue(Types::identical($fn, $fn));
-        $this->assertFalse(Types::identical($fn, static fn (): null => null));
+        $this->assertFalse(Types::identical($fn, static fn(): null => null));
         $this->assertTrue(Types::identical([$a], [$a]));
         $this->assertFalse(Types::identical([$a], [$b]));
     }
@@ -490,12 +488,12 @@ final class TypesTest extends TestCase
     public function testGetUniqueStringClosure(): void
     {
         // Test that closures produce keys with their object ID.
-        $closure1 = static fn (int $x): int => $x + 1;
+        $closure1 = static fn(int $x): int => $x + 1;
         $key1 = Types::getUniqueString($closure1);
         $this->assertStringStartsWith('c:', $key1);
 
         // Test that structurally-identical but distinct closures produce different keys (identity, not value).
-        $closure2 = static fn (int $x): int => $x + 1;
+        $closure2 = static fn(int $x): int => $x + 1;
         $key2 = Types::getUniqueString($closure2);
         $this->assertNotSame($key1, $key2);
 
@@ -564,7 +562,7 @@ final class TypesTest extends TestCase
             Types::getUniqueString(0.0),
             Types::getUniqueString(''),
             Types::getUniqueString([]),
-            Types::getUniqueString(static fn (): null => null),
+            Types::getUniqueString(static fn(): null => null),
             Types::getUniqueString(new stdClass()),
         ];
 
@@ -714,7 +712,7 @@ final class TypesTest extends TestCase
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage(
-            "Invalid class name: 'NonExistentClassName'. Must be a class, interface, or trait."
+            "Invalid class name: 'NonExistentClassName'. Must be a class, interface, or trait.",
         );
         Types::getTraits('NonExistentClassName');
     }

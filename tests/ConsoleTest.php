@@ -339,7 +339,7 @@ final class ConsoleTest extends TestCase
 
         $this->assertTrue(
             $this->console->getStyle()['bold'],
-            'bold should be untouched since it was not in the partial array'
+            'bold should be untouched since it was not in the partial array',
         );
         $this->assertTrue($this->console->getStyle()['italic']);
     }
@@ -412,18 +412,18 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputString(
             "\033[22m" // bold(false ?? false), the default state
-            . "\033[39m\033[49m" // colors() with no override re-emits the current (default) colour
-            . 'hi'
+                . "\033[39m\033[49m" // colors() with no override re-emits the current (default) colour
+                . 'hi'
             // The trailing newline comes from println() and is emitted here, before the style restore below -
             // print()'s per-line background-bleed fix doesn't apply since the background is still DEFAULT.
-            . "\n"
-            . "\033[39m\033[49m" // restore colour
-            . "\033[22m" // restore bold off
-            . "\033[22m" // restore dim off
-            . "\033[23m" // restore italic off
-            . "\033[24m" // restore underline off
-            . "\033[29m" // restore strikethrough off
-            . "\033[27m" // restore reverse off
+                . "\n"
+                . "\033[39m\033[49m" // restore colour
+                . "\033[22m" // restore bold off
+                . "\033[22m" // restore dim off
+                . "\033[23m" // restore italic off
+                . "\033[24m" // restore underline off
+                . "\033[29m" // restore strikethrough off
+                . "\033[27m", // restore reverse off
         );
         $this->console->message('hi');
     }
@@ -435,21 +435,21 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputString(
             "\033[22m" // bold(false ?? false), the default state
-            . "\033[97m\033[41m" // WHITE on RED
-            . 'hi'
+                . "\033[97m\033[41m" // WHITE on RED
+                . 'hi'
             // println()'s trailing newline is embedded in the same print() call as the text, and since the
             // background is non-default here, print()'s per-line bleed-prevention fix wraps that embedded
             // newline with a background reset/reapply pair, before message()'s own final style restore runs.
-            . "\033[49m" // reset background to default around the embedded newline
-            . "\n"
-            . "\033[41m" // reapply the message's background after the newline
-            . "\033[39m\033[49m" // message()'s own restore to the prior (default) colour
-            . "\033[22m"
-            . "\033[22m"
-            . "\033[23m"
-            . "\033[24m"
-            . "\033[29m"
-            . "\033[27m"
+                . "\033[49m" // reset background to default around the embedded newline
+                . "\n"
+                . "\033[41m" // reapply the message's background after the newline
+                . "\033[39m\033[49m" // message()'s own restore to the prior (default) colour
+                . "\033[22m"
+                . "\033[22m"
+                . "\033[23m"
+                . "\033[24m"
+                . "\033[29m"
+                . "\033[27m",
         );
         $this->console->message('hi', Console::WHITE, Console::RED);
     }
@@ -462,16 +462,16 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputString(
             "\033[1m" // bold(true)
-            . "\033[39m\033[49m"
-            . 'hi'
-            . "\n"
-            . "\033[39m\033[49m"
-            . "\033[22m" // restore bold off (the state before the call)
-            . "\033[22m"
-            . "\033[23m"
-            . "\033[24m"
-            . "\033[29m"
-            . "\033[27m"
+                . "\033[39m\033[49m"
+                . 'hi'
+                . "\n"
+                . "\033[39m\033[49m"
+                . "\033[22m" // restore bold off (the state before the call)
+                . "\033[22m"
+                . "\033[23m"
+                . "\033[24m"
+                . "\033[29m"
+                . "\033[27m",
         );
         $this->console->message('hi', bold: true);
     }
@@ -555,17 +555,17 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputString(
             "\033[94m\033[49m" // bright blue on default background
-            . "\033[4m" // underline on
-            . "\033]8;;https://example.com\033\\" // OSC 8 open
-            . 'Example'
-            . "\033]8;;\033\\" // OSC 8 close
-            . "\033[39m\033[49m" // restore colour
-            . "\033[22m"
-            . "\033[22m"
-            . "\033[23m"
-            . "\033[24m"
-            . "\033[29m"
-            . "\033[27m"
+                . "\033[4m" // underline on
+                . "\033]8;;https://example.com\033\\" // OSC 8 open
+                . 'Example'
+                . "\033]8;;\033\\" // OSC 8 close
+                . "\033[39m\033[49m" // restore colour
+                . "\033[22m"
+                . "\033[22m"
+                . "\033[23m"
+                . "\033[24m"
+                . "\033[29m"
+                . "\033[27m",
         );
         $this->console->link('https://example.com', 'Example');
     }
@@ -685,7 +685,7 @@ final class ConsoleTest extends TestCase
     public function testPrintWithNonStringableObjectDoesNotThrow(): void
     {
         $this->expectOutputRegex(
-            '/^Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/'
+            '/^Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\+a => 1, #b => 2, -c => 3\}$/',
         );
         $this->console->print(new Foo());
     }
@@ -711,10 +711,10 @@ final class ConsoleTest extends TestCase
 
         $this->expectOutputString(
             'a'
-            . "\033[49m" // reset background to default before the embedded newline
-            . "\n"
-            . "\033[41m" // re-apply the RED background after the newline
-            . 'b'
+                . "\033[49m" // reset background to default before the embedded newline
+                . "\n"
+                . "\033[41m" // re-apply the RED background after the newline
+                . 'b',
         );
         $this->console->print("a\nb");
     }
@@ -772,9 +772,9 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputString(
             "\033[95m\033[49m" // BRIGHT_MAGENTA on DEFAULT background (Console::TYPE_COLOR['array'])
-            . 'array: [1, 2, 3]'
-            . "\n"
-            . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m" // restore prior style
+                . 'array: [1, 2, 3]'
+                . "\n"
+                . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m", // restore prior style
         );
         $this->console->dump([1, 2, 3]);
     }
@@ -790,9 +790,9 @@ final class ConsoleTest extends TestCase
 
         $this->expectOutputString(
             "\033[95m\033[49m"
-            . "array: [\n    'x' => 1,\n    'self' => " . RECURSION . ",\n]"
-            . "\n"
-            . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m"
+                . "array: [\n    'x' => 1,\n    'self' => " . RECURSION . ",\n]"
+                . "\n"
+                . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m",
         );
         $this->console->dump($arr);
     }
@@ -805,8 +805,8 @@ final class ConsoleTest extends TestCase
     {
         $this->expectOutputRegex(
             '/^\033\[96m\033\[49mobject: Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\n'
-            . '    \+a => 1,\n    #b => 2,\n    -c => 3,\n\}\n'
-            . '\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/'
+                . '    \+a => 1,\n    #b => 2,\n    -c => 3,\n\}\n'
+                . '\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/',
         );
         $this->console->dump(new Foo());
     }

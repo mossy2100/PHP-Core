@@ -107,7 +107,7 @@ final class FloatsConversionTest extends TestCase
         // A rounding mode that rounds toward positive infinity also gives zero for small negatives.
         $this->assertSame(
             '0',
-            Floats::format(-0.4, 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::PositiveInfinity)
+            Floats::format(-0.4, 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::PositiveInfinity),
         );
 
         // Values that don't round to zero keep their sign.
@@ -134,7 +134,7 @@ final class FloatsConversionTest extends TestCase
         $this->assertSame('5', Floats::format(5.0, precision: 2, format: FloatFormat::FixedPoint));
         $this->assertSame(
             '5.00',
-            Floats::format(5.0, precision: 2, trimZeros: false, format: FloatFormat::FixedPoint)
+            Floats::format(5.0, precision: 2, trimZeros: false, format: FloatFormat::FixedPoint),
         );
         $this->assertSame('1500', Floats::format(1500.0, precision: 2, format: FloatFormat::FixedPoint));
     }
@@ -152,11 +152,11 @@ final class FloatsConversionTest extends TestCase
         // ('1.5'), which has no padding to preserve since both digits are already significant.
         $this->assertSame(
             '1×10³',
-            Floats::format(1000.0, precision: 3, format: FloatFormat::Scientific)
+            Floats::format(1000.0, precision: 3, format: FloatFormat::Scientific),
         );
         $this->assertSame(
             '1.00×10³',
-            Floats::format(1000.0, precision: 3, trimZeros: false, format: FloatFormat::Scientific)
+            Floats::format(1000.0, precision: 3, trimZeros: false, format: FloatFormat::Scientific),
         );
     }
 
@@ -171,8 +171,8 @@ final class FloatsConversionTest extends TestCase
                 1500.0,
                 precision: 2,
                 format: FloatFormat::Scientific,
-                expFormat: ExponentFormat::AsciiLowerCaseE
-            )
+                expFormat: ExponentFormat::AsciiLowerCaseE,
+            ),
         );
         $this->assertSame(
             '1.5E+3',
@@ -180,12 +180,12 @@ final class FloatsConversionTest extends TestCase
                 1500.0,
                 precision: 2,
                 format: FloatFormat::Scientific,
-                expFormat: ExponentFormat::AsciiUpperCaseE
-            )
+                expFormat: ExponentFormat::AsciiUpperCaseE,
+            ),
         );
         $this->assertSame(
             '1.5*10^3',
-            Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::AsciiMath)
+            Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::AsciiMath),
         );
         $this->assertSame(
             '1.5×10³',
@@ -193,12 +193,12 @@ final class FloatsConversionTest extends TestCase
                 1500.0,
                 precision: 2,
                 format: FloatFormat::Scientific,
-                expFormat: ExponentFormat::UnicodeMath
-            )
+                expFormat: ExponentFormat::UnicodeMath,
+            ),
         );
         $this->assertSame(
             '1.5&times;10<sup>3</sup>',
-            Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::HtmlMath)
+            Floats::format(1500.0, precision: 2, format: FloatFormat::Scientific, expFormat: ExponentFormat::HtmlMath),
         );
     }
 
@@ -240,11 +240,11 @@ final class FloatsConversionTest extends TestCase
     {
         $this->assertSame(
             '1',
-            Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint)
+            Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint),
         );
         $this->assertSame(
             '0',
-            Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfEven)
+            Floats::format(0.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfEven),
         );
         $this->assertSame(
             '0',
@@ -252,8 +252,8 @@ final class FloatsConversionTest extends TestCase
                 -0.5,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::HalfTowardsZero
-            )
+                roundingMode: RoundingMode::HalfTowardsZero,
+            ),
         );
     }
 
@@ -265,11 +265,11 @@ final class FloatsConversionTest extends TestCase
     {
         $this->assertSame(
             '1',
-            Floats::format(1.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfOdd)
+            Floats::format(1.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfOdd),
         );
         $this->assertSame(
             '3',
-            Floats::format(2.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfOdd)
+            Floats::format(2.5, precision: 0, format: FloatFormat::FixedPoint, roundingMode: RoundingMode::HalfOdd),
         );
     }
 
@@ -285,8 +285,8 @@ final class FloatsConversionTest extends TestCase
                 0.5,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::TowardsZero
-            )
+                roundingMode: RoundingMode::TowardsZero,
+            ),
         );
         $this->assertSame(
             '0',
@@ -294,8 +294,8 @@ final class FloatsConversionTest extends TestCase
                 -0.5,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::TowardsZero
-            )
+                roundingMode: RoundingMode::TowardsZero,
+            ),
         );
     }
 
@@ -311,8 +311,8 @@ final class FloatsConversionTest extends TestCase
                 0.5,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::AwayFromZero
-            )
+                roundingMode: RoundingMode::AwayFromZero,
+            ),
         );
         $this->assertSame(
             '-1',
@@ -320,8 +320,8 @@ final class FloatsConversionTest extends TestCase
                 -0.5,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::AwayFromZero
-            )
+                roundingMode: RoundingMode::AwayFromZero,
+            ),
         );
     }
 
@@ -337,8 +337,8 @@ final class FloatsConversionTest extends TestCase
                 1.9,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::NegativeInfinity
-            )
+                roundingMode: RoundingMode::NegativeInfinity,
+            ),
         );
         $this->assertSame(
             '-2',
@@ -346,8 +346,8 @@ final class FloatsConversionTest extends TestCase
                 -1.9,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::NegativeInfinity
-            )
+                roundingMode: RoundingMode::NegativeInfinity,
+            ),
         );
     }
 
@@ -363,8 +363,8 @@ final class FloatsConversionTest extends TestCase
                 1.1,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::PositiveInfinity
-            )
+                roundingMode: RoundingMode::PositiveInfinity,
+            ),
         );
         $this->assertSame(
             '-1',
@@ -372,8 +372,8 @@ final class FloatsConversionTest extends TestCase
                 -1.1,
                 precision: 0,
                 format: FloatFormat::FixedPoint,
-                roundingMode: RoundingMode::PositiveInfinity
-            )
+                roundingMode: RoundingMode::PositiveInfinity,
+            ),
         );
     }
 
