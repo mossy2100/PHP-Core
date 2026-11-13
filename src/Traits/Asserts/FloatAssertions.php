@@ -60,7 +60,7 @@ trait FloatAssertions
         float $actual,
         float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE,
-        string $message = ''
+        string $message = '',
     ): void {
         if (Floats::approxEqual($expected, $actual, $relTol, $absTol)) {
             // Use a dummy assertion to count it.
@@ -74,15 +74,15 @@ trait FloatAssertions
         $relDiff = $maxMagnitude !== 0.0 ? $diff / $maxMagnitude : INF;
 
         $defaultMessage = sprintf(
-            "Failed asserting that %.15g approximately equals %.15g.\n" .
-            "Absolute difference: %.15g (tolerance: %.15g)\n" .
-            'Relative difference: %.15g (tolerance: %.15g)',
+            "Failed asserting that %.15g approximately equals %.15g.\n"
+                . "Absolute difference: %.15g (tolerance: %.15g)\n"
+                . 'Relative difference: %.15g (tolerance: %.15g)',
             $actual,
             $expected,
             $diff,
             $absTol,
             $relDiff,
-            $relTol
+            $relTol,
         );
 
         $this->fail($message !== '' ? $message . "\n" . $defaultMessage : $defaultMessage);

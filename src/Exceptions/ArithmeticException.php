@@ -19,6 +19,4 @@ use DomainException;
  * This exception should not be confused with PHP's built-in ArithmeticError, which signals engine-level conditions
  * (e.g. arithmetic overflow) rather than a recoverable domain-level operation failure.
  */
-class ArithmeticException extends DomainException
-{
-}
+class ArithmeticException extends DomainException {}

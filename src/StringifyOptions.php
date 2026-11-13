@@ -48,7 +48,7 @@ final readonly class StringifyOptions
     public function __construct(
         public bool $prettyPrint = false,
         public int $indent = self::DEFAULT_INDENT,
-        public int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH
+        public int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH,
     ) {
         if ($indent < 0) {
             throw new DomainException("Invalid indent: $indent. Must not be negative.");
@@ -82,7 +82,7 @@ final readonly class StringifyOptions
      */
     public static function pretty(
         int $indent = self::DEFAULT_INDENT,
-        int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH
+        int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH,
     ): self {
         return new self(true, $indent, $maxLineLength);
     }

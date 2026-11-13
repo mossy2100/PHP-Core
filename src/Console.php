@@ -489,9 +489,10 @@ class Console
     {
         $style = $this->getStyle();
         $type = Types::getBasicType($value);
-        return $this->colors(self::TYPE_COLOR[$type] ?? self::GRAY, self::DEFAULT)
-                    ->println("$type: " . Stringify::stringify($value, StringifyOptions::pretty()))
-                    ->setStyle($style);
+        return $this
+            ->colors(self::TYPE_COLOR[$type] ?? self::GRAY, self::DEFAULT)
+            ->println("$type: " . Stringify::stringify($value, StringifyOptions::pretty()))
+            ->setStyle($style);
     }
 
     /**

@@ -61,9 +61,7 @@ final class Stringify
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     #endregion
 
@@ -97,7 +95,7 @@ final class Stringify
     public static function toString(mixed $value): string
     {
         // Temporarily convert warnings to exceptions to catch cases where the default cast would emit a warning.
-        set_error_handler(static fn () => throw new ErrorException());
+        set_error_handler(static fn() => throw new ErrorException());
 
         try {
             return (string) $value; // @phpstan-ignore cast.string
@@ -151,7 +149,7 @@ final class Stringify
             $result = mb_substr($result, 0, $truncateAt) . '…' . match ($type) {
                 'string' => $result[0],
                 'array' => ']',
-                'object' => '}'
+                'object' => '}',
             };
 
             if ($type === 'object') {
@@ -199,8 +197,8 @@ final class Stringify
                 self::prepEx(
                     'Cannot prepare exception message due to incorrect value count: ?. Expected ?.',
                     count($values),
-                    $placeholderCount
-                )
+                    $placeholderCount,
+                ),
             );
         }
 
@@ -476,7 +474,7 @@ final class Stringify
         StringifyOptions $options,
         int $indentLevel,
         bool $alreadyCleaned,
-        int $surroundingLength = 0
+        int $surroundingLength = 0,
     ): string {
         // Replace any circular references with the RECURSION marker so the rest of the array can still be
         // stringified. Skipped if the caller already knows $arr is clean, to avoid redundantly re-scanning a
@@ -520,8 +518,8 @@ final class Stringify
             }
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
-            [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-                self::prepareIndents($indentLevel, $options);
+            [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+                = self::prepareIndents($indentLevel, $options);
 
             $keys = array_keys($arr);
             $values = array_values($arr);
@@ -626,7 +624,7 @@ final class Stringify
         mixed $value,
         StringifyOptions $options,
         int $indentLevel,
-        int $surroundingLength = 0
+        int $surroundingLength = 0,
     ): string {
         return is_array($value)
             ? self::stringifyArrayAtLevel($value, $options, $indentLevel, true, $surroundingLength)
@@ -651,23 +649,23 @@ final class Stringify
         array $arr,
         StringifyOptions $options,
         int $indentLevel,
-        int $surroundingLength = 0
+        int $surroundingLength = 0,
     ): string {
         $values = array_values($arr);
 
         // Without pretty printing, use the compact (single-line) format. No trailing comma.
         if (!$options->prettyPrint) {
-            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
+            $valueStrings = array_map(static fn($value) => self::stringifyCleanedValue($value, $options, 0), $values);
             return '[' . implode(', ', $valueStrings) . ']';
         }
 
         // Set up for multi-line pretty printing.
-        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-            self::prepareIndents($indentLevel, $options);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+            = self::prepareIndents($indentLevel, $options);
 
         // If every value is simple (null or scalar), use the compact format if the whole line fits.
-        if (array_all($arr, static fn ($value) => $value === null || is_scalar($value))) {
-            $valueStrings = array_map(static fn ($value) => self::stringifyCleanedValue($value, $options, 0), $values);
+        if (array_all($arr, static fn($value) => $value === null || is_scalar($value))) {
+            $valueStrings = array_map(static fn($value) => self::stringifyCleanedValue($value, $options, 0), $values);
             $compactList = '[' . implode(', ', $valueStrings) . ']';
             if (mb_strlen($compactList) <= $options->maxLineLength - $nSpacesBracketIndent - $surroundingLength) {
                 return $compactList;
@@ -716,16 +714,16 @@ final class Stringify
         }
 
         // Set up for pretty printing.
-        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent] =
-            self::prepareIndents($indentLevel, $options);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+            = self::prepareIndents($indentLevel, $options);
 
         // Generate the result string.
         $result = "[\n";
         for ($i = 0; $i < $nItems; $i++) {
             // The key, ' => ' and the trailing comma share the line with the value.
             $surroundingLength = mb_strlen($keyStrings[$i]) + 5;
-            $result .= $itemIndent . $keyStrings[$i] . ' => ' .
-                self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength) . ",\n";
+            $result .= $itemIndent . $keyStrings[$i] . ' => '
+                . self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength) . ",\n";
         }
         return $result . $bracketIndent . ']';
     }

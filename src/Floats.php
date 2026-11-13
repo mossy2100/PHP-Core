@@ -48,9 +48,7 @@ final class Floats
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     #endregion
 
@@ -200,7 +198,7 @@ final class Floats
         float $a,
         float $b,
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE,
     ): bool {
         self::validateTolerances($relTol, $absTol);
 
@@ -248,7 +246,7 @@ final class Floats
         float $a,
         float $b,
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE,
     ): int {
         self::validateTolerances($relTol, $absTol);
 
@@ -359,7 +357,7 @@ final class Floats
         // Validate the units per turn.
         if (!is_finite($unitsPerTurn) || $unitsPerTurn <= 0.0) {
             throw new DomainException(
-                Stringify::prepEx('Invalid units per turn: ?. Must be finite and positive.', $unitsPerTurn)
+                Stringify::prepEx('Invalid units per turn: ?. Must be finite and positive.', $unitsPerTurn),
             );
         }
 
@@ -468,7 +466,7 @@ final class Floats
         bool $trimZeros = true,
         FloatFormat $format = FloatFormat::Auto,
         ExponentFormat $expFormat = ExponentFormat::UnicodeMath,
-        RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero
+        RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero,
     ): string {
         // If NAN/±INF return the string equivalent. Uses var_export() rather than a direct cast to avoid the
         // warning PHP emits when casting NAN to string.
@@ -484,7 +482,7 @@ final class Floats
         } else {
             if ($precision < 1 || $precision > 17) {
                 throw new DomainException(
-                    "Invalid number of significant figures: $precision. Must be between 1 and 17."
+                    "Invalid number of significant figures: $precision. Must be between 1 and 17.",
                 );
             }
         }
@@ -518,6 +516,7 @@ final class Floats
                 // If, by using a fixed-point notation, we end up with fewer significant digits, or there are more than
                 // 3 leading or trailing 0s, use scientific notation instead.
                 $valueStr = $fixSigDigits < $sciSigDigits || $fixLeading0s > 3 || $fixTrailing0s > 3 ? $sci : $fix;
+                break;
         }
 
         // Get the position of 'E' if present.
@@ -615,7 +614,7 @@ final class Floats
     public static function isApproxInt(
         float $value,
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE,
     ): bool {
         // Non-finite values are never approximately an integer.
         if (!is_finite($value)) {
@@ -976,7 +975,7 @@ final class Floats
         }
         if ($min > $max) {
             throw new DomainException(
-                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max)
+                Stringify::prepEx('Invalid range: [?, ?]. Minimum must not exceed maximum.', $min, $max),
             );
         }
     }
@@ -989,16 +988,16 @@ final class Floats
      */
     private static function validateTolerances(
         float $relTol = self::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = self::DEFAULT_ABSOLUTE_TOLERANCE,
     ): void {
         if (!is_finite($relTol) || $relTol < 0) {
             throw new DomainException(
-                Stringify::prepEx('Invalid relative tolerance: ?. Must be finite and non-negative.', $relTol)
+                Stringify::prepEx('Invalid relative tolerance: ?. Must be finite and non-negative.', $relTol),
             );
         }
         if (!is_finite($absTol) || $absTol < 0) {
             throw new DomainException(
-                Stringify::prepEx('Invalid absolute tolerance: ?. Must be finite and non-negative.', $absTol)
+                Stringify::prepEx('Invalid absolute tolerance: ?. Must be finite and non-negative.', $absTol),
             );
         }
     }

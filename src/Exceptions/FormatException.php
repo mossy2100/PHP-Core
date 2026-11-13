@@ -14,6 +14,4 @@ use DomainException;
  *
  * Typical use cases would be fromString() methods or constructors that accept string arguments.
  */
-class FormatException extends DomainException
-{
-}
+class FormatException extends DomainException {}

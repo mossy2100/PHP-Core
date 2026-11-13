@@ -62,7 +62,7 @@ trait ApproxComparable
     public function approxCompare(
         mixed $other,
         float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
+        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE,
     ): int {
         return $this->approxEqual($other, $relTol, $absTol) ? 0 : $this->compare($other);
     }

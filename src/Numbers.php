@@ -18,9 +18,7 @@ final class Numbers
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     #endregion
 

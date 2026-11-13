@@ -19,9 +19,7 @@ final class Arrays
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     #endregion
 
@@ -47,7 +45,7 @@ final class Arrays
             // Type check.
             if (!is_string($value)) {
                 throw new InvalidArgumentException(
-                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.'
+                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.',
                 );
             }
 
@@ -82,7 +80,7 @@ final class Arrays
         foreach ($arr as $value) {
             if (!is_string($value)) {
                 throw new InvalidArgumentException(
-                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.'
+                    'Invalid array value type: ' . get_debug_type($value) . '. Must be string.',
                 );
             }
             $values[] = $value;
@@ -94,8 +92,8 @@ final class Arrays
             0 => '',
             1 => $values[0],
             2 => $values[0] . " $conjunction " . $values[1],
-            default => implode(', ', array_slice($values, 0, -1)) . ($oxford ? ',' : '') . " $conjunction " .
-                $values[$nItems - 1],
+            default => implode(', ', array_slice($values, 0, -1)) . ($oxford ? ',' : '') . " $conjunction "
+                . $values[$nItems - 1],
         };
     }
 
@@ -157,7 +155,7 @@ final class Arrays
      */
     public static function removeValue(array $arr, mixed $valueToRemove): array
     {
-        return array_filter($arr, static fn ($value) => !Types::identical($value, $valueToRemove));
+        return array_filter($arr, static fn($value) => !Types::identical($value, $valueToRemove));
     }
 
     /**
@@ -196,7 +194,7 @@ final class Arrays
         }
 
         // From PHP 8.5, print_r() warns when it prints NAN. The output ('NAN') is still fine to parse, so silence it.
-        set_error_handler(static fn (): bool => true, E_WARNING);
+        set_error_handler(static fn(): bool => true, E_WARNING);
         try {
             $printR = print_r($arr, true);
         } finally {

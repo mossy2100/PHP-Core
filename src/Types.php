@@ -21,9 +21,7 @@ final class Types
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     #endregion
 
@@ -60,7 +58,7 @@ final class Types
             $value instanceof UnitEnum => 'enum',
             $value instanceof Closure => 'closure',
             // Call gettype() and return the first word, which should be "object", "resource", or "unknown".
-            default => explode(' ', gettype($value))[0]
+            default => explode(' ', gettype($value))[0],
         };
     }
 

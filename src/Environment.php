@@ -22,9 +22,7 @@ final class Environment
      *
      * @codeCoverageIgnore
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     // @codeCoverageIgnoreStart
     // Ignore these two methods for code coverage. We can't test them properly without running PHP on a 32-bit system,
