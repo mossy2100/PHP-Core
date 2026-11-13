@@ -7,5 +7,5 @@
     <file>tests</file>
 
     <!-- Use the Jumbo Coding Standard (PER Coding Style 3.1 plus extra rules) -->
-    <rule ref="PERCS31"/>
+    <rule ref="Jumbo"/>
 </ruleset>

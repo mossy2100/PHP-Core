@@ -518,17 +518,15 @@ final class Stringify
             }
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
-            [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
-                = self::prepareIndents($indentLevel, $options);
+            [, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
 
             $keys = array_keys($arr);
             $values = array_values($arr);
             $propNames = [];
             $viz = [];
 
-            foreach ($values as $i => $value) {
+            foreach ($keys as $i => $key) {
                 // Split the array key on null bytes to get the property name.
-                $key = $keys[$i];
                 $nameParts = explode("\0", $key);
                 $propNames[$i] = Arrays::last($nameParts);
 
@@ -660,8 +658,7 @@ final class Stringify
         }
 
         // Set up for multi-line pretty printing.
-        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
-            = self::prepareIndents($indentLevel, $options);
+        [$nSpacesBracketIndent, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
 
         // If every value is simple (null or scalar), use the compact format if the whole line fits.
         if (array_all($arr, static fn($value) => $value === null || is_scalar($value))) {
@@ -714,8 +711,7 @@ final class Stringify
         }
 
         // Set up for pretty printing.
-        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
-            = self::prepareIndents($indentLevel, $options);
+        [, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
 
         // Generate the result string.
         $result = "[\n";
