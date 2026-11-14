@@ -511,7 +511,6 @@ final class Floats
 
                 // Get scientific version.
                 $sci = self::formatScientific($value, $precision, $roundingMode);
-                // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable
                 [$sciLeading0s, $sciSigDigits, $sciTrailing0s] = self::analyzeDigits($sci);
 
                 // If, by using a fixed-point notation, we end up with fewer significant digits, or there are more than

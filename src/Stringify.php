@@ -518,7 +518,8 @@ final class Stringify
             }
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
-            [, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
+            [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+                = self::prepareIndents($indentLevel, $options);
 
             $keys = array_keys($arr);
             $values = array_values($arr);
@@ -658,7 +659,8 @@ final class Stringify
         }
 
         // Set up for multi-line pretty printing.
-        [$nSpacesBracketIndent, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+            = self::prepareIndents($indentLevel, $options);
 
         // If every value is simple (null or scalar), use the compact format if the whole line fits.
         if (array_all($arr, static fn($value) => $value === null || is_scalar($value))) {
@@ -711,7 +713,8 @@ final class Stringify
         }
 
         // Set up for pretty printing.
-        [, $bracketIndent, , $itemIndent] = self::prepareIndents($indentLevel, $options);
+        [$nSpacesBracketIndent, $bracketIndent, $nSpacesItemIndent, $itemIndent]
+            = self::prepareIndents($indentLevel, $options);
 
         // Generate the result string.
         $result = "[\n";
