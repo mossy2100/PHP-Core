@@ -789,9 +789,7 @@ final class ConsoleTest extends TestCase
         $arr['self'] = &$arr;
 
         $this->expectOutputString(
-            "\033[95m\033[49m"
-                . "array: [\n    'x' => 1,\n    'self' => " . RECURSION . ",\n]"
-                . "\n"
+            "\033[95m\033[49m" . "array: [\n    'x' => 1,\n    'self' => " . RECURSION . ",\n]" . "\n"
                 . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m",
         );
         $this->console->dump($arr);

@@ -293,8 +293,12 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyArrayPrettyPrintDictionary(): void
     {
         $result = Stringify::stringify(['name' => 'John', 'age' => 30], StringifyOptions::pretty());
-
-        $expected = "[\n    'name' => 'John',\n    'age' => 30,\n]";
+        $expected = <<<'ARY'
+            [
+                'name' => 'John',
+                'age' => 30,
+            ]
+            ARY;
         $this->assertSame($expected, $result);
     }
 
@@ -304,9 +308,13 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyArrayPrettyPrintListOfArrays(): void
     {
         $result = Stringify::stringify([[1, 2], [3, 4]], StringifyOptions::pretty());
-
-        // Should be single-line.
-        $this->assertSame("[\n    [1, 2],\n    [3, 4],\n]", $result);
+        $expected = <<<'ARY'
+            [
+                [1, 2],
+                [3, 4],
+            ]
+            ARY;
+        $this->assertSame($expected, $result);
     }
 
     /**
@@ -315,14 +323,15 @@ final class StringifyTypeSpecificTest extends TestCase
     public function testStringifyArrayPrettyPrintMultilineItem(): void
     {
         $result = Stringify::stringify([['name' => 'John', 'age' => 30], 42], StringifyOptions::pretty());
-
-        $expected = "[\n"
-            . "    [\n"
-            . "        'name' => 'John',\n"
-            . "        'age' => 30,\n"
-            . "    ],\n"
-            . "    42,\n"
-            . ']';
+        $expected = <<<'ARY'
+            [
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                ],
+                42,
+            ]
+            ARY;
         $this->assertSame($expected, $result);
     }
 
@@ -339,12 +348,13 @@ final class StringifyTypeSpecificTest extends TestCase
 
         // maxLineLength of 40, so the list doesn't fit on one line.
         $result = Stringify::stringifyArray($uuids, StringifyOptions::pretty(maxLineLength: 40));
-
-        $expected = "[\n"
-            . "    'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',\n"
-            . "    'd2aee4c5-a7f7-4018-a635-c3f4c317033e',\n"
-            . "    'd266963a-c4e0-4255-a97d-f070e51fcb5e',\n"
-            . ']';
+        $expected = <<<'ARY'
+            [
+                'c9e35c00-0f1e-4804-b5fe-6c4c9718db60',
+                'd2aee4c5-a7f7-4018-a635-c3f4c317033e',
+                'd266963a-c4e0-4255-a97d-f070e51fcb5e',
+            ]
+            ARY;
         $this->assertSame($expected, $result);
     }
 
@@ -356,10 +366,25 @@ final class StringifyTypeSpecificTest extends TestCase
         $options = StringifyOptions::pretty(maxLineLength: 20);
 
         // '    [1, 22222, 333],' is exactly 20 characters, so it fits.
-        $this->assertSame("[\n    [1, 22222, 333],\n    0,\n]", Stringify::stringify([[1, 22222, 333], 0], $options));
+        $expected = <<<'ARY'
+            [
+                [1, 22222, 333],
+                0,
+            ]
+            ARY;
+        $this->assertSame($expected, Stringify::stringify([[1, 22222, 333], 0], $options));
 
         // '    [1, 22222, 3333],' would be 21 characters, so the list wraps.
-        $expected = "[\n    [\n        1,\n        22222,\n        3333,\n    ],\n    0,\n]";
+        $expected = <<<'ARY'
+            [
+                [
+                    1,
+                    22222,
+                    3333,
+                ],
+                0,
+            ]
+            ARY;
         $this->assertSame($expected, Stringify::stringify([[1, 22222, 3333], 0], $options));
     }
 
@@ -371,7 +396,15 @@ final class StringifyTypeSpecificTest extends TestCase
         // "    'k' => [1, 22222, 3333]," would be 28 characters.
         $result = Stringify::stringify(['k' => [1, 22222, 3333]], StringifyOptions::pretty(maxLineLength: 20));
 
-        $expected = "[\n    'k' => [\n        1,\n        22222,\n        3333,\n    ],\n]";
+        $expected = <<<'ARY'
+            [
+                'k' => [
+                    1,
+                    22222,
+                    3333,
+                ],
+            ]
+            ARY;
         $this->assertSame($expected, $result);
     }
 
@@ -728,7 +761,15 @@ final class StringifyTypeSpecificTest extends TestCase
         // '    +name => [1, 22222, 3],' would be 27 characters.
         $result = Stringify::stringify($obj, StringifyOptions::pretty(maxLineLength: 20));
 
-        $expected = "$prefix {\n    +name => [\n        1,\n        22222,\n        3,\n    ],\n}";
+        $expected = <<<OBJ
+            $prefix {
+                +name => [
+                    1,
+                    22222,
+                    3,
+                ],
+            }
+            OBJ;
         $this->assertSame($expected, $result);
     }
 
@@ -743,10 +784,13 @@ final class StringifyTypeSpecificTest extends TestCase
         $prefix = 'stdClass #' . spl_object_id($obj);
 
         $this->assertSame("$prefix {+a => 1, +b => 'x'}", Stringify::stringifyObject($obj));
-        $this->assertSame(
-            "$prefix {\n    +a => 1,\n    +b => 'x',\n}",
-            Stringify::stringifyObject($obj, StringifyOptions::pretty()),
-        );
+        $expected = <<<OBJ
+            $prefix {
+                +a => 1,
+                +b => 'x',
+            }
+            OBJ;
+        $this->assertSame($expected, Stringify::stringifyObject($obj, StringifyOptions::pretty()));
     }
 
     #endregion

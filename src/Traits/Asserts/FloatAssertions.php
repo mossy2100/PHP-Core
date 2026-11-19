@@ -74,8 +74,7 @@ trait FloatAssertions
         $relDiff = $maxMagnitude !== 0.0 ? $diff / $maxMagnitude : INF;
 
         $defaultMessage = sprintf(
-            "Failed asserting that %.15g approximately equals %.15g.\n"
-                . "Absolute difference: %.15g (tolerance: %.15g)\n"
+            "Failed asserting that %.15g approximately equals %.15g.\nAbsolute difference: %.15g (tolerance: %.15g)\n"
                 . 'Relative difference: %.15g (tolerance: %.15g)',
             $actual,
             $expected,
