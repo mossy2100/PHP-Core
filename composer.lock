@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ee921f55a4018cea98e01f7e8e9c63d",
+    "content-hash": "7a3636a5df6013eaa2d6a93179e312ba",
     "packages": [],
     "packages-dev": [
         {
@@ -105,12 +105,12 @@
             "published-time": "2026-05-06T12:56:03+00:00"
         },
         {
-            "name": "mossy2100/coding-standard",
+            "name": "mossy2100/phpcs-jumbo",
             "version": "2.2.0",
             "dist": {
                 "type": "path",
                 "url": "../CodingStandard",
-                "reference": "909930bc0d903fd047f3171140b919f6090151f9"
+                "reference": "beb29d4e98dc5bc3040b7ea374bb210d54f96991"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -163,7 +163,7 @@
                 }
             ],
             "description": "The Jumbo Coding Standard for PHP_CodeSniffer: a PERCS31 ruleset for PER Coding Style 3.1, and a Jumbo ruleset that adds lowerCamelCase naming and modern PHP 8.4+ rules.",
-            "homepage": "https://github.com/mossy2100/PHP-Coding-Standard",
+            "homepage": "https://github.com/mossy2100/PHP-Coding-Standard-Jumbo",
             "keywords": [
                 "code-style",
                 "codesniffer",
@@ -175,8 +175,8 @@
                 "psr-12"
             ],
             "support": {
-                "issues": "https://github.com/mossy2100/PHP-Coding-Standard/issues",
-                "source": "https://github.com/mossy2100/PHP-Coding-Standard"
+                "issues": "https://github.com/mossy2100/PHP-Coding-Standard-Jumbo/issues",
+                "source": "https://github.com/mossy2100/PHP-Coding-Standard-Jumbo"
             },
             "transport-options": {
                 "symlink": true,
@@ -709,11 +709,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/645a1bd6bead15fc1b8474137467961d0fa30a79",
-                "reference": "645a1bd6bead15fc1b8474137467961d0fa30a79",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
                 "shasum": ""
             },
             "require": {
@@ -769,8 +769,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00",
-            "published-time": "2026-11-03T12:14:36+00:00"
+            "time": "2026-11-15T19:58:26+00:00",
+            "published-time": "2026-11-15T19:58:39+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
