@@ -219,7 +219,7 @@ final class Integers
         // If the exponent is negative, throw an exception.
         // We know the result will be a float, so there's no need to do the operation.
         if ($b < 0) {
-            throw new DomainException("Invalid exponent: $b. Must not be negative.");
+            throw new DomainException("Invalid exponent: {$b}. Must not be negative.");
         }
 
         // Do the exponentiation.
@@ -407,7 +407,7 @@ final class Integers
         if (!isset($patterns[$style])) {
             $minus = $charMap['-'];
             $digits = implode('', array_slice($charMap, 1));
-            $patterns[$style] = "/^$minus?[$digits]+$/u";
+            $patterns[$style] = "/^{$minus}?[{$digits}]+$/u";
         }
         return (bool) preg_match($patterns[$style], $s);
     }
@@ -441,14 +441,14 @@ final class Integers
         $chars = mb_str_split($s);
         foreach ($chars as $char) {
             if (!isset($reverseMap[$char])) {
-                throw new FormatException("Invalid $style character: '$char'.");
+                throw new FormatException("Invalid {$style} character: '{$char}'.");
             }
             $intString .= $reverseMap[$char];
         }
 
         // Check format.
         if (preg_match('/^-?\d+$/', $intString) === 0) {
-            throw new FormatException("String '$intString' does not represent an integer.");
+            throw new FormatException("String '{$intString}' does not represent an integer.");
         }
 
         // Strip leading zeros, which filter_var() rejects, keeping at least one digit. isSubscript() and
@@ -458,7 +458,7 @@ final class Integers
         // Convert to int and check for overflow.
         $result = filter_var($intString, FILTER_VALIDATE_INT);
         if ($result === false) {
-            throw new OverflowException("Integer $intString is outside valid range.");
+            throw new OverflowException("Integer {$intString} is outside valid range.");
         }
 
         return $result;

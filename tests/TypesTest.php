@@ -293,7 +293,7 @@ final class TypesTest extends TestCase
         foreach ($values as $i => $a) {
             foreach ($values as $j => $b) {
                 $expected = Types::getUniqueString($a) === Types::getUniqueString($b);
-                $this->assertSame($expected, Types::identical($a, $b), "Values at indexes $i and $j.");
+                $this->assertSame($expected, Types::identical($a, $b), "Values at indexes {$i} and {$j}.");
             }
         }
     }

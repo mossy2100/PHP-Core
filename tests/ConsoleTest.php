@@ -789,8 +789,8 @@ final class ConsoleTest extends TestCase
         $arr['self'] = &$arr;
 
         $this->expectOutputString(
-            "\033[95m\033[49m" . "array: [\n    'x' => 1,\n    'self' => " . RECURSION . ",\n]" . "\n"
-                . "\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m",
+            "\033[95m\033[49marray: [\n    'x' => 1,\n    'self' => " . RECURSION
+                . ",\n]\n\033[39m\033[49m\033[22m\033[22m\033[23m\033[24m\033[29m\033[27m",
         );
         $this->console->dump($arr);
     }
@@ -802,9 +802,8 @@ final class ConsoleTest extends TestCase
     public function testDumpVarWithObject(): void
     {
         $this->expectOutputRegex(
-            '/^\033\[96m\033\[49mobject: Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\n'
-                . '    \+a => 1,\n    #b => 2,\n    -c => 3,\n\}\n'
-                . '\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/',
+            '/^\033\[96m\033\[49mobject: Mossy2100\\\\Core\\\\Tests\\\\Fixtures\\\\Foo #\d+ \{\n    \+a => 1,\n    #b '
+                . '=> 2,\n    -c => 3,\n\}\n\033\[39m\033\[49m\033\[22m\033\[22m\033\[23m\033\[24m\033\[29m\033\[27m$/',
         );
         $this->console->dump(new Foo());
     }

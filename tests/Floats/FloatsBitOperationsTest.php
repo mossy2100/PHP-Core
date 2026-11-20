@@ -198,7 +198,7 @@ final class FloatsBitOperationsTest extends TestCase
 
         foreach ($testValues as $value) {
             $result = Floats::nextUp(Floats::nextDown($value));
-            $this->assertSame($value, $result, "Round trip failed for $value");
+            $this->assertSame($value, $result, "Round trip failed for {$value}");
         }
     }
 
@@ -211,7 +211,7 @@ final class FloatsBitOperationsTest extends TestCase
 
         foreach ($testValues as $value) {
             $result = Floats::nextDown(Floats::nextUp($value));
-            $this->assertSame($value, $result, "Round trip failed for $value");
+            $this->assertSame($value, $result, "Round trip failed for {$value}");
         }
     }
 
@@ -417,7 +417,7 @@ final class FloatsBitOperationsTest extends TestCase
 
         foreach ($testValues as $value) {
             $result = Floats::bitsToFloat(Floats::floatToBits($value));
-            $this->assertSame($value, $result, "Round trip failed for $value");
+            $this->assertSame($value, $result, "Round trip failed for {$value}");
         }
     }
 
@@ -714,7 +714,7 @@ final class FloatsBitOperationsTest extends TestCase
         foreach ($testValues as $value) {
             $parts = Floats::disassemble($value);
             $result = Floats::assemble($parts['sign'], $parts['exponent'], $parts['fraction']);
-            $this->assertSame($value, $result, "Round trip failed for $value");
+            $this->assertSame($value, $result, "Round trip failed for {$value}");
         }
     }
 

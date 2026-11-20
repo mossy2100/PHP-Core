@@ -87,6 +87,6 @@ trait FloatAssertions
             $relTol,
         );
 
-        $this->fail($message !== '' ? $message . "\n" . $defaultMessage : $defaultMessage);
+        $this->fail($message !== '' ? "{$message}\n{$defaultMessage}" : $defaultMessage);
     }
 }

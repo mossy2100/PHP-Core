@@ -167,7 +167,7 @@ final class FloatsTransformationTest extends TestCase
                 $value,
                 Floats::trunc($value) + Floats::frac($value),
                 1e-10,
-                "Identity x = Floats::trunc(x) + Floats::frac(x) failed for x = $value",
+                "Identity x = Floats::trunc(x) + Floats::frac(x) failed for x = {$value}",
             );
         }
     }
@@ -404,11 +404,12 @@ final class FloatsTransformationTest extends TestCase
                     foreach ([$magnitude, -$magnitude] as $value) {
                         $signed = Floats::wrap($value, $unitsPerTurn);
                         if ($signed <= -$half || $signed > $half) {
-                            $failures[] = 'signed wrap(' . var_export($value, true) . ", $unitsPerTurn) = $signed";
+                            $failures[] = 'signed wrap(' . var_export($value, true) . ", {$unitsPerTurn}) = {$signed}";
                         }
                         $unsigned = Floats::wrap($value, $unitsPerTurn, false);
                         if ($unsigned < 0.0 || $unsigned >= $unitsPerTurn) {
-                            $failures[] = 'unsigned wrap(' . var_export($value, true) . ", $unitsPerTurn) = $unsigned";
+                            $failures[] = 'unsigned wrap(' . var_export($value, true)
+                                . ", {$unitsPerTurn}) = {$unsigned}";
                         }
                     }
                 }

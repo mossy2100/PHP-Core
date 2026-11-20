@@ -51,10 +51,10 @@ final readonly class StringifyOptions
         public int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH,
     ) {
         if ($indent < 0) {
-            throw new DomainException("Invalid indent: $indent. Must not be negative.");
+            throw new DomainException("Invalid indent: {$indent}. Must not be negative.");
         }
         if ($maxLineLength <= 0) {
-            throw new DomainException("Invalid max line length: $maxLineLength. Must be positive.");
+            throw new DomainException("Invalid max line length: {$maxLineLength}. Must be positive.");
         }
     }
 

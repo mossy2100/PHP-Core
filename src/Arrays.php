@@ -50,7 +50,7 @@ final class Arrays
             }
 
             // Wrap the value in quotes.
-            return $quoteChar . $value . $quoteChar;
+            return "{$quoteChar}{$value}{$quoteChar}";
         };
 
         // Apply the quotes. array_map() preserves the array keys.
@@ -91,9 +91,9 @@ final class Arrays
         return match ($nItems) {
             0 => '',
             1 => $values[0],
-            2 => $values[0] . " $conjunction " . $values[1],
-            default => implode(', ', array_slice($values, 0, -1)) . ($oxford ? ',' : '') . " $conjunction "
-                . $values[$nItems - 1],
+            2 => "{$values[0]} {$conjunction} {$values[1]}",
+            default => implode(', ', array_slice($values, 0, -1)) . ($oxford ? ',' : '')
+                . " {$conjunction} {$values[$nItems - 1]}",
         };
     }
 
@@ -345,7 +345,7 @@ final class Arrays
 
             if (!$newItem) {
                 // Append the line to the current value.
-                $currentValue .= "\n" . $line;
+                $currentValue .= "\n{$line}";
             }
         }
 

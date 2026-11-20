@@ -164,7 +164,7 @@ final class Floats
         // float nearest to 10^n, even for subnormals, where 10.0 ** $exp loses precision or underflows to 0.0.
         if ($absValue >= (float) ('1e' . ($exp + 1))) {
             $exp++;
-        } elseif ($absValue < (float) "1e$exp") {
+        } elseif ($absValue < (float) "1e{$exp}") {
             $exp--;
         }
 
@@ -477,12 +477,12 @@ final class Floats
         // Validate the precision.
         if ($format === FloatFormat::FixedPoint) {
             if ($precision < 0 || $precision > 17) {
-                throw new DomainException("Invalid number of decimal places: $precision. Must be between 0 and 17.");
+                throw new DomainException("Invalid number of decimal places: {$precision}. Must be between 0 and 17.");
             }
         } else {
             if ($precision < 1 || $precision > 17) {
                 throw new DomainException(
-                    "Invalid number of significant figures: $precision. Must be between 1 and 17.",
+                    "Invalid number of significant figures: {$precision}. Must be between 1 and 17.",
                 );
             }
         }
@@ -548,7 +548,7 @@ final class Floats
         }
 
         // Reassemble the value string with the formatted exponent.
-        return $mantissa . $expFormat->format((int) $exp);
+        return "{$mantissa}{$expFormat->format((int) $exp)}";
     }
 
     #endregion
@@ -834,13 +834,13 @@ final class Floats
 
         // Validate components.
         if ($sign < 0 || $sign > 1) {
-            throw new DomainException("Invalid sign: $sign. Must be 0 or 1.");
+            throw new DomainException("Invalid sign: {$sign}. Must be 0 or 1.");
         }
         if ($exponent < 0 || $exponent > 2047) {
-            throw new DomainException("Invalid exponent: $exponent. Must be in the range [0, 2047].");
+            throw new DomainException("Invalid exponent: {$exponent}. Must be in the range [0, 2047].");
         }
         if ($fraction < 0 || $fraction > 0xFFFFFFFFFFFFF) {
-            throw new DomainException("Invalid fraction: $fraction. Must be in the range [0, 2^52 - 1].");
+            throw new DomainException("Invalid fraction: {$fraction}. Must be in the range [0, 2^52 - 1].");
         }
 
         // Assemble the float: sign (1 bit) | exponent (11 bits) | fraction (52 bits)
@@ -1036,7 +1036,7 @@ final class Floats
         // Building and configuring a formatter costs far more than using one, so cache them by their settings. There
         // are at most 18 precisions x 8 rounding modes.
         static $formatters = [];
-        $key = "$precision:$roundingMode";
+        $key = "{$precision}:{$roundingMode}";
         if (!isset($formatters[$key])) {
             $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::DECIMAL);
             $nf->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
@@ -1070,7 +1070,7 @@ final class Floats
     {
         // Cache formatters by their settings, as in formatFixed(). There are at most 17 precisions x 8 rounding modes.
         static $formatters = [];
-        $key = "$precision:$roundingMode";
+        $key = "{$precision}:{$roundingMode}";
         if (!isset($formatters[$key])) {
             $nf = new NumberFormatter(Environment::INVARIANT_LOCALE, NumberFormatter::SCIENTIFIC);
             $nf->setAttribute(NumberFormatter::SIGNIFICANT_DIGITS_USED, 1);

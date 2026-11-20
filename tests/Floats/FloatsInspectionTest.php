@@ -281,9 +281,9 @@ final class FloatsInspectionTest extends TestCase
         // Sweep every decade of the subnormal range, both signs.
         for ($exp = -323; $exp <= -308; $exp++) {
             foreach (['1', '2.5', '5', '9'] as $mantissa) {
-                $value = (float) "{$mantissa}e$exp";
-                $this->assertSame($exp, Floats::getExponent($value), "Value: {$mantissa}e$exp");
-                $this->assertSame($exp, Floats::getExponent(-$value), "Value: -{$mantissa}e$exp");
+                $value = (float) "{$mantissa}e{$exp}";
+                $this->assertSame($exp, Floats::getExponent($value), "Value: {$mantissa}e{$exp}");
+                $this->assertSame($exp, Floats::getExponent(-$value), "Value: -{$mantissa}e{$exp}");
             }
         }
     }
@@ -299,17 +299,17 @@ final class FloatsInspectionTest extends TestCase
             foreach ([$value, -$value] as $signed) {
                 $actual = Floats::getExponent($signed);
                 if ($actual !== $expected) {
-                    $failures[] = var_export($signed, true) . " gave $actual, expected $expected";
+                    $failures[] = var_export($signed, true) . " gave {$actual}, expected {$expected}";
                 }
             }
         };
 
         for ($exp = -323; $exp <= 308; $exp++) {
-            $power = (float) "1e$exp";
+            $power = (float) "1e{$exp}";
             $check($power, $exp);
             $check(Floats::nextDown($power), $exp - 1);
             if ($exp < 308) {
-                $check((float) "5e$exp", $exp);
+                $check((float) "5e{$exp}", $exp);
             }
         }
 

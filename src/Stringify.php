@@ -123,7 +123,7 @@ final class Stringify
     {
         // Check the max length.
         if ($maxLen < 3) {
-            throw new DomainException("Invalid maximum string length: $maxLen. Must be at least 3.");
+            throw new DomainException("Invalid maximum string length: {$maxLen}. Must be at least 3.");
         }
 
         // Get the value as a string without newlines or indentation.
@@ -313,7 +313,7 @@ final class Stringify
      */
     public static function stringifyEnum(UnitEnum $value): string
     {
-        return $value::class . '::' . $value->name;
+        return $value::class . "::{$value->name}";
     }
 
     /**
@@ -342,7 +342,7 @@ final class Stringify
 
         // A first-class callable, e.g. strlen(...). Show it in that syntax, with the class for a method.
         $class = $reflection->getClosureScopeClass()?->getName();
-        return ($class === null ? $name : "$class::$name") . '(...)';
+        return ($class === null ? $name : "{$class}::{$name}") . '(...)';
     }
 
     /**
@@ -386,7 +386,7 @@ final class Stringify
         // So, check the debug type.
         $type = get_debug_type($value);
         if (!str_starts_with($type, 'resource (')) {
-            throw new InvalidArgumentException("Invalid value type: $type. Must be a resource.");
+            throw new InvalidArgumentException("Invalid value type: {$type}. Must be a resource.");
         }
 
         /** @var resource $value */
@@ -507,14 +507,14 @@ final class Stringify
 
         try {
             // Get the object's class and id.
-            $classWithId = get_debug_type($obj) . ' #' . $objectId;
+            $classWithId = get_debug_type($obj) . " #{$objectId}";
 
             // Convert the object to an array to get its properties. Remove any recursion.
             $arr = Arrays::removeRecursion((array) $obj);
 
             // Early return if no properties.
             if (count($arr) === 0) {
-                return $classWithId . ' {}';
+                return "{$classWithId} {}";
             }
 
             // Generate the strings for key-value pairs. Each will be on its own line if pretty printing is enabled.
@@ -546,25 +546,25 @@ final class Stringify
             $pairs = [];
             foreach ($propNames as $i => $propName) {
                 assert(is_string($propName));
-                $name = $viz[$i] . $propName;
+                $name = "{$viz[$i]}{$propName}";
                 // The name, ' => ' and the trailing comma share the line with the value.
                 $surroundingLength = mb_strlen($name) + 5;
                 $valueStr = self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength);
-                $pairs[] = $name . ' => ' . $valueStr;
+                $pairs[] = "{$name} => {$valueStr}";
             }
 
             // If pretty print, return string formatted with new lines and indentation. Include trailing comma
             // after every pair (including the last), matching stringifyListArray()/stringifyAssociativeArray().
             if ($options->prettyPrint) {
-                $result = "$classWithId {\n";
+                $result = "{$classWithId} {\n";
                 foreach ($pairs as $pair) {
-                    $result .= $itemIndent . $pair . ",\n";
+                    $result .= "{$itemIndent}{$pair},\n";
                 }
-                return $result . $bracketIndent . '}';
+                return "{$result}{$bracketIndent}}";
             }
 
             // Return string without newlines or extra spaces.
-            return "$classWithId {" . implode(', ', $pairs) . '}';
+            return "{$classWithId} {" . implode(', ', $pairs) . '}';
         } finally {
             unset(self::$objectsBeingStringified[$objectId]);
         }
@@ -597,13 +597,13 @@ final class Stringify
             // Otherwise, escape the single byte if necessary.
             $ch = $value[$i];
             $result .= match (true) {
-                $ch === '\\', $ch === '"', $ch === '$' => '\\' . $ch,
+                $ch === '\\', $ch === '"', $ch === '$' => "\\{$ch}",
                 $byte < 0x20 || $byte >= 0x7F => sprintf('\\x%02X', $byte),
                 default => $ch,
             };
             $i++;
         }
-        return '"' . $result . '"';
+        return "\"{$result}\"";
     }
 
     /**
@@ -678,7 +678,7 @@ final class Stringify
             // Pretty print each value. Include trailing comma.
             $multilineList .= $itemIndent . self::stringifyCleanedValue($value, $options, $indentLevel + 1, 1) . ",\n";
         }
-        return $multilineList . $bracketIndent . ']';
+        return "{$multilineList}{$bracketIndent}]";
     }
 
     /**
@@ -707,7 +707,7 @@ final class Stringify
         if (!$options->prettyPrint) {
             $pairs = [];
             for ($i = 0; $i < $nItems; $i++) {
-                $pairs[] = $keyStrings[$i] . ' => ' . self::stringifyCleanedValue($values[$i], $options, 0);
+                $pairs[] = "{$keyStrings[$i]} => " . self::stringifyCleanedValue($values[$i], $options, 0);
             }
             return '[' . implode(', ', $pairs) . ']';
         }
@@ -721,10 +721,10 @@ final class Stringify
         for ($i = 0; $i < $nItems; $i++) {
             // The key, ' => ' and the trailing comma share the line with the value.
             $surroundingLength = mb_strlen($keyStrings[$i]) + 5;
-            $result .= $itemIndent . $keyStrings[$i] . ' => '
+            $result .= "{$itemIndent}{$keyStrings[$i]} => "
                 . self::stringifyCleanedValue($values[$i], $options, $indentLevel + 1, $surroundingLength) . ",\n";
         }
-        return $result . $bracketIndent . ']';
+        return "{$result}{$bracketIndent}]";
     }
 
     /**

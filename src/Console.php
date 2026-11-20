@@ -446,7 +446,7 @@ class Console
             // the next line when the user prints a string with newlines in it.
             $resetBg = $this->sgr(self::DEFAULT + self::BACKGROUND_OFFSET);
             $setBg = $this->sgr($this->background + self::BACKGROUND_OFFSET);
-            echo str_replace("\n", "$resetBg\n$setBg", $str);
+            echo str_replace("\n", "{$resetBg}\n{$setBg}", $str);
         } else {
             echo $str;
         }
@@ -491,7 +491,7 @@ class Console
         $type = Types::getBasicType($value);
         return $this
             ->colors(self::TYPE_COLOR[$type] ?? self::GRAY, self::DEFAULT)
-            ->println("$type: " . Stringify::stringify($value, StringifyOptions::pretty()))
+            ->println("{$type}: " . Stringify::stringify($value, StringifyOptions::pretty()))
             ->setStyle($style);
     }
 
@@ -541,7 +541,7 @@ class Console
      */
     public function success(string $text): self
     {
-        return $this->message(' ' . self::GLYPH_SUCCESS . " $text ", self::WHITE, self::GREEN, true);
+        return $this->message(' ' . self::GLYPH_SUCCESS . " {$text} ", self::WHITE, self::GREEN, true);
     }
 
     /**
@@ -555,7 +555,7 @@ class Console
      */
     public function error(string $text): self
     {
-        return $this->message(' ' . self::GLYPH_ERROR . " $text ", self::WHITE, self::RED, true);
+        return $this->message(' ' . self::GLYPH_ERROR . " {$text} ", self::WHITE, self::RED, true);
     }
 
     /**
@@ -569,7 +569,7 @@ class Console
      */
     public function warn(string $text): self
     {
-        return $this->message(' ' . self::GLYPH_WARN . " $text ", self::BLACK, self::BRIGHT_YELLOW, true);
+        return $this->message(' ' . self::GLYPH_WARN . " {$text} ", self::BLACK, self::BRIGHT_YELLOW, true);
     }
 
     /**
@@ -583,7 +583,7 @@ class Console
      */
     public function info(string $text): self
     {
-        return $this->message(' ' . self::GLYPH_INFO . " $text ", self::WHITE, self::BLUE, true);
+        return $this->message(' ' . self::GLYPH_INFO . " {$text} ", self::WHITE, self::BLUE, true);
     }
 
     /**
@@ -639,7 +639,7 @@ class Console
 
         // Guard against a negative length, which str_repeat() would reject with a ValueError.
         if ($length < 0) {
-            throw new DomainException("Invalid horizontal rule length: $length. Must not be negative.");
+            throw new DomainException("Invalid horizontal rule length: {$length}. Must not be negative.");
         }
 
         $n = (int) ceil($length / $chLen);
@@ -682,7 +682,7 @@ class Console
     private static function validateColor(int $color): void
     {
         if (!in_array($color, self::COLORS, true)) {
-            throw new DomainException("Invalid color: $color. Must be one of the Console color constants.");
+            throw new DomainException("Invalid color: {$color}. Must be one of the Console color constants.");
         }
     }
 

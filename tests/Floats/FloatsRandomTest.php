@@ -27,7 +27,6 @@ final class FloatsRandomTest extends TestCase
         for ($i = 0; $i < 100; $i++) {
             $f = Floats::randRepresentable();
             $this->assertTrue(is_finite($f), 'Random float should be finite');
-            $this->assertFalse(is_nan($f), 'Random float should not be NAN');
             $this->assertFalse(Floats::isSpecial($f), 'Random float should not be special');
         }
     }

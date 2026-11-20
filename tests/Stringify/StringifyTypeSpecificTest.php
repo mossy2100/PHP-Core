@@ -191,7 +191,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $values = ["\xfe\xff", "caf\xe9 \$x \"q\" \\ Ω \xe2\x82", "line1\nline2\t\x7f\xff", random_bytes(64) . "\xff"];
         foreach ($values as $value) {
             $rendered = Stringify::stringifyString($value);
-            $this->assertSame($value, eval("return $rendered;"));
+            $this->assertSame($value, eval("return {$rendered};"));
         }
     }
 
@@ -283,7 +283,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $list = range(1, 50);
         $result = Stringify::stringify($list, StringifyOptions::pretty());
 
-        $expected = "[\n" . implode('', array_map(static fn(int $n) => "    $n,\n", $list)) . ']';
+        $expected = "[\n" . implode('', array_map(static fn(int $n) => "    {$n},\n", $list)) . ']';
         $this->assertSame($expected, $result);
     }
 
@@ -548,10 +548,10 @@ final class StringifyTypeSpecificTest extends TestCase
     {
         $outer = static fn(): Closure => static fn(): int => 1;
         $line = __LINE__ - 1;
-        $outerName = '{closure:' . __METHOD__ . "():$line}";
+        $outerName = '{closure:' . __METHOD__ . "():{$line}}";
 
         $this->assertSame($outerName, Stringify::stringifyClosure($outer));
-        $this->assertSame("{closure:$outerName:$line}", Stringify::stringifyClosure($outer()));
+        $this->assertSame("{closure:{$outerName}:{$line}}", Stringify::stringifyClosure($outer()));
     }
 
     /**
@@ -572,9 +572,9 @@ final class StringifyTypeSpecificTest extends TestCase
         $name = '{closure:' . __METHOD__ . '():' . (__LINE__ - 1) . '}';
 
         $this->assertSame($name, Stringify::stringify($closure));
-        $this->assertSame("[$name]", Stringify::stringify([$closure]));
+        $this->assertSame("[{$name}]", Stringify::stringify([$closure]));
         $this->assertSame($name, Stringify::abbrev($closure, 200));
-        $this->assertSame("Bad: $name.", Stringify::prepEx('Bad: ?.', $closure));
+        $this->assertSame("Bad: {$name}.", Stringify::prepEx('Bad: ?.', $closure));
     }
 
     #endregion
@@ -762,7 +762,7 @@ final class StringifyTypeSpecificTest extends TestCase
         $result = Stringify::stringify($obj, StringifyOptions::pretty(maxLineLength: 20));
 
         $expected = <<<OBJ
-            $prefix {
+            {$prefix} {
                 +name => [
                     1,
                     22222,
@@ -783,9 +783,9 @@ final class StringifyTypeSpecificTest extends TestCase
         $obj->b = 'x';
         $prefix = 'stdClass #' . spl_object_id($obj);
 
-        $this->assertSame("$prefix {+a => 1, +b => 'x'}", Stringify::stringifyObject($obj));
+        $this->assertSame("{$prefix} {+a => 1, +b => 'x'}", Stringify::stringifyObject($obj));
         $expected = <<<OBJ
-            $prefix {
+            {$prefix} {
                 +a => 1,
                 +b => 'x',
             }

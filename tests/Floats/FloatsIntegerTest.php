@@ -36,7 +36,7 @@ final class FloatsIntegerTest extends TestCase
         foreach ([5.5, 1.001, -3.14] as $float) {
             try {
                 Floats::toInt($float);
-                $this->fail("Expected DomainException for $float");
+                $this->fail("Expected DomainException for {$float}");
             } catch (DomainException) {
                 $this->addToAssertionCount(1);
             }
@@ -152,7 +152,7 @@ final class FloatsIntegerTest extends TestCase
         ];
 
         foreach ($testCases as [$float, $expectedInt]) {
-            $this->assertSame($expectedInt, Floats::toInt($float), "Wrong conversion for $float");
+            $this->assertSame($expectedInt, Floats::toInt($float), "Wrong conversion for {$float}");
         }
     }
 
@@ -166,7 +166,7 @@ final class FloatsIntegerTest extends TestCase
         foreach ($testCases as $float) {
             try {
                 Floats::toInt($float);
-                $this->fail("Expected DomainException for $float");
+                $this->fail("Expected DomainException for {$float}");
             } catch (DomainException) {
                 $this->addToAssertionCount(1);
             }
@@ -181,7 +181,7 @@ final class FloatsIntegerTest extends TestCase
         foreach ([NAN, INF, -INF] as $float) {
             try {
                 Floats::toInt($float);
-                $this->fail("Expected DomainException for $float");
+                $this->fail("Expected DomainException for {$float}");
             } catch (DomainException) {
                 $this->addToAssertionCount(1);
             }
@@ -364,7 +364,7 @@ final class FloatsIntegerTest extends TestCase
             } catch (DomainException) {
                 $canConvert = false;
             }
-            $this->assertSame($isSafe, $canConvert, "Mismatch for $value");
+            $this->assertSame($isSafe, $canConvert, "Mismatch for {$value}");
         }
 
         // Fractional values fail both.

@@ -109,7 +109,7 @@ final class Types
 
             case 'int':
                 /** @var int $value */
-                return 'i:' . $value;
+                return "i:{$value}";
 
             case 'float':
                 /** @var float $value */
@@ -117,7 +117,7 @@ final class Types
 
             case 'string':
                 /** @var string $value */
-                return 's:' . strlen($value) . ":$value";
+                return 's:' . strlen($value) . ":{$value}";
 
             case 'array':
                 /** @var array<array-key, mixed> $value */
@@ -125,7 +125,7 @@ final class Types
 
             case 'enum':
                 /** @var UnitEnum $value */
-                return 'e:' . $value::class . ':' . $value->name;
+                return 'e:' . $value::class . ":{$value->name}";
 
             case 'closure':
                 /** @var Closure $value */
@@ -180,7 +180,7 @@ final class Types
         } elseif (class_exists($objOrClass) || interface_exists($objOrClass) || trait_exists($objOrClass)) {
             $class = $objOrClass;
         } else {
-            throw new DomainException("Invalid class name: '$objOrClass'. Must be a class, interface, or trait.");
+            throw new DomainException("Invalid class name: '{$objOrClass}'. Must be a class, interface, or trait.");
         }
 
         return self::getTraitsRecursive($class);
@@ -206,7 +206,7 @@ final class Types
         foreach ($arr as $key => $value) {
             // Nested arrays are already clean, so skip removing recursion again.
             $valueString = is_array($value) ? self::getArrayUniqueString($value) : self::getUniqueString($value);
-            $parts[] = self::getUniqueString($key) . '=>' . $valueString;
+            $parts[] = self::getUniqueString($key) . "=>{$valueString}";
         }
         return 'a:' . count($arr) . ':[' . implode(',', $parts) . ']';
     }

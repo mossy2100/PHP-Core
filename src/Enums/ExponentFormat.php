@@ -55,9 +55,9 @@ enum ExponentFormat
         return match ($this) {
             self::AsciiLowerCaseE => sprintf('e%+d', $exponent),
             self::AsciiUpperCaseE => sprintf('E%+d', $exponent),
-            self::AsciiMath => '*10^' . $exponent,
+            self::AsciiMath => "*10^{$exponent}",
             self::UnicodeMath => '×10' . Integers::toSuperscript($exponent),
-            self::HtmlMath => '&times;10<sup>' . $exponent . '</sup>',
+            self::HtmlMath => "&times;10<sup>{$exponent}</sup>",
         };
     }
 }
